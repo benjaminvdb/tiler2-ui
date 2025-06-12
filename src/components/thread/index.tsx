@@ -6,6 +6,7 @@ import { useStreamContext } from "@/providers/Stream";
 import { useState, FormEvent } from "react";
 import { Button } from "../ui/button";
 import { Checkpoint, Message } from "@langchain/langgraph-sdk";
+import AuthButtons from "../AuthButtons";
 import { AssistantMessage, AssistantMessageLoading } from "./messages/ai";
 import { HumanMessage } from "./messages/human";
 import {
@@ -323,7 +324,7 @@ export function Thread() {
                 )}
               </div>
               <div className="absolute top-2 right-4 flex items-center">
-                <OpenGitHubRepo />
+                <AuthButtons />
               </div>
             </div>
           )}
@@ -369,7 +370,7 @@ export function Thread() {
 
               <div className="flex items-center gap-4">
                 <div className="flex items-center">
-                  <OpenGitHubRepo />
+                  <AuthButtons />
                 </div>
                 <TooltipIconButton
                   size="lg"
