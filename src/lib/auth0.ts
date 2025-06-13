@@ -12,8 +12,9 @@ export const auth0 = new Auth0Client({
   
   // Explicitly set the callback URL to match what's configured in Auth0 dashboard
   authorizationParameters: {
-    scope: 'openid profile email',
+    // scope: 'openid profile email',
     // Explicitly set the redirect URI to match what's in your Auth0 dashboard
     redirect_uri: `${process.env.APP_BASE_URL}/auth/callback`,
+    audience: process.env.AUTH0_AUDIENCE,
   }
 });
