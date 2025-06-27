@@ -10,10 +10,9 @@ import { ToolCalls, ToolResult } from "./tool-calls";
 import { MessageContentComplex } from "@langchain/core/messages";
 import { Fragment } from "react/jsx-runtime";
 import { isAgentInboxInterruptSchema } from "@/lib/agent-inbox-interrupt";
-import { ThreadView } from "../agent-inbox";
 import { useQueryState, parseAsBoolean } from "nuqs";
-import { GenericInterruptView } from "./generic-interrupt";
 import { useArtifact } from "../artifact";
+import { ChatInterrupt } from "./chat-interrupt";
 
 function CustomComponent({
   message,
@@ -78,19 +77,73 @@ function Interrupt({
   isLastMessage,
   hasNoAIOrToolMessages,
 }: InterruptProps) {
-  return (
-    <>
-      {isAgentInboxInterruptSchema(interruptValue) &&
-        (isLastMessage || hasNoAIOrToolMessages) && (
-          <ThreadView interrupt={interruptValue} />
-        )}
-      {interruptValue &&
-      !isAgentInboxInterruptSchema(interruptValue) &&
-      isLastMessage ? (
-        <GenericInterruptView interrupt={interruptValue} />
-      ) : null}
-    </>
-  );
+  const stream = useStreamContext();
+
+  // Handle interrupt actions
+  const handleInterruptAction = (type: 'accept' | 'ignore' | 'respond' | 'edit', args?: any) => {
+    if (type === 'respond' || type === 'edit') {
+      // For respond/edit, we'll let the user type in the chat input
+      // The Thread component will detect the active interrupt and set response mode
+      return;
+    }
+
+    const response = {
+      type,
+      args: args || null,
+    };
+
+    // Resume the stream with the interrupt response
+    stream.submit(
+      undefined,
+      {
+        command: {
+          resume: response,
+        },
+      },
+    );
+  };
+
+  // For agent inbox interrupts, render as chat message
+  if (isAgentInboxInterruptSchema(interruptValue) && (isLastMessage || hasNoAIOrToolMessages)) {
+    const interrupt = Array.isArray(interruptValue) ? interruptValue[0] : interruptValue;
+
+    return (
+      <ChatInterrupt
+        interrupt={interrupt}
+        onAccept={() => handleInterruptAction('accept')}
+        onIgnore={() => handleInterruptAction('ignore')}
+        onRespond={() => handleInterruptAction('respond')}
+        onEdit={() => handleInterruptAction('edit')}
+      />
+    );
+  }
+
+  // For generic interrupts, also render as chat message if possible
+  if (interruptValue && !isAgentInboxInterruptSchema(interruptValue) && isLastMessage) {
+    // Try to convert generic interrupt to chat format
+    const genericInterrupt = {
+      action_request: {
+        action: "user_input",
+        args: interruptValue,
+      },
+      config: {
+        allow_accept: false,
+        allow_ignore: false,
+        allow_respond: true,
+        allow_edit: false,
+      },
+      description: typeof interruptValue === 'string' ? interruptValue : "Please provide input",
+    };
+
+    return (
+      <ChatInterrupt
+        interrupt={genericInterrupt as any}
+        onRespond={() => handleInterruptAction('respond')}
+      />
+    );
+  }
+
+  return null;
 }
 
 export function AssistantMessage({
@@ -110,8 +163,56 @@ export function AssistantMessage({
   );
 
   const thread = useStreamContext();
+
+  // If this is the special placeholder AssistantMessage (no real message), mirror the current interrupt
+  if (!message) {
+    const interruptVal = thread.interrupt?.value;
+    if (!interruptVal) return null;
+
+    // Helper to send resume commands
+    const handleAction = (type: 'accept' | 'ignore' | 'edit', args?: any) => {
+      const response = { type, args: args ?? null };
+      thread.submit(undefined, { command: { resume: response } });
+    };
+
+    if (isAgentInboxInterruptSchema(interruptVal)) {
+      const interrupt = Array.isArray(interruptVal) ? interruptVal[0] : interruptVal;
+      return (
+        <ChatInterrupt
+          interrupt={interrupt}
+          onAccept={() => handleAction('accept')}
+          onIgnore={() => handleAction('ignore')}
+          onEdit={() => handleAction('edit')}
+        />
+      );
+    }
+
+    // Fallback generic interrupt
+    const genericInterrupt = {
+      action_request: {
+        action: 'user_input',
+        args: interruptVal,
+      },
+      config: {
+        allow_accept: false,
+        allow_ignore: true,
+        allow_edit: false,
+        allow_respond: false,
+      },
+      description: typeof interruptVal === 'string' ? interruptVal : 'Please provide input',
+    };
+
+    return (
+      <ChatInterrupt
+        interrupt={genericInterrupt as any}
+        onIgnore={() => handleAction('ignore')}
+      />
+    );
+  }
   const isLastMessage =
-    thread.messages[thread.messages.length - 1].id === message?.id;
+    message === undefined ||
+    (thread.messages.length > 0 &&
+      thread.messages[thread.messages.length - 1]?.id === message?.id);
   const hasNoAIOrToolMessages = !thread.messages.find(
     (m) => m.type === "ai" || m.type === "tool",
   );
@@ -146,11 +247,6 @@ export function AssistantMessage({
         {isToolResult ? (
           <>
             <ToolResult message={message} />
-            <Interrupt
-              interruptValue={threadInterrupt?.value}
-              isLastMessage={isLastMessage}
-              hasNoAIOrToolMessages={hasNoAIOrToolMessages}
-            />
           </>
         ) : (
           <>
@@ -180,11 +276,7 @@ export function AssistantMessage({
                 thread={thread}
               />
             )}
-            <Interrupt
-              interruptValue={threadInterrupt?.value}
-              isLastMessage={isLastMessage}
-              hasNoAIOrToolMessages={hasNoAIOrToolMessages}
-            />
+            
             <div
               className={cn(
                 "mr-auto flex items-center gap-2 transition-opacity",

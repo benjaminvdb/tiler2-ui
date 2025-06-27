@@ -13,7 +13,7 @@ import {
   DO_NOT_RENDER_ID_PREFIX,
   ensureToolCallsHaveResponses,
 } from "@/lib/ensure-tool-responses";
-import { LangGraphLogoSVG } from "../icons/langgraph";
+import { LinkLogoSVG } from "../icons/link";
 import { TooltipIconButton } from "./tooltip-icon-button";
 import {
   ArrowDown,
@@ -23,7 +23,7 @@ import {
   SquarePen,
   XIcon,
   Plus,
-  CircleX,
+  MessageSquare,
 } from "lucide-react";
 import { useQueryState, parseAsBoolean } from "nuqs";
 import { StickToBottom, useStickToBottomContext } from "use-stick-to-bottom";
@@ -32,13 +32,6 @@ import { toast } from "sonner";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { Label } from "../ui/label";
 import { Switch } from "../ui/switch";
-import { GitHubSVG } from "../icons/github";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "../ui/tooltip";
 import { useFileUpload } from "@/hooks/use-file-upload";
 import { ContentBlocksPreview } from "./ContentBlocksPreview";
 import {
@@ -89,30 +82,6 @@ function ScrollToBottom(props: { className?: string }) {
   );
 }
 
-function OpenGitHubRepo() {
-  return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <a
-            href="https://github.com/langchain-ai/agent-chat-ui"
-            target="_blank"
-            className="flex items-center justify-center"
-          >
-            <GitHubSVG
-              width="24"
-              height="24"
-            />
-          </a>
-        </TooltipTrigger>
-        <TooltipContent side="left">
-          <p>Open GitHub repo</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  );
-}
-
 export function Thread() {
   const [artifactContext, setArtifactContext] = useArtifactContext();
   const [artifactOpen, closeArtifact] = useArtifactOpen();
@@ -143,6 +112,10 @@ export function Thread() {
   const stream = useStreamContext();
   const messages = stream.messages;
   const isLoading = stream.isLoading;
+
+  // Track interrupt state for chat-based responses
+  const [isRespondingToInterrupt, setIsRespondingToInterrupt] = useState(false);
+  const [currentInterrupt, setCurrentInterrupt] = useState<any>(null);
 
   const lastError = useRef<string | undefined>(undefined);
 
@@ -196,12 +169,52 @@ export function Thread() {
     prevMessageLength.current = messages.length;
   }, [messages]);
 
+  // Check for active interrupts and update state
+  useEffect(() => {
+    if (stream.interrupt && !isRespondingToInterrupt) {
+      // There's an active interrupt, set up response mode
+      setCurrentInterrupt(stream.interrupt);
+      setIsRespondingToInterrupt(true);
+    } else if (!stream.interrupt && isRespondingToInterrupt) {
+      // Interrupt was resolved, clear response mode
+      setIsRespondingToInterrupt(false);
+      setCurrentInterrupt(null);
+    }
+  }, [stream.interrupt, isRespondingToInterrupt]);
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if ((input.trim().length === 0 && contentBlocks.length === 0) || isLoading)
       return;
     setFirstTokenReceived(false);
 
+    // Check if we're responding to an interrupt
+    if (isRespondingToInterrupt && currentInterrupt) {
+      // Handle interrupt response
+      const response = {
+        type: "response",
+        args: input.trim(),
+      };
+
+      // Resume the stream with the interrupt response
+      stream.submit(
+        undefined,
+        {
+          command: {
+            resume: response,
+          },
+        },
+      );
+
+      // Clear interrupt state
+      setIsRespondingToInterrupt(false);
+      setCurrentInterrupt(null);
+      setInput("");
+      setContentBlocks([]);
+      return;
+    }
+
+    // Normal message submission
     const newHumanMessage: Message = {
       id: uuidv4(),
       type: "human",
@@ -358,12 +371,12 @@ export function Thread() {
                     damping: 30,
                   }}
                 >
-                  <LangGraphLogoSVG
+                  <LinkLogoSVG
                     width={32}
                     height={32}
                   />
                   <span className="text-xl font-semibold tracking-tight">
-                    Agent Chat
+                    Link Chat
                   </span>
                 </motion.button>
               </div>
@@ -398,7 +411,13 @@ export function Thread() {
               content={
                 <>
                   {messages
-                    .filter((m) => !m.id?.startsWith(DO_NOT_RENDER_ID_PREFIX))
+                    .filter((m) => {
+                      if (m.id?.startsWith(DO_NOT_RENDER_ID_PREFIX)) return false;
+                      // Hide messages that contain the "hidden" tag
+                      const tags = (m as any).tags;
+                      if (Array.isArray(tags) && tags.includes("hidden")) return false;
+                      return true;
+                    })
                     .map((message, index) =>
                       message.type === "human" ? (
                         <HumanMessage
@@ -415,9 +434,7 @@ export function Thread() {
                         />
                       ),
                     )}
-                  {/* Special rendering case where there are no AI/tool messages, but there is an interrupt.
-                    We need to render it outside of the messages list, since there are no messages to render */}
-                  {hasNoAIOrToolMessages && !!stream.interrupt && (
+                  {!!stream.interrupt && (
                     <AssistantMessage
                       key="interrupt-msg"
                       message={undefined}
@@ -434,9 +451,9 @@ export function Thread() {
                 <div className="sticky bottom-0 flex flex-col items-center gap-8 bg-white">
                   {!chatStarted && (
                     <div className="flex items-center gap-3">
-                      <LangGraphLogoSVG className="h-8 flex-shrink-0" />
+                      <LinkLogoSVG className="h-8 flex-shrink-0" />
                       <h1 className="text-2xl font-semibold tracking-tight">
-                        Agent Chat
+                        Link Chat
                       </h1>
                     </div>
                   )}
@@ -477,16 +494,46 @@ export function Thread() {
                             form?.requestSubmit();
                           }
                         }}
-                        placeholder="Type your message..."
-                        className="field-sizing-content resize-none border-none bg-transparent p-3.5 pb-0 shadow-none ring-0 outline-none focus:ring-0 focus:outline-none"
+                        placeholder={
+                          isRespondingToInterrupt
+                            ? "Type your response..."
+                            : "Type your message..."
+                        }
+                        className={cn(
+                          "field-sizing-content resize-none border-none bg-transparent p-3.5 pb-0 shadow-none ring-0 outline-none focus:ring-0 focus:outline-none",
+                          isRespondingToInterrupt && "bg-blue-50/50",
+                        )}
                       />
 
+                      {/* Show interrupt response indicator */}
+                      {isRespondingToInterrupt && (
+                        <div className="mx-3.5 mb-2 flex items-center gap-2 text-xs text-blue-600">
+                          <MessageSquare className="h-3 w-3" />
+                          <span>Responding to the assistant's question</span>
+                          {/* <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="h-5 px-1 text-xs text-blue-600 hover:text-blue-800"
+                            onClick={() => {
+                              // Send ignore response to backend
+                              stream.submit(undefined, {
+                                command: { resume: { type: "ignore", args: null } },
+                              });
+                              setIsRespondingToInterrupt(false);
+                              setCurrentInterrupt(null);
+                            }}
+                          >
+                            Cancel
+                          </Button> */}
+                        </div>
+                      )}
                       <div className="flex items-center gap-6 p-2 pt-4">
-                        <div>
+                        {(process.env.NEXT_PUBLIC_HIDE_TOOL_CALLS === "false") && <div>
                           <div className="flex items-center space-x-2">
                             <Switch
                               id="render-tool-calls"
-                              checked={hideToolCalls ?? false}
+                              checked={hideToolCalls ?? true}
                               onCheckedChange={setHideToolCalls}
                             />
                             <Label
@@ -496,7 +543,7 @@ export function Thread() {
                               Hide Tool Calls
                             </Label>
                           </div>
-                        </div>
+                        </div>}
                         <Label
                           htmlFor="file-input"
                           className="flex cursor-pointer items-center gap-2"
