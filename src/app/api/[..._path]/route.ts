@@ -8,8 +8,19 @@ export const { GET, POST, PUT, PATCH, DELETE, OPTIONS, runtime } =
     apiUrl: process.env.LANGGRAPH_API_URL ?? "remove-me", // default, if not defined it will attempt to read process.env.LANGGRAPH_API_URL
     apiKey: process.env.LANGSMITH_API_KEY ?? "remove-me", // default, if not defined it will attempt to read process.env.LANGSMITH_API_KEY
     runtime: "edge", // default
-    headers: async (req) => ({
-      Authorization: `Bearer ${(await auth0.getAccessToken()).token}`,
-    }),
+    headers: async (req) => {
+      try {
+        const accessToken = await auth0.getAccessToken();
+        return {
+          Authorization: `Bearer ${accessToken.token}`,
+        };
+      } catch (error) {
+        // If token is expired or invalid, this will be caught by the middleware
+        // and user will be redirected to login. For API routes, we can throw
+        // the error to let the client handle it appropriately.
+        console.warn('Failed to get access token in API route:', error);
+        throw error;
+      }
+    },
     disableWarningLog: true,
   });
