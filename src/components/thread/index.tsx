@@ -421,13 +421,13 @@ export function Thread() {
                     .map((message, index) =>
                       message.type === "human" ? (
                         <HumanMessage
-                          key={message.id || `${message.type}-${index}`}
+                          key={`${message.id || uuidv4()}-${index}`}
                           message={message}
                           isLoading={isLoading}
                         />
                       ) : (
                         <AssistantMessage
-                          key={message.id || `${message.type}-${index}`}
+                          key={`${message.id || uuidv4()}-${index}`}
                           message={message}
                           isLoading={isLoading}
                           handleRegenerate={handleRegenerate}
