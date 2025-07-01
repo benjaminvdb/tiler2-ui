@@ -468,6 +468,59 @@ export function Thread() {
 
                   <ScrollToBottom className="animate-in fade-in-0 zoom-in-95 absolute bottom-full left-1/2 mb-4 -translate-x-1/2" />
 
+                  {/* Mobile action buttons (shown on screens <640px) - placed above chat input */}
+                  {!chatStarted && (
+                    <div className="sm:hidden grid grid-cols-2 gap-4 mx-auto w-full max-w-3xl mb-4">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="flex items-center gap-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-full px-4 py-2 border border-gray-200"
+                        onClick={() => handleActionClick("Show me what you can do.")}
+                      >
+                        <div className="w-5 h-5 bg-transparent rounded-full flex items-center justify-center">
+                          <Rocket className="h-3 w-3 text-blue-400" />
+                        </div>
+                        <span className="text-sm font-light">Get started</span>
+                      </Button>
+
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="flex items-center gap-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-full px-4 py-2 border border-gray-200"
+                        onClick={() => handleActionClick("Help me summarize some data.")}
+                      >
+                        <div className="w-5 h-5 bg-transparent rounded-full flex items-center justify-center">
+                          <FileText className="h-3 w-3 text-orange-400" />
+                        </div>
+                        <span className="text-sm font-light">Summarize data</span>
+                      </Button>
+
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="flex items-center gap-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-full px-4 py-2 border border-gray-200"
+                        onClick={() => handleActionClick("What resources do you have access to?")}
+                      >
+                        <div className="w-5 h-5 bg-transparent rounded-full flex items-center justify-center">
+                          <Search className="h-3 w-3 text-purple-400" />
+                        </div>
+                        <span className="text-sm font-light">Explore Resources</span>
+                      </Button>
+
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="flex items-center gap-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-full px-4 py-2 border border-gray-200"
+                        onClick={() => handleActionClick("Give me some ideas.")}
+                      >
+                        <div className="w-5 h-5 bg-transparent rounded-full flex items-center justify-center">
+                          <Lightbulb className="h-3 w-3 text-yellow-400" />
+                        </div>
+                        <span className="text-sm font-light">Find Inspiration</span>
+                      </Button>
+                    </div>
+                  )}
+
                   <div
                     ref={dropRef}
                     className={cn(
@@ -478,6 +531,7 @@ export function Thread() {
                       chatStarted && "mb-8",
                     )}
                   >
+
                     <form
                       onSubmit={handleSubmit}
                       className="mx-auto grid max-w-3xl grid-rows-[1fr_auto] gap-2"
@@ -595,7 +649,7 @@ export function Thread() {
                   </div>
                   
                   {/* Action buttons on white background, separated from chat input */}
-                  {!chatStarted && <div className="flex items-center justify-center gap-4 mt-2 pb-4">
+                  {!chatStarted && <div className="hidden sm:flex items-center justify-center gap-4 mt-2 pb-4">
                     <Button
                       variant="ghost"
                       size="sm"
