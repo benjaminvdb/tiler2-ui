@@ -24,6 +24,10 @@ import {
   XIcon,
   Plus,
   MessageSquare,
+  FileText,
+  Lightbulb,
+  Rocket,
+  Search,
 } from "lucide-react";
 import { useQueryState, parseAsBoolean } from "nuqs";
 import { StickToBottom, useStickToBottomContext } from "use-stick-to-bottom";
@@ -261,6 +265,10 @@ export function Thread() {
     });
   };
 
+  const handleActionClick = (prompt: string) => {
+    stream.submit({ messages: prompt });
+  };
+
   const chatStarted = !!threadId || !!messages.length;
   const hasNoAIOrToolMessages = !messages.find(
     (m) => m.type === "ai" || m.type === "tool",
@@ -463,10 +471,11 @@ export function Thread() {
                   <div
                     ref={dropRef}
                     className={cn(
-                      "bg-muted relative z-10 mx-auto mb-8 w-full max-w-3xl rounded-2xl shadow-xs transition-all",
+                      "bg-white relative z-10 mx-auto w-full max-w-3xl rounded-2xl shadow-xs transition-all",
                       dragOver
                         ? "border-primary border-2 border-dotted"
                         : "border border-solid",
+                      chatStarted && "mb-8",
                     )}
                   >
                     <form
@@ -501,7 +510,6 @@ export function Thread() {
                         }
                         className={cn(
                           "field-sizing-content resize-none border-none bg-transparent p-3.5 pb-0 shadow-none ring-0 outline-none focus:ring-0 focus:outline-none",
-                          isRespondingToInterrupt && "bg-blue-50/50",
                         )}
                       />
 
@@ -565,7 +573,7 @@ export function Thread() {
                           <Button
                             key="stop"
                             onClick={() => stream.stop()}
-                            className="ml-auto"
+                            className="ml-auto shadow-md transition-all !bg-[#3DAE86] hover:!bg-[#0f6a5f]"
                           >
                             <LoaderCircle className="h-4 w-4 animate-spin" />
                             Cancel
@@ -573,7 +581,7 @@ export function Thread() {
                         ) : (
                           <Button
                             type="submit"
-                            className="ml-auto shadow-md transition-all"
+                            className="ml-auto shadow-md transition-all !bg-[#3DAE86] hover:!bg-[#0f6a5f]"
                             disabled={
                               isLoading ||
                               (!input.trim() && contentBlocks.length === 0)
@@ -585,6 +593,65 @@ export function Thread() {
                       </div>
                     </form>
                   </div>
+                  
+                  {/* Action buttons on white background, separated from chat input */}
+                  {!chatStarted && <div className="flex items-center justify-center gap-4 mt-2 pb-4">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="flex items-center gap-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-full px-4 py-2 border border-gray-200"
+                      onClick={() => handleActionClick("Show me what you can do.")}
+                    >
+                      <div className="w-5 h-5 bg-transparent rounded-full flex items-center justify-center">
+                        <Rocket className="h-3 w-3 text-blue-400" />
+                      </div>
+                      <span className="text-sm font-light">Get started</span>
+                    </Button>
+                    
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="flex items-center gap-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-full px-4 py-2 border border-gray-200"
+                      onClick={() => handleActionClick("Help me summarize some data.")}
+                    >
+                      <div className="w-5 h-5 bg-transparent rounded-full flex items-center justify-center">
+                        <FileText className="h-3 w-3 text-orange-400" />
+                      </div>
+                      <span className="text-sm font-light">Summarize data</span>
+                    </Button>
+                    
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="flex items-center gap-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-full px-4 py-2 border border-gray-200"
+                      onClick={() => handleActionClick("What resources do you have access to?")}
+                    >
+                      <div className="w-5 h-5 bg-transparent rounded-full flex items-center justify-center">
+                        <Search className="h-3 w-3 text-purple-400" />
+                      </div>
+                      <span className="text-sm font-light">Explore Resources</span>
+                    </Button>
+
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="flex items-center gap-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-full px-4 py-2 border border-gray-200"
+                      onClick={() => handleActionClick("Give me some ideas.")}
+                    >
+                      <div className="w-5 h-5 bg-transparent rounded-full flex items-center justify-center">
+                        <Lightbulb className="h-3 w-3 text-yellow-400" />
+                      </div>
+                      <span className="text-sm font-light">Find Inspiration</span>
+                    </Button>
+                    
+                    {/* <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full px-3 py-2 border border-gray-200"
+                    >
+                      <span className="text-sm font-light">More</span>
+                    </Button> */}
+                  </div>}
                 </div>
               }
             />
