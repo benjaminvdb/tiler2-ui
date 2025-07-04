@@ -177,6 +177,29 @@ export function AssistantMessage({
 
     if (isAgentInboxInterruptSchema(interruptVal)) {
       const interrupt = Array.isArray(interruptVal) ? interruptVal[0] : interruptVal;
+      
+      // Special case: if only allow_respond is true and all other flags are false,
+      // display as a regular AI message instead of special interrupt UI
+      const isRespondOnlyInterrupt = interrupt.config.allow_respond && 
+        !interrupt.config.allow_accept && 
+        !interrupt.config.allow_edit && 
+        !interrupt.config.allow_ignore;
+
+      if (isRespondOnlyInterrupt) {
+        // Render as regular AI message - the user can respond normally via chat input
+        return (
+          <div className="flex flex-col gap-2">
+            <div className="flex items-start gap-3 p-4">
+              <div className="flex-1 space-y-2 overflow-hidden">
+                <div className="prose prose-neutral dark:prose-invert max-w-none break-words">
+                  {interrupt.description || `Please confirm: ${interrupt.action_request.action}`}
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      }
+      
       return (
         <ChatInterrupt
           interrupt={interrupt}
