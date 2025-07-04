@@ -18,7 +18,7 @@ export const { GET, POST, PUT, PATCH, DELETE, OPTIONS, runtime } =
         // If token is expired or invalid, this will be caught by the middleware
         // and user will be redirected to login. For API routes, we can throw
         // the error to let the client handle it appropriately.
-        console.warn('Failed to get access token in API route:', error);
+        console.warn("Failed to get access token in API route:", error);
         throw error;
       }
     },

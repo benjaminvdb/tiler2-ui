@@ -27,13 +27,19 @@ export default function AuthButtons() {
   if (user) {
     const initials = getInitials(user.name || user.email || "User");
     const userImage = user.picture || "";
-    
+
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+          <Button
+            variant="ghost"
+            className="relative h-8 w-8 rounded-full"
+          >
             <Avatar>
-              <AvatarImage src={userImage} alt={user.name || "User"} />
+              <AvatarImage
+                src={userImage}
+                alt={user.name || "User"}
+              />
               <AvatarFallback>{initials}</AvatarFallback>
             </Avatar>
           </Button>
@@ -44,7 +50,10 @@ export default function AuthButtons() {
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
-            <a href="/auth/logout" className="flex w-full cursor-pointer items-center">
+            <a
+              href="/auth/logout"
+              className="flex w-full cursor-pointer items-center"
+            >
               <LogOut className="mr-2 h-4 w-4" />
               <span>Logout</span>
             </a>
@@ -57,7 +66,10 @@ export default function AuthButtons() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+        <Button
+          variant="ghost"
+          className="relative h-8 w-8 rounded-full"
+        >
           <Avatar>
             <AvatarFallback>
               <User className="h-5 w-5" />
@@ -67,7 +79,10 @@ export default function AuthButtons() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem asChild>
-          <a href="/auth/login" className="flex w-full cursor-pointer items-center">
+          <a
+            href="/auth/login"
+            className="flex w-full cursor-pointer items-center"
+          >
             <LogIn className="mr-2 h-4 w-4" />
             <span>Login</span>
           </a>
@@ -81,7 +96,7 @@ export default function AuthButtons() {
 function getInitials(name: string): string {
   return name
     .split(" ")
-    .map(part => part[0])
+    .map((part) => part[0])
     .join("")
     .toUpperCase()
     .substring(0, 2);

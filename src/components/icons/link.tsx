@@ -1,5 +1,13 @@
-export const LinkLogoSVG = ({className, width, height}: {className?: string; width?: number; height?: number}) => (
-  <svg 
+export const LinkLogoSVG = ({
+  className,
+  width,
+  height,
+}: {
+  className?: string;
+  width?: number;
+  height?: number;
+}) => (
+  <svg
     viewBox="0 0 25.45 26.06"
     width={width}
     height={height}

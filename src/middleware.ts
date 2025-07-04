@@ -20,7 +20,7 @@ export async function middleware(request: NextRequest) {
   try {
     await auth0.getAccessToken(request, authRes);
   } catch (error) {
-    console.warn('Access token validation failed:', error);
+    console.warn("Access token validation failed:", error);
     return NextResponse.redirect(new URL(LOGIN_URL, request.nextUrl.origin));
   }
 

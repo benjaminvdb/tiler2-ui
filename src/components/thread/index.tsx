@@ -201,14 +201,11 @@ export function Thread() {
       };
 
       // Resume the stream with the interrupt response
-      stream.submit(
-        undefined,
-        {
-          command: {
-            resume: response,
-          },
+      stream.submit(undefined, {
+        command: {
+          resume: response,
         },
-      );
+      });
 
       // Clear interrupt state
       setIsRespondingToInterrupt(false);
@@ -420,10 +417,12 @@ export function Thread() {
                 <>
                   {messages
                     .filter((m) => {
-                      if (m.id?.startsWith(DO_NOT_RENDER_ID_PREFIX)) return false;
+                      if (m.id?.startsWith(DO_NOT_RENDER_ID_PREFIX))
+                        return false;
                       // Hide messages that contain the "hidden" tag
                       const tags = (m as any).tags;
-                      if (Array.isArray(tags) && tags.includes("hidden")) return false;
+                      if (Array.isArray(tags) && tags.includes("hidden"))
+                        return false;
                       return true;
                     })
                     .map((message, index) =>
@@ -470,14 +469,16 @@ export function Thread() {
 
                   {/* Mobile action buttons (shown on screens <640px) - placed above chat input */}
                   {!chatStarted && (
-                    <div className="sm:hidden grid grid-cols-2 gap-4 mx-auto w-full max-w-3xl mb-4">
+                    <div className="mx-auto mb-4 grid w-full max-w-3xl grid-cols-2 gap-4 sm:hidden">
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="flex items-center gap-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-full px-4 py-2 border border-gray-200"
-                        onClick={() => handleActionClick("Show me what you can do.")}
+                        className="flex items-center gap-2 rounded-full border border-gray-200 px-4 py-2 text-gray-600 hover:bg-gray-100 hover:text-gray-800"
+                        onClick={() =>
+                          handleActionClick("Show me what you can do.")
+                        }
                       >
-                        <div className="w-5 h-5 bg-transparent rounded-full flex items-center justify-center">
+                        <div className="flex h-5 w-5 items-center justify-center rounded-full bg-transparent">
                           <Rocket className="h-3 w-3 text-blue-400" />
                         </div>
                         <span className="text-sm font-light">Get started</span>
@@ -486,37 +487,49 @@ export function Thread() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="flex items-center gap-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-full px-4 py-2 border border-gray-200"
-                        onClick={() => handleActionClick("Help me summarize some data.")}
+                        className="flex items-center gap-2 rounded-full border border-gray-200 px-4 py-2 text-gray-600 hover:bg-gray-100 hover:text-gray-800"
+                        onClick={() =>
+                          handleActionClick("Help me summarize some data.")
+                        }
                       >
-                        <div className="w-5 h-5 bg-transparent rounded-full flex items-center justify-center">
+                        <div className="flex h-5 w-5 items-center justify-center rounded-full bg-transparent">
                           <FileText className="h-3 w-3 text-orange-400" />
                         </div>
-                        <span className="text-sm font-light">Summarize data</span>
+                        <span className="text-sm font-light">
+                          Summarize data
+                        </span>
                       </Button>
 
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="flex items-center gap-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-full px-4 py-2 border border-gray-200"
-                        onClick={() => handleActionClick("What resources do you have access to?")}
+                        className="flex items-center gap-2 rounded-full border border-gray-200 px-4 py-2 text-gray-600 hover:bg-gray-100 hover:text-gray-800"
+                        onClick={() =>
+                          handleActionClick(
+                            "What resources do you have access to?",
+                          )
+                        }
                       >
-                        <div className="w-5 h-5 bg-transparent rounded-full flex items-center justify-center">
+                        <div className="flex h-5 w-5 items-center justify-center rounded-full bg-transparent">
                           <Search className="h-3 w-3 text-purple-400" />
                         </div>
-                        <span className="text-sm font-light">Explore Resources</span>
+                        <span className="text-sm font-light">
+                          Explore Resources
+                        </span>
                       </Button>
 
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="flex items-center gap-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-full px-4 py-2 border border-gray-200"
+                        className="flex items-center gap-2 rounded-full border border-gray-200 px-4 py-2 text-gray-600 hover:bg-gray-100 hover:text-gray-800"
                         onClick={() => handleActionClick("Give me some ideas.")}
                       >
-                        <div className="w-5 h-5 bg-transparent rounded-full flex items-center justify-center">
+                        <div className="flex h-5 w-5 items-center justify-center rounded-full bg-transparent">
                           <Lightbulb className="h-3 w-3 text-yellow-400" />
                         </div>
-                        <span className="text-sm font-light">Find Inspiration</span>
+                        <span className="text-sm font-light">
+                          Find Inspiration
+                        </span>
                       </Button>
                     </div>
                   )}
@@ -524,14 +537,13 @@ export function Thread() {
                   <div
                     ref={dropRef}
                     className={cn(
-                      "bg-white relative z-10 mx-auto w-full max-w-3xl rounded-2xl shadow-xs transition-all",
+                      "relative z-10 mx-auto w-full max-w-3xl rounded-2xl bg-white shadow-xs transition-all",
                       dragOver
                         ? "border-primary border-2 border-dotted"
                         : "border border-solid",
                       chatStarted && "mb-8",
                     )}
                   >
-
                     <form
                       onSubmit={handleSubmit}
                       className="mx-auto grid max-w-3xl grid-rows-[1fr_auto] gap-2"
@@ -591,21 +603,24 @@ export function Thread() {
                         </div>
                       )}
                       <div className="flex items-center gap-6 p-2 pt-4">
-                        {(process.env.NEXT_PUBLIC_HIDE_TOOL_CALLS === "false") && <div>
-                          <div className="flex items-center space-x-2">
-                            <Switch
-                              id="render-tool-calls"
-                              checked={hideToolCalls ?? true}
-                              onCheckedChange={setHideToolCalls}
-                            />
-                            <Label
-                              htmlFor="render-tool-calls"
-                              className="text-sm text-gray-600"
-                            >
-                              Hide Tool Calls
-                            </Label>
+                        {process.env.NEXT_PUBLIC_HIDE_TOOL_CALLS ===
+                          "false" && (
+                          <div>
+                            <div className="flex items-center space-x-2">
+                              <Switch
+                                id="render-tool-calls"
+                                checked={hideToolCalls ?? true}
+                                onCheckedChange={setHideToolCalls}
+                              />
+                              <Label
+                                htmlFor="render-tool-calls"
+                                className="text-sm text-gray-600"
+                              >
+                                Hide Tool Calls
+                              </Label>
+                            </div>
                           </div>
-                        </div>}
+                        )}
                         <Label
                           htmlFor="file-input"
                           className="flex cursor-pointer items-center gap-2"
@@ -627,7 +642,7 @@ export function Thread() {
                           <Button
                             key="stop"
                             onClick={() => stream.stop()}
-                            className="ml-auto shadow-md transition-all !bg-[#3DAE86] hover:!bg-[#0f6a5f]"
+                            className="ml-auto !bg-[#3DAE86] shadow-md transition-all hover:!bg-[#0f6a5f]"
                           >
                             <LoaderCircle className="h-4 w-4 animate-spin" />
                             Cancel
@@ -635,7 +650,7 @@ export function Thread() {
                         ) : (
                           <Button
                             type="submit"
-                            className="ml-auto shadow-md transition-all !bg-[#3DAE86] hover:!bg-[#0f6a5f]"
+                            className="ml-auto !bg-[#3DAE86] shadow-md transition-all hover:!bg-[#0f6a5f]"
                             disabled={
                               isLoading ||
                               (!input.trim() && contentBlocks.length === 0)
@@ -647,65 +662,81 @@ export function Thread() {
                       </div>
                     </form>
                   </div>
-                  
-                  {/* Action buttons on white background, separated from chat input */}
-                  {!chatStarted && <div className="hidden sm:flex items-center justify-center gap-4 mt-2 pb-4">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="flex items-center gap-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-full px-4 py-2 border border-gray-200"
-                      onClick={() => handleActionClick("Show me what you can do.")}
-                    >
-                      <div className="w-5 h-5 bg-transparent rounded-full flex items-center justify-center">
-                        <Rocket className="h-3 w-3 text-blue-400" />
-                      </div>
-                      <span className="text-sm font-light">Get started</span>
-                    </Button>
-                    
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="flex items-center gap-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-full px-4 py-2 border border-gray-200"
-                      onClick={() => handleActionClick("Help me summarize some data.")}
-                    >
-                      <div className="w-5 h-5 bg-transparent rounded-full flex items-center justify-center">
-                        <FileText className="h-3 w-3 text-orange-400" />
-                      </div>
-                      <span className="text-sm font-light">Summarize data</span>
-                    </Button>
-                    
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="flex items-center gap-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-full px-4 py-2 border border-gray-200"
-                      onClick={() => handleActionClick("What resources do you have access to?")}
-                    >
-                      <div className="w-5 h-5 bg-transparent rounded-full flex items-center justify-center">
-                        <Search className="h-3 w-3 text-purple-400" />
-                      </div>
-                      <span className="text-sm font-light">Explore Resources</span>
-                    </Button>
 
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="flex items-center gap-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-full px-4 py-2 border border-gray-200"
-                      onClick={() => handleActionClick("Give me some ideas.")}
-                    >
-                      <div className="w-5 h-5 bg-transparent rounded-full flex items-center justify-center">
-                        <Lightbulb className="h-3 w-3 text-yellow-400" />
-                      </div>
-                      <span className="text-sm font-light">Find Inspiration</span>
-                    </Button>
-                    
-                    {/* <Button
+                  {/* Action buttons on white background, separated from chat input */}
+                  {!chatStarted && (
+                    <div className="mt-2 hidden items-center justify-center gap-4 pb-4 sm:flex">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="flex items-center gap-2 rounded-full border border-gray-200 px-4 py-2 text-gray-600 hover:bg-gray-100 hover:text-gray-800"
+                        onClick={() =>
+                          handleActionClick("Show me what you can do.")
+                        }
+                      >
+                        <div className="flex h-5 w-5 items-center justify-center rounded-full bg-transparent">
+                          <Rocket className="h-3 w-3 text-blue-400" />
+                        </div>
+                        <span className="text-sm font-light">Get started</span>
+                      </Button>
+
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="flex items-center gap-2 rounded-full border border-gray-200 px-4 py-2 text-gray-600 hover:bg-gray-100 hover:text-gray-800"
+                        onClick={() =>
+                          handleActionClick("Help me summarize some data.")
+                        }
+                      >
+                        <div className="flex h-5 w-5 items-center justify-center rounded-full bg-transparent">
+                          <FileText className="h-3 w-3 text-orange-400" />
+                        </div>
+                        <span className="text-sm font-light">
+                          Summarize data
+                        </span>
+                      </Button>
+
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="flex items-center gap-2 rounded-full border border-gray-200 px-4 py-2 text-gray-600 hover:bg-gray-100 hover:text-gray-800"
+                        onClick={() =>
+                          handleActionClick(
+                            "What resources do you have access to?",
+                          )
+                        }
+                      >
+                        <div className="flex h-5 w-5 items-center justify-center rounded-full bg-transparent">
+                          <Search className="h-3 w-3 text-purple-400" />
+                        </div>
+                        <span className="text-sm font-light">
+                          Explore Resources
+                        </span>
+                      </Button>
+
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="flex items-center gap-2 rounded-full border border-gray-200 px-4 py-2 text-gray-600 hover:bg-gray-100 hover:text-gray-800"
+                        onClick={() => handleActionClick("Give me some ideas.")}
+                      >
+                        <div className="flex h-5 w-5 items-center justify-center rounded-full bg-transparent">
+                          <Lightbulb className="h-3 w-3 text-yellow-400" />
+                        </div>
+                        <span className="text-sm font-light">
+                          Find Inspiration
+                        </span>
+                      </Button>
+
+                      {/* <Button
                       variant="ghost"
                       size="sm"
                       className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full px-3 py-2 border border-gray-200"
                     >
                       <span className="text-sm font-light">More</span>
                     </Button> */}
-                  </div>}
+                    </div>
+                  )}
                 </div>
               }
             />

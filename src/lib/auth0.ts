@@ -9,12 +9,12 @@ export const auth0 = new Auth0Client({
   // AUTH0_CLIENT_SECRET
   // AUTH0_SECRET (use `openssl rand -hex 32` to generate)
   // APP_BASE_URL (e.g., 'http://localhost:3000')
-  
+
   // Explicitly set the callback URL to match what's configured in Auth0 dashboard
   authorizationParameters: {
     // scope: 'openid profile email',
     // Explicitly set the redirect URI to match what's in your Auth0 dashboard
     redirect_uri: `${process.env.APP_BASE_URL}/auth/callback`,
     audience: process.env.AUTH0_AUDIENCE,
-  }
+  },
 });

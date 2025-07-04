@@ -12,28 +12,29 @@ interface ChatInterruptProps {
   onIgnore?: () => void;
 }
 
-export function ChatInterrupt({ 
-  interrupt, 
-  onAccept, 
-  onRespond, 
-  onEdit, 
-  onIgnore 
+export function ChatInterrupt({
+  interrupt,
+  onAccept,
+  onRespond,
+  onEdit,
+  onIgnore,
 }: ChatInterruptProps) {
   const { action_request, config, description } = interrupt;
-  
+
   // Extract the question or description to display
   const questionText = description || `Review action: ${action_request.action}`;
-  
+
   // Show arguments if available
-  const hasArgs = action_request.args && Object.keys(action_request.args).length > 0;
-  
+  const hasArgs =
+    action_request.args && Object.keys(action_request.args).length > 0;
+
   return (
     <div className="flex flex-col gap-3 rounded-lg border border-blue-200 bg-blue-50/50 p-4">
       {/* Question/Description */}
       <div className="flex items-start gap-2">
-        <MessageSquare className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+        <MessageSquare className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-600" />
         <div className="flex-1">
-          <div className="text-sm font-medium text-blue-900 mb-1">
+          <div className="mb-1 text-sm font-medium text-blue-900">
             Assistant Question
           </div>
           <div className="text-sm text-blue-800">
@@ -41,7 +42,7 @@ export function ChatInterrupt({
           </div>
         </div>
       </div>
-      
+
       {/* Show action details if available */}
       {/* {hasArgs && (
         <div className="ml-7 rounded border border-blue-200 bg-white/50 p-3">
@@ -55,7 +56,7 @@ export function ChatInterrupt({
           </div>
         </div>
       )} */}
-      
+
       {/* Quick action buttons */}
       {/* <div className="ml-7 flex flex-wrap gap-2">
         {config.allow_accept && (
@@ -94,7 +95,7 @@ export function ChatInterrupt({
           </Button>
         )}
       </div> */}
-      
+
       {/* Instruction text */}
       {/* <div className="ml-7 text-xs text-blue-600">
         {config.allow_edit ? (
