@@ -1,7 +1,10 @@
 import type { Base64ContentBlock } from "@langchain/core/messages";
 import { SUPPORTED_FILE_TYPES } from "./constants";
 
-export const isDuplicate = (file: File, blocks: Base64ContentBlock[]): boolean => {
+export const isDuplicate = (
+  file: File,
+  blocks: Base64ContentBlock[],
+): boolean => {
   if (file.type === "application/pdf") {
     return blocks.some(
       (b) =>
@@ -21,7 +24,10 @@ export const isDuplicate = (file: File, blocks: Base64ContentBlock[]): boolean =
   return false;
 };
 
-export const validateFiles = (files: File[], contentBlocks: Base64ContentBlock[]) => {
+export const validateFiles = (
+  files: File[],
+  contentBlocks: Base64ContentBlock[],
+) => {
   const validFiles = files.filter((file) =>
     SUPPORTED_FILE_TYPES.includes(file.type),
   );

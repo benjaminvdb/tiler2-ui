@@ -10,7 +10,8 @@ export function GenericInterruptView({
 }: {
   interrupt: Record<string, any> | Record<string, any>[];
 }) {
-  const { isExpanded, shouldShowExpandButton, toggleExpanded } = useExpandState(interrupt);
+  const { isExpanded, shouldShowExpandButton, toggleExpanded } =
+    useExpandState(interrupt);
   const displayEntries = processInterruptEntries(interrupt, isExpanded);
 
   return (
@@ -23,17 +24,20 @@ export function GenericInterruptView({
         transition={{ duration: 0.3 }}
       >
         <div className="p-3">
-          <AnimatePresence mode="wait" initial={false}>
-            <InterruptTable 
-              displayEntries={displayEntries} 
-              isExpanded={isExpanded} 
+          <AnimatePresence
+            mode="wait"
+            initial={false}
+          >
+            <InterruptTable
+              displayEntries={displayEntries}
+              isExpanded={isExpanded}
             />
           </AnimatePresence>
         </div>
         {shouldShowExpandButton && (
-          <ExpandButton 
-            isExpanded={isExpanded} 
-            onToggle={toggleExpanded} 
+          <ExpandButton
+            isExpanded={isExpanded}
+            onToggle={toggleExpanded}
           />
         )}
       </motion.div>

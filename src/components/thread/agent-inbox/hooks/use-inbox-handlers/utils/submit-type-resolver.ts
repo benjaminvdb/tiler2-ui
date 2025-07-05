@@ -6,7 +6,7 @@ import { SubmitType } from "../../../types";
 export function resolveSubmitType(
   valuesChanged: boolean,
   acceptAllowed: boolean,
-  hasAddedResponse: boolean
+  hasAddedResponse: boolean,
 ): SubmitType {
   if (!valuesChanged) {
     if (acceptAllowed) {
@@ -24,7 +24,7 @@ export function resolveSubmitType(
 export function resolveSubmitTypeForResponse(
   hasContent: boolean,
   hasEdited: boolean,
-  acceptAllowed: boolean
+  acceptAllowed: boolean,
 ): SubmitType | undefined {
   if (!hasContent) {
     if (hasEdited) {

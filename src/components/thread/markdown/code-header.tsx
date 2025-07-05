@@ -10,7 +10,7 @@ interface CodeHeaderProps {
 
 export const CodeHeader: FC<CodeHeaderProps> = ({ language, code }) => {
   const { isCopied, copyToClipboard } = useCopyToClipboard();
-  
+
   const onCopy = () => {
     if (!code || isCopied) return;
     copyToClipboard(code);

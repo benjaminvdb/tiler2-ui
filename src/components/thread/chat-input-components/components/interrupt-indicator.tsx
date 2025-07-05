@@ -1,7 +1,9 @@
 import { MessageSquare } from "lucide-react";
 import { InterruptIndicatorProps } from "../types";
 
-export function InterruptIndicator({ isRespondingToInterrupt }: InterruptIndicatorProps) {
+export function InterruptIndicator({
+  isRespondingToInterrupt,
+}: InterruptIndicatorProps) {
   if (!isRespondingToInterrupt) return null;
 
   return (

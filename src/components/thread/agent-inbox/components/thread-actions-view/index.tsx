@@ -5,7 +5,11 @@ import { ThreadActionsViewProps } from "./types";
 import { HeaderSection } from "./components/header-section";
 import { ActionButtons } from "./components/action-buttons";
 import { useStudioHandler } from "./hooks/use-studio-handler";
-import { getThreadTitle, getActionsDisabled, getIgnoreAllowed } from "./utils/thread-utils";
+import {
+  getThreadTitle,
+  getActionsDisabled,
+  getIgnoreAllowed,
+} from "./utils/thread-utils";
 
 export function ThreadActionsView({
   interrupt,
@@ -15,7 +19,7 @@ export function ThreadActionsView({
 }: ThreadActionsViewProps) {
   const [threadId] = useQueryState("threadId");
   const [apiUrl] = useQueryState("apiUrl");
-  
+
   const {
     acceptAllowed,
     hasEdited,

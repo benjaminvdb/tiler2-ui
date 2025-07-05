@@ -1,5 +1,8 @@
 import { type Message } from "@langchain/langgraph-sdk";
-import { type UIMessage, type RemoveUIMessage } from "@langchain/langgraph-sdk/react-ui";
+import {
+  type UIMessage,
+  type RemoveUIMessage,
+} from "@langchain/langgraph-sdk/react-ui";
 import { useStream } from "@langchain/langgraph-sdk/react";
 
 export type StateType = { messages: Message[]; ui?: UIMessage[] };
@@ -29,5 +32,9 @@ export interface ConfigurationFormProps {
   apiUrl: string;
   assistantId: string;
   apiKey: string | null;
-  onSubmit: (data: { apiUrl: string; assistantId: string; apiKey: string }) => void;
+  onSubmit: (data: {
+    apiUrl: string;
+    assistantId: string;
+    apiKey: string;
+  }) => void;
 }

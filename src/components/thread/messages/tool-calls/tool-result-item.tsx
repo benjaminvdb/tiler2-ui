@@ -39,9 +39,7 @@ export function ToolResultItem({ message }: ToolResultItemProps) {
 
   const shouldShowExpandButton =
     (shouldTruncate && !isJsonContent) ||
-    (isJsonContent &&
-      Array.isArray(parsedContent) &&
-      parsedContent.length > 5);
+    (isJsonContent && Array.isArray(parsedContent) && parsedContent.length > 5);
 
   return (
     <div className="overflow-hidden rounded-lg border border-gray-200">

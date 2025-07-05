@@ -17,9 +17,7 @@ export const SidebarHistory: React.FC<SidebarHistoryProps> = ({
         className="absolute z-20 h-full overflow-hidden border-r bg-white"
         style={{ width: 300 }}
         animate={
-          isLargeScreen
-            ? { x: isOpen ? 0 : -300 }
-            : { x: isOpen ? 0 : -300 }
+          isLargeScreen ? { x: isOpen ? 0 : -300 } : { x: isOpen ? 0 : -300 }
         }
         initial={{ x: -300 }}
         transition={

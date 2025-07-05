@@ -3,7 +3,7 @@ import { getContentString } from "../../utils";
 
 export function extractThreadDisplayText(thread: Thread): string {
   let itemText = thread.thread_id;
-  
+
   if (
     typeof thread.values === "object" &&
     thread.values &&
@@ -14,6 +14,6 @@ export function extractThreadDisplayText(thread: Thread): string {
     const firstMessage = thread.values.messages[0];
     itemText = getContentString(firstMessage.content);
   }
-  
+
   return itemText;
 }

@@ -1,4 +1,4 @@
-import { useStreamContext } from "@/providers/Stream";
+import { useStreamContext } from "@/providers/stream";
 import { getContentString } from "../../utils";
 import { cn } from "@/lib/utils";
 import { HumanMessageProps } from "./types";
@@ -11,15 +11,9 @@ import { MessageControls } from "./components/message-controls";
 export function HumanMessage({ message, isLoading }: HumanMessageProps) {
   const thread = useStreamContext();
   const contentString = getContentString(message.content);
-  
-  const {
-    isEditing,
-    value,
-    setValue,
-    handleSubmitEdit,
-    setIsEditing,
-    meta,
-  } = useHumanMessageEdit(message, contentString);
+
+  const { isEditing, value, setValue, handleSubmitEdit, setIsEditing, meta } =
+    useHumanMessageEdit(message, contentString);
 
   return (
     <div

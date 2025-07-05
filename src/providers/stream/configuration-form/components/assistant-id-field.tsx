@@ -7,16 +7,17 @@ interface AssistantIdFieldProps {
   defaultValue?: string;
 }
 
-export const AssistantIdField: React.FC<AssistantIdFieldProps> = ({ defaultValue }) => {
+export const AssistantIdField: React.FC<AssistantIdFieldProps> = ({
+  defaultValue,
+}) => {
   return (
     <div className="flex flex-col gap-2">
       <Label htmlFor="assistantId">
         Assistant / Graph ID<span className="text-rose-500">*</span>
       </Label>
       <p className="text-muted-foreground text-sm">
-        This is the ID of the graph (can be the graph name), or
-        assistant to fetch threads from, and invoke when actions are
-        taken.
+        This is the ID of the graph (can be the graph name), or assistant to
+        fetch threads from, and invoke when actions are taken.
       </p>
       <Input
         id="assistantId"

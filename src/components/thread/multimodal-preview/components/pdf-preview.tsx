@@ -12,8 +12,9 @@ export const PdfPreview: React.FC<PreviewComponentProps> = ({
   className,
   size = "md",
 }) => {
-  const filename = block.metadata?.filename || block.metadata?.name || "PDF file";
-  
+  const filename =
+    block.metadata?.filename || block.metadata?.name || "PDF file";
+
   return (
     <div
       className={cn(
@@ -22,12 +23,7 @@ export const PdfPreview: React.FC<PreviewComponentProps> = ({
       )}
     >
       <div className="flex flex-shrink-0 flex-col items-start justify-start">
-        <File
-          className={cn(
-            "text-teal-700",
-            getIconSize(size),
-          )}
-        />
+        <File className={cn("text-teal-700", getIconSize(size))} />
       </div>
       <span
         className={cn("min-w-0 flex-1 text-sm break-all text-gray-800")}

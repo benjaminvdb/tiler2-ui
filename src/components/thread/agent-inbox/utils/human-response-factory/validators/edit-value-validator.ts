@@ -1,7 +1,9 @@
 export function validateAndUpdateEditValue(
   key: string,
   value: unknown,
-  initialHumanInterruptEditValue: React.MutableRefObject<Record<string, string>>
+  initialHumanInterruptEditValue: React.MutableRefObject<
+    Record<string, string>
+  >,
 ): void {
   let stringValue = "";
   if (typeof value === "string") {

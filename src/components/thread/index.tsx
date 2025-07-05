@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
-import { useStreamContext } from "@/providers/Stream";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { useStreamContext } from "@/providers/stream";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import { useFileUpload } from "@/hooks/use-file-upload";
 
 // Import our new components and hooks
@@ -50,19 +50,20 @@ export function Thread() {
   const messages = stream.messages;
 
   // Use our custom hooks for handlers and effects
-  const { handleSubmit, handleRegenerate, handleActionClick } = useThreadHandlers({
-    input,
-    setInput,
-    contentBlocks,
-    setContentBlocks,
-    isRespondingToInterrupt,
-    setIsRespondingToInterrupt,
-    currentInterrupt,
-    setCurrentInterrupt,
-    setFirstTokenReceived,
-    artifactContext,
-    prevMessageLength,
-  });
+  const { handleSubmit, handleRegenerate, handleActionClick } =
+    useThreadHandlers({
+      input,
+      setInput,
+      contentBlocks,
+      setContentBlocks,
+      isRespondingToInterrupt,
+      setIsRespondingToInterrupt,
+      currentInterrupt,
+      setCurrentInterrupt,
+      setFirstTokenReceived,
+      artifactContext,
+      prevMessageLength,
+    });
 
   useThreadEffects({
     lastError,
@@ -77,9 +78,9 @@ export function Thread() {
 
   return (
     <div className="flex h-screen w-full overflow-hidden">
-      <SidebarHistory 
-        isOpen={chatHistoryOpen} 
-        isLargeScreen={isLargeScreen} 
+      <SidebarHistory
+        isOpen={chatHistoryOpen}
+        isLargeScreen={isLargeScreen}
       />
 
       <div
@@ -110,7 +111,7 @@ export function Thread() {
           dropRef={dropRef}
           handleActionClick={handleActionClick}
         />
-        
+
         <ArtifactPanel onClose={closeArtifact} />
       </div>
     </div>

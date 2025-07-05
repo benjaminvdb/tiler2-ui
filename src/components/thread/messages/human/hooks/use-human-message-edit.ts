@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useStreamContext } from "@/providers/Stream";
+import { useStreamContext } from "@/providers/stream";
 import { Message } from "@langchain/langgraph-sdk";
 
 export function useHumanMessageEdit(message: Message, contentString: string) {
@@ -32,8 +32,11 @@ export function useHumanMessageEdit(message: Message, contentString: string) {
     );
   };
 
-  const handleSetIsEditing = (editing: boolean | ((prev: boolean) => boolean)) => {
-    const newEditing = typeof editing === 'function' ? editing(isEditing) : editing;
+  const handleSetIsEditing = (
+    editing: boolean | ((prev: boolean) => boolean),
+  ) => {
+    const newEditing =
+      typeof editing === "function" ? editing(isEditing) : editing;
     if (newEditing) {
       setValue(contentString);
     }

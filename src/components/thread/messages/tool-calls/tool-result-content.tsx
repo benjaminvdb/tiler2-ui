@@ -16,7 +16,10 @@ export function ToolResultContent({
 }: ToolResultContentProps) {
   return (
     <div className="p-3">
-      <AnimatePresence mode="wait" initial={false}>
+      <AnimatePresence
+        mode="wait"
+        initial={false}
+      >
         <motion.div
           key={isExpanded ? "expanded" : "collapsed"}
           initial={{ opacity: 0, y: 20 }}

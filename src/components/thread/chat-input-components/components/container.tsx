@@ -1,7 +1,12 @@
 import { cn } from "@/lib/utils";
 import { ContainerProps } from "../types";
 
-export function Container({ dragOver, chatStarted, dropRef, children }: ContainerProps) {
+export function Container({
+  dragOver,
+  chatStarted,
+  dropRef,
+  children,
+}: ContainerProps) {
   return (
     <div
       ref={dropRef}

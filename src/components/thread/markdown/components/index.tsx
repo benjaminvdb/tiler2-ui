@@ -1,9 +1,9 @@
-import { h1, h2, h3, h4, h5, h6 } from "./components/headings";
-import { p, a, blockquote } from "./components/text-elements";
-import { ul, ol } from "./components/lists";
-import { hr } from "./components/layout";
-import { table, tr, th, td } from "./components/table";
-import { code } from "./components/code";
+import { h1, h2, h3, h4, h5, h6 } from "./headings";
+import { p, a, blockquote } from "./text-elements";
+import { ul, ol } from "./lists";
+import { hr } from "./layout";
+import { table, tr, th, td } from "./table";
+import { code } from "./code";
 
 export const defaultComponents = {
   h1,

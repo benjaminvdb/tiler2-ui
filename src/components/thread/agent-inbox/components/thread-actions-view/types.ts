@@ -26,8 +26,12 @@ export interface HeaderSectionProps {
 }
 
 export interface ActionButtonsProps {
-  onResolve: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => Promise<void>;
-  onIgnore: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => Promise<void>;
+  onResolve: (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ) => Promise<void>;
+  onIgnore: (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ) => Promise<void>;
   ignoreAllowed: boolean;
   actionsDisabled: boolean;
 }

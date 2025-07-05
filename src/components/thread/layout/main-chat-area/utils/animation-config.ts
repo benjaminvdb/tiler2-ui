@@ -1,6 +1,6 @@
 export function getAnimationConfig(
   chatHistoryOpen: boolean,
-  isLargeScreen: boolean
+  isLargeScreen: boolean,
 ) {
   return {
     marginLeft: chatHistoryOpen ? (isLargeScreen ? 300 : 0) : 0,

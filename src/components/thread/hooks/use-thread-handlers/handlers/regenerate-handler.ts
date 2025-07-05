@@ -3,7 +3,7 @@ import { Checkpoint } from "@langchain/langgraph-sdk";
 export function createRegenerateHandler(
   stream: any,
   setFirstTokenReceived: (value: boolean) => void,
-  prevMessageLength: React.MutableRefObject<number>
+  prevMessageLength: React.MutableRefObject<number>,
 ) {
   return (parentCheckpoint: Checkpoint | null | undefined) => {
     // Do this so the loading state is correct

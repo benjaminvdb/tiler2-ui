@@ -25,15 +25,11 @@ export function useFileUpload({
     setDragOver,
   });
 
-  const {
-    handleFileUpload,
-    handlePaste,
-    removeBlock,
-    resetBlocks,
-  } = useFileHandlers({
-    contentBlocks,
-    setContentBlocks,
-  });
+  const { handleFileUpload, handlePaste, removeBlock, resetBlocks } =
+    useFileHandlers({
+      contentBlocks,
+      setContentBlocks,
+    });
 
   return {
     contentBlocks,

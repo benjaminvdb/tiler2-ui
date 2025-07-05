@@ -1,7 +1,10 @@
 import { KeyboardEvent } from "react";
 import { useResponseProcessing } from "../use-response-processing";
 import { UseSubmitHandlerProps, UseSubmitHandlerReturn } from "./types";
-import { validateHumanResponse, validateSelectedInput } from "./utils/validation";
+import {
+  validateHumanResponse,
+  validateSelectedInput,
+} from "./utils/validation";
 import { transformHumanResponse } from "./utils/response-transformer";
 import { handleSubmissionError, showSuccessToast } from "./utils/error-handler";
 import {
@@ -25,7 +28,7 @@ export function useSubmitHandler({
     e: React.MouseEvent<HTMLButtonElement, MouseEvent> | KeyboardEvent,
   ) => {
     e.preventDefault();
-    
+
     if (!validateHumanResponse(humanResponse)) {
       return;
     }
@@ -48,8 +51,11 @@ export function useSubmitHandler({
 
       try {
         const humanResponseInput = transformHumanResponse(humanResponse);
-        const input = validateSelectedInput(humanResponseInput, selectedSubmitType);
-        
+        const input = validateSelectedInput(
+          humanResponseInput,
+          selectedSubmitType,
+        );
+
         if (!input) {
           return;
         }

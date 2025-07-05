@@ -3,7 +3,7 @@ import { Checkpoint } from "@langchain/langgraph-sdk";
 import { DO_NOT_RENDER_ID_PREFIX } from "@/lib/ensure-tool-responses";
 import { AssistantMessage, AssistantMessageLoading } from "../messages/ai";
 import { HumanMessage } from "../messages/human";
-import { useStreamContext } from "@/providers/Stream";
+import { useStreamContext } from "@/providers/stream";
 
 interface MessageListProps {
   firstTokenReceived: boolean;
@@ -22,12 +22,10 @@ export const MessageList: React.FC<MessageListProps> = ({
     <>
       {messages
         .filter((m) => {
-          if (m.id?.startsWith(DO_NOT_RENDER_ID_PREFIX))
-            return false;
+          if (m.id?.startsWith(DO_NOT_RENDER_ID_PREFIX)) return false;
           // Hide messages that contain the "hidden" tag
           const tags = (m as any).tags;
-          if (Array.isArray(tags) && tags.includes("hidden"))
-            return false;
+          if (Array.isArray(tags) && tags.includes("hidden")) return false;
           return true;
         })
         .map((message, index) =>
@@ -54,9 +52,7 @@ export const MessageList: React.FC<MessageListProps> = ({
           handleRegenerate={handleRegenerate}
         />
       )}
-      {isLoading && !firstTokenReceived && (
-        <AssistantMessageLoading />
-      )}
+      {isLoading && !firstTokenReceived && <AssistantMessageLoading />}
     </>
   );
 };

@@ -22,7 +22,10 @@ export function ArrayRenderer({ value, expanded }: ArrayRendererProps) {
             key={`state-view-${idx}`}
             className="flex w-full flex-row items-start whitespace-pre-wrap"
           >
-            <StateViewRecursive value={itemRenderValue} expanded={expanded} />
+            <StateViewRecursive
+              value={itemRenderValue}
+              expanded={expanded}
+            />
             {idx < value?.length - 1 && (
               <span className="font-normal text-black">,&nbsp;</span>
             )}

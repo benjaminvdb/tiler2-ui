@@ -1,7 +1,9 @@
 import { HumanResponse } from "@langchain/langgraph/prebuilt";
 import { HumanResponseWithEdits } from "../../../../types";
 
-export function transformHumanResponse(humanResponse: HumanResponseWithEdits[]): HumanResponse[] {
+export function transformHumanResponse(
+  humanResponse: HumanResponseWithEdits[],
+): HumanResponse[] {
   return humanResponse.flatMap((r) => {
     if (r.type === "edit") {
       if (r.acceptAllowed && !r.editsMade) {
@@ -21,7 +23,7 @@ export function transformHumanResponse(humanResponse: HumanResponseWithEdits[]):
       // If response was allowed but no response was given, do not include in the response
       return [];
     }
-    
+
     return {
       type: r.type,
       args: r.args,

@@ -7,7 +7,9 @@ export interface UseSubmitHandlerProps {
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
   setStreaming: React.Dispatch<React.SetStateAction<boolean>>;
   setStreamFinished: React.Dispatch<React.SetStateAction<boolean>>;
-  initialHumanInterruptEditValue: React.MutableRefObject<Record<string, string>>;
+  initialHumanInterruptEditValue: React.MutableRefObject<
+    Record<string, string>
+  >;
 }
 
 export interface UseSubmitHandlerReturn {
@@ -22,5 +24,7 @@ export interface SubmissionContext {
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
   setStreaming: React.Dispatch<React.SetStateAction<boolean>>;
   setStreamFinished: React.Dispatch<React.SetStateAction<boolean>>;
-  initialHumanInterruptEditValue: React.MutableRefObject<Record<string, string>>;
+  initialHumanInterruptEditValue: React.MutableRefObject<
+    Record<string, string>
+  >;
 }

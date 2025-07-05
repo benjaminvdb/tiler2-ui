@@ -1,11 +1,11 @@
 import { cn } from "@/lib/utils";
 import { TextareaInputProps } from "../types";
 
-export function TextareaInput({ 
-  input, 
-  onInputChange, 
-  onPaste, 
-  isRespondingToInterrupt 
+export function TextareaInput({
+  input,
+  onInputChange,
+  onPaste,
+  isRespondingToInterrupt,
 }: TextareaInputProps) {
   return (
     <textarea

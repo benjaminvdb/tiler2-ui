@@ -6,7 +6,7 @@ import {
   isRemoveUIMessage,
 } from "@langchain/langgraph-sdk/react-ui";
 import { toast } from "sonner";
-import { useThreads } from "../Thread";
+import { useThreads } from "../thread";
 import { StreamContext } from "./stream-context";
 import { useTypedStream, StreamSessionProps } from "./types";
 import { sleep, checkGraphStatus } from "./utils";

@@ -18,7 +18,13 @@ export function AssistantMessage({
     return <PlaceholderMessage />;
   }
 
-  return <MessageContent message={message} isLoading={isLoading} handleRegenerate={handleRegenerate} />;
+  return (
+    <MessageContent
+      message={message}
+      isLoading={isLoading}
+      handleRegenerate={handleRegenerate}
+    />
+  );
 }
 
 export { AssistantMessageLoading } from "./ai/loading-message";

@@ -10,7 +10,10 @@ export function getThreadTitle(interrupt: HumanInterrupt): string {
 /**
  * Determines if actions should be disabled based on loading/streaming state
  */
-export function getActionsDisabled(loading: boolean, streaming: boolean): boolean {
+export function getActionsDisabled(
+  loading: boolean,
+  streaming: boolean,
+): boolean {
   return loading || streaming;
 }
 

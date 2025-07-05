@@ -10,9 +10,7 @@ export function FileUpload({ onFileUpload }: FileUploadProps) {
         className="flex cursor-pointer items-center gap-2"
       >
         <Plus className="size-5 text-gray-600" />
-        <span className="text-sm text-gray-600">
-          Upload PDF or Image
-        </span>
+        <span className="text-sm text-gray-600">Upload PDF or Image</span>
       </Label>
       <input
         id="file-input"

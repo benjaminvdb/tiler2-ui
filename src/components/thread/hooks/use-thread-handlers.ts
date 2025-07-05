@@ -1,4 +1,4 @@
-import { useStreamContext } from "@/providers/Stream";
+import { useStreamContext } from "@/providers/stream";
 import { UseThreadHandlersProps } from "./use-thread-handlers/types";
 import { createSubmitHandler } from "./use-thread-handlers/handlers/submit-handler";
 import { createRegenerateHandler } from "./use-thread-handlers/handlers/regenerate-handler";
@@ -12,7 +12,7 @@ export function useThreadHandlers(props: UseThreadHandlersProps) {
   const handleRegenerate = createRegenerateHandler(
     stream,
     props.setFirstTokenReceived,
-    props.prevMessageLength
+    props.prevMessageLength,
   );
   const handleActionClick = createActionHandler(stream);
 

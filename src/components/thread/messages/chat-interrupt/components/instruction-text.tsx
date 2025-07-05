@@ -9,7 +9,8 @@ export const InstructionText: React.FC<InstructionTextProps> = ({
     <div className="ml-7 text-xs text-blue-600">
       {config.allow_edit ? (
         <>
-          You can click <strong>Edit</strong> above, or simply type your response in the chat input below.
+          You can click <strong>Edit</strong> above, or simply type your
+          response in the chat input below.
           {config.allow_edit && hasArgs && (
             <> For editing, provide the modified values in your response.</>
           )}

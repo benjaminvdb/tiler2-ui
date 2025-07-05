@@ -4,7 +4,9 @@ import { validateAndUpdateEditValue } from "../validators/edit-value-validator";
 
 export function buildEditResponse(
   interrupt: HumanInterrupt,
-  initialHumanInterruptEditValue: React.MutableRefObject<Record<string, string>>
+  initialHumanInterruptEditValue: React.MutableRefObject<
+    Record<string, string>
+  >,
 ): HumanResponseWithEdits | null {
   if (!interrupt.config.allow_edit) {
     return null;
@@ -14,7 +16,7 @@ export function buildEditResponse(
     Object.entries(interrupt.action_request.args).forEach(([k, v]) => {
       validateAndUpdateEditValue(k, v, initialHumanInterruptEditValue);
     });
-    
+
     return {
       type: "edit",
       args: interrupt.action_request,

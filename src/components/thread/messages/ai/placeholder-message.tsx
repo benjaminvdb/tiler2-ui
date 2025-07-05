@@ -1,11 +1,11 @@
-import { useStreamContext } from "@/providers/Stream";
+import { useStreamContext } from "@/providers/stream";
 import { isAgentInboxInterruptSchema } from "@/lib/agent-inbox-interrupt";
 import { ChatInterrupt } from "../chat-interrupt";
 
 export function PlaceholderMessage() {
   const thread = useStreamContext();
   const interruptVal = thread.interrupt?.value;
-  
+
   if (!interruptVal) return null;
 
   // Helper to send resume commands
@@ -66,9 +66,7 @@ export function PlaceholderMessage() {
       allow_respond: false,
     },
     description:
-      typeof interruptVal === "string"
-        ? interruptVal
-        : "Please provide input",
+      typeof interruptVal === "string" ? interruptVal : "Please provide input",
   };
 
   return (

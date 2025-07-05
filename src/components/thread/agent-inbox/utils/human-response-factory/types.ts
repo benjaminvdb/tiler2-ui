@@ -13,5 +13,7 @@ export interface EditValueRef {
 
 export interface ResponseBuilderParams {
   interrupt: HumanInterrupt;
-  initialHumanInterruptEditValue: React.MutableRefObject<Record<string, string>>;
+  initialHumanInterruptEditValue: React.MutableRefObject<
+    Record<string, string>
+  >;
 }

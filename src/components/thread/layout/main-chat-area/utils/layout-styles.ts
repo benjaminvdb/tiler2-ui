@@ -15,4 +15,5 @@ export function getContentClassName(chatStarted: boolean) {
   );
 }
 
-export const CONTENT_CONTAINER_CLASS = "pt-8 pb-16  max-w-3xl mx-auto flex flex-col gap-4 w-full";
+export const CONTENT_CONTAINER_CLASS =
+  "pt-8 pb-16  max-w-3xl mx-auto flex flex-col gap-4 w-full";

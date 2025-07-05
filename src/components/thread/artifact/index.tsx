@@ -7,4 +7,9 @@ export { useArtifactOpen } from "./hooks/use-artifact-open";
 export { useArtifactContext } from "./hooks/use-artifact-context";
 
 // Re-export types
-export type { Setter, ArtifactSlotContextType, ArtifactSlotProps, ArtifactContentProps } from "./types";
+export type {
+  Setter,
+  ArtifactSlotContextType,
+  ArtifactSlotProps,
+  ArtifactContentProps,
+} from "./types";

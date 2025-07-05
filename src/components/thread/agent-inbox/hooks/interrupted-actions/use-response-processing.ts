@@ -1,5 +1,5 @@
 import { HumanResponse } from "@langchain/langgraph/prebuilt";
-import { useStreamContext } from "@/providers/Stream";
+import { useStreamContext } from "@/providers/stream";
 
 export function useResponseProcessing() {
   const thread = useStreamContext();

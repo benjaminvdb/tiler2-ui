@@ -4,7 +4,10 @@ import { constructOpenInStudioURL } from "../../../utils";
 /**
  * Hook for handling opening threads in LangGraph Studio
  */
-export function useStudioHandler(apiUrl: string | null, threadId: string | null) {
+export function useStudioHandler(
+  apiUrl: string | null,
+  threadId: string | null,
+) {
   const handleOpenInStudio = () => {
     if (!apiUrl) {
       toast.error("Error", {

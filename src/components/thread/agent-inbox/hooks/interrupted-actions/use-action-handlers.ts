@@ -1,13 +1,15 @@
 import { toast } from "sonner";
 import { END } from "@langchain/langgraph/web";
-import { useStreamContext } from "@/providers/Stream";
+import { useStreamContext } from "@/providers/stream";
 import { HumanResponseWithEdits } from "../../types";
 import { useResponseProcessing } from "./use-response-processing";
 
 interface UseActionHandlersProps {
   humanResponse: HumanResponseWithEdits[];
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  initialHumanInterruptEditValue: React.MutableRefObject<Record<string, string>>;
+  initialHumanInterruptEditValue: React.MutableRefObject<
+    Record<string, string>
+  >;
 }
 
 export function useActionHandlers({

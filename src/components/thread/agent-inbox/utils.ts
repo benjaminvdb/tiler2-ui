@@ -1,8 +1,5 @@
 // Re-export the modular utilities
-export {
-  prettifyText,
-  unknownToPrettyDate,
-} from "./utils/text-formatters";
+export { prettifyText, unknownToPrettyDate } from "./utils/text-formatters";
 export { isArrayOfMessages } from "./utils/message-validators";
 export { baseMessageObject } from "./utils/message-formatters";
 export { createDefaultHumanResponse } from "./utils/human-response-factory";

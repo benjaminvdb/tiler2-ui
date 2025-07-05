@@ -2,7 +2,10 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { ToolCallsToggleProps } from "../types";
 
-export function ToolCallsToggle({ hideToolCalls, onHideToolCallsChange }: ToolCallsToggleProps) {
+export function ToolCallsToggle({
+  hideToolCalls,
+  onHideToolCallsChange,
+}: ToolCallsToggleProps) {
   if (process.env.NEXT_PUBLIC_HIDE_TOOL_CALLS !== "false") return null;
 
   return (

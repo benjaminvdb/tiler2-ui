@@ -2,7 +2,9 @@ import { toast } from "sonner";
 import { HumanResponse } from "@langchain/langgraph/prebuilt";
 import { HumanResponseWithEdits, SubmitType } from "../../../../types";
 
-export function validateHumanResponse(humanResponse: HumanResponseWithEdits[]): boolean {
+export function validateHumanResponse(
+  humanResponse: HumanResponseWithEdits[],
+): boolean {
   if (!humanResponse) {
     toast.error("Error", {
       description: "Please enter a response.",
@@ -19,10 +21,8 @@ export function validateSelectedInput(
   humanResponseInput: HumanResponse[],
   selectedSubmitType: SubmitType | undefined,
 ): HumanResponse | null {
-  const input = humanResponseInput.find(
-    (r) => r.type === selectedSubmitType,
-  );
-  
+  const input = humanResponseInput.find((r) => r.type === selectedSubmitType);
+
   if (!input) {
     toast.error("Error", {
       description: "No response found.",
@@ -32,6 +32,6 @@ export function validateSelectedInput(
     });
     return null;
   }
-  
+
   return input;
 }

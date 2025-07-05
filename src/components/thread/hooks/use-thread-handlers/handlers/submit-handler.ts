@@ -1,12 +1,15 @@
 import { FormEvent } from "react";
 import { ensureToolCallsHaveResponses } from "@/lib/ensure-tool-responses";
-import { buildHumanMessage, buildInterruptResponse } from "../utils/message-builder";
+import {
+  buildHumanMessage,
+  buildInterruptResponse,
+} from "../utils/message-builder";
 import { UseThreadHandlersProps } from "../types";
 
 export function createSubmitHandler(
   props: UseThreadHandlersProps,
   stream: any,
-  isLoading: boolean
+  isLoading: boolean,
 ) {
   const {
     input,

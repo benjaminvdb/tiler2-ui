@@ -1,10 +1,5 @@
 import { Button } from "../ui/button";
-import {
-  Rocket,
-  FileText,
-  Search,
-  Lightbulb,
-} from "lucide-react";
+import { Rocket, FileText, Search, Lightbulb } from "lucide-react";
 
 interface ActionButtonsProps {
   onActionClick: (prompt: string) => void;
@@ -38,7 +33,10 @@ const actionItems = [
   },
 ];
 
-export function ActionButtons({ onActionClick, isMobile = false }: ActionButtonsProps) {
+export function ActionButtons({
+  onActionClick,
+  isMobile = false,
+}: ActionButtonsProps) {
   const containerClassName = isMobile
     ? "mx-auto mb-4 grid w-full max-w-3xl grid-cols-2 gap-4 sm:hidden"
     : "mt-2 hidden items-center justify-center gap-4 pb-4 sm:flex";

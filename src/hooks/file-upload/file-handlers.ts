@@ -17,15 +17,20 @@ export function useFileHandlers({
   const handleFileUpload = async (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
-    
+
     const fileArray = Array.from(files);
-    const { invalidFiles, duplicateFiles, uniqueFiles } = validateFiles(fileArray, contentBlocks);
+    const { invalidFiles, duplicateFiles, uniqueFiles } = validateFiles(
+      fileArray,
+      contentBlocks,
+    );
 
     if (invalidFiles.length > 0) {
       toast.error(ERROR_MESSAGES.INVALID_FILE_TYPE);
     }
     if (duplicateFiles.length > 0) {
-      toast.error(ERROR_MESSAGES.DUPLICATE_FILES(duplicateFiles.map((f) => f.name)));
+      toast.error(
+        ERROR_MESSAGES.DUPLICATE_FILES(duplicateFiles.map((f) => f.name)),
+      );
     }
 
     if (uniqueFiles.length > 0) {
@@ -42,7 +47,7 @@ export function useFileHandlers({
   ) => {
     const items = e.clipboardData.items;
     if (!items) return;
-    
+
     const files: File[] = [];
     for (let i = 0; i < items.length; i += 1) {
       const item = items[i];
@@ -51,19 +56,24 @@ export function useFileHandlers({
         if (file) files.push(file);
       }
     }
-    
+
     if (files.length === 0) {
       return;
     }
-    
+
     e.preventDefault();
-    const { invalidFiles, duplicateFiles, uniqueFiles } = validateFiles(files, contentBlocks);
+    const { invalidFiles, duplicateFiles, uniqueFiles } = validateFiles(
+      files,
+      contentBlocks,
+    );
 
     if (invalidFiles.length > 0) {
       toast.error(ERROR_MESSAGES.INVALID_PASTE_TYPE);
     }
     if (duplicateFiles.length > 0) {
-      toast.error(ERROR_MESSAGES.DUPLICATE_FILES(duplicateFiles.map((f) => f.name)));
+      toast.error(
+        ERROR_MESSAGES.DUPLICATE_FILES(duplicateFiles.map((f) => f.name)),
+      );
     }
     if (uniqueFiles.length > 0) {
       const newBlocks = await Promise.all(uniqueFiles.map(fileToContentBlock));

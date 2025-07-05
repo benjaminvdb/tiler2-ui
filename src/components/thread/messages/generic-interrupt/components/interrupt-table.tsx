@@ -6,7 +6,10 @@ interface InterruptTableProps {
   isExpanded: boolean;
 }
 
-export function InterruptTable({ displayEntries, isExpanded }: InterruptTableProps) {
+export function InterruptTable({
+  displayEntries,
+  isExpanded,
+}: InterruptTableProps) {
   return (
     <motion.div
       key={isExpanded ? "expanded" : "collapsed"}

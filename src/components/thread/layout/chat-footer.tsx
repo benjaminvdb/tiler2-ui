@@ -3,14 +3,16 @@ import { LinkLogoSVG } from "../../icons/link";
 import { ScrollToBottom } from "../scroll-utils";
 import { ActionButtons } from "../action-buttons";
 import { ChatInput } from "../chat-input";
-import { useStreamContext } from "@/providers/Stream";
+import { useStreamContext } from "@/providers/stream";
 
 interface ChatFooterProps {
   chatStarted: boolean;
   input: string;
   onInputChange: (value: string) => void;
   onSubmit: (e: React.FormEvent) => void;
-  onPaste: (e: React.ClipboardEvent<HTMLTextAreaElement | HTMLInputElement>) => void;
+  onPaste: (
+    e: React.ClipboardEvent<HTMLTextAreaElement | HTMLInputElement>,
+  ) => void;
   onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   contentBlocks: any[];
   onRemoveBlock: (idx: number) => void;
@@ -46,9 +48,7 @@ export const ChatFooter: React.FC<ChatFooterProps> = ({
       {!chatStarted && (
         <div className="flex items-center gap-3">
           <LinkLogoSVG className="h-8 flex-shrink-0" />
-          <h1 className="text-2xl font-semibold tracking-tight">
-            Link Chat
-          </h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Link Chat</h1>
         </div>
       )}
 
@@ -56,9 +56,9 @@ export const ChatFooter: React.FC<ChatFooterProps> = ({
 
       {/* Mobile action buttons */}
       {!chatStarted && (
-        <ActionButtons 
-          onActionClick={handleActionClick} 
-          isMobile={true} 
+        <ActionButtons
+          onActionClick={handleActionClick}
+          isMobile={true}
         />
       )}
 
@@ -82,9 +82,9 @@ export const ChatFooter: React.FC<ChatFooterProps> = ({
 
       {/* Desktop action buttons */}
       {!chatStarted && (
-        <ActionButtons 
-          onActionClick={handleActionClick} 
-          isMobile={false} 
+        <ActionButtons
+          onActionClick={handleActionClick}
+          isMobile={false}
         />
       )}
     </div>

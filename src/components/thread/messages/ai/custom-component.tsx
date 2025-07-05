@@ -1,7 +1,7 @@
 import { Fragment } from "react/jsx-runtime";
 import { LoadExternalComponent } from "@langchain/langgraph-sdk/react-ui";
 import { Message } from "@langchain/langgraph-sdk";
-import { useStreamContext } from "@/providers/Stream";
+import { useStreamContext } from "@/providers/stream";
 import { useArtifact } from "../../artifact";
 
 interface CustomComponentProps {
@@ -17,7 +17,7 @@ export function CustomComponent({ message, thread }: CustomComponentProps) {
   );
 
   if (!customComponents?.length) return null;
-  
+
   return (
     <Fragment key={message.id}>
       {customComponents.map((customComponent) => (

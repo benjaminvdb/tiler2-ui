@@ -1,7 +1,10 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { getMainContainerClassName } from "../utils/layout-styles";
-import { getAnimationConfig, getTransitionConfig } from "../utils/animation-config";
+import {
+  getAnimationConfig,
+  getTransitionConfig,
+} from "../utils/animation-config";
 
 interface AnimatedContainerProps {
   chatStarted: boolean;

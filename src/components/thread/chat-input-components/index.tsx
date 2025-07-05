@@ -1,4 +1,4 @@
-import { ContentBlocksPreview } from "../ContentBlocksPreview";
+import { ContentBlocksPreview } from "../content-blocks-preview";
 import { Container } from "./components/container";
 import { TextareaInput } from "./components/textarea-input";
 import { InterruptIndicator } from "./components/interrupt-indicator";

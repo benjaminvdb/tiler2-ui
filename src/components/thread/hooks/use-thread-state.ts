@@ -15,12 +15,12 @@ export function useThreadState() {
     "hideToolCalls",
     parseAsBoolean.withDefault(false),
   );
-  
+
   const [input, setInput] = useState("");
   const [firstTokenReceived, setFirstTokenReceived] = useState(false);
   const [isRespondingToInterrupt, setIsRespondingToInterrupt] = useState(false);
   const [currentInterrupt, setCurrentInterrupt] = useState<any>(null);
-  
+
   const lastError = useRef<string | undefined>(undefined);
   const prevMessageLength = useRef(0);
 
@@ -37,7 +37,7 @@ export function useThreadState() {
     setArtifactContext,
     artifactOpen,
     closeArtifact,
-    
+
     // Thread state
     threadId,
     setThreadId,
@@ -45,19 +45,19 @@ export function useThreadState() {
     setChatHistoryOpen,
     hideToolCalls,
     setHideToolCalls,
-    
+
     // Input state
     input,
     setInput,
     firstTokenReceived,
     setFirstTokenReceived,
-    
+
     // Interrupt state
     isRespondingToInterrupt,
     setIsRespondingToInterrupt,
     currentInterrupt,
     setCurrentInterrupt,
-    
+
     // Refs
     lastError,
     prevMessageLength,

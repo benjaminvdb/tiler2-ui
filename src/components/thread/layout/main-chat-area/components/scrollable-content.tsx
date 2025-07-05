@@ -1,7 +1,10 @@
 import React from "react";
 import { StickToBottom } from "use-stick-to-bottom";
 import { StickyToBottomContent } from "../../../scroll-utils";
-import { getContentClassName, CONTENT_CONTAINER_CLASS } from "../utils/layout-styles";
+import {
+  getContentClassName,
+  CONTENT_CONTAINER_CLASS,
+} from "../utils/layout-styles";
 
 interface ScrollableContentProps {
   chatStarted: boolean;

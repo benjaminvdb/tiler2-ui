@@ -5,11 +5,14 @@ interface UseInboxConfigProps {
   acceptAllowed: boolean;
 }
 
-export function useInboxConfig({ interruptValue, acceptAllowed }: UseInboxConfigProps) {
+export function useInboxConfig({
+  interruptValue,
+  acceptAllowed,
+}: UseInboxConfigProps) {
   const isEditAllowed = interruptValue.config.allow_edit;
   const isResponseAllowed = interruptValue.config.allow_respond;
   const hasArgs = Object.entries(interruptValue.action_request.args).length > 0;
-  
+
   const showArgsInResponse =
     hasArgs && !isEditAllowed && !acceptAllowed && isResponseAllowed;
   const showArgsOutsideActionCards =

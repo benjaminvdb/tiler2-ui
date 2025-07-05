@@ -23,7 +23,10 @@ export function StickyToBottomContent({
       style={{ width: "100%", height: "100%" }}
       className={className}
     >
-      <div ref={context.contentRef} className={contentClassName}>
+      <div
+        ref={context.contentRef}
+        className={contentClassName}
+      >
         {content}
       </div>
       {footer}

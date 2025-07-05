@@ -4,7 +4,7 @@
 export function updateArguments(
   originalArgs: Record<string, any>,
   change: string | string[],
-  key: string | string[]
+  key: string | string[],
 ): Record<string, any> {
   const updatedArgs = { ...originalArgs };
 
@@ -28,7 +28,7 @@ export function updateArguments(
  */
 export function validateChangeKeyTypes(
   change: string | string[],
-  key: string | string[]
+  key: string | string[],
 ): boolean {
   return !(
     (Array.isArray(change) && !Array.isArray(key)) ||

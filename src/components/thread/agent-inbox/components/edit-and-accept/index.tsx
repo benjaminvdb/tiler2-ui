@@ -18,10 +18,15 @@ function EditAndOrAcceptComponent({
   handleSubmit,
 }: EditAndOrAcceptComponentProps) {
   const defaultRows = React.useRef<Record<string, number>>({});
-  const { editResponse, acceptResponse, isValidEditResponse } = useEditResponse(humanResponse);
-  const { handleReset } = useResetHandler(editResponse, initialValues, onEditChange);
+  const { editResponse, acceptResponse, isValidEditResponse } =
+    useEditResponse(humanResponse);
+  const { handleReset } = useResetHandler(
+    editResponse,
+    initialValues,
+    onEditChange,
+  );
   const { handleKeyDown } = useKeyboardHandler(handleSubmit);
-  
+
   if (!isValidEditResponse || !editResponse) {
     if (acceptResponse) {
       return (
@@ -34,27 +39,33 @@ function EditAndOrAcceptComponent({
     }
     return null;
   }
-  
+
   const headerText = getHeaderText(editResponse);
   const buttonText = getButtonText(editResponse);
 
   return (
     <div className="flex w-full flex-col items-start gap-4 rounded-lg border-[1px] border-gray-300 p-6">
-      <Header title={headerText} onReset={handleReset} />
+      <Header
+        title={headerText}
+        onReset={handleReset}
+      />
 
-      {editResponse.args && typeof editResponse.args === "object" && (editResponse.args as any).args && Object.entries((editResponse.args as any).args).map(([k, v], idx) => (
-        <FormField
-          key={`allow-edit-args--${k}-${idx}`}
-          fieldKey={k}
-          value={v}
-          editResponse={editResponse}
-          streaming={streaming}
-          defaultRows={defaultRows}
-          onEditChange={onEditChange}
-          onKeyDown={handleKeyDown}
-          index={idx}
-        />
-      ))}
+      {editResponse.args &&
+        typeof editResponse.args === "object" &&
+        (editResponse.args as any).args &&
+        Object.entries((editResponse.args as any).args).map(([k, v], idx) => (
+          <FormField
+            key={`allow-edit-args--${k}-${idx}`}
+            fieldKey={k}
+            value={v}
+            editResponse={editResponse}
+            streaming={streaming}
+            defaultRows={defaultRows}
+            onEditChange={onEditChange}
+            onKeyDown={handleKeyDown}
+            index={idx}
+          />
+        ))}
 
       <SubmitButton
         buttonText={buttonText}

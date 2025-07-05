@@ -1,4 +1,4 @@
-import { MultimodalPreview } from "@/components/thread/MultimodalPreview";
+import { MultimodalPreview } from "@/components/thread/multimodal-preview";
 import { isBase64ContentBlock } from "@/lib/multimodal-utils";
 import { MultimodalContentProps } from "../types";
 

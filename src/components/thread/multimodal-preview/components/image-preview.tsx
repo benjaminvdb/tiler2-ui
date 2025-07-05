@@ -14,7 +14,7 @@ export const ImagePreview: React.FC<PreviewComponentProps> = ({
 }) => {
   const url = `data:${block.mime_type};base64,${block.data}`;
   const sizeConfig = getImageSizeConfig(size);
-  
+
   return (
     <div className={cn("relative inline-block", className)}>
       <Image

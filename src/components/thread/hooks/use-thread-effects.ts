@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { toast } from "sonner";
-import { useStreamContext } from "@/providers/Stream";
+import { useStreamContext } from "@/providers/stream";
 
 interface UseThreadEffectsProps {
   lastError: React.MutableRefObject<string | undefined>;
@@ -71,5 +71,10 @@ export function useThreadEffects({
       setIsRespondingToInterrupt(false);
       setCurrentInterrupt(null);
     }
-  }, [stream.interrupt, isRespondingToInterrupt, setCurrentInterrupt, setIsRespondingToInterrupt]);
+  }, [
+    stream.interrupt,
+    isRespondingToInterrupt,
+    setCurrentInterrupt,
+    setIsRespondingToInterrupt,
+  ]);
 }

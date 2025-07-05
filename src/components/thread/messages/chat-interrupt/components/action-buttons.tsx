@@ -15,34 +15,34 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
         <Button
           size="sm"
           variant="outline"
-          className="h-8 text-xs bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
+          className="h-8 border-green-200 bg-green-50 text-xs text-green-700 hover:bg-green-100"
           onClick={onAccept}
         >
-          <CheckCircle className="h-3 w-3 mr-1" />
+          <CheckCircle className="mr-1 h-3 w-3" />
           Accept
         </Button>
       )}
-      
+
       {config.allow_edit && (
         <Button
           size="sm"
           variant="outline"
-          className="h-8 text-xs bg-orange-50 border-orange-200 text-orange-700 hover:bg-orange-100"
+          className="h-8 border-orange-200 bg-orange-50 text-xs text-orange-700 hover:bg-orange-100"
           onClick={onEdit}
         >
-          <Edit3 className="h-3 w-3 mr-1" />
+          <Edit3 className="mr-1 h-3 w-3" />
           Edit
         </Button>
       )}
-      
+
       {config.allow_ignore && (
         <Button
           size="sm"
           variant="outline"
-          className="h-8 text-xs bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100"
+          className="h-8 border-gray-200 bg-gray-50 text-xs text-gray-700 hover:bg-gray-100"
           onClick={onIgnore}
         >
-          <X className="h-3 w-3 mr-1" />
+          <X className="mr-1 h-3 w-3" />
           Ignore
         </Button>
       )}

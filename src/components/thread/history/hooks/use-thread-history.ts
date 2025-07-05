@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useQueryState, parseAsBoolean } from "nuqs";
-import { useThreads } from "@/providers/Thread";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { useThreads } from "@/providers/thread";
+import { useMediaQuery } from "@/hooks/use-media-query";
 
 export function useThreadHistory() {
   const isLargeScreen = useMediaQuery("(min-width: 1024px)");

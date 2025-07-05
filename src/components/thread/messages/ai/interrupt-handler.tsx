@@ -1,4 +1,4 @@
-import { useStreamContext } from "@/providers/Stream";
+import { useStreamContext } from "@/providers/stream";
 import { isAgentInboxInterruptSchema } from "@/lib/agent-inbox-interrupt";
 import { ChatInterrupt } from "../chat-interrupt";
 

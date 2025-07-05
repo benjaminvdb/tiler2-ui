@@ -2,9 +2,15 @@ import { toast } from "sonner";
 import { HumanResponseWithEdits } from "../../../types";
 import { haveArgsChanged } from "../../../utils";
 import { EditChangeHandlerProps } from "../types";
-import { validateChangeKeyTypes, updateArguments } from "../utils/argument-updater";
+import {
+  validateChangeKeyTypes,
+  updateArguments,
+} from "../utils/argument-updater";
 import { resolveSubmitType } from "../utils/submit-type-resolver";
-import { createEditResponse, updateHumanResponseWithEdit } from "../utils/response-updater";
+import {
+  createEditResponse,
+  updateHumanResponseWithEdit,
+} from "../utils/response-updater";
 
 /**
  * Creates the onEditChange handler function
@@ -34,13 +40,21 @@ export function createEditChangeHandler({
 
     let valuesChanged = true;
     if (typeof response.args === "object") {
-      const updatedArgs = updateArguments(response.args?.args || {}, change, key);
+      const updatedArgs = updateArguments(
+        response.args?.args || {},
+        change,
+        key,
+      );
       const haveValuesChanged = haveArgsChanged(updatedArgs, initialValues);
       valuesChanged = haveValuesChanged;
     }
 
     // Determine submit type based on changes
-    const submitType = resolveSubmitType(valuesChanged, acceptAllowed, hasAddedResponse);
+    const submitType = resolveSubmitType(
+      valuesChanged,
+      acceptAllowed,
+      hasAddedResponse,
+    );
     setSelectedSubmitType(submitType);
     setHasEdited(valuesChanged);
 
@@ -55,8 +69,18 @@ export function createEditChangeHandler({
         return prev;
       }
 
-      const newEdit = createEditResponse({ response, change, key, valuesChanged });
-      return updateHumanResponseWithEdit({ prev, response, newEdit, valuesChanged });
+      const newEdit = createEditResponse({
+        response,
+        change,
+        key,
+        valuesChanged,
+      });
+      return updateHumanResponseWithEdit({
+        prev,
+        response,
+        newEdit,
+        valuesChanged,
+      });
     });
   };
 }

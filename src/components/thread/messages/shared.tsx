@@ -1,8 +1,4 @@
-export {
-  ContentCopyable,
-  BranchSwitcher,
-  CommandBar,
-} from "./shared/index";
+export { ContentCopyable, BranchSwitcher, CommandBar } from "./shared/index";
 
 export type {
   ContentCopyableProps,

@@ -5,6 +5,8 @@ export function getQuestionText(interrupt: HumanInterrupt): string {
   return description || `Review action: ${action_request.action}`;
 }
 
-export function hasActionArgs(actionRequest: HumanInterrupt["action_request"]): boolean {
+export function hasActionArgs(
+  actionRequest: HumanInterrupt["action_request"],
+): boolean {
   return actionRequest.args && Object.keys(actionRequest.args).length > 0;
 }

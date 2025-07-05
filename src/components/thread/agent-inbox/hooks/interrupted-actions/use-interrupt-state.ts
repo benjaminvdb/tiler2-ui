@@ -5,7 +5,9 @@ import { createDefaultHumanResponse } from "../../utils";
 
 interface UseInterruptStateReturn {
   humanResponse: HumanResponseWithEdits[];
-  setHumanResponse: React.Dispatch<React.SetStateAction<HumanResponseWithEdits[]>>;
+  setHumanResponse: React.Dispatch<
+    React.SetStateAction<HumanResponseWithEdits[]>
+  >;
   loading: boolean;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
   streaming: boolean;
@@ -13,7 +15,9 @@ interface UseInterruptStateReturn {
   streamFinished: boolean;
   setStreamFinished: React.Dispatch<React.SetStateAction<boolean>>;
   selectedSubmitType: SubmitType | undefined;
-  setSelectedSubmitType: React.Dispatch<React.SetStateAction<SubmitType | undefined>>;
+  setSelectedSubmitType: React.Dispatch<
+    React.SetStateAction<SubmitType | undefined>
+  >;
   hasEdited: boolean;
   setHasEdited: React.Dispatch<React.SetStateAction<boolean>>;
   hasAddedResponse: boolean;
@@ -24,8 +28,12 @@ interface UseInterruptStateReturn {
   supportsMultipleMethods: boolean;
 }
 
-export function useInterruptState(interrupt: HumanInterrupt): UseInterruptStateReturn {
-  const [humanResponse, setHumanResponse] = useState<HumanResponseWithEdits[]>([]);
+export function useInterruptState(
+  interrupt: HumanInterrupt,
+): UseInterruptStateReturn {
+  const [humanResponse, setHumanResponse] = useState<HumanResponseWithEdits[]>(
+    [],
+  );
   const [loading, setLoading] = useState(false);
   const [streaming, setStreaming] = useState(false);
   const [streamFinished, setStreamFinished] = useState(false);

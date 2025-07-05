@@ -50,7 +50,7 @@ export default function useInterruptedActions({
   interrupt,
 }: UseInterruptedActionsInput): UseInterruptedActionsValue {
   const state = useInterruptState(interrupt);
-  
+
   const { handleSubmit } = useSubmitHandler({
     humanResponse: state.humanResponse,
     selectedSubmitType: state.selectedSubmitType,

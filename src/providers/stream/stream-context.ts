@@ -1,7 +1,9 @@
 import { createContext, useContext } from "react";
 import { StreamContextType } from "./types";
 
-export const StreamContext = createContext<StreamContextType | undefined>(undefined);
+export const StreamContext = createContext<StreamContextType | undefined>(
+  undefined,
+);
 
 export const useStreamContext = (): StreamContextType => {
   const context = useContext(StreamContext);

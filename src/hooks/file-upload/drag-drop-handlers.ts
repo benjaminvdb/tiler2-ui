@@ -46,13 +46,18 @@ export function useDragDropHandlers({
       if (!e.dataTransfer) return;
 
       const files = Array.from(e.dataTransfer.files);
-      const { invalidFiles, duplicateFiles, uniqueFiles } = validateFiles(files, contentBlocks);
+      const { invalidFiles, duplicateFiles, uniqueFiles } = validateFiles(
+        files,
+        contentBlocks,
+      );
 
       if (invalidFiles.length > 0) {
         toast.error(ERROR_MESSAGES.INVALID_FILE_TYPE);
       }
       if (duplicateFiles.length > 0) {
-        toast.error(ERROR_MESSAGES.DUPLICATE_FILES(duplicateFiles.map((f) => f.name)));
+        toast.error(
+          ERROR_MESSAGES.DUPLICATE_FILES(duplicateFiles.map((f) => f.name)),
+        );
       }
 
       const newBlocks = uniqueFiles.length

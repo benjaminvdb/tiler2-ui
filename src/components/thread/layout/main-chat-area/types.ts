@@ -12,7 +12,9 @@ export interface MainChatAreaProps {
   input: string;
   onInputChange: (value: string) => void;
   onSubmit: (e: React.FormEvent) => void;
-  onPaste: (e: React.ClipboardEvent<HTMLTextAreaElement | HTMLInputElement>) => void;
+  onPaste: (
+    e: React.ClipboardEvent<HTMLTextAreaElement | HTMLInputElement>,
+  ) => void;
   onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   contentBlocks: any[];
   onRemoveBlock: (idx: number) => void;

@@ -18,11 +18,11 @@ export function useResetHandler(
     ) {
       return;
     }
-    
+
     // use initialValues to reset the text areas
     const keysToReset: string[] = [];
     const valuesToReset: string[] = [];
-    
+
     Object.entries(initialValues).forEach(([k, v]) => {
       if (k in (editResponse.args as Record<string, any>).args) {
         const value = ["string", "number"].includes(typeof v)

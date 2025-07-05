@@ -11,7 +11,11 @@ interface StateViewObjectProps {
   expanded?: boolean;
 }
 
-export function StateViewObject({ keyName, value, expanded: propExpanded }: StateViewObjectProps) {
+export function StateViewObject({
+  keyName,
+  value,
+  expanded: propExpanded,
+}: StateViewObjectProps) {
   const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
