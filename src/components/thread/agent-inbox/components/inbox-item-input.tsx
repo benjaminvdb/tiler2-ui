@@ -4,7 +4,7 @@ import { HumanResponseWithEdits, SubmitType } from "../types";
 import { HumanInterrupt } from "@langchain/langgraph/prebuilt";
 import { ArgsRenderer } from "./shared/args-renderer";
 import { Response } from "./response-component";
-import { EditAndOrAccept } from "./edit-and-accept-component";
+import { EditAndOrAcceptComponent } from "./edit-and-accept-component";
 import { useInboxHandlers } from "../hooks/use-inbox-handlers";
 import { useInboxConfig } from "../hooks/use-inbox-config";
 
@@ -73,7 +73,7 @@ export function InboxItemInput({
       )}
 
       <div className="flex w-full flex-col items-start gap-2">
-        <EditAndOrAccept
+        <EditAndOrAcceptComponent
           humanResponse={humanResponse}
           streaming={streaming}
           initialValues={initialValues}
