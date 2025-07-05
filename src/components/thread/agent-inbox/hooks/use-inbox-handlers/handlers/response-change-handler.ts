@@ -30,8 +30,8 @@ export function createResponseChangeHandler({
 
     // Update human response state
     setHumanResponse((prev) => {
-      const newResponse = createStringResponse(response, change);
-      return updateHumanResponseWithString(prev, response, newResponse, hasContent);
+      const newResponse = createStringResponse({ response, change });
+      return updateHumanResponseWithString({ prev, response, newResponse, hasContent });
     });
   };
 }

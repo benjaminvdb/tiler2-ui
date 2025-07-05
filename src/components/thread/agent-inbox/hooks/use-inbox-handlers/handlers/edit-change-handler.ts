@@ -55,8 +55,8 @@ export function createEditChangeHandler({
         return prev;
       }
 
-      const newEdit = createEditResponse(response, change, key, valuesChanged);
-      return updateHumanResponseWithEdit(prev, response, newEdit, valuesChanged);
+      const newEdit = createEditResponse({ response, change, key, valuesChanged });
+      return updateHumanResponseWithEdit({ prev, response, newEdit, valuesChanged });
     });
   };
 }
