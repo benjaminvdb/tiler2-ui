@@ -2,7 +2,7 @@ import { CommandBarProps } from "../../types";
 import {
   validateCommandBarProps,
   shouldShowEditButton,
-} from "./utils/validation";
+} from "./validation";
 import { EditActions, MessageActions } from "./components";
 
 export function CommandBar({

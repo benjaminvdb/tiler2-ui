@@ -4,15 +4,14 @@ import { UseSubmitHandlerProps, UseSubmitHandlerReturn } from "./types";
 import {
   validateHumanResponse,
   validateSelectedInput,
-} from "./utils/validation";
-import { transformHumanResponse } from "./utils/response-transformer";
-import { handleSubmissionError, showSuccessToast } from "./utils/error-handler";
-import {
+  transformHumanResponse,
+  handleSubmissionError,
+  showSuccessToast,
   initializeSubmission,
   handleSubmissionSuccess,
-  handleSubmissionError as handleStateError,
+  handleSubmissionStateError as handleStateError,
   handleSimpleSubmission,
-} from "./utils/state-manager";
+} from "./utils";
 
 export function useSubmitHandler({
   humanResponse,
