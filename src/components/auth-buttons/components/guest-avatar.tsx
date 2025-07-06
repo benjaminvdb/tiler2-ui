@@ -1,12 +1,15 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { User } from "lucide-react";
+import { forwardRef } from "react";
 
-export function GuestAvatar() {
+export const GuestAvatar = forwardRef<HTMLButtonElement>((props, ref) => {
   return (
     <Button
+      ref={ref}
       variant="ghost"
       className="relative h-8 w-8 rounded-full"
+      {...props}
     >
       <Avatar>
         <AvatarFallback>
@@ -15,4 +18,6 @@ export function GuestAvatar() {
       </Avatar>
     </Button>
   );
-}
+});
+
+GuestAvatar.displayName = "GuestAvatar";

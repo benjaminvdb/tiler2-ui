@@ -1,3 +1,4 @@
+import React from "react";
 import { ContentBlocksPreview } from "../content-blocks-preview";
 import { Container } from "./components/container";
 import { TextareaInput } from "./components/textarea-input";
@@ -5,7 +6,7 @@ import { InterruptIndicator } from "./components/interrupt-indicator";
 import { ControlsSection } from "./components/controls-section";
 import { ChatInputProps } from "./types";
 
-export function ChatInput({
+const ChatInputComponent = ({
   input,
   onInputChange,
   onSubmit,
@@ -21,7 +22,7 @@ export function ChatInput({
   dragOver,
   dropRef,
   chatStarted,
-}: ChatInputProps) {
+}: ChatInputProps) => {
   return (
     <Container
       dragOver={dragOver}
@@ -55,4 +56,8 @@ export function ChatInput({
       </form>
     </Container>
   );
-}
+};
+
+ChatInputComponent.displayName = "ChatInput";
+
+export const ChatInput = React.memo(ChatInputComponent);

@@ -1,11 +1,11 @@
 import { format } from "date-fns";
 import { startCase } from "lodash";
 
-export function prettifyText(action: string) {
+export const prettifyText = (action: string): string => {
   return startCase(action.replace(/_/g, " "));
-}
+};
 
-export function unknownToPrettyDate(input: unknown): string | undefined {
+export const unknownToPrettyDate = (input: unknown): string | undefined => {
   try {
     if (
       Object.prototype.toString.call(input) === "[object Date]" ||
@@ -13,8 +13,8 @@ export function unknownToPrettyDate(input: unknown): string | undefined {
     ) {
       return format(new Date(input as string), "MM/dd/yyyy hh:mm a");
     }
-  } catch (_) {
+  } catch {
     // failed to parse date. no-op
   }
   return undefined;
-}
+};

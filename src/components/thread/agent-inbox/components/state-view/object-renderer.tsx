@@ -2,7 +2,7 @@ import { StateViewObject } from "./state-view-object";
 
 interface ObjectRendererProps {
   value: Record<string, unknown>;
-  expanded?: boolean;
+  expanded?: boolean | undefined;
 }
 
 export function ObjectRenderer({ value, expanded }: ObjectRendererProps) {

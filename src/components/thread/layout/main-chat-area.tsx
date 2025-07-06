@@ -6,7 +6,7 @@ import { MainChatAreaProps } from "./main-chat-area/types";
 import { AnimatedContainer } from "./main-chat-area/components/animated-container";
 import { ScrollableContent } from "./main-chat-area/components/scrollable-content";
 
-export const MainChatArea: React.FC<MainChatAreaProps> = ({
+const MainChatAreaComponent: React.FC<MainChatAreaProps> = ({
   chatStarted,
   chatHistoryOpen,
   isLargeScreen,
@@ -76,3 +76,7 @@ export const MainChatArea: React.FC<MainChatAreaProps> = ({
     </AnimatedContainer>
   );
 };
+
+MainChatAreaComponent.displayName = "MainChatArea";
+
+export const MainChatArea = React.memo(MainChatAreaComponent);

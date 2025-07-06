@@ -5,12 +5,12 @@ import {
   buildInterruptResponse,
 } from "../utils/message-builder";
 import { UseThreadHandlersProps } from "../types";
-
-export function createSubmitHandler(
+import { JsonValue } from "@/types";
+export const createSubmitHandler = (
   props: UseThreadHandlersProps,
   stream: any,
   isLoading: boolean,
-) {
+) => {
   const {
     input,
     setInput,
@@ -54,17 +54,19 @@ export function createSubmitHandler(
     const newHumanMessage = buildHumanMessage(input, contentBlocks);
     const toolMessages = ensureToolCallsHaveResponses(stream.messages);
     const context =
-      Object.keys(artifactContext).length > 0 ? artifactContext : undefined;
+      artifactContext && Object.keys(artifactContext).length > 0
+        ? artifactContext
+        : undefined;
 
     stream.submit(
       { messages: [...toolMessages, newHumanMessage], context },
       {
         streamMode: ["values"],
-        optimisticValues: (prev: any) => ({
+        optimisticValues: (prev: Record<string, JsonValue>) => ({
           ...prev,
           context,
           messages: [
-            ...(prev.messages ?? []),
+            ...(Array.isArray(prev.messages) ? prev.messages : []),
             ...toolMessages,
             newHumanMessage,
           ],
@@ -75,4 +77,4 @@ export function createSubmitHandler(
     setInput("");
     setContentBlocks([]);
   };
-}
+};

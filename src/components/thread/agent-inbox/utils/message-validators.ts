@@ -1,8 +1,8 @@
 import { BaseMessage, isBaseMessage } from "@langchain/core/messages";
 
-export function isArrayOfMessages(
+export const isArrayOfMessages = (
   value: Record<string, any>[],
-): value is BaseMessage[] {
+): value is BaseMessage[] => {
   if (
     value.every(isBaseMessage) ||
     (Array.isArray(value) &&
@@ -18,4 +18,4 @@ export function isArrayOfMessages(
     return true;
   }
   return false;
-}
+};

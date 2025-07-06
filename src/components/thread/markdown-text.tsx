@@ -1,2 +1,2 @@
-// Re-export the modular markdown component
-export { MarkdownText } from "./markdown";
+// Re-export the lazy-loaded markdown component
+export { MarkdownText } from "./markdown-text-lazy";

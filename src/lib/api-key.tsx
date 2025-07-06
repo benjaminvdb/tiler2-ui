@@ -1,4 +1,4 @@
-export function getApiKey(): string | null {
+export const getApiKey = (): string | null => {
   try {
     if (typeof window === "undefined") return null;
     return window.localStorage.getItem("lg:chat:apiKey") ?? null;
@@ -7,4 +7,4 @@ export function getApiKey(): string | null {
   }
 
   return null;
-}
+};

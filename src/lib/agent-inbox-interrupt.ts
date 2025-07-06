@@ -1,8 +1,8 @@
 import { HumanInterrupt } from "@langchain/langgraph/prebuilt";
 
-export function isAgentInboxInterruptSchema(
+export const isAgentInboxInterruptSchema = (
   value: unknown,
-): value is HumanInterrupt | HumanInterrupt[] {
+): value is HumanInterrupt | HumanInterrupt[] => {
   const valueAsObject = Array.isArray(value) ? value[0] : value;
   return (
     valueAsObject &&
@@ -16,4 +16,4 @@ export function isAgentInboxInterruptSchema(
     "allow_edit" in valueAsObject.config &&
     "allow_ignore" in valueAsObject.config
   );
-}
+};

@@ -1,4 +1,5 @@
 import { FormEvent } from "react";
+import type { ContentBlocks } from "@/types";
 
 export interface ChatInputProps {
   input: string;
@@ -6,7 +7,7 @@ export interface ChatInputProps {
   onSubmit: (e: FormEvent) => void;
   onPaste: (e: React.ClipboardEvent<HTMLTextAreaElement>) => void;
   onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  contentBlocks: any[];
+  contentBlocks: ContentBlocks;
   onRemoveBlock: (index: number) => void;
   isLoading: boolean;
   isRespondingToInterrupt: boolean;
@@ -43,7 +44,7 @@ export interface ControlsSectionProps {
   isLoading: boolean;
   onStop: () => void;
   input: string;
-  contentBlocks: any[];
+  contentBlocks: ContentBlocks;
 }
 
 export interface ToolCallsToggleProps {
@@ -59,5 +60,5 @@ export interface ActionButtonsProps {
   isLoading: boolean;
   onStop: () => void;
   input: string;
-  contentBlocks: any[];
+  contentBlocks: ContentBlocks;
 }

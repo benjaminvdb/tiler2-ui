@@ -7,7 +7,7 @@ interface SidebarHistoryProps {
   isLargeScreen: boolean;
 }
 
-export const SidebarHistory: React.FC<SidebarHistoryProps> = ({
+const SidebarHistoryComponent: React.FC<SidebarHistoryProps> = ({
   isOpen,
   isLargeScreen,
 }) => {
@@ -36,3 +36,7 @@ export const SidebarHistory: React.FC<SidebarHistoryProps> = ({
     </div>
   );
 };
+
+SidebarHistoryComponent.displayName = "SidebarHistory";
+
+export const SidebarHistory = React.memo(SidebarHistoryComponent);

@@ -1,6 +1,7 @@
 import { BaseMessage } from "@langchain/core/messages";
 import { Thread, ThreadStatus } from "@langchain/langgraph-sdk";
 import { HumanInterrupt, HumanResponse } from "@langchain/langgraph/prebuilt";
+import { JsonValue } from "@/types";
 
 export type HumanResponseWithEdits = HumanResponse &
   (
@@ -30,7 +31,7 @@ export interface ThreadValues {
 }
 
 export type ThreadData<
-  ThreadValues extends Record<string, any> = Record<string, any>,
+  ThreadValues extends Record<string, JsonValue> = Record<string, JsonValue>,
 > = {
   thread: Thread<ThreadValues>;
 } & (

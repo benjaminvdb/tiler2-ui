@@ -42,8 +42,8 @@ export function HumanMessage({ message, isLoading }: HumanMessageProps) {
           isEditing={isEditing}
           setIsEditing={setIsEditing}
           handleSubmitEdit={handleSubmitEdit}
-          branch={meta?.branch}
-          branchOptions={meta?.branchOptions}
+          branch={meta?.branch || ""}
+          branchOptions={meta?.branchOptions || []}
           onBranchSelect={(branch) => thread.setBranch(branch)}
         />
       </div>

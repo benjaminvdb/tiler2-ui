@@ -1,7 +1,7 @@
-export function getAnimationConfig(
+export const getAnimationConfig = (
   chatHistoryOpen: boolean,
   isLargeScreen: boolean,
-) {
+) => {
   return {
     marginLeft: chatHistoryOpen ? (isLargeScreen ? 300 : 0) : 0,
     width: chatHistoryOpen
@@ -10,10 +10,10 @@ export function getAnimationConfig(
         : "100%"
       : "100%",
   };
-}
+};
 
-export function getTransitionConfig(isLargeScreen: boolean) {
+export const getTransitionConfig = (isLargeScreen: boolean) => {
   return isLargeScreen
     ? { type: "spring" as const, stiffness: 300, damping: 30 }
     : { duration: 0 };
-}
+};

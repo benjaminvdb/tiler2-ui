@@ -1,6 +1,6 @@
 import { isBaseMessage } from "@langchain/core/messages";
 
-export function baseMessageObject(item: unknown): string {
+export const baseMessageObject = (item: unknown): string => {
   if (isBaseMessage(item)) {
     const contentText =
       typeof item.content === "string"
@@ -37,4 +37,4 @@ export function baseMessageObject(item: unknown): string {
   } else {
     return item as string;
   }
-}
+};

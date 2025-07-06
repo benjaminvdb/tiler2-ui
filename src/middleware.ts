@@ -1,30 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth0 } from "./lib/auth0";
+import { AUTH_CONFIG } from "@/config";
 
-const LOGIN_URL = "/auth/login";
+const LOGIN_URL = AUTH_CONFIG.loginUrl;
 
 export async function middleware(request: NextRequest) {
-  const authRes = await auth0.middleware(request);
   const { pathname } = request.nextUrl;
 
-  if (pathname.startsWith("/auth") || pathname.startsWith("/api")) {
-    return authRes;
+  // Handle API routes separately - let Auth0 middleware handle them
+  if (pathname.startsWith("/api")) {
+    return await auth0.middleware(request);
   }
 
+  // Handle auth routes - let Auth0 middleware handle them
+  if (pathname.startsWith("/auth")) {
+    return await auth0.middleware(request);
+  }
+
+  // For protected pages, check session
   const session = await auth0.getSession(request);
   if (!session) {
     return NextResponse.redirect(new URL(LOGIN_URL, request.nextUrl.origin));
   }
 
-  // Validate JWT token - redirects to login if expired/invalid
-  try {
-    await auth0.getAccessToken(request, authRes);
-  } catch (error) {
-    console.warn("Access token validation failed:", error);
-    return NextResponse.redirect(new URL(LOGIN_URL, request.nextUrl.origin));
-  }
-
-  return authRes;
+  return NextResponse.next();
 }
 
 export const config = {

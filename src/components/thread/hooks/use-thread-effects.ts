@@ -45,7 +45,7 @@ export function useThreadEffects({
     } catch {
       // no-op
     }
-  }, [stream.error]);
+  }, [stream.error, lastError]);
 
   // First token received effect
   useEffect(() => {
@@ -58,7 +58,7 @@ export function useThreadEffects({
     }
 
     prevMessageLength.current = messages.length;
-  }, [messages, setFirstTokenReceived]);
+  }, [messages, setFirstTokenReceived, prevMessageLength]);
 
   // Interrupt handling effect
   useEffect(() => {

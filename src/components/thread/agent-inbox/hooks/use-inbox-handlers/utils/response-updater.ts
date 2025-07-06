@@ -80,7 +80,7 @@ export function createEditResponse({
   response,
   change,
   key,
-  valuesChanged,
+  valuesChanged: _valuesChanged,
 }: EditResponseParams): HumanResponseWithEdits {
   if (typeof response.args !== "object" || !response.args) {
     throw new Error("Invalid response args for edit");

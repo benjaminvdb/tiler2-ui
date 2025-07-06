@@ -1,7 +1,7 @@
-export function constructOpenInStudioURL(
+export const constructOpenInStudioURL = (
   deploymentUrl: string,
   threadId?: string,
-) {
+): string => {
   const smithStudioURL = new URL("https://smith.langchain.com/studio/thread");
   // trim the trailing slash from deploymentUrl
   const trimmedDeploymentUrl = deploymentUrl.replace(/\/$/, "");
@@ -13,4 +13,4 @@ export function constructOpenInStudioURL(
   smithStudioURL.searchParams.append("baseUrl", trimmedDeploymentUrl);
 
   return smithStudioURL.toString();
-}
+};

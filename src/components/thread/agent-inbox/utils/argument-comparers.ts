@@ -1,7 +1,7 @@
-export function haveArgsChanged(
+export const haveArgsChanged = (
   args: unknown,
   initialValues: Record<string, string>,
-): boolean {
+): boolean => {
   if (typeof args !== "object" || !args) {
     return false;
   }
@@ -14,4 +14,4 @@ export function haveArgsChanged(
       : JSON.stringify(value, null);
     return initialValues[key] !== valueString;
   });
-}
+};

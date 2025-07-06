@@ -1,8 +1,5 @@
 import { CommandBarProps } from "../../types";
-import {
-  validateCommandBarProps,
-  shouldShowEditButton,
-} from "./validation";
+import { validateCommandBarProps, shouldShowEditButton } from "./validation";
 import { EditActions, MessageActions } from "./components";
 
 export function CommandBar({
@@ -51,7 +48,7 @@ export function CommandBar({
       content={content}
       isLoading={isLoading}
       isAiMessage={isAiMessage}
-      showEdit={showEdit}
+      showEdit={!!showEdit}
       handleRegenerate={handleRegenerate}
       setIsEditing={setIsEditing}
     />

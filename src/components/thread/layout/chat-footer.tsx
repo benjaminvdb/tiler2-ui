@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { LinkLogoSVG } from "../../icons/link";
 import { ScrollToBottom } from "../scroll-utils";
 import { ActionButtons } from "../action-buttons";
@@ -24,7 +24,7 @@ interface ChatFooterProps {
   handleActionClick: (action: string) => void;
 }
 
-export const ChatFooter: React.FC<ChatFooterProps> = ({
+const ChatFooterComponent: React.FC<ChatFooterProps> = ({
   chatStarted,
   input,
   onInputChange,
@@ -42,6 +42,10 @@ export const ChatFooter: React.FC<ChatFooterProps> = ({
 }) => {
   const stream = useStreamContext();
   const isLoading = stream.isLoading;
+
+  const handleStop = useCallback(() => {
+    stream.stop();
+  }, [stream]);
 
   return (
     <div className="sticky bottom-0 flex flex-col items-center gap-8 bg-white">
@@ -74,7 +78,7 @@ export const ChatFooter: React.FC<ChatFooterProps> = ({
         isRespondingToInterrupt={isRespondingToInterrupt}
         hideToolCalls={hideToolCalls}
         onHideToolCallsChange={onHideToolCallsChange}
-        onStop={() => stream.stop()}
+        onStop={handleStop}
         dragOver={dragOver}
         dropRef={dropRef}
         chatStarted={chatStarted}
@@ -90,3 +94,7 @@ export const ChatFooter: React.FC<ChatFooterProps> = ({
     </div>
   );
 };
+
+ChatFooterComponent.displayName = "ChatFooter";
+
+export const ChatFooter = React.memo(ChatFooterComponent);

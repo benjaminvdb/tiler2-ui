@@ -4,10 +4,10 @@ export interface FormSubmissionData {
   apiKey: string;
 }
 
-export function handleFormSubmission(
+export const handleFormSubmission = (
   event: React.FormEvent<HTMLFormElement>,
   onSubmit: (data: FormSubmissionData) => void,
-): void {
+): void => {
   event.preventDefault();
 
   const form = event.target as HTMLFormElement;
@@ -19,4 +19,4 @@ export function handleFormSubmission(
 
   onSubmit({ apiUrl, assistantId, apiKey });
   form.reset();
-}
+};

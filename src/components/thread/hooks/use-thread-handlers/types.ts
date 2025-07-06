@@ -1,14 +1,16 @@
+import type { ContentBlocks, InterruptItem, ArtifactContext } from "@/types";
+
 export interface UseThreadHandlersProps {
   input: string;
   setInput: (value: string) => void;
-  contentBlocks: any[];
-  setContentBlocks: (blocks: any[]) => void;
+  contentBlocks: ContentBlocks;
+  setContentBlocks: (blocks: ContentBlocks) => void;
   isRespondingToInterrupt: boolean;
   setIsRespondingToInterrupt: (value: boolean) => void;
-  currentInterrupt: any;
-  setCurrentInterrupt: (value: any) => void;
+  currentInterrupt: InterruptItem | null;
+  setCurrentInterrupt: (value: InterruptItem | null) => void;
   setFirstTokenReceived: (value: boolean) => void;
-  artifactContext: any;
+  artifactContext: ArtifactContext | null;
   prevMessageLength: React.MutableRefObject<number>;
 }
 

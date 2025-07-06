@@ -28,6 +28,7 @@ src/
 ## Component Organization
 
 ### Barrel Exports
+
 Components are organized with barrel exports (`index.ts`/`index.tsx`) to provide clean import paths:
 
 ```typescript
@@ -39,7 +40,9 @@ import { UserDropdown } from "./components/auth-buttons/components";
 ```
 
 ### Component Structure
+
 Each major component follows this pattern:
+
 ```
 component-name/
 ├── index.tsx              # Main component

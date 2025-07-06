@@ -6,7 +6,7 @@ interface ArtifactPanelProps {
   onClose: () => void;
 }
 
-export const ArtifactPanel: React.FC<ArtifactPanelProps> = ({ onClose }) => {
+const ArtifactPanelComponent: React.FC<ArtifactPanelProps> = ({ onClose }) => {
   return (
     <div className="relative flex flex-col border-l">
       <div className="absolute inset-0 flex min-w-[30vw] flex-col">
@@ -24,3 +24,7 @@ export const ArtifactPanel: React.FC<ArtifactPanelProps> = ({ onClose }) => {
     </div>
   );
 };
+
+ArtifactPanelComponent.displayName = "ArtifactPanel";
+
+export const ArtifactPanel = React.memo(ArtifactPanelComponent);

@@ -23,6 +23,7 @@ export function useFileUpload({
     contentBlocks,
     setContentBlocks,
     setDragOver,
+    containerRef: dropRef,
   });
 
   const { handleFileUpload, handlePaste, removeBlock, resetBlocks } =

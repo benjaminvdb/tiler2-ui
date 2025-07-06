@@ -1,9 +1,8 @@
 import { ChangeEvent } from "react";
 import { toast } from "sonner";
 import type { Base64ContentBlock } from "@langchain/core/messages";
-import { fileToContentBlock } from "@/lib/multimodal-utils";
-import { validateFiles } from "./validation";
-import { ERROR_MESSAGES } from "./constants";
+import { processFiles, extractFilesFromSource } from "./file-processor";
+import { ERROR_MESSAGES, SUPPORTED_FILE_TYPES } from "./constants";
 
 interface UseFileHandlersProps {
   contentBlocks: Base64ContentBlock[];
@@ -18,25 +17,8 @@ export function useFileHandlers({
     const files = e.target.files;
     if (!files) return;
 
-    const fileArray = Array.from(files);
-    const { invalidFiles, duplicateFiles, uniqueFiles } = validateFiles(
-      fileArray,
-      contentBlocks,
-    );
-
-    if (invalidFiles.length > 0) {
-      toast.error(ERROR_MESSAGES.INVALID_FILE_TYPE);
-    }
-    if (duplicateFiles.length > 0) {
-      toast.error(
-        ERROR_MESSAGES.DUPLICATE_FILES(duplicateFiles.map((f) => f.name)),
-      );
-    }
-
-    if (uniqueFiles.length > 0) {
-      const newBlocks = await Promise.all(uniqueFiles.map(fileToContentBlock));
-      setContentBlocks((prev) => [...prev, ...newBlocks]);
-    }
+    const fileArray = extractFilesFromSource(files);
+    await processFiles(fileArray, contentBlocks, setContentBlocks);
 
     // Reset the input value to allow re-uploading the same file
     e.target.value = "";
@@ -48,36 +30,22 @@ export function useFileHandlers({
     const items = e.clipboardData.items;
     if (!items) return;
 
-    const files: File[] = [];
-    for (let i = 0; i < items.length; i += 1) {
-      const item = items[i];
-      if (item.kind === "file") {
-        const file = item.getAsFile();
-        if (file) files.push(file);
-      }
-    }
-
-    if (files.length === 0) {
-      return;
-    }
+    const files = extractFilesFromSource(items);
+    if (files.length === 0) return;
 
     e.preventDefault();
-    const { invalidFiles, duplicateFiles, uniqueFiles } = validateFiles(
-      files,
-      contentBlocks,
-    );
 
+    // Use custom error message for paste operations
+    await processFiles(files, contentBlocks, setContentBlocks, {
+      showInvalidTypeError: false, // Handle custom error message
+    });
+
+    // Show custom paste error message if needed
+    const invalidFiles = files.filter(
+      (file) => !SUPPORTED_FILE_TYPES.includes(file.type),
+    );
     if (invalidFiles.length > 0) {
       toast.error(ERROR_MESSAGES.INVALID_PASTE_TYPE);
-    }
-    if (duplicateFiles.length > 0) {
-      toast.error(
-        ERROR_MESSAGES.DUPLICATE_FILES(duplicateFiles.map((f) => f.name)),
-      );
-    }
-    if (uniqueFiles.length > 0) {
-      const newBlocks = await Promise.all(uniqueFiles.map(fileToContentBlock));
-      setContentBlocks((prev) => [...prev, ...newBlocks]);
     }
   };
 

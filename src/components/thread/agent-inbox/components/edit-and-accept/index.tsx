@@ -8,6 +8,7 @@ import { Header } from "./components/header";
 import { FormField } from "./components/form-field";
 import { SubmitButton } from "./components/submit-button";
 import { EditAndOrAcceptComponentProps } from "./types";
+import { FieldValue } from "@/types";
 
 function EditAndOrAcceptComponent({
   humanResponse,
@@ -57,7 +58,7 @@ function EditAndOrAcceptComponent({
           <FormField
             key={`allow-edit-args--${k}-${idx}`}
             fieldKey={k}
-            value={v}
+            value={v as FieldValue}
             editResponse={editResponse}
             streaming={streaming}
             defaultRows={defaultRows}

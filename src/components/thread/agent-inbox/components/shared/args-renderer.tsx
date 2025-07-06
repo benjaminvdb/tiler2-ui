@@ -1,8 +1,9 @@
-import { MarkdownText } from "../../../markdown-text";
+import { MarkdownText } from "../../../markdown-text-lazy";
 import { prettifyText } from "../../utils";
+import { JsonValue } from "@/types";
 
 interface ArgsRendererProps {
-  args: Record<string, any>;
+  args: Record<string, JsonValue>;
 }
 
 export function ArgsRenderer({ args }: ArgsRendererProps) {
@@ -10,7 +11,7 @@ export function ArgsRenderer({ args }: ArgsRendererProps) {
     <div className="flex w-full flex-col items-start gap-6">
       {Object.entries(args).map(([k, v]) => {
         let value = "";
-        if (["string", "number"].includes(typeof v)) {
+        if (["string", "number"].includes(typeof v) && v !== null) {
           value = v.toString();
         } else {
           value = JSON.stringify(v, null);

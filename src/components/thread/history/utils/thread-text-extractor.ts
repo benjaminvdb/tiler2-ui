@@ -1,7 +1,7 @@
 import { Thread } from "@langchain/langgraph-sdk";
 import { getContentString } from "../../utils";
 
-export function extractThreadDisplayText(thread: Thread): string {
+export const extractThreadDisplayText = (thread: Thread): string => {
   let itemText = thread.thread_id;
 
   if (
@@ -16,4 +16,4 @@ export function extractThreadDisplayText(thread: Thread): string {
   }
 
   return itemText;
-}
+};

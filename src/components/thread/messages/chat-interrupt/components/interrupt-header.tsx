@@ -1,6 +1,6 @@
 import React from "react";
 import { MessageSquare } from "lucide-react";
-import { MarkdownText } from "../../../markdown-text";
+import { MarkdownText } from "../../../markdown-text-lazy";
 import { InterruptHeaderProps } from "../types";
 
 export const InterruptHeader: React.FC<InterruptHeaderProps> = ({

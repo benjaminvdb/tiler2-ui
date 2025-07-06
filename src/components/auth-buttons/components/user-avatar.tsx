@@ -1,6 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { getInitials } from "../utils/get-initials";
+import { forwardRef } from "react";
 
 interface UserAvatarProps {
   user: {
@@ -10,14 +11,19 @@ interface UserAvatarProps {
   };
 }
 
-export function UserAvatar({ user }: UserAvatarProps) {
+export const UserAvatar = forwardRef<
+  HTMLButtonElement,
+  UserAvatarProps & React.ButtonHTMLAttributes<HTMLButtonElement>
+>(({ user, ...props }, ref) => {
   const initials = getInitials(user.name || user.email || "User");
   const userImage = user.picture || "";
 
   return (
     <Button
+      ref={ref}
       variant="ghost"
       className="relative h-8 w-8 rounded-full"
+      {...props}
     >
       <Avatar>
         <AvatarImage
@@ -28,4 +34,6 @@ export function UserAvatar({ user }: UserAvatarProps) {
       </Avatar>
     </Button>
   );
-}
+});
+
+UserAvatar.displayName = "UserAvatar";

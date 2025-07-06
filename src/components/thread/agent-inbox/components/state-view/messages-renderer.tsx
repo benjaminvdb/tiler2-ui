@@ -1,6 +1,6 @@
 import { BaseMessage } from "@langchain/core/messages";
 import { ToolCall } from "@langchain/core/messages/tool";
-import { MarkdownText } from "../../../markdown-text";
+import { MarkdownText } from "../../../markdown-text-lazy";
 import { ToolCallTable } from "../tool-call-table";
 import { messageTypeToLabel } from "./utils";
 

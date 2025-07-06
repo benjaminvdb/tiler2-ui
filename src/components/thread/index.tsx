@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import { useStreamContext } from "@/providers/stream";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { useFileUpload } from "@/hooks/use-file-upload";
+import { useCallback, useMemo } from "react";
 
 // Import our new components and hooks
 import { useThreadState } from "./hooks/use-thread-state";
@@ -10,6 +11,7 @@ import { useThreadEffects } from "./hooks/use-thread-effects";
 import { SidebarHistory } from "./layout/sidebar-history";
 import { MainChatArea } from "./layout/main-chat-area";
 import { ArtifactPanel } from "./layout/artifact-panel";
+import { ComponentErrorBoundary } from "@/components/error-boundary";
 
 export function Thread() {
   // Use our custom hooks for state management
@@ -76,12 +78,26 @@ export function Thread() {
 
   const chatStarted = !!threadId || !!messages.length;
 
+  // Memoized callback functions to prevent unnecessary rerenders
+  const handleToggleChatHistory = useCallback(() => {
+    setChatHistoryOpen((p) => !p);
+  }, [setChatHistoryOpen]);
+
+  const handleNewThread = useCallback(() => {
+    setThreadId(null);
+  }, [setThreadId]);
+
+  // Memoized computed values
+  const memoizedChatStarted = useMemo(() => chatStarted, [chatStarted]);
+
   return (
     <div className="flex h-screen w-full overflow-hidden">
-      <SidebarHistory
-        isOpen={chatHistoryOpen}
-        isLargeScreen={isLargeScreen}
-      />
+      <ComponentErrorBoundary>
+        <SidebarHistory
+          isOpen={chatHistoryOpen}
+          isLargeScreen={isLargeScreen}
+        />
+      </ComponentErrorBoundary>
 
       <div
         className={cn(
@@ -89,30 +105,34 @@ export function Thread() {
           artifactOpen && "grid-cols-[3fr_2fr]",
         )}
       >
-        <MainChatArea
-          chatStarted={chatStarted}
-          chatHistoryOpen={chatHistoryOpen}
-          isLargeScreen={isLargeScreen}
-          onToggleChatHistory={() => setChatHistoryOpen((p) => !p)}
-          onNewThread={() => setThreadId(null)}
-          firstTokenReceived={firstTokenReceived}
-          handleRegenerate={handleRegenerate}
-          input={input}
-          onInputChange={setInput}
-          onSubmit={handleSubmit}
-          onPaste={handlePaste}
-          onFileUpload={handleFileUpload}
-          contentBlocks={contentBlocks}
-          onRemoveBlock={removeBlock}
-          isRespondingToInterrupt={isRespondingToInterrupt}
-          hideToolCalls={hideToolCalls}
-          onHideToolCallsChange={setHideToolCalls}
-          dragOver={dragOver}
-          dropRef={dropRef}
-          handleActionClick={handleActionClick}
-        />
+        <ComponentErrorBoundary>
+          <MainChatArea
+            chatStarted={memoizedChatStarted}
+            chatHistoryOpen={chatHistoryOpen}
+            isLargeScreen={isLargeScreen}
+            onToggleChatHistory={handleToggleChatHistory}
+            onNewThread={handleNewThread}
+            firstTokenReceived={firstTokenReceived}
+            handleRegenerate={handleRegenerate}
+            input={input}
+            onInputChange={setInput}
+            onSubmit={handleSubmit}
+            onPaste={handlePaste}
+            onFileUpload={handleFileUpload}
+            contentBlocks={contentBlocks}
+            onRemoveBlock={removeBlock}
+            isRespondingToInterrupt={isRespondingToInterrupt}
+            hideToolCalls={hideToolCalls}
+            onHideToolCallsChange={setHideToolCalls}
+            dragOver={dragOver}
+            dropRef={dropRef}
+            handleActionClick={handleActionClick}
+          />
+        </ComponentErrorBoundary>
 
-        <ArtifactPanel onClose={closeArtifact} />
+        <ComponentErrorBoundary>
+          <ArtifactPanel onClose={closeArtifact} />
+        </ComponentErrorBoundary>
       </div>
     </div>
   );

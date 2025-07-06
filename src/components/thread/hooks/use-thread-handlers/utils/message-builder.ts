@@ -1,10 +1,11 @@
 import { v4 as uuidv4 } from "uuid";
 import { Message } from "@langchain/langgraph-sdk";
+import { ContentBlocks } from "@/types";
 
-export function buildHumanMessage(
+export const buildHumanMessage = (
   input: string,
-  contentBlocks: any[],
-): Message {
+  contentBlocks: ContentBlocks,
+): Message => {
   return {
     id: uuidv4(),
     type: "human",
@@ -13,11 +14,11 @@ export function buildHumanMessage(
       ...contentBlocks,
     ] as Message["content"],
   };
-}
+};
 
-export function buildInterruptResponse(input: string) {
+export const buildInterruptResponse = (input: string) => {
   return {
     type: "response",
     args: input.trim(),
   };
-}
+};

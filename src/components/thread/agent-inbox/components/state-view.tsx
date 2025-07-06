@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { MarkdownText } from "../../markdown-text";
+import { MarkdownText } from "../../markdown-text-lazy";
 import { StateViewObject } from "./state-view/state-view-object";
 import { StateViewControls } from "./state-view/state-view-controls";
 
@@ -8,7 +8,7 @@ import { StateViewControls } from "./state-view/state-view-controls";
 export { StateViewObject } from "./state-view/state-view-object";
 
 interface StateViewComponentProps {
-  values: Record<string, any>;
+  values: Record<string, unknown>;
   description: string | undefined;
   handleShowSidePanel: (showState: boolean, showDescription: boolean) => void;
   view: "description" | "state";

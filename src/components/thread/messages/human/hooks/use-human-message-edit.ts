@@ -17,7 +17,7 @@ export function useHumanMessageEdit(message: Message, contentString: string) {
     thread.submit(
       { messages: [newMessage] },
       {
-        checkpoint: parentCheckpoint,
+        ...(parentCheckpoint && { checkpoint: parentCheckpoint }),
         streamMode: ["values"],
         optimisticValues: (prev) => {
           const values = meta?.firstSeenState?.values;

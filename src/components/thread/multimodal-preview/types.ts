@@ -16,19 +16,19 @@ export interface PreviewComponentProps {
   size?: "sm" | "md" | "lg";
 }
 
-export function isImageBlock(block: Base64ContentBlock): boolean {
+export const isImageBlock = (block: Base64ContentBlock): boolean => {
   return (
     block.type === "image" &&
     block.source_type === "base64" &&
     typeof block.mime_type === "string" &&
     block.mime_type.startsWith("image/")
   );
-}
+};
 
-export function isPdfBlock(block: Base64ContentBlock): boolean {
+export const isPdfBlock = (block: Base64ContentBlock): boolean => {
   return (
     block.type === "file" &&
     block.source_type === "base64" &&
     block.mime_type === "application/pdf"
   );
-}
+};

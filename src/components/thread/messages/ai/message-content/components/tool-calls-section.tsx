@@ -1,5 +1,5 @@
 import { ToolCalls } from "../../../tool-calls";
-import { Message } from "@langchain/langgraph-sdk";
+import { Message, AIMessage } from "@langchain/langgraph-sdk";
 
 interface ToolCallsSectionProps {
   message: Message;
@@ -7,7 +7,7 @@ interface ToolCallsSectionProps {
   hasToolCalls: boolean;
   toolCallsHaveContents: boolean;
   hasAnthropicToolCalls: boolean;
-  anthropicStreamedToolCalls?: any[];
+  anthropicStreamedToolCalls?: AIMessage["tool_calls"];
 }
 
 export function ToolCallsSection({
@@ -25,12 +25,14 @@ export function ToolCallsSection({
   return (
     <>
       {(hasToolCalls && toolCallsHaveContents && (
-        <ToolCalls toolCalls={message.tool_calls} />
+        <ToolCalls toolCalls={(message as AIMessage).tool_calls} />
       )) ||
         (hasAnthropicToolCalls && (
           <ToolCalls toolCalls={anthropicStreamedToolCalls} />
         )) ||
-        (hasToolCalls && <ToolCalls toolCalls={message.tool_calls} />)}
+        (hasToolCalls && (
+          <ToolCalls toolCalls={(message as AIMessage).tool_calls} />
+        ))}
     </>
   );
 }

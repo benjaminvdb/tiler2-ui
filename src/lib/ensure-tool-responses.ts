@@ -3,7 +3,9 @@ import { Message, ToolMessage } from "@langchain/langgraph-sdk";
 
 export const DO_NOT_RENDER_ID_PREFIX = "do-not-render-";
 
-export function ensureToolCallsHaveResponses(messages: Message[]): Message[] {
+export const ensureToolCallsHaveResponses = (
+  messages: Message[],
+): Message[] => {
   const newMessages: ToolMessage[] = [];
 
   messages.forEach((message, index) => {
@@ -31,4 +33,4 @@ export function ensureToolCallsHaveResponses(messages: Message[]): Message[] {
   });
 
   return newMessages;
-}
+};

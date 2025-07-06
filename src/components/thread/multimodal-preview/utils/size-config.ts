@@ -1,4 +1,6 @@
-export function getImageSizeConfig(size: "sm" | "md" | "lg") {
+export const getImageSizeConfig = (
+  size: "sm" | "md" | "lg",
+): { className: string; width: number; height: number } => {
   switch (size) {
     case "sm":
       return {
@@ -20,8 +22,8 @@ export function getImageSizeConfig(size: "sm" | "md" | "lg") {
         height: 32,
       };
   }
-}
+};
 
-export function getIconSize(size: "sm" | "md" | "lg"): string {
+export const getIconSize = (size: "sm" | "md" | "lg"): string => {
   return size === "sm" ? "h-5 w-5" : "h-7 w-7";
-}
+};

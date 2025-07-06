@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { SyntaxHighlighter } from "@/components/thread/syntax-highlighter";
+import { SyntaxHighlighter } from "@/components/thread/syntax-highlighter-lazy";
 import { CodeHeader } from "../code-header";
 import { CodeComponentProps } from "./types";
 
@@ -18,7 +18,7 @@ export const code = ({ className, children, ...props }: CodeComponentProps) => {
         />
         <SyntaxHighlighter
           language={language}
-          className={className}
+          {...(className && { className })}
         >
           {code}
         </SyntaxHighlighter>

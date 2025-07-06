@@ -1,5 +1,6 @@
 import React from "react";
 import { Checkpoint } from "@langchain/langgraph-sdk";
+import type { ContentBlocks } from "@/types";
 
 export interface MainChatAreaProps {
   chatStarted: boolean;
@@ -16,7 +17,7 @@ export interface MainChatAreaProps {
     e: React.ClipboardEvent<HTMLTextAreaElement | HTMLInputElement>,
   ) => void;
   onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  contentBlocks: any[];
+  contentBlocks: ContentBlocks;
   onRemoveBlock: (idx: number) => void;
   isRespondingToInterrupt: boolean;
   hideToolCalls: boolean;

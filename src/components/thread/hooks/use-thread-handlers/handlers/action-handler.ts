@@ -1,5 +1,5 @@
-export function createActionHandler(stream: any) {
+export const createActionHandler = (stream: any) => {
   return (prompt: string) => {
     stream.submit({ messages: prompt });
   };
-}
+};

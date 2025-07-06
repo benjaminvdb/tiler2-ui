@@ -1,12 +1,12 @@
 import { CommandBarProps } from "../../types";
 
-export function validateCommandBarProps({
+export const validateCommandBarProps = ({
   isHumanMessage,
   isAiMessage,
   isEditing,
   setIsEditing,
   handleSubmitEdit,
-}: CommandBarProps) {
+}: CommandBarProps): void => {
   if (isHumanMessage && isAiMessage) {
     throw new Error(
       "Can only set one of isHumanMessage or isAiMessage to true, not both.",
@@ -29,18 +29,18 @@ export function validateCommandBarProps({
       "If isHumanMessage is true, all of isEditing, setIsEditing, and handleSubmitEdit must be set.",
     );
   }
-}
+};
 
-export function shouldShowEditButton(
+export const shouldShowEditButton = (
   isHumanMessage: boolean | undefined,
   isEditing: boolean | undefined,
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>> | undefined,
   handleSubmitEdit: (() => void) | undefined,
-) {
-  return (
+): boolean => {
+  return !!(
     isHumanMessage &&
     isEditing !== undefined &&
-    !!setIsEditing &&
-    !!handleSubmitEdit
+    setIsEditing &&
+    handleSubmitEdit
   );
-}
+};

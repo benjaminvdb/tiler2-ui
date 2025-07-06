@@ -1,22 +1,25 @@
 import React from "react";
+import { FieldValue } from "@/types";
 
-export function calculateDefaultRows(
-  value: any,
+export const calculateDefaultRows = (
+  value: FieldValue,
   fieldKey: string,
   defaultRows: React.MutableRefObject<Record<string, number>>,
-): number {
+): number => {
   // Calculate the default number of rows by the total length of the initial value divided by 30
   // or 8, whichever is greater. Stored in a ref to prevent re-rendering.
   if (defaultRows.current[fieldKey] === undefined) {
-    defaultRows.current[fieldKey] = !value.length
+    const stringValue =
+      typeof value === "string" ? value : JSON.stringify(value);
+    defaultRows.current[fieldKey] = !stringValue.length
       ? 3
-      : Math.max(value.length / 30, 7);
+      : Math.max(stringValue.length / 30, 7);
   }
   return defaultRows.current[fieldKey] || 8;
-}
+};
 
-export function formatFieldValue(value: any): string {
+export const formatFieldValue = (value: FieldValue): string => {
   return ["string", "number"].includes(typeof value)
-    ? value
+    ? String(value)
     : JSON.stringify(value, null);
-}
+};

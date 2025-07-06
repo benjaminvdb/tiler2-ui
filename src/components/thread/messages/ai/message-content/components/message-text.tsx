@@ -1,4 +1,4 @@
-import { MarkdownText } from "../../../../markdown-text";
+import { MarkdownText } from "../../../../markdown-text-lazy";
 
 interface MessageTextProps {
   contentString: string;

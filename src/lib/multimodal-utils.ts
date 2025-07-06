@@ -2,9 +2,9 @@ import type { Base64ContentBlock } from "@langchain/core/messages";
 import { toast } from "sonner";
 
 // Returns a Promise of a typed multimodal block for images or PDFs
-export async function fileToContentBlock(
+export const fileToContentBlock = async (
   file: File,
-): Promise<Base64ContentBlock> {
+): Promise<Base64ContentBlock> => {
   const supportedImageTypes = [
     "image/jpeg",
     "image/png",
@@ -40,10 +40,10 @@ export async function fileToContentBlock(
     data,
     metadata: { filename: file.name },
   };
-}
+};
 
 // Helper to convert File to base64 string
-export async function fileToBase64(file: File): Promise<string> {
+export const fileToBase64 = async (file: File): Promise<string> => {
   return new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
     reader.onloadend = () => {
@@ -54,12 +54,12 @@ export async function fileToBase64(file: File): Promise<string> {
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
-}
+};
 
 // Type guard for Base64ContentBlock
-export function isBase64ContentBlock(
+export const isBase64ContentBlock = (
   block: unknown,
-): block is Base64ContentBlock {
+): block is Base64ContentBlock => {
   if (typeof block !== "object" || block === null || !("type" in block))
     return false;
   // file type (legacy)
@@ -86,4 +86,4 @@ export function isBase64ContentBlock(
     return true;
   }
   return false;
-}
+};

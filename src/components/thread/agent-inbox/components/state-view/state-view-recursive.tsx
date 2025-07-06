@@ -4,7 +4,7 @@ import { ObjectRenderer } from "./object-renderer";
 
 interface StateViewRecursiveProps {
   value: unknown;
-  expanded?: boolean;
+  expanded?: boolean | undefined;
 }
 
 export function StateViewRecursive({

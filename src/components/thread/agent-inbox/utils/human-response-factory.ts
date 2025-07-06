@@ -3,12 +3,12 @@ import { HumanResponseFactoryResult } from "./human-response-factory/types";
 import { collectResponses } from "./human-response-factory/builders/response-collector";
 import { calculateDefaultSubmitType } from "./human-response-factory/builders/submit-type-calculator";
 
-export function createDefaultHumanResponse(
+export const createDefaultHumanResponse = (
   interrupt: HumanInterrupt,
   initialHumanInterruptEditValue: React.MutableRefObject<
     Record<string, string>
   >,
-): HumanResponseFactoryResult {
+): HumanResponseFactoryResult => {
   const responses = collectResponses(interrupt, initialHumanInterruptEditValue);
   const { defaultSubmitType, hasAccept } = calculateDefaultSubmitType(
     responses,
@@ -16,4 +16,4 @@ export function createDefaultHumanResponse(
   );
 
   return { responses, defaultSubmitType, hasAccept };
-}
+};

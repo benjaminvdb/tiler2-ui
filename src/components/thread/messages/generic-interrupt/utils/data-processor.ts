@@ -1,9 +1,9 @@
 import { truncateValue, shouldTruncateContent } from "./value-helpers";
 
-export function processInterruptEntries(
+export const processInterruptEntries = (
   interrupt: Record<string, any> | Record<string, any>[],
   isExpanded: boolean,
-): [string, any][] {
+): [string, any][] => {
   if (Array.isArray(interrupt)) {
     const items = isExpanded ? interrupt : interrupt.slice(0, 5);
     return items.map((item, index) => [index.toString(), item]);
@@ -21,4 +21,4 @@ export function processInterruptEntries(
 
     return entries;
   }
-}
+};

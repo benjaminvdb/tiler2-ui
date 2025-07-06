@@ -1,6 +1,7 @@
 import React from "react";
 import { HumanInterrupt } from "@langchain/langgraph/prebuilt";
 import { HumanResponseWithEdits } from "../../types";
+import { FieldValue } from "@/types";
 
 export interface EditAndOrAcceptComponentProps {
   humanResponse: HumanResponseWithEdits[];
@@ -24,7 +25,7 @@ export interface HeaderProps {
 
 export interface FormFieldProps {
   fieldKey: string;
-  value: any;
+  value: FieldValue;
   editResponse: HumanResponseWithEdits;
   streaming: boolean;
   defaultRows: React.MutableRefObject<Record<string, number>>;

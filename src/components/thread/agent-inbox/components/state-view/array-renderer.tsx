@@ -4,7 +4,7 @@ import { StateViewRecursive } from "./state-view-recursive";
 
 interface ArrayRendererProps {
   value: unknown[];
-  expanded?: boolean;
+  expanded?: boolean | undefined;
 }
 
 export function ArrayRenderer({ value, expanded }: ArrayRendererProps) {

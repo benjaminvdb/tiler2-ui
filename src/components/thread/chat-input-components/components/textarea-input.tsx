@@ -1,30 +1,42 @@
+import React, { useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { TextareaInputProps } from "../types";
 
-export function TextareaInput({
+const TextareaInputComponent = ({
   input,
   onInputChange,
   onPaste,
   isRespondingToInterrupt,
-}: TextareaInputProps) {
+}: TextareaInputProps) => {
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      onInputChange(e.target.value);
+    },
+    [onInputChange],
+  );
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      if (
+        e.key === "Enter" &&
+        !e.shiftKey &&
+        !e.metaKey &&
+        !e.nativeEvent.isComposing
+      ) {
+        e.preventDefault();
+        const el = e.target as HTMLElement | undefined;
+        const form = el?.closest("form");
+        form?.requestSubmit();
+      }
+    },
+    [],
+  );
   return (
     <textarea
       value={input}
-      onChange={(e) => onInputChange(e.target.value)}
+      onChange={handleChange}
       onPaste={onPaste}
-      onKeyDown={(e) => {
-        if (
-          e.key === "Enter" &&
-          !e.shiftKey &&
-          !e.metaKey &&
-          !e.nativeEvent.isComposing
-        ) {
-          e.preventDefault();
-          const el = e.target as HTMLElement | undefined;
-          const form = el?.closest("form");
-          form?.requestSubmit();
-        }
-      }}
+      onKeyDown={handleKeyDown}
       placeholder={
         isRespondingToInterrupt
           ? "Type your response..."
@@ -35,4 +47,8 @@ export function TextareaInput({
       )}
     />
   );
-}
+};
+
+TextareaInputComponent.displayName = "TextareaInput";
+
+export const TextareaInput = React.memo(TextareaInputComponent);

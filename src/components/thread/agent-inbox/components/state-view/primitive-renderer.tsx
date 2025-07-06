@@ -1,4 +1,4 @@
-import { MarkdownText } from "../../../markdown-text";
+import { MarkdownText } from "../../../markdown-text-lazy";
 import { unknownToPrettyDate } from "../../utils";
 
 interface PrimitiveRendererProps {

@@ -35,17 +35,17 @@ export function MessageContent({
     <div className="group mr-auto flex items-start gap-2">
       <div className="flex flex-col gap-2">
         {isToolResult ? (
-          <ToolResult message={message} />
+          <ToolResult message={message as any} />
         ) : (
           <RegularMessage
             message={message}
             isLoading={isLoading}
             contentString={contentString}
             hideToolCalls={hideToolCalls}
-            hasToolCalls={hasToolCalls}
-            toolCallsHaveContents={toolCallsHaveContents}
+            hasToolCalls={!!hasToolCalls}
+            toolCallsHaveContents={!!toolCallsHaveContents}
             hasAnthropicToolCalls={hasAnthropicToolCalls}
-            anthropicStreamedToolCalls={anthropicStreamedToolCalls}
+            anthropicStreamedToolCalls={anthropicStreamedToolCalls || []}
             meta={meta}
             thread={thread}
             parentCheckpoint={parentCheckpoint}

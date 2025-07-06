@@ -1,25 +1,27 @@
-import { useRef, useEffect } from "react";
-import { toast } from "sonner";
+import { useRef, useEffect, RefObject } from "react";
 import type { Base64ContentBlock } from "@langchain/core/messages";
-import { fileToContentBlock } from "@/lib/multimodal-utils";
-import { validateFiles } from "./validation";
-import { ERROR_MESSAGES } from "./constants";
+import { processFiles } from "./file-processor";
 
 interface UseDragDropHandlersProps {
   contentBlocks: Base64ContentBlock[];
   setContentBlocks: React.Dispatch<React.SetStateAction<Base64ContentBlock[]>>;
   setDragOver: React.Dispatch<React.SetStateAction<boolean>>;
+  containerRef: RefObject<HTMLElement | null>;
 }
 
 export function useDragDropHandlers({
   contentBlocks,
   setContentBlocks,
   setDragOver,
+  containerRef,
 }: UseDragDropHandlersProps) {
   const dragCounter = useRef(0);
 
   useEffect(() => {
-    const handleWindowDragEnter = (e: DragEvent) => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleDragEnter = (e: DragEvent) => {
       e.preventDefault();
       e.stopPropagation();
       dragCounter.current += 1;
@@ -28,7 +30,7 @@ export function useDragDropHandlers({
       }
     };
 
-    const handleWindowDragLeave = (e: DragEvent) => {
+    const handleDragLeave = (e: DragEvent) => {
       e.preventDefault();
       e.stopPropagation();
       dragCounter.current -= 1;
@@ -37,7 +39,7 @@ export function useDragDropHandlers({
       }
     };
 
-    const handleWindowDrop = async (e: DragEvent) => {
+    const handleDrop = async (e: DragEvent) => {
       e.preventDefault();
       e.stopPropagation();
       dragCounter.current = 0;
@@ -46,48 +48,31 @@ export function useDragDropHandlers({
       if (!e.dataTransfer) return;
 
       const files = Array.from(e.dataTransfer.files);
-      const { invalidFiles, duplicateFiles, uniqueFiles } = validateFiles(
-        files,
-        contentBlocks,
-      );
-
-      if (invalidFiles.length > 0) {
-        toast.error(ERROR_MESSAGES.INVALID_FILE_TYPE);
-      }
-      if (duplicateFiles.length > 0) {
-        toast.error(
-          ERROR_MESSAGES.DUPLICATE_FILES(duplicateFiles.map((f) => f.name)),
-        );
-      }
-
-      const newBlocks = uniqueFiles.length
-        ? await Promise.all(uniqueFiles.map(fileToContentBlock))
-        : [];
-      setContentBlocks((prev) => [...prev, ...newBlocks]);
+      await processFiles(files, contentBlocks, setContentBlocks);
     };
 
-    const handleWindowDragEnd = (e: DragEvent) => {
+    const handleDragEnd = (e: DragEvent) => {
       dragCounter.current = 0;
       setDragOver(false);
     };
 
-    const handleWindowDragOver = (e: DragEvent) => {
+    const handleDragOver = (e: DragEvent) => {
       e.preventDefault();
       e.stopPropagation();
     };
 
-    window.addEventListener("dragenter", handleWindowDragEnter);
-    window.addEventListener("dragleave", handleWindowDragLeave);
-    window.addEventListener("drop", handleWindowDrop);
-    window.addEventListener("dragend", handleWindowDragEnd);
-    window.addEventListener("dragover", handleWindowDragOver);
+    container.addEventListener("dragenter", handleDragEnter);
+    container.addEventListener("dragleave", handleDragLeave);
+    container.addEventListener("drop", handleDrop);
+    container.addEventListener("dragend", handleDragEnd);
+    container.addEventListener("dragover", handleDragOver);
 
     return () => {
-      window.removeEventListener("dragenter", handleWindowDragEnter);
-      window.removeEventListener("dragleave", handleWindowDragLeave);
-      window.removeEventListener("drop", handleWindowDrop);
-      window.removeEventListener("dragend", handleWindowDragEnd);
-      window.removeEventListener("dragover", handleWindowDragOver);
+      container.removeEventListener("dragenter", handleDragEnter);
+      container.removeEventListener("dragleave", handleDragLeave);
+      container.removeEventListener("drop", handleDrop);
+      container.removeEventListener("dragend", handleDragEnd);
+      container.removeEventListener("dragover", handleDragOver);
     };
-  }, [contentBlocks, setContentBlocks, setDragOver]);
+  }, [contentBlocks, setContentBlocks, setDragOver, containerRef]);
 }

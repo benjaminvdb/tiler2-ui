@@ -8,7 +8,7 @@ import { StateViewRecursive } from "./state-view-recursive";
 interface StateViewObjectProps {
   keyName: string;
   value: unknown;
-  expanded?: boolean;
+  expanded?: boolean | undefined;
 }
 
 export function StateViewObject({
