@@ -4,6 +4,15 @@ import { AUTH_CONFIG } from "@/config";
 
 const LOGIN_URL = AUTH_CONFIG.loginUrl;
 
+// Define public routes that don't require authentication
+const PUBLIC_ROUTES = [
+  "/", // Landing page
+  "/health", // Health check
+  "/public", // Public assets/pages
+  "/privacy", // Privacy policy
+  "/terms", // Terms of service
+];
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -17,10 +26,18 @@ export async function middleware(request: NextRequest) {
     return await auth0.middleware(request);
   }
 
-  // For protected pages, check session
-  const session = await auth0.getSession(request);
-  if (!session) {
-    return NextResponse.redirect(new URL(LOGIN_URL, request.nextUrl.origin));
+  // Check if route is public
+  const isPublicRoute = PUBLIC_ROUTES.includes(pathname) || 
+    pathname.startsWith("/public/") ||
+    pathname.startsWith("/_next/") ||
+    pathname.includes(".");
+
+  // Only protect non-public routes
+  if (!isPublicRoute) {
+    const session = await auth0.getSession(request);
+    if (!session) {
+      return NextResponse.redirect(new URL(LOGIN_URL, request.nextUrl.origin));
+    }
   }
 
   return NextResponse.next();

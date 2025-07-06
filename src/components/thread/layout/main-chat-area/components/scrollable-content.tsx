@@ -5,18 +5,18 @@ import {
   getContentClassName,
   CONTENT_CONTAINER_CLASS,
 } from "../utils/layout-styles";
+import { useChatContext } from "@/providers/chat";
 
 interface ScrollableContentProps {
-  chatStarted: boolean;
   content: React.ReactNode;
   footer: React.ReactNode;
 }
 
 export const ScrollableContent: React.FC<ScrollableContentProps> = ({
-  chatStarted,
   content,
   footer,
 }) => {
+  const { chatStarted } = useChatContext();
   return (
     <StickToBottom className="relative flex-1 overflow-hidden">
       <StickyToBottomContent

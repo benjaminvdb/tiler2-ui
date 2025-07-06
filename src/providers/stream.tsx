@@ -1,6 +1,7 @@
-import React, { ReactNode, useState } from "react";
+import React, { ReactNode, useState, useMemo } from "react";
 import { useQueryState } from "nuqs";
-import { getApiKey } from "@/lib/api-key";
+import { getApiKey, setApiKey as setApiKeyStorage } from "@/lib/api-key";
+import { getClientConfig } from "@/config";
 import { ConfigurationForm } from "./stream/configuration-form";
 import { StreamSession } from "./stream/stream-session";
 
@@ -8,15 +9,12 @@ import { StreamSession } from "./stream/stream-session";
 export type { StateType, StreamContextType } from "./stream/types";
 export { useTypedStream } from "./stream/types";
 export { useStreamContext } from "./stream/stream-context";
-export { DEFAULT_API_URL, DEFAULT_ASSISTANT_ID } from "./stream/utils";
 
 export const StreamProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  // Get environment variables
-  const envApiUrl: string | undefined = process.env.NEXT_PUBLIC_API_URL;
-  const envAssistantId: string | undefined =
-    process.env.NEXT_PUBLIC_ASSISTANT_ID;
+  // Get client configuration
+  const clientConfig = getClientConfig();
 
   // Use URL params with env var fallbacks
   const [apiUrl, setApiUrl] = useQueryState("apiUrl", {
@@ -33,13 +31,13 @@ export const StreamProvider: React.FC<{ children: ReactNode }> = ({
   });
 
   const setApiKey = (key: string) => {
-    window.localStorage.setItem("lg:chat:apiKey", key);
+    setApiKeyStorage(key);
     _setApiKey(key);
   };
 
-  // Determine final values to use, prioritizing URL params then env vars
-  const finalApiUrl = apiUrl || envApiUrl;
-  const finalAssistantId = assistantId || envAssistantId;
+  // Memoize final values to prevent unnecessary re-renders
+  const finalApiUrl = useMemo(() => apiUrl || envApiUrl, [apiUrl, envApiUrl]);
+  const finalAssistantId = useMemo(() => assistantId || envAssistantId, [assistantId, envAssistantId]);
 
   // Show the form if we: don't have an API URL, or don't have an assistant ID
   if (!finalApiUrl || !finalAssistantId) {

@@ -1,13 +1,23 @@
-import { useRef, useCallback } from "react";
+import { useRef, useCallback, useEffect } from "react";
 
 /**
- * Custom hook for debouncing function calls
+ * Custom hook for debouncing function calls with proper cleanup
  */
 export function useDebounce<T extends (...args: any[]) => any>(
   func: T,
   delay: number,
 ): (...args: Parameters<T>) => void {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Clean up timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+    };
+  }, []);
 
   return useCallback(
     (...args: Parameters<T>) => {
@@ -17,6 +27,7 @@ export function useDebounce<T extends (...args: any[]) => any>(
 
       timeoutRef.current = setTimeout(() => {
         func(...args);
+        timeoutRef.current = null;
       }, delay);
     },
     [func, delay],

@@ -1,12 +1,10 @@
 import { SquarePen } from "lucide-react";
 import AuthButtons from "@/components/auth-buttons";
 import { TooltipIconButton } from "../../tooltip-icon-button";
+import { useUIContext } from "@/providers/ui";
 
-interface HeaderActionsProps {
-  onNewThread: () => void;
-}
-
-export function HeaderActions({ onNewThread }: HeaderActionsProps) {
+export function HeaderActions() {
+  const { onNewThread } = useUIContext();
   return (
     <div className="flex items-center gap-4">
       <div className="flex items-center">

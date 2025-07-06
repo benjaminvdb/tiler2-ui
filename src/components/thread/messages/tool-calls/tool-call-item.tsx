@@ -3,8 +3,9 @@ import { isComplexValue } from "./utils";
 interface ToolCallItemProps {
   toolCall: {
     name: string;
-    id?: string;
+    id?: string | undefined;
     args: Record<string, any>;
+    type?: string | undefined;
   };
 }
 

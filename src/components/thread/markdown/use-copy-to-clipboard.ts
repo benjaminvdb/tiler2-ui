@@ -9,13 +9,16 @@ export const useCopyToClipboard = ({
 }: UseCopyToClipboardOptions = {}) => {
   const [isCopied, setIsCopied] = useState<boolean>(false);
 
-  const copyToClipboard = (value: string) => {
+  const copyToClipboard = async (value: string) => {
     if (!value) return;
 
-    navigator.clipboard.writeText(value).then(() => {
+    try {
+      await navigator.clipboard.writeText(value);
       setIsCopied(true);
       setTimeout(() => setIsCopied(false), copiedDuration);
-    });
+    } catch (error) {
+      console.error('Failed to copy to clipboard:', error);
+    }
   };
 
   return { isCopied, copyToClipboard };

@@ -4,42 +4,25 @@ import { ScrollToBottom } from "../scroll-utils";
 import { ActionButtons } from "../action-buttons";
 import { ChatInput } from "../chat-input";
 import { useStreamContext } from "@/providers/stream";
+import { useChatContext } from "@/providers/chat";
 
-interface ChatFooterProps {
-  chatStarted: boolean;
-  input: string;
-  onInputChange: (value: string) => void;
-  onSubmit: (e: React.FormEvent) => void;
-  onPaste: (
-    e: React.ClipboardEvent<HTMLTextAreaElement | HTMLInputElement>,
-  ) => void;
-  onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  contentBlocks: any[];
-  onRemoveBlock: (idx: number) => void;
-  isRespondingToInterrupt: boolean;
-  hideToolCalls: boolean;
-  onHideToolCallsChange: (value: boolean) => void;
-  dragOver: boolean;
-  dropRef: React.RefObject<HTMLDivElement | null>;
-  handleActionClick: (action: string) => void;
-}
-
-const ChatFooterComponent: React.FC<ChatFooterProps> = ({
-  chatStarted,
-  input,
-  onInputChange,
-  onSubmit,
-  onPaste,
-  onFileUpload,
-  contentBlocks,
-  onRemoveBlock,
-  isRespondingToInterrupt,
-  hideToolCalls,
-  onHideToolCallsChange,
-  dragOver,
-  dropRef,
-  handleActionClick,
-}) => {
+const ChatFooterComponent: React.FC = () => {
+  const {
+    chatStarted,
+    input,
+    onInputChange,
+    onSubmit,
+    onPaste,
+    onFileUpload,
+    contentBlocks,
+    onRemoveBlock,
+    isRespondingToInterrupt,
+    hideToolCalls,
+    onHideToolCallsChange,
+    dragOver,
+    dropRef,
+    handleActionClick,
+  } = useChatContext();
   const stream = useStreamContext();
   const isLoading = stream.isLoading;
 

@@ -16,7 +16,8 @@
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "analyze": "ANALYZE=true pnpm build"
   },
   "dependencies": {
     "@auth0/nextjs-auth0": "^4.7.0",
@@ -57,11 +58,13 @@
     "tailwindcss-animate": "^1.0.7",
     "use-stick-to-bottom": "^1.1.1",
     "uuid": "^11.1.0",
-    "zod": "^3.25.67"
+    "zod": "^3.25.67",
+    "zustand": "^5.0.6"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.30.0",
+    "@next/bundle-analyzer": "^15.3.5",
     "@next/eslint-plugin-next": "^15.3.5",
     "@tailwindcss/postcss": "^4.1.11",
     "@types/lodash": "^4.17.19",

@@ -5,10 +5,10 @@ import { ContentCopyable } from "../../content-copyable";
 interface MessageActionsProps {
   content: string;
   isLoading: boolean;
-  isAiMessage?: boolean;
+  isAiMessage?: boolean | undefined;
   showEdit: boolean;
-  handleRegenerate?: () => void;
-  setIsEditing?: React.Dispatch<React.SetStateAction<boolean>>;
+  handleRegenerate?: (() => void) | undefined;
+  setIsEditing?: React.Dispatch<React.SetStateAction<boolean>> | undefined;
 }
 
 export function MessageActions({

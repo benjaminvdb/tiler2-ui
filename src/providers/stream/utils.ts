@@ -1,13 +1,27 @@
-export async function sleep(ms = 4000) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+export async function sleep(ms = 4000, signal?: AbortSignal) {
+  return new Promise((resolve, reject) => {
+    if (signal?.aborted) {
+      reject(new DOMException('Aborted', 'AbortError'));
+      return;
+    }
+    
+    const timeout = setTimeout(resolve, ms);
+    
+    signal?.addEventListener('abort', () => {
+      clearTimeout(timeout);
+      reject(new DOMException('Aborted', 'AbortError'));
+    });
+  });
 }
 
 export async function checkGraphStatus(
   apiUrl: string,
   apiKey: string | null,
+  signal?: AbortSignal,
 ): Promise<boolean> {
   try {
     const res = await fetch(`${apiUrl}/info`, {
+      signal: signal || null,
       ...(apiKey && {
         headers: {
           "X-Api-Key": apiKey,
@@ -17,6 +31,10 @@ export async function checkGraphStatus(
 
     return res.ok;
   } catch (e) {
+    // Don't log aborted requests as errors
+    if (e instanceof Error && e.name === 'AbortError') {
+      return false;
+    }
     console.error(e);
     return false;
   }

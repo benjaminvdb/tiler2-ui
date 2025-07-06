@@ -1,16 +1,10 @@
 import React from "react";
 import { motion } from "framer-motion";
 import ThreadHistory from "../history";
+import { useUIContext } from "@/providers/ui";
 
-interface SidebarHistoryProps {
-  isOpen: boolean;
-  isLargeScreen: boolean;
-}
-
-const SidebarHistoryComponent: React.FC<SidebarHistoryProps> = ({
-  isOpen,
-  isLargeScreen,
-}) => {
+const SidebarHistoryComponent: React.FC = () => {
+  const { chatHistoryOpen: isOpen, isLargeScreen } = useUIContext();
   return (
     <div className="relative hidden lg:flex">
       <motion.div

@@ -1,17 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { PanelRightOpen, PanelRightClose } from "lucide-react";
+import { useUIContext } from "@/providers/ui";
 
-interface HistoryToggleButtonProps {
-  chatHistoryOpen: boolean;
-  isLargeScreen: boolean;
-  onToggleChatHistory: () => void;
-}
-
-export function HistoryToggleButton({
-  chatHistoryOpen,
-  isLargeScreen,
-  onToggleChatHistory,
-}: HistoryToggleButtonProps) {
+export function HistoryToggleButton() {
+  const { chatHistoryOpen, isLargeScreen, onToggleChatHistory } = useUIContext();
   const shouldShow = !chatHistoryOpen || !isLargeScreen;
 
   if (!shouldShow) {

@@ -15,11 +15,20 @@ export function useThreadHistory() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    setThreadsLoading(true);
-    getThreads()
-      .then(setThreads)
-      .catch(console.error)
-      .finally(() => setThreadsLoading(false));
+    
+    const fetchThreads = async () => {
+      setThreadsLoading(true);
+      try {
+        const fetchedThreads = await getThreads();
+        setThreads(fetchedThreads);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setThreadsLoading(false);
+      }
+    };
+    
+    fetchThreads();
   }, [getThreads, setThreads, setThreadsLoading]);
 
   return {

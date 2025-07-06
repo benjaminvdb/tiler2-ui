@@ -12,6 +12,8 @@ import { SidebarHistory } from "./layout/sidebar-history";
 import { MainChatArea } from "./layout/main-chat-area";
 import { ArtifactPanel } from "./layout/artifact-panel";
 import { ComponentErrorBoundary } from "@/components/error-boundary";
+import { ChatProvider } from "@/providers/chat";
+import { UIProvider } from "@/providers/ui";
 
 export function Thread() {
   // Use our custom hooks for state management
@@ -81,59 +83,87 @@ export function Thread() {
   // Memoized callback functions to prevent unnecessary rerenders
   const handleToggleChatHistory = useCallback(() => {
     setChatHistoryOpen((p) => !p);
-  }, [setChatHistoryOpen]);
+  }, []); // setChatHistoryOpen is stable from useState
 
   const handleNewThread = useCallback(() => {
     setThreadId(null);
-  }, [setThreadId]);
+  }, []); // setThreadId is stable from useState
 
   // Memoized computed values
   const memoizedChatStarted = useMemo(() => chatStarted, [chatStarted]);
 
+  const chatContextValue = useMemo(() => ({
+    chatStarted: memoizedChatStarted,
+    firstTokenReceived,
+    handleRegenerate,
+    input,
+    onInputChange: setInput,
+    onSubmit: handleSubmit,
+    onPaste: handlePaste,
+    onFileUpload: handleFileUpload,
+    contentBlocks,
+    onRemoveBlock: removeBlock,
+    isRespondingToInterrupt,
+    hideToolCalls,
+    onHideToolCallsChange: setHideToolCalls,
+    dragOver,
+    dropRef,
+    handleActionClick,
+  }), [
+    memoizedChatStarted,
+    firstTokenReceived,
+    handleRegenerate,
+    input,
+    setInput,
+    handleSubmit,
+    handlePaste,
+    handleFileUpload,
+    contentBlocks,
+    removeBlock,
+    isRespondingToInterrupt,
+    hideToolCalls,
+    setHideToolCalls,
+    dragOver,
+    dropRef,
+    handleActionClick,
+  ]);
+
+  const uiContextValue = useMemo(() => ({
+    chatHistoryOpen,
+    isLargeScreen,
+    onToggleChatHistory: handleToggleChatHistory,
+    onNewThread: handleNewThread,
+  }), [
+    chatHistoryOpen,
+    isLargeScreen,
+    handleToggleChatHistory,
+    handleNewThread,
+  ]);
+
   return (
-    <div className="flex h-screen w-full overflow-hidden">
-      <ComponentErrorBoundary>
-        <SidebarHistory
-          isOpen={chatHistoryOpen}
-          isLargeScreen={isLargeScreen}
-        />
-      </ComponentErrorBoundary>
+    <UIProvider value={uiContextValue}>
+      <ChatProvider value={chatContextValue}>
+        <div className="flex h-screen w-full overflow-hidden">
+          <ComponentErrorBoundary>
+            <SidebarHistory />
+          </ComponentErrorBoundary>
 
-      <div
-        className={cn(
-          "grid w-full grid-cols-[1fr_0fr] transition-all duration-500",
-          artifactOpen && "grid-cols-[3fr_2fr]",
-        )}
-      >
-        <ComponentErrorBoundary>
-          <MainChatArea
-            chatStarted={memoizedChatStarted}
-            chatHistoryOpen={chatHistoryOpen}
-            isLargeScreen={isLargeScreen}
-            onToggleChatHistory={handleToggleChatHistory}
-            onNewThread={handleNewThread}
-            firstTokenReceived={firstTokenReceived}
-            handleRegenerate={handleRegenerate}
-            input={input}
-            onInputChange={setInput}
-            onSubmit={handleSubmit}
-            onPaste={handlePaste}
-            onFileUpload={handleFileUpload}
-            contentBlocks={contentBlocks}
-            onRemoveBlock={removeBlock}
-            isRespondingToInterrupt={isRespondingToInterrupt}
-            hideToolCalls={hideToolCalls}
-            onHideToolCallsChange={setHideToolCalls}
-            dragOver={dragOver}
-            dropRef={dropRef}
-            handleActionClick={handleActionClick}
-          />
-        </ComponentErrorBoundary>
+          <div
+            className={cn(
+              "grid w-full grid-cols-[1fr_0fr] transition-all duration-500",
+              artifactOpen && "grid-cols-[3fr_2fr]",
+            )}
+          >
+            <ComponentErrorBoundary>
+              <MainChatArea />
+            </ComponentErrorBoundary>
 
-        <ComponentErrorBoundary>
-          <ArtifactPanel onClose={closeArtifact} />
-        </ComponentErrorBoundary>
-      </div>
-    </div>
+            <ComponentErrorBoundary>
+              <ArtifactPanel onClose={closeArtifact} />
+            </ComponentErrorBoundary>
+          </div>
+        </div>
+      </ChatProvider>
+    </UIProvider>
   );
 }

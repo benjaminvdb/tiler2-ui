@@ -1,12 +1,9 @@
 import { motion } from "framer-motion";
 import { LinkLogoSVG } from "@/components/icons/link";
+import { useUIContext } from "@/providers/ui";
 
-interface BrandLogoProps {
-  chatHistoryOpen: boolean;
-  onNewThread: () => void;
-}
-
-export function BrandLogo({ chatHistoryOpen, onNewThread }: BrandLogoProps) {
+export function BrandLogo() {
+  const { chatHistoryOpen, onNewThread } = useUIContext();
   return (
     <motion.button
       className="flex cursor-pointer items-center gap-2"

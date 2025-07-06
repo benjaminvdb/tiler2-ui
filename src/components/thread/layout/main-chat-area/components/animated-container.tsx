@@ -5,20 +5,18 @@ import {
   getAnimationConfig,
   getTransitionConfig,
 } from "../utils/animation-config";
+import { useChatContext } from "@/providers/chat";
+import { useUIContext } from "@/providers/ui";
 
 interface AnimatedContainerProps {
-  chatStarted: boolean;
-  chatHistoryOpen: boolean;
-  isLargeScreen: boolean;
   children: React.ReactNode;
 }
 
 export const AnimatedContainer: React.FC<AnimatedContainerProps> = ({
-  chatStarted,
-  chatHistoryOpen,
-  isLargeScreen,
   children,
 }) => {
+  const { chatStarted } = useChatContext();
+  const { chatHistoryOpen, isLargeScreen } = useUIContext();
   return (
     <motion.div
       className={getMainContainerClassName(chatStarted)}

@@ -1,3 +1,4 @@
+import React, { memo } from "react";
 import { useStreamContext } from "@/providers/stream";
 import { getContentString } from "../../utils";
 import { cn } from "@/lib/utils";
@@ -8,7 +9,7 @@ import { MultimodalContent } from "./components/multimodal-content";
 import { TextContent } from "./components/text-content";
 import { MessageControls } from "./components/message-controls";
 
-export function HumanMessage({ message, isLoading }: HumanMessageProps) {
+export const HumanMessage = memo(function HumanMessage({ message, isLoading }: HumanMessageProps) {
   const thread = useStreamContext();
   const contentString = getContentString(message.content);
 
@@ -49,4 +50,4 @@ export function HumanMessage({ message, isLoading }: HumanMessageProps) {
       </div>
     </div>
   );
-}
+});

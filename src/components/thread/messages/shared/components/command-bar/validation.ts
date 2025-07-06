@@ -1,12 +1,23 @@
-import { CommandBarProps } from "../../types";
 
 export const validateCommandBarProps = ({
+  content: _content,
   isHumanMessage,
   isAiMessage,
   isEditing,
   setIsEditing,
-  handleSubmitEdit,
-}: CommandBarProps): void => {
+  handleSubmitEdit: _handleSubmitEdit,
+  handleRegenerate: _handleRegenerate,
+  isLoading: _isLoading,
+}: {
+  content: string;
+  isHumanMessage?: boolean | undefined;
+  isAiMessage?: boolean | undefined;
+  isEditing?: boolean | undefined;
+  setIsEditing?: React.Dispatch<React.SetStateAction<boolean>> | undefined;
+  handleSubmitEdit?: (() => void) | undefined;
+  handleRegenerate?: (() => void) | undefined;
+  isLoading: boolean;
+}): void => {
   if (isHumanMessage && isAiMessage) {
     throw new Error(
       "Can only set one of isHumanMessage or isAiMessage to true, not both.",
@@ -23,7 +34,7 @@ export const validateCommandBarProps = ({
     isHumanMessage &&
     (isEditing === undefined ||
       setIsEditing === undefined ||
-      handleSubmitEdit === undefined)
+      _handleSubmitEdit === undefined)
   ) {
     throw new Error(
       "If isHumanMessage is true, all of isEditing, setIsEditing, and handleSubmitEdit must be set.",

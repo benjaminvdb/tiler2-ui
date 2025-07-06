@@ -11,8 +11,8 @@ export interface MultimodalPreviewProps {
 export interface PreviewComponentProps {
   block: Base64ContentBlock;
   removable?: boolean;
-  onRemove?: () => void;
-  className?: string;
+  onRemove?: (() => void) | undefined;
+  className?: string | undefined;
   size?: "sm" | "md" | "lg";
 }
 

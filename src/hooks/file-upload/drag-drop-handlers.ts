@@ -1,4 +1,4 @@
-import { useRef, useEffect, RefObject } from "react";
+import { useRef, useEffect, RefObject, useCallback } from "react";
 import type { Base64ContentBlock } from "@langchain/core/messages";
 import { processFiles } from "./file-processor";
 
@@ -16,6 +16,18 @@ export function useDragDropHandlers({
   containerRef,
 }: UseDragDropHandlersProps) {
   const dragCounter = useRef(0);
+
+  const handleDrop = useCallback(async (e: DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.current = 0;
+    setDragOver(false);
+
+    if (!e.dataTransfer) return;
+
+    const files = Array.from(e.dataTransfer.files);
+    await processFiles(files, contentBlocks, setContentBlocks);
+  }, [contentBlocks, setContentBlocks, setDragOver]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -39,19 +51,7 @@ export function useDragDropHandlers({
       }
     };
 
-    const handleDrop = async (e: DragEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      dragCounter.current = 0;
-      setDragOver(false);
-
-      if (!e.dataTransfer) return;
-
-      const files = Array.from(e.dataTransfer.files);
-      await processFiles(files, contentBlocks, setContentBlocks);
-    };
-
-    const handleDragEnd = (e: DragEvent) => {
+    const handleDragEnd = (_e: DragEvent) => {
       dragCounter.current = 0;
       setDragOver(false);
     };
@@ -68,11 +68,15 @@ export function useDragDropHandlers({
     container.addEventListener("dragover", handleDragOver);
 
     return () => {
+      // Clean up event listeners
       container.removeEventListener("dragenter", handleDragEnter);
       container.removeEventListener("dragleave", handleDragLeave);
       container.removeEventListener("drop", handleDrop);
       container.removeEventListener("dragend", handleDragEnd);
       container.removeEventListener("dragover", handleDragOver);
+      
+      // Reset drag counter on cleanup to prevent memory leaks
+      dragCounter.current = 0;
     };
-  }, [contentBlocks, setContentBlocks, setDragOver, containerRef]);
+  }, [handleDrop, setDragOver, containerRef]);
 }
