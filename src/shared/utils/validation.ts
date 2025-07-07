@@ -153,8 +153,8 @@ export function sanitizeHtml(input: string): string {
 }
 
 export function sanitizeUserInput(input: string): string {
-  // Trim whitespace and limit length
-  return input.trim().slice(0, 10000);
+  // Only limit length, don't trim during input
+  return input.slice(0, 10000);
 }
 
 export function validateAndSanitizeInput(input: string): {
