@@ -18,3 +18,14 @@ export {
   withErrorBoundary,
   ComponentErrorFallback,
 } from "./component-error-boundary";
+export {
+  displayError,
+  displayCriticalError,
+  displayAsyncError,
+  displayComponentError,
+  displayFeatureError,
+  type ErrorSeverity,
+  type ErrorContext,
+  type ErrorDisplayOptions,
+  type ErrorDisplayResult,
+} from "@/core/services/error-display";

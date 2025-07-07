@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Button } from "@/shared/components/ui/button";
+import { displayComponentError } from "@/core/services/error-display";
 
 interface ErrorBoundaryState {
   hasError: boolean;
@@ -26,6 +27,10 @@ class ErrorBoundaryClass extends React.Component<
   }
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     this.setState({ errorInfo });
+    
+    // Use centralized error display service
+    displayComponentError(error, errorInfo.componentStack);
+    
     this.props.onError?.(error, errorInfo);
   }
   retry = () => {

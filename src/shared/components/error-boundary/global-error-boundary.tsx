@@ -1,8 +1,7 @@
 "use client";
 
 import React, { Component, ReactNode } from "react";
-import { toast } from "sonner";
-import { reportErrorBoundary } from "@/core/services/error-reporting";
+import { displayCriticalError } from "@/core/services/error-display";
 
 interface Props {
   children: ReactNode;
@@ -36,30 +35,15 @@ class GlobalErrorBoundary extends Component<Props, State> {
       errorInfo,
     });
 
-    // Report error through comprehensive error reporting system
-    reportErrorBoundary(error, {
-      componentStack: errorInfo.componentStack || "Not available",
-    });
+    // Use centralized error display service
+    displayCriticalError(
+      error,
+      errorInfo.componentStack,
+      [{ label: "Retry", onClick: () => this.handleRetry() }]
+    );
 
     // Call custom error handler if provided
     this.props.onError?.(error, errorInfo);
-
-    // Show user-friendly error toast
-    toast.error("Something went wrong", {
-      description:
-        "An unexpected error occurred. Please try refreshing the page.",
-      duration: 5000,
-      action: {
-        label: "Retry",
-        onClick: () => this.handleRetry(),
-      },
-    });
-
-    // In production, you might want to send to an error tracking service
-    if (process.env.NODE_ENV === "production") {
-      // TODO: Send to error tracking service (e.g., Sentry, LogRocket)
-      // Example: Sentry.captureException(error, { contexts: { react: errorInfo } });
-    }
   }
   handleRetry = () => {
     this.setState({

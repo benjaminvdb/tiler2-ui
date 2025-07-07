@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, ReactNode } from "react";
-import { toast } from "sonner";
+import { displayAsyncError } from "@/core/services/error-display";
 
 interface AsyncErrorBoundaryProps {
   children: ReactNode;
@@ -29,11 +29,11 @@ export const AsyncErrorBoundary: React.FC<AsyncErrorBoundaryProps> = ({
 
       setError(error);
 
-      toast.error("Network Error", {
-        description:
-          "A network request failed. Please check your connection and try again.",
-        duration: 5000,
-      });
+      // Use centralized error display service
+      displayAsyncError(
+        error,
+        "A network request failed. Please check your connection and try again."
+      );
 
       // Prevent the default browser error handling
       event.preventDefault();
