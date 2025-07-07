@@ -1,4 +1,3 @@
-
 /**
  * Generate a cryptographically secure nonce for CSP
  */
@@ -14,7 +13,7 @@ export function generateCSP(): string {
   const isProduction = process.env.NODE_ENV === "production";
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
   const langgraphUrl = process.env.LANGGRAPH_API_URL || "";
-  
+
   // Extract domain from URLs for connect-src
   const getOrigin = (url: string) => {
     try {
@@ -33,10 +32,7 @@ export function generateCSP(): string {
   ];
 
   // Build script-src with external domains
-  const scriptSources = [
-    "'self'",
-    "'unsafe-inline'",
-  ];
+  const scriptSources = ["'self'", "'unsafe-inline'"];
 
   // Add Vercel Live for feedback/analytics if deployed on Vercel
   if (isProduction) {

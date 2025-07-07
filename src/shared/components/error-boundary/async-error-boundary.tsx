@@ -32,7 +32,7 @@ export const AsyncErrorBoundary: React.FC<AsyncErrorBoundaryProps> = ({
       // Use centralized error display service
       displayAsyncError(
         error,
-        "A network request failed. Please check your connection and try again."
+        "A network request failed. Please check your connection and try again.",
       );
 
       // Prevent the default browser error handling

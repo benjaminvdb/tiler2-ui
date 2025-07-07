@@ -36,11 +36,9 @@ class GlobalErrorBoundary extends Component<Props, State> {
     });
 
     // Use centralized error display service
-    displayCriticalError(
-      error,
-      errorInfo.componentStack || undefined,
-      [{ label: "Retry", onClick: () => this.handleRetry() }]
-    );
+    displayCriticalError(error, errorInfo.componentStack || undefined, [
+      { label: "Retry", onClick: () => this.handleRetry() },
+    ]);
 
     // Call custom error handler if provided
     this.props.onError?.(error, errorInfo);

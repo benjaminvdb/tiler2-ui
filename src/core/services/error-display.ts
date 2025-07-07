@@ -34,10 +34,7 @@ const TOAST_TITLES: Record<ErrorSeverity, string> = {
   info: "Information",
 };
 
-const getDefaultDescription = (
-  context: ErrorContext,
-  error: Error,
-): string => {
+const getDefaultDescription = (context: ErrorContext, error: Error): string => {
   switch (context) {
     case "global":
       return "An unexpected error occurred. Please try refreshing the page.";
@@ -52,16 +49,19 @@ const getDefaultDescription = (
   }
 };
 
-const shouldShowToast = (severity: ErrorSeverity, context: ErrorContext): boolean => {
+const shouldShowToast = (
+  severity: ErrorSeverity,
+  context: ErrorContext,
+): boolean => {
   // Always show toast for critical and async errors
   if (severity === "critical" || context === "async") return true;
-  
+
   // Show toast for global errors
   if (context === "global") return true;
-  
+
   // Don't show toast for component errors (they have fallback UI)
   if (context === "component") return false;
-  
+
   // Show toast for feature-level errors
   return true;
 };
@@ -71,7 +71,9 @@ const shouldShowFallback = (context: ErrorContext): boolean => {
   return context === "global" || context === "component";
 };
 
-const getFallbackType = (context: ErrorContext): "global" | "component" | "none" => {
+const getFallbackType = (
+  context: ErrorContext,
+): "global" | "component" | "none" => {
   switch (context) {
     case "global":
       return "global";
@@ -113,10 +115,13 @@ export const displayError = (
       duration,
       richColors: true,
       closeButton: true,
-      action: actions.length > 0 ? {
-        label: actions[0].label,
-        onClick: actions[0].onClick,
-      } : undefined,
+      action:
+        actions.length > 0
+          ? {
+              label: actions[0].label,
+              onClick: actions[0].onClick,
+            }
+          : undefined,
     };
 
     switch (severity) {
@@ -159,15 +164,15 @@ export const displayCriticalError = (
     severity: "critical",
     context: "global",
   };
-  
+
   if (componentStack !== undefined) {
     options.componentStack = componentStack;
   }
-  
+
   if (actions !== undefined) {
     options.actions = actions;
   }
-  
+
   return displayError(error, options);
 };
 
@@ -179,11 +184,11 @@ export const displayAsyncError = (
     severity: "error",
     context: "async",
   };
-  
+
   if (description !== undefined) {
     options.description = description;
   }
-  
+
   return displayError(error, options);
 };
 
@@ -195,11 +200,11 @@ export const displayComponentError = (
     severity: "error",
     context: "component",
   };
-  
+
   if (componentStack !== undefined) {
     options.componentStack = componentStack;
   }
-  
+
   return displayError(error, options);
 };
 
@@ -212,14 +217,14 @@ export const displayFeatureError = (
     severity: "error",
     context: "feature",
   };
-  
+
   if (description !== undefined) {
     options.description = description;
   }
-  
+
   if (actions !== undefined) {
     options.actions = actions;
   }
-  
+
   return displayError(error, options);
 };
