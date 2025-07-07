@@ -29,7 +29,7 @@ class ErrorBoundaryClass extends React.Component<
     this.setState({ errorInfo });
     
     // Use centralized error display service
-    displayComponentError(error, errorInfo.componentStack);
+    displayComponentError(error, errorInfo.componentStack || undefined);
     
     this.props.onError?.(error, errorInfo);
   }

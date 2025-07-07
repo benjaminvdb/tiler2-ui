@@ -35,7 +35,6 @@ const TOAST_TITLES: Record<ErrorSeverity, string> = {
 };
 
 const getDefaultDescription = (
-  severity: ErrorSeverity,
   context: ErrorContext,
   error: Error,
 ): string => {
@@ -96,7 +95,7 @@ export const displayError = (
     showFallback = shouldShowFallback(context),
     duration = DEFAULT_DURATIONS[severity],
     actions = [],
-    description = getDefaultDescription(severity, context, error),
+    description = getDefaultDescription(context, error),
     componentStack,
   } = options;
 
@@ -104,8 +103,6 @@ export const displayError = (
   if (severity === "critical" || severity === "error") {
     reportErrorBoundary(error, {
       componentStack: componentStack || "Not available",
-      severity,
-      context,
     });
   }
 
@@ -158,34 +155,52 @@ export const displayCriticalError = (
   componentStack?: string,
   actions?: Array<{ label: string; onClick: () => void }>,
 ): ErrorDisplayResult => {
-  return displayError(error, {
+  const options: ErrorDisplayOptions = {
     severity: "critical",
     context: "global",
-    componentStack,
-    actions,
-  });
+  };
+  
+  if (componentStack !== undefined) {
+    options.componentStack = componentStack;
+  }
+  
+  if (actions !== undefined) {
+    options.actions = actions;
+  }
+  
+  return displayError(error, options);
 };
 
 export const displayAsyncError = (
   error: Error,
   description?: string,
 ): ErrorDisplayResult => {
-  return displayError(error, {
+  const options: ErrorDisplayOptions = {
     severity: "error",
     context: "async",
-    description,
-  });
+  };
+  
+  if (description !== undefined) {
+    options.description = description;
+  }
+  
+  return displayError(error, options);
 };
 
 export const displayComponentError = (
   error: Error,
   componentStack?: string,
 ): ErrorDisplayResult => {
-  return displayError(error, {
+  const options: ErrorDisplayOptions = {
     severity: "error",
     context: "component",
-    componentStack,
-  });
+  };
+  
+  if (componentStack !== undefined) {
+    options.componentStack = componentStack;
+  }
+  
+  return displayError(error, options);
 };
 
 export const displayFeatureError = (
@@ -193,10 +208,18 @@ export const displayFeatureError = (
   description?: string,
   actions?: Array<{ label: string; onClick: () => void }>,
 ): ErrorDisplayResult => {
-  return displayError(error, {
+  const options: ErrorDisplayOptions = {
     severity: "error",
     context: "feature",
-    description,
-    actions,
-  });
+  };
+  
+  if (description !== undefined) {
+    options.description = description;
+  }
+  
+  if (actions !== undefined) {
+    options.actions = actions;
+  }
+  
+  return displayError(error, options);
 };

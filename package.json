@@ -17,7 +17,8 @@
     "lint:fix": "next lint --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "analyze": "ANALYZE=true pnpm build"
+    "analyze": "ANALYZE=true pnpm build",
+    "check": "tsc --noEmit"
   },
   "dependencies": {
     "@auth0/nextjs-auth0": "^4.7.0",
