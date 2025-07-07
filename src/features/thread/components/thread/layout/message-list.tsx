@@ -51,7 +51,7 @@ export const MessageList: React.FC<MessageListProps> = ({
           handleRegenerate={handleRegenerate}
         />
       )}
-      ;{isLoading && !firstTokenReceived && <AssistantMessageLoading />};
+      {isLoading && !firstTokenReceived && <AssistantMessageLoading />}
     </>
   );
 };

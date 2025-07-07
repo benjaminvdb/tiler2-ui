@@ -38,16 +38,14 @@ const ChatFooterComponent: React.FC = () => {
           <h1 className="text-2xl font-semibold tracking-tight">Link Chat</h1>
         </div>
       )}
-      ;
       <ScrollToBottom className="animate-in fade-in-0 zoom-in-95 absolute bottom-full left-1/2 mb-4 -translate-x-1/2" />
-      {/* Mobile action buttons */};
+      {/* Mobile action buttons */}
       {!chatStarted && (
         <ActionButtons
           onActionClick={handleActionClick}
           isMobile={true}
         />
       )}
-      ;
       <ChatInput
         input={input}
         onInputChange={onInputChange}
@@ -65,7 +63,7 @@ const ChatFooterComponent: React.FC = () => {
         dropRef={dropRef}
         chatStarted={chatStarted}
       />
-      {/* Desktop action buttons */};
+      {/* Desktop action buttons */}
       {!chatStarted && (
         <ActionButtons
           onActionClick={handleActionClick}

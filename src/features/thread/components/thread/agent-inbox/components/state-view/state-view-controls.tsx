@@ -29,7 +29,6 @@ export const StateViewControls: React.FC<StateViewControlsProps> = ({
           )}
         </Button>
       )}
-      ;
       <Button
         onClick={onClose}
         variant="ghost"

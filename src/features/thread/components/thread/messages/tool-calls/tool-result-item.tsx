@@ -54,7 +54,6 @@ export const ToolResultItem: React.FC<ToolResultItemProps> = ({ message }) => {
           ) : (
             <h3 className="font-medium text-gray-900">Tool Result</h3>
           )}
-          ;
           {message.tool_call_id && (
             <code className="ml-2 rounded bg-gray-100 px-2 py-1 text-sm">
               {message.tool_call_id}

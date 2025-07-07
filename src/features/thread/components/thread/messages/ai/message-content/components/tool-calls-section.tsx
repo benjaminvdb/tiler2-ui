@@ -31,7 +31,6 @@ export const ToolCallsSection: React.FC<ToolCallsSectionProps> = ({
         (hasToolCalls && (
           <ToolCalls toolCalls={(message as AIMessage).tool_calls} />
         ))}
-      ;
     </>
   );
 };

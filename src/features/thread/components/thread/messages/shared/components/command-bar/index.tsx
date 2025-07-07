@@ -69,7 +69,6 @@ const MessageActions: React.FC<MessageActionsProps> = ({
           <RefreshCcw />
         </TooltipIconButton>
       )}
-      ;
       {showEdit && (
         <TooltipIconButton
           disabled={isLoading}

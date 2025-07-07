@@ -14,7 +14,6 @@ export const InstructionText: React.FC<InstructionTextProps> = ({
           {config.allow_edit && hasArgs && (
             <> For editing, provide the modified values in your response.</>
           )}
-          ;
         </>
       ) : (
         "Type your response in the chat input below or use the buttons above."

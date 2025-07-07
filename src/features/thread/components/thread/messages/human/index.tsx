@@ -39,7 +39,6 @@ export const HumanMessage = memo(function HumanMessage({
             <TextContent contentString={contentString} />
           </div>
         )}
-        ;
         <MessageControls
           isLoading={isLoading}
           contentString={contentString}

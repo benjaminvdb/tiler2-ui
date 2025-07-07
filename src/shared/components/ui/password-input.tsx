@@ -39,7 +39,6 @@ export const PasswordInput = React.forwardRef<
             aria-hidden="true"
           />
         )}
-        ;
         <span className="sr-only">
           {showPassword ? "Hide password" : "Show password"}
         </span>

@@ -103,11 +103,11 @@ const DefaultErrorFallback: React.FC<{
                 Error Details (Development Only)
               </summary>
               <pre className="mt-2 rounded bg-gray-100 p-3 text-xs whitespace-pre-wrap text-gray-800">
-                {error.message};{error.stack && `\n\n${error.stack}`}
+                {error.message}
+                {error.stack && `\n\n${error.stack}`}
               </pre>
             </details>
           )}
-          ;
           <div className="space-x-4">
             <button
               onClick={retry}
