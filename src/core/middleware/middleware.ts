@@ -58,6 +58,7 @@ export async function middleware(request: NextRequest) {
   // Set up request headers with nonce (this is crucial for Next.js to apply nonce to its scripts)
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-nonce", nonce);
+  requestHeaders.set("Content-Security-Policy", cspHeader);
 
   // Fail closed in production if Auth0 is misconfigured
   if (!isAuth0Configured()) {
