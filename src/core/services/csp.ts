@@ -67,10 +67,10 @@ export function generateCSP(): string {
     // Remove nonce from styles to allow unsafe-inline to work
     `style-src 'self' 'unsafe-inline' fonts.googleapis.com`,
     `font-src 'self' fonts.gstatic.com`,
-    // Add gravatar for Auth0 profile images
-    `img-src 'self' data: blob: *.auth0.com https://s.gravatar.com https://cdn.auth0.com`,
+    // Add image sources for Auth0 profile images
+    `img-src 'self' data: blob: *.auth0.com https://s.gravatar.com https://cdn.auth0.com https://i2.wp.com`,
     `connect-src ${connectSources.join(" ")}`,
-    `frame-src 'self' *.auth0.com`,
+    `frame-src 'self' *.auth0.com https://vercel.live`,
     `object-src 'none'`,
     `base-uri 'self'`,
     `form-action 'self'`,
