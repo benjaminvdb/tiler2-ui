@@ -255,19 +255,21 @@ function EditAndOrAcceptComponent({
       {editResponse.args &&
         typeof editResponse.args === "object" &&
         (editResponse.args as Record<string, any>).args &&
-        Object.entries((editResponse.args as Record<string, any>).args).map(([k, v], idx) => (
-          <FormField
-            key={`allow-edit-args--${k}-${idx}`}
-            fieldKey={k}
-            value={v as FieldValue}
-            editResponse={editResponse}
-            streaming={streaming}
-            defaultRows={defaultRows}
-            onEditChange={onEditChange}
-            onKeyDown={handleKeyDown}
-            index={idx}
-          />
-        ))}
+        Object.entries((editResponse.args as Record<string, any>).args).map(
+          ([k, v], idx) => (
+            <FormField
+              key={`allow-edit-args--${k}-${idx}`}
+              fieldKey={k}
+              value={v as FieldValue}
+              editResponse={editResponse}
+              streaming={streaming}
+              defaultRows={defaultRows}
+              onEditChange={onEditChange}
+              onKeyDown={handleKeyDown}
+              index={idx}
+            />
+          ),
+        )}
 
       <SubmitButton
         buttonText={buttonText}

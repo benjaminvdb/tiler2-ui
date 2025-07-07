@@ -1,8 +1,8 @@
+import React, { useCallback, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { useStreamContext } from "@/providers/stream";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { useFileUpload } from "@/hooks/use-file-upload";
-import { useCallback, useMemo } from "react";
 
 // Import our new components and hooks
 import { useThreadState } from "./hooks/use-thread-state";
@@ -15,7 +15,7 @@ import { ComponentErrorBoundary } from "@/components/error-boundary";
 import { ChatProvider } from "@/providers/chat";
 import { UIProvider } from "@/providers/ui";
 
-export function Thread() {
+export const Thread = (): React.JSX.Element => {
   // Use our custom hooks for state management
   const {
     artifactContext,
@@ -92,53 +92,54 @@ export function Thread() {
   // Memoized computed values
   const memoizedChatStarted = useMemo(() => chatStarted, [chatStarted]);
 
-  const chatContextValue = useMemo(() => ({
-    chatStarted: memoizedChatStarted,
-    firstTokenReceived,
-    handleRegenerate,
-    input,
-    onInputChange: setInput,
-    onSubmit: handleSubmit,
-    onPaste: handlePaste,
-    onFileUpload: handleFileUpload,
-    contentBlocks,
-    onRemoveBlock: removeBlock,
-    isRespondingToInterrupt,
-    hideToolCalls,
-    onHideToolCallsChange: setHideToolCalls,
-    dragOver,
-    dropRef,
-    handleActionClick,
-  }), [
-    memoizedChatStarted,
-    firstTokenReceived,
-    handleRegenerate,
-    input,
-    setInput,
-    handleSubmit,
-    handlePaste,
-    handleFileUpload,
-    contentBlocks,
-    removeBlock,
-    isRespondingToInterrupt,
-    hideToolCalls,
-    setHideToolCalls,
-    dragOver,
-    dropRef,
-    handleActionClick,
-  ]);
+  const chatContextValue = useMemo(
+    () => ({
+      chatStarted: memoizedChatStarted,
+      firstTokenReceived,
+      handleRegenerate,
+      input,
+      onInputChange: setInput,
+      onSubmit: handleSubmit,
+      onPaste: handlePaste,
+      onFileUpload: handleFileUpload,
+      contentBlocks,
+      onRemoveBlock: removeBlock,
+      isRespondingToInterrupt,
+      hideToolCalls,
+      onHideToolCallsChange: setHideToolCalls,
+      dragOver,
+      dropRef,
+      handleActionClick,
+    }),
+    [
+      memoizedChatStarted,
+      firstTokenReceived,
+      handleRegenerate,
+      input,
+      setInput,
+      handleSubmit,
+      handlePaste,
+      handleFileUpload,
+      contentBlocks,
+      removeBlock,
+      isRespondingToInterrupt,
+      hideToolCalls,
+      setHideToolCalls,
+      dragOver,
+      dropRef,
+      handleActionClick,
+    ],
+  );
 
-  const uiContextValue = useMemo(() => ({
-    chatHistoryOpen,
-    isLargeScreen,
-    onToggleChatHistory: handleToggleChatHistory,
-    onNewThread: handleNewThread,
-  }), [
-    chatHistoryOpen,
-    isLargeScreen,
-    handleToggleChatHistory,
-    handleNewThread,
-  ]);
+  const uiContextValue = useMemo(
+    () => ({
+      chatHistoryOpen,
+      isLargeScreen,
+      onToggleChatHistory: handleToggleChatHistory,
+      onNewThread: handleNewThread,
+    }),
+    [chatHistoryOpen, isLargeScreen, handleToggleChatHistory, handleNewThread],
+  );
 
   return (
     <UIProvider value={uiContextValue}>
@@ -166,4 +167,4 @@ export function Thread() {
       </ChatProvider>
     </UIProvider>
   );
-}
+};

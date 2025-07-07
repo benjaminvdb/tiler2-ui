@@ -4,7 +4,7 @@ import { HumanInterrupt } from "@langchain/langgraph/prebuilt";
 import { ArgsRenderer } from "../shared/args-renderer";
 import { useInboxHandlers } from "../../hooks/use-inbox-handlers";
 import { useInboxConfig } from "../../hooks/use-inbox-config";
-import { InboxContent } from "./components";
+import { InboxContent } from "./components/inbox-content";
 
 interface InboxItemInputProps {
   interruptValue: HumanInterrupt;

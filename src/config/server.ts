@@ -19,7 +19,7 @@ export function getServerConfig(): ServerConfig {
   if (!langgraphApiUrl) {
     throw new Error("Missing required environment variable: LANGGRAPH_API_URL");
   }
-  
+
   if (!langsmithApiKey) {
     throw new Error("Missing required environment variable: LANGSMITH_API_KEY");
   }

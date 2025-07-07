@@ -52,7 +52,8 @@ class GlobalErrorBoundary extends Component<Props, State> {
 
     // Show user-friendly error toast
     toast.error("Something went wrong", {
-      description: "An unexpected error occurred. Please try refreshing the page.",
+      description:
+        "An unexpected error occurred. Please try refreshing the page.",
       duration: 5000,
       action: {
         label: "Retry",
@@ -91,7 +92,13 @@ class GlobalErrorBoundary extends Component<Props, State> {
 }
 
 // Default error fallback component
-function DefaultErrorFallback({ error, retry }: { error: Error; retry: () => void }) {
+function DefaultErrorFallback({
+  error,
+  retry,
+}: {
+  error: Error;
+  retry: () => void;
+}) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50">
       <div className="rounded-lg bg-white p-8 shadow-lg">
@@ -107,7 +114,7 @@ function DefaultErrorFallback({ error, retry }: { error: Error; retry: () => voi
               <summary className="cursor-pointer text-sm font-medium text-gray-700">
                 Error Details (Development Only)
               </summary>
-              <pre className="mt-2 whitespace-pre-wrap rounded bg-gray-100 p-3 text-xs text-gray-800">
+              <pre className="mt-2 rounded bg-gray-100 p-3 text-xs whitespace-pre-wrap text-gray-800">
                 {error.message}
                 {error.stack && `\n\n${error.stack}`}
               </pre>

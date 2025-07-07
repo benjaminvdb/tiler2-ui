@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth0 } from "./lib/auth0";
-import { AUTH_CONFIG } from "@/config";
+import { AUTH_CONFIG } from "@/config/app";
 
 const LOGIN_URL = AUTH_CONFIG.loginUrl;
 
@@ -27,7 +27,8 @@ export async function middleware(request: NextRequest) {
   }
 
   // Check if route is public
-  const isPublicRoute = PUBLIC_ROUTES.includes(pathname) || 
+  const isPublicRoute =
+    PUBLIC_ROUTES.includes(pathname) ||
     pathname.startsWith("/public/") ||
     pathname.startsWith("/_next/") ||
     pathname.includes(".");

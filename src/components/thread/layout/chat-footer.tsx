@@ -2,7 +2,7 @@ import React, { useCallback } from "react";
 import { LinkLogoSVG } from "../../icons/link";
 import { ScrollToBottom } from "../scroll-utils";
 import { ActionButtons } from "../action-buttons";
-import { ChatInput } from "../chat-input";
+import { ChatInput } from "../chat-input-components";
 import { useStreamContext } from "@/providers/stream";
 import { useChatContext } from "@/providers/chat";
 

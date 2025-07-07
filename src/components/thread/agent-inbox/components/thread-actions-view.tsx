@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { HumanInterrupt } from "@langchain/langgraph/prebuilt";
 import { InboxItemInput } from "./inbox-item-input";
 import { ThreadIdCopyable } from "./thread-id";
-import useInterruptedActions from "../hooks/use-interrupted-actions";
+import { useInterruptedActions } from "../hooks/use-interrupted-actions";
 import { constructOpenInStudioURL } from "../utils";
 
 // Types
@@ -51,10 +51,7 @@ const getThreadTitle = (interrupt: HumanInterrupt): string => {
   return interrupt.action_request.action || "Unknown";
 };
 
-const getActionsDisabled = (
-  loading: boolean,
-  streaming: boolean,
-): boolean => {
+const getActionsDisabled = (loading: boolean, streaming: boolean): boolean => {
   return loading || streaming;
 };
 
@@ -63,10 +60,7 @@ const getIgnoreAllowed = (interrupt: HumanInterrupt): boolean => {
 };
 
 // Hook
-function useStudioHandler(
-  apiUrl: string | null,
-  threadId: string | null,
-) {
+function useStudioHandler(apiUrl: string | null, threadId: string | null) {
   const handleOpenInStudio = () => {
     if (!apiUrl) {
       toast.error("Error", {

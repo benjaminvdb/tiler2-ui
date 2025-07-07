@@ -1,4 +1,4 @@
-import React, { createContext, useContext, ReactNode } from 'react';
+import React, { createContext, useContext, ReactNode } from "react";
 import { Checkpoint } from "@langchain/langgraph-sdk";
 import type { ContentBlocks } from "@/types";
 
@@ -12,12 +12,14 @@ interface ChatContextType {
   hideToolCalls: boolean;
   dragOver: boolean;
   dropRef: React.RefObject<HTMLDivElement | null>;
-  
+
   // Actions
   handleRegenerate: (parentCheckpoint: Checkpoint | null | undefined) => void;
   onInputChange: (value: string) => void;
   onSubmit: (e: React.FormEvent) => void;
-  onPaste: (e: React.ClipboardEvent<HTMLTextAreaElement | HTMLInputElement>) => void;
+  onPaste: (
+    e: React.ClipboardEvent<HTMLTextAreaElement | HTMLInputElement>,
+  ) => void;
   onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onRemoveBlock: (idx: number) => void;
   onHideToolCallsChange: (value: boolean) => void;
@@ -32,17 +34,13 @@ interface ChatProviderProps {
 }
 
 export function ChatProvider({ children, value }: ChatProviderProps) {
-  return (
-    <ChatContext.Provider value={value}>
-      {children}
-    </ChatContext.Provider>
-  );
+  return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
 }
 
 export function useChatContext() {
   const context = useContext(ChatContext);
   if (context === undefined) {
-    throw new Error('useChatContext must be used within a ChatProvider');
+    throw new Error("useChatContext must be used within a ChatProvider");
   }
   return context;
 }

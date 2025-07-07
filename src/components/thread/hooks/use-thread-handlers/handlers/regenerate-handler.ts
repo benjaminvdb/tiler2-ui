@@ -1,7 +1,8 @@
 import { Checkpoint } from "@langchain/langgraph-sdk";
+import type { StreamContextType } from "@/providers/stream/types";
 
 export const createRegenerateHandler = (
-  stream: any,
+  stream: StreamContextType,
   setFirstTokenReceived: (value: boolean) => void,
   prevMessageLength: React.MutableRefObject<number>,
 ) => {
@@ -10,7 +11,7 @@ export const createRegenerateHandler = (
     prevMessageLength.current = prevMessageLength.current - 1;
     setFirstTokenReceived(false);
     stream.submit(undefined, {
-      checkpoint: parentCheckpoint,
+      checkpoint: parentCheckpoint || null,
       streamMode: ["values"],
     });
   };

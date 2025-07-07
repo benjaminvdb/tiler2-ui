@@ -4,7 +4,11 @@ import { createSubmitHandler } from "./use-thread-handlers/handlers/submit-handl
 import { createRegenerateHandler } from "./use-thread-handlers/handlers/regenerate-handler";
 import { createActionHandler } from "./use-thread-handlers/handlers/action-handler";
 
-export function useThreadHandlers(props: UseThreadHandlersProps) {
+export function useThreadHandlers(props: UseThreadHandlersProps): {
+  handleSubmit: (e: React.FormEvent) => void;
+  handleRegenerate: (parentCheckpoint: any) => void;
+  handleActionClick: (prompt: string) => void;
+} {
   const stream = useStreamContext();
   const isLoading = stream.isLoading;
 

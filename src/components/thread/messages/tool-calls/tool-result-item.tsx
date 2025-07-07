@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { isComplexValue } from "./utils";
 import { ToolResultContent } from "./tool-result-content";
+import type { JsonValue } from "@/types";
 
 interface ToolResultItemProps {
   message: ToolMessage;
@@ -12,7 +13,7 @@ interface ToolResultItemProps {
 export function ToolResultItem({ message }: ToolResultItemProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  let parsedContent: any;
+  let parsedContent: JsonValue;
   let isJsonContent = false;
 
   try {

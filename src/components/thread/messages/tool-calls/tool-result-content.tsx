@@ -1,8 +1,9 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { isComplexValue } from "./utils";
+import type { JsonValue } from "@/types";
 
 interface ToolResultContentProps {
-  parsedContent: any;
+  parsedContent: JsonValue;
   isJsonContent: boolean;
   isExpanded: boolean;
   displayedContent: string;

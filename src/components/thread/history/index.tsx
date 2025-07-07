@@ -1,8 +1,9 @@
+import React from "react";
 import { useThreadHistory } from "./hooks/use-thread-history";
 import { DesktopHistoryPanel } from "./components/desktop-history-panel";
 import { MobileHistorySheet } from "./components/mobile-history-sheet";
 
-export default function ThreadHistory() {
+export const ThreadHistory = (): React.JSX.Element => {
   const {
     isLargeScreen,
     chatHistoryOpen,
@@ -27,4 +28,4 @@ export default function ThreadHistory() {
       />
     </>
   );
-}
+};

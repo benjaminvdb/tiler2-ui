@@ -1,9 +1,47 @@
 import { HumanResponseWithEdits } from "../../../types";
 import { HumanInterrupt } from "@langchain/langgraph/prebuilt";
-import { EditAndOrAcceptComponent } from "../../edit-and-accept-component";
+import { EditAndOrAcceptComponent } from "../../edit-and-accept";
 import { Response } from "../../response-component";
-import { MethodSeparator } from "./method-separator";
-import { StatusIndicator } from "./status-indicator";
+import { Separator } from "@/components/ui/separator";
+
+interface MethodSeparatorProps {
+  supportsMultipleMethods: boolean;
+}
+
+function MethodSeparator({ supportsMultipleMethods }: MethodSeparatorProps) {
+  if (!supportsMultipleMethods) {
+    return null;
+  }
+
+  return (
+    <div className="mx-auto mt-3 flex items-center gap-3">
+      <Separator className="w-[full]" />
+      <p className="text-sm text-gray-500">Or</p>
+      <Separator className="w-full" />
+    </div>
+  );
+}
+
+interface StatusIndicatorProps {
+  streaming: boolean;
+  streamFinished: boolean;
+}
+
+function StatusIndicator({ streaming, streamFinished }: StatusIndicatorProps) {
+  if (streaming) {
+    return <p className="text-sm text-gray-600">Running...</p>;
+  }
+
+  if (streamFinished) {
+    return (
+      <p className="text-base font-medium text-green-600">
+        Successfully finished Graph invocation.
+      </p>
+    );
+  }
+
+  return null;
+}
 
 interface InboxContentProps {
   humanResponse: HumanResponseWithEdits[];

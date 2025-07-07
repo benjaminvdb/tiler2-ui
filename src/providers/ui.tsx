@@ -1,10 +1,10 @@
-import React, { createContext, useContext, ReactNode } from 'react';
+import React, { createContext, useContext, ReactNode } from "react";
 
 interface UIContextType {
   // UI state
   chatHistoryOpen: boolean;
   isLargeScreen: boolean;
-  
+
   // UI actions
   onToggleChatHistory: () => void;
   onNewThread: () => void;
@@ -18,17 +18,13 @@ interface UIProviderProps {
 }
 
 export function UIProvider({ children, value }: UIProviderProps) {
-  return (
-    <UIContext.Provider value={value}>
-      {children}
-    </UIContext.Provider>
-  );
+  return <UIContext.Provider value={value}>{children}</UIContext.Provider>;
 }
 
 export function useUIContext() {
   const context = useContext(UIContext);
   if (context === undefined) {
-    throw new Error('useUIContext must be used within a UIProvider');
+    throw new Error("useUIContext must be used within a UIProvider");
   }
   return context;
 }

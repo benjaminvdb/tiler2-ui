@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { SyntaxHighlighter } from "@/components/thread/syntax-highlighter-lazy";
 import { CodeHeader } from "../code-header";
-import { CodeComponentProps } from "./types";
+import { CodeComponentProps } from "./markdown-elements";
 
 export const code = ({ className, children, ...props }: CodeComponentProps) => {
   const match = /language-(\w+)/.exec(className || "");

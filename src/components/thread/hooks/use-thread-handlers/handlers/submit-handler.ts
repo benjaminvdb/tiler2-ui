@@ -6,9 +6,11 @@ import {
 } from "../utils/message-builder";
 import { UseThreadHandlersProps } from "../types";
 import { JsonValue } from "@/types";
+import type { StreamContextType } from "@/providers/stream/types";
+
 export const createSubmitHandler = (
   props: UseThreadHandlersProps,
-  stream: any,
+  stream: StreamContextType,
   isLoading: boolean,
 ) => {
   const {
@@ -55,11 +57,20 @@ export const createSubmitHandler = (
     const toolMessages = ensureToolCallsHaveResponses(stream.messages);
     const context =
       artifactContext && Object.keys(artifactContext).length > 0
-        ? artifactContext
+        ? artifactContext as Record<string, unknown>
         : undefined;
 
+    const submitData: {
+      messages: any[];
+      context?: Record<string, unknown>;
+    } = { messages: [...toolMessages, newHumanMessage] };
+    
+    if (context) {
+      submitData.context = context;
+    }
+
     stream.submit(
-      { messages: [...toolMessages, newHumanMessage], context },
+      submitData,
       {
         streamMode: ["values"],
         optimisticValues: (prev: Record<string, JsonValue>) => ({

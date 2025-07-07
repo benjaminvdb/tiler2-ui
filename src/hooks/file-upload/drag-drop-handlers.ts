@@ -17,17 +17,20 @@ export function useDragDropHandlers({
 }: UseDragDropHandlersProps) {
   const dragCounter = useRef(0);
 
-  const handleDrop = useCallback(async (e: DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    dragCounter.current = 0;
-    setDragOver(false);
+  const handleDrop = useCallback(
+    async (e: DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dragCounter.current = 0;
+      setDragOver(false);
 
-    if (!e.dataTransfer) return;
+      if (!e.dataTransfer) return;
 
-    const files = Array.from(e.dataTransfer.files);
-    await processFiles(files, contentBlocks, setContentBlocks);
-  }, [contentBlocks, setContentBlocks, setDragOver]);
+      const files = Array.from(e.dataTransfer.files);
+      await processFiles(files, contentBlocks, setContentBlocks);
+    },
+    [contentBlocks, setContentBlocks, setDragOver],
+  );
 
   useEffect(() => {
     const container = containerRef.current;
@@ -74,7 +77,7 @@ export function useDragDropHandlers({
       container.removeEventListener("drop", handleDrop);
       container.removeEventListener("dragend", handleDragEnd);
       container.removeEventListener("dragover", handleDragOver);
-      
+
       // Reset drag counter on cleanup to prevent memory leaks
       dragCounter.current = 0;
     };

@@ -11,23 +11,28 @@ interface AsyncErrorBoundaryProps {
 /**
  * Error boundary for async operations that don't trigger normal React error boundaries
  */
-export function AsyncErrorBoundary({ children, fallback: Fallback }: AsyncErrorBoundaryProps) {
+export function AsyncErrorBoundary({
+  children,
+  fallback: Fallback,
+}: AsyncErrorBoundaryProps) {
   const [error, setError] = useState<Error | null>(null);
 
   // Listen for unhandled promise rejections
   useEffect(() => {
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
       console.error("Unhandled promise rejection:", event.reason);
-      
+
       // Convert to Error if it's not already
-      const error = event.reason instanceof Error 
-        ? event.reason 
-        : new Error(String(event.reason));
-      
+      const error =
+        event.reason instanceof Error
+          ? event.reason
+          : new Error(String(event.reason));
+
       setError(error);
-      
+
       toast.error("Network Error", {
-        description: "A network request failed. Please check your connection and try again.",
+        description:
+          "A network request failed. Please check your connection and try again.",
         duration: 5000,
       });
 
@@ -38,7 +43,10 @@ export function AsyncErrorBoundary({ children, fallback: Fallback }: AsyncErrorB
     window.addEventListener("unhandledrejection", handleUnhandledRejection);
 
     return () => {
-      window.removeEventListener("unhandledrejection", handleUnhandledRejection);
+      window.removeEventListener(
+        "unhandledrejection",
+        handleUnhandledRejection,
+      );
     };
   }, []);
 
@@ -47,7 +55,12 @@ export function AsyncErrorBoundary({ children, fallback: Fallback }: AsyncErrorB
   };
 
   if (error && Fallback) {
-    return <Fallback error={error} retry={retry} />;
+    return (
+      <Fallback
+        error={error}
+        retry={retry}
+      />
+    );
   }
 
   return <>{children}</>;

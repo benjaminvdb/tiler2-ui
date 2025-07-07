@@ -9,7 +9,10 @@ import { MultimodalContent } from "./components/multimodal-content";
 import { TextContent } from "./components/text-content";
 import { MessageControls } from "./components/message-controls";
 
-export const HumanMessage = memo(function HumanMessage({ message, isLoading }: HumanMessageProps) {
+export const HumanMessage = memo(function HumanMessage({
+  message,
+  isLoading,
+}: HumanMessageProps) {
   const thread = useStreamContext();
   const contentString = getContentString(message.content);
 

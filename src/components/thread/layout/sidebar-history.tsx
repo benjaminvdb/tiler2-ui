@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import ThreadHistory from "../history";
+import { ThreadHistory } from "../history";
 import { useUIContext } from "@/providers/ui";
 
 const SidebarHistoryComponent: React.FC = () => {

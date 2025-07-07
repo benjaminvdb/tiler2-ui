@@ -46,7 +46,7 @@ interface UseInterruptedActionsValue {
   initialHumanInterruptEditValue: MutableRefObject<Record<string, string>>;
 }
 
-export default function useInterruptedActions({
+export function useInterruptedActions({
   interrupt,
 }: UseInterruptedActionsInput): UseInterruptedActionsValue {
   const state = useInterruptState(interrupt);

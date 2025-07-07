@@ -15,7 +15,7 @@ export function useThreadHistory() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    
+
     const fetchThreads = async () => {
       setThreadsLoading(true);
       try {
@@ -27,7 +27,7 @@ export function useThreadHistory() {
         setThreadsLoading(false);
       }
     };
-    
+
     fetchThreads();
   }, [getThreads, setThreads, setThreadsLoading]);
 

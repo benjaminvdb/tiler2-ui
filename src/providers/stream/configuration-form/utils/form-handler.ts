@@ -1,3 +1,6 @@
+import { configurationFormSchema, validateInput } from "@/lib/validation";
+import { toast } from "sonner";
+
 export interface FormSubmissionData {
   apiUrl: string;
   assistantId: string;
@@ -13,10 +16,22 @@ export const handleFormSubmission = (
   const form = event.target as HTMLFormElement;
   const formData = new FormData(form);
 
-  const apiUrl = formData.get("apiUrl") as string;
-  const assistantId = formData.get("assistantId") as string;
-  const apiKey = formData.get("apiKey") as string;
+  const rawData = {
+    apiUrl: formData.get("apiUrl") as string,
+    assistantId: formData.get("assistantId") as string,
+    apiKey: formData.get("apiKey") as string,
+  };
 
-  onSubmit({ apiUrl, assistantId, apiKey });
+  // Validate the form data
+  const validation = validateInput(configurationFormSchema, rawData);
+
+  if (!validation.success) {
+    toast.error("Validation Error", {
+      description: validation.errors?.join(", ") || "Please check your input",
+    });
+    return;
+  }
+
+  onSubmit(validation.data);
   form.reset();
 };

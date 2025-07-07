@@ -2,12 +2,14 @@ import { cn } from "@/lib/utils";
 import { BranchSwitcher } from "../../../shared/components/branch-switcher";
 import { CommandBar } from "../../../shared/components/command-bar";
 import { Checkpoint } from "@langchain/langgraph-sdk";
+import type { StreamContextType } from "@/providers/stream/types";
+import type { MessageMetadata } from "@/types";
 
 interface MessageActionsProps {
   contentString: string;
   isLoading: boolean;
-  meta: any;
-  thread: any;
+  meta: MessageMetadata | null;
+  thread: StreamContextType;
   parentCheckpoint: Checkpoint | null | undefined;
   handleRegenerate: (parentCheckpoint: Checkpoint | null | undefined) => void;
 }

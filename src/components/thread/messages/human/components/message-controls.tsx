@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { BranchSwitcher, CommandBar } from "../../shared";
+import { BranchSwitcher, CommandBar } from "../../shared/index";
 import { MessageControlsProps } from "../types";
 
 export function MessageControls({

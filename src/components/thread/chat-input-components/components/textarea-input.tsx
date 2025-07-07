@@ -1,6 +1,7 @@
 import React, { useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { TextareaInputProps } from "../types";
+import { validateAndSanitizeInput } from "@/lib/validation";
 
 const TextareaInputComponent = ({
   input,
@@ -10,7 +11,10 @@ const TextareaInputComponent = ({
 }: TextareaInputProps) => {
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      onInputChange(e.target.value);
+      const { isValid, sanitized } = validateAndSanitizeInput(e.target.value);
+      if (isValid) {
+        onInputChange(sanitized);
+      }
     },
     [onInputChange],
   );

@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from "uuid";
 import { Checkpoint } from "@langchain/langgraph-sdk";
 import { DO_NOT_RENDER_ID_PREFIX } from "@/lib/ensure-tool-responses";
 import { AssistantMessage, AssistantMessageLoading } from "../messages/ai";
-import { HumanMessage } from "../messages/human";
+import { HumanMessage } from "../messages/human/index";
 import { useStreamContext } from "@/providers/stream";
 
 interface MessageListProps {

@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { BaseComponentProps } from "./types";
+import { BaseComponentProps } from "./markdown-elements";
 
 export const table = ({ className, ...props }: BaseComponentProps) => (
   <div className="my-6 w-full overflow-y-auto">

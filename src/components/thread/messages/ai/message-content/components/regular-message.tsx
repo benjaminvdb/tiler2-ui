@@ -1,8 +1,10 @@
-import { Message } from "@langchain/langgraph-sdk";
+import { Message, Checkpoint } from "@langchain/langgraph-sdk";
 import { CustomComponent } from "../../custom-component";
 import { MessageText } from "./message-text";
 import { ToolCallsSection } from "./tool-calls-section";
 import { MessageActions } from "./message-actions";
+import type { StreamContextType } from "@/providers/stream/types";
+import type { MessageMetadata, JsonValue } from "@/types";
 
 interface RegularMessageProps {
   message: Message;
@@ -12,11 +14,11 @@ interface RegularMessageProps {
   hasToolCalls: boolean;
   toolCallsHaveContents: boolean;
   hasAnthropicToolCalls: boolean;
-  anthropicStreamedToolCalls?: any[];
-  meta: any;
-  thread: any;
-  parentCheckpoint: any;
-  handleRegenerate: (parentCheckpoint: any) => void;
+  anthropicStreamedToolCalls?: JsonValue[];
+  meta: MessageMetadata | null;
+  thread: StreamContextType;
+  parentCheckpoint: Checkpoint | null | undefined;
+  handleRegenerate: (parentCheckpoint: Checkpoint | null | undefined) => void;
 }
 
 export function RegularMessage({

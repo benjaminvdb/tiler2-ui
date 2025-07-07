@@ -1,1 +1,0 @@
-export { EditAndOrAcceptComponent } from "./edit-and-accept";

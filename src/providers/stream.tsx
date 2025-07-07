@@ -1,7 +1,7 @@
 import React, { ReactNode, useState, useMemo } from "react";
 import { useQueryState } from "nuqs";
 import { getApiKey, setApiKey as setApiKeyStorage } from "@/lib/api-key";
-import { getClientConfig } from "@/config";
+import { getClientConfig } from "@/config/client";
 import { ConfigurationForm } from "./stream/configuration-form";
 import { StreamSession } from "./stream/stream-session";
 
@@ -18,10 +18,10 @@ export const StreamProvider: React.FC<{ children: ReactNode }> = ({
 
   // Use URL params with env var fallbacks
   const [apiUrl, setApiUrl] = useQueryState("apiUrl", {
-    defaultValue: envApiUrl || "",
+    defaultValue: clientConfig.apiUrl || "",
   });
   const [assistantId, setAssistantId] = useQueryState("assistantId", {
-    defaultValue: envAssistantId || "",
+    defaultValue: clientConfig.assistantId || "",
   });
 
   // For API key, use localStorage with env var fallback
@@ -36,8 +36,14 @@ export const StreamProvider: React.FC<{ children: ReactNode }> = ({
   };
 
   // Memoize final values to prevent unnecessary re-renders
-  const finalApiUrl = useMemo(() => apiUrl || envApiUrl, [apiUrl, envApiUrl]);
-  const finalAssistantId = useMemo(() => assistantId || envAssistantId, [assistantId, envAssistantId]);
+  const finalApiUrl = useMemo(
+    () => apiUrl || clientConfig.apiUrl,
+    [apiUrl, clientConfig.apiUrl],
+  );
+  const finalAssistantId = useMemo(
+    () => assistantId || clientConfig.assistantId,
+    [assistantId, clientConfig.assistantId],
+  );
 
   // Show the form if we: don't have an API URL, or don't have an assistant ID
   if (!finalApiUrl || !finalAssistantId) {

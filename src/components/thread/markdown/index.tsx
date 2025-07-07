@@ -9,7 +9,7 @@ import rehypeKatex from "rehype-katex";
 import rehypeSanitize from "rehype-sanitize";
 import remarkMath from "remark-math";
 import { FC, memo } from "react";
-import { defaultComponents } from "./markdown-components";
+import { defaultComponents } from "./components";
 
 const MarkdownTextImpl: FC<{ children: string }> = ({ children }) => {
   return (
