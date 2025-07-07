@@ -47,11 +47,13 @@ export function generateCSP(nonce: string): string {
     connectSources.push(langgraphUrl.replace("https://", "wss://"));
   }
 
-  // Build the CSP header
+  // Build the CSP header with fallbacks for Next.js compatibility
   const cspDirectives = [
     `default-src 'self'`,
-    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
-    `style-src 'self' 'nonce-${nonce}' fonts.googleapis.com`,
+    // Include unsafe-inline as fallback for Next.js App Router compatibility
+    // strict-dynamic should take precedence when nonce is supported
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' 'unsafe-inline'${!isProduction ? " 'unsafe-eval'" : ""}`,
+    `style-src 'self' 'nonce-${nonce}' 'unsafe-inline' fonts.googleapis.com`,
     `font-src 'self' fonts.gstatic.com`,
     `img-src 'self' data: blob: *.auth0.com`,
     `connect-src ${connectSources.join(" ")}`,
