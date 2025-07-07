@@ -50,9 +50,9 @@ export function generateCSP(nonce: string): string {
   // Build the CSP header with fallbacks for Next.js compatibility
   const cspDirectives = [
     `default-src 'self'`,
-    // Include unsafe-inline as fallback for Next.js App Router compatibility
-    // strict-dynamic should take precedence when nonce is supported
-    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' 'unsafe-inline'${!isProduction ? " 'unsafe-eval'" : ""}`,
+    // Use unsafe-inline for Next.js App Router compatibility
+    // Remove strict-dynamic to allow unsafe-inline to work
+    `script-src 'self' 'unsafe-inline'${!isProduction ? " 'unsafe-eval'" : ""}`,
     `style-src 'self' 'nonce-${nonce}' 'unsafe-inline' fonts.googleapis.com`,
     `font-src 'self' fonts.gstatic.com`,
     `img-src 'self' data: blob: *.auth0.com`,
