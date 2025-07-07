@@ -4,7 +4,7 @@
  */
 
 // Main component
-export { Thread } from "./components/thread";
+export { Thread } from "./components";
 
 // Provider
 export { ThreadProvider, useThreads } from "./providers/thread-provider";
@@ -18,6 +18,6 @@ export type {
 } from "./types";
 
 // Sub-components that might be used externally
-export { MessageList } from "./components/thread/layout/message-list";
-export { ChatFooter } from "./components/thread/layout/chat-footer";
-export { SidebarHistory } from "./components/thread/layout/sidebar-history";
+export { MessageList } from "./components/layout/message-list";
+export { ChatFooter } from "./components/layout/chat-footer";
+export { SidebarHistory } from "./components/layout/sidebar-history";

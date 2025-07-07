@@ -4,7 +4,7 @@
  */
 
 // Components
-export { AuthButtons } from "./components/auth-buttons";
+export { AuthButtons } from "./components";
 
 // Services (re-export main functions)
 export {

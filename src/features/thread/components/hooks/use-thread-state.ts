@@ -3,7 +3,7 @@ import { useQueryState, parseAsBoolean } from "nuqs";
 import {
   useArtifactContext,
   useArtifactOpen,
-} from "@/features/artifacts/components/artifact";
+} from "@/features/artifacts/components";
 import type { HumanInterrupt } from "@langchain/langgraph/prebuilt";
 
 export function useThreadState(): {

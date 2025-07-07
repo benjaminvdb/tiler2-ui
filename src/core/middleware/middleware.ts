@@ -6,6 +6,7 @@ import {
 } from "@/features/auth/services/auth0";
 import { AUTH_CONFIG } from "@/core/config/app";
 import { reportAuthError } from "@/core/services/error-reporting";
+import { generateCSP } from "@/core/services/csp";
 
 const LOGIN_URL = AUTH_CONFIG.loginUrl ?? "/auth/login";
 
@@ -48,11 +49,20 @@ function isPublic(pathname: string): boolean {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Generate nonce for CSP
+  const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
+  
+  // Generate CSP header
+  const cspHeader = generateCSP(nonce);
+
   // Fail closed in production if Auth0 is misconfigured
   if (!isAuth0Configured()) {
     if (process.env.NODE_ENV === "development") {
       console.warn("[Auth0] not configured – allowing all requests (dev only)");
-      return NextResponse.next();
+      const response = NextResponse.next();
+      response.headers.set("Content-Security-Policy", cspHeader);
+      response.headers.set("x-nonce", nonce);
+      return response;
     }
 
     reportAuthError(new Error("Auth0 misconfiguration in production"), {
@@ -70,11 +80,24 @@ export async function middleware(request: NextRequest) {
   // Let Auth0 handle its own endpoints
   if (pathname.startsWith("/api") || pathname.startsWith("/auth")) {
     const res = await auth0Middleware(request);
-    return res ?? NextResponse.next();
+    if (res) {
+      res.headers.set("Content-Security-Policy", cspHeader);
+      res.headers.set("x-nonce", nonce);
+      return res;
+    }
+    const response = NextResponse.next();
+    response.headers.set("Content-Security-Policy", cspHeader);
+    response.headers.set("x-nonce", nonce);
+    return response;
   }
 
   // Allow public routes
-  if (isPublic(pathname)) return NextResponse.next();
+  if (isPublic(pathname)) {
+    const response = NextResponse.next();
+    response.headers.set("Content-Security-Policy", cspHeader);
+    response.headers.set("x-nonce", nonce);
+    return response;
+  }
 
   // Require authentication for protected routes
   const session = await getAuth0Session(request);
@@ -89,12 +112,26 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
-  return NextResponse.next();
+  // Set CSP headers for authenticated requests
+  const response = NextResponse.next();
+  response.headers.set("Content-Security-Policy", cspHeader);
+  response.headers.set("x-nonce", nonce);
+  return response;
 }
 
 export const config = {
   matcher: [
-    // Exclude Next.js internals and static assets
-    "/((?!_next/(?:static|image|data)|favicon.(?:ico|svg)).*)",
+    // Match all request paths except for the ones starting with:
+    // - _next/static (static files)
+    // - _next/image (image optimization files)
+    // - _next/data (data files)
+    // - favicon.ico, favicon.svg (favicon files)
+    {
+      source: "/((?!_next/static|_next/image|_next/data|favicon.ico|favicon.svg).*)",
+      missing: [
+        { type: "header", key: "next-router-prefetch" },
+        { type: "header", key: "purpose", value: "prefetch" },
+      ],
+    },
   ],
 };

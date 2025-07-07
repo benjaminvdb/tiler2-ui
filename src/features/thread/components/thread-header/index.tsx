@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/shared/components/ui/button";
 import { PanelRightOpen, PanelRightClose, SquarePen } from "lucide-react";
 import { LinkLogoSVG } from "@/shared/components/icons/link";
-import { AuthButtons } from "@/features/auth/components/auth-buttons";
+import { AuthButtons } from "@/features/auth/components";
 import { TooltipIconButton } from "../tooltip-icon-button";
 import { useUIContext } from "@/features/chat/providers/ui-provider";
 import { useChatContext } from "@/features/chat/providers/chat-provider";

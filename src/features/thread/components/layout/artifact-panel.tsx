@@ -3,7 +3,7 @@ import { XIcon } from "lucide-react";
 import {
   ArtifactContent,
   ArtifactTitle,
-} from "@/features/artifacts/components/artifact";
+} from "@/features/artifacts/components";
 
 interface ArtifactPanelProps {
   onClose: () => void;

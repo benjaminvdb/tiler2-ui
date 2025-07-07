@@ -2,7 +2,7 @@ import { Fragment } from "react/jsx-runtime";
 import { LoadExternalComponent } from "@langchain/langgraph-sdk/react-ui";
 import { Message } from "@langchain/langgraph-sdk";
 import { useStreamContext } from "@/core/providers/stream";
-import { useArtifact } from "@/features/artifacts/components/artifact";
+import { useArtifact } from "@/features/artifacts/components";
 
 interface CustomComponentProps {
   message: Message;
