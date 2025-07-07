@@ -55,11 +55,19 @@ export async function middleware(request: NextRequest) {
   // Generate CSP header
   const cspHeader = generateCSP(nonce);
 
+  // Set up request headers with nonce (this is crucial for Next.js to apply nonce to its scripts)
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-nonce", nonce);
+
   // Fail closed in production if Auth0 is misconfigured
   if (!isAuth0Configured()) {
     if (process.env.NODE_ENV === "development") {
       console.warn("[Auth0] not configured – allowing all requests (dev only)");
-      const response = NextResponse.next();
+      const response = NextResponse.next({
+        request: {
+          headers: requestHeaders,
+        },
+      });
       response.headers.set("Content-Security-Policy", cspHeader);
       response.headers.set("x-nonce", nonce);
       return response;
@@ -85,7 +93,11 @@ export async function middleware(request: NextRequest) {
       res.headers.set("x-nonce", nonce);
       return res;
     }
-    const response = NextResponse.next();
+    const response = NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
+    });
     response.headers.set("Content-Security-Policy", cspHeader);
     response.headers.set("x-nonce", nonce);
     return response;
@@ -93,7 +105,11 @@ export async function middleware(request: NextRequest) {
 
   // Allow public routes
   if (isPublic(pathname)) {
-    const response = NextResponse.next();
+    const response = NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
+    });
     response.headers.set("Content-Security-Policy", cspHeader);
     response.headers.set("x-nonce", nonce);
     return response;
@@ -113,7 +129,11 @@ export async function middleware(request: NextRequest) {
   }
 
   // Set CSP headers for authenticated requests
-  const response = NextResponse.next();
+  const response = NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  });
   response.headers.set("Content-Security-Policy", cspHeader);
   response.headers.set("x-nonce", nonce);
   return response;
