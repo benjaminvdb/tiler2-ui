@@ -32,9 +32,21 @@ export function generateCSP(nonce: string): string {
     "*.langgraph.app",
   ];
 
+  // Build script-src with external domains
+  const scriptSources = [
+    "'self'",
+    "'unsafe-inline'",
+  ];
+
+  // Add Vercel Live for feedback/analytics if deployed on Vercel
+  if (isProduction) {
+    scriptSources.push("https://vercel.live");
+  }
+
   // Add development sources
   if (!isProduction) {
     connectSources.push("localhost:*", "127.0.0.1:*", "ws://localhost:*");
+    scriptSources.push("'unsafe-eval'");
   }
 
   // Add production API domains
@@ -50,12 +62,13 @@ export function generateCSP(nonce: string): string {
   // Build the CSP header with fallbacks for Next.js compatibility
   const cspDirectives = [
     `default-src 'self'`,
-    // Use unsafe-inline for Next.js App Router compatibility
-    // Remove strict-dynamic to allow unsafe-inline to work
-    `script-src 'self' 'unsafe-inline'${!isProduction ? " 'unsafe-eval'" : ""}`,
-    `style-src 'self' 'nonce-${nonce}' 'unsafe-inline' fonts.googleapis.com`,
+    // Use script sources with external domains
+    `script-src ${scriptSources.join(" ")}`,
+    // Remove nonce from styles to allow unsafe-inline to work
+    `style-src 'self' 'unsafe-inline' fonts.googleapis.com`,
     `font-src 'self' fonts.gstatic.com`,
-    `img-src 'self' data: blob: *.auth0.com`,
+    // Add gravatar for Auth0 profile images
+    `img-src 'self' data: blob: *.auth0.com https://s.gravatar.com https://cdn.auth0.com`,
     `connect-src ${connectSources.join(" ")}`,
     `frame-src 'self' *.auth0.com`,
     `object-src 'none'`,
