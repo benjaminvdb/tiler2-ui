@@ -9,7 +9,7 @@ export function generateNonce(): string {
 /**
  * Generate Content Security Policy header based on environment
  */
-export function generateCSP(nonce: string): string {
+export function generateCSP(): string {
   // Determine the appropriate domains based on environment
   const isProduction = process.env.NODE_ENV === "production";
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";

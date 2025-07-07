@@ -49,15 +49,11 @@ function isPublic(pathname: string): boolean {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Generate nonce for CSP
-  const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
-  
   // Generate CSP header
-  const cspHeader = generateCSP(nonce);
+  const cspHeader = generateCSP();
 
-  // Set up request headers with nonce (this is crucial for Next.js to apply nonce to its scripts)
+  // Set up request headers with CSP
   const requestHeaders = new Headers(request.headers);
-  requestHeaders.set("x-nonce", nonce);
   requestHeaders.set("Content-Security-Policy", cspHeader);
 
   // Fail closed in production if Auth0 is misconfigured
@@ -70,7 +66,6 @@ export async function middleware(request: NextRequest) {
         },
       });
       response.headers.set("Content-Security-Policy", cspHeader);
-      response.headers.set("x-nonce", nonce);
       return response;
     }
 
@@ -91,7 +86,6 @@ export async function middleware(request: NextRequest) {
     const res = await auth0Middleware(request);
     if (res) {
       res.headers.set("Content-Security-Policy", cspHeader);
-      res.headers.set("x-nonce", nonce);
       return res;
     }
     const response = NextResponse.next({
@@ -100,7 +94,6 @@ export async function middleware(request: NextRequest) {
       },
     });
     response.headers.set("Content-Security-Policy", cspHeader);
-    response.headers.set("x-nonce", nonce);
     return response;
   }
 
