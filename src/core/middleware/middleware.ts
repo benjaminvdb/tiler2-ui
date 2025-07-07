@@ -3,8 +3,6 @@ import { auth0, isAuth0Configured } from "@/features/auth/services/auth0";
 import { reportAuthError } from "@/core/services/error-reporting";
 import { generateCSP } from "@/core/services/csp";
 
-const PUBLIC_ROUTES = new Set<string>(["/"]);
-
 const STATIC_EXTENSIONS = new Set<string>([
   ".ico",
   ".svg",
@@ -27,12 +25,13 @@ function normalise(pathname: string): string {
   return out === "" ? "/" : out;
 }
 
-function isPublic(pathname: string): boolean {
+function isStaticFile(pathname: string): boolean {
   const p = normalise(pathname);
 
-  if (PUBLIC_ROUTES.has(p)) return true;
+  // Allow Next.js internals
   if (p.startsWith("/_next/")) return true;
 
+  // Allow static file extensions
   const ext = getExtname(p);
   if (STATIC_EXTENSIONS.has(ext)) return true;
 
@@ -85,8 +84,12 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Allow public routes
-  if (isPublic(pathname)) {
+  // Allow static files and Next.js internals (but NOT application routes)
+  if (isStaticFile(pathname)) {
+    if (authRes) {
+      authRes.headers.set("Content-Security-Policy", cspHeader);
+      return authRes;
+    }
     const response = NextResponse.next({
       request: {
         headers: requestHeaders,
@@ -96,7 +99,7 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  // Require authentication for protected routes
+  // From this point on, all routes require authentication (including home page)
   const session = await auth0.getSession(request);
   if (!session) {
     const redirectUrl = new URL("/auth/login", request.nextUrl.origin);
@@ -110,6 +113,11 @@ export async function middleware(request: NextRequest) {
   }
 
   // Set CSP headers for authenticated requests
+  if (authRes) {
+    authRes.headers.set("Content-Security-Policy", cspHeader);
+    return authRes;
+  }
+  
   const response = NextResponse.next({
     request: {
       headers: requestHeaders,
