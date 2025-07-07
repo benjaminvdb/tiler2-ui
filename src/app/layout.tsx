@@ -4,8 +4,8 @@ import { Inter } from "next/font/google";
 import React from "react";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { Auth0Provider } from "@auth0/nextjs-auth0";
-import { GlobalErrorBoundary } from "@/components/error-boundary/global-error-boundary";
-import { AsyncErrorBoundary } from "@/components/error-boundary/async-error-boundary";
+import { GlobalErrorBoundary } from "@/shared/components/error-boundary/global-error-boundary";
+import { AsyncErrorBoundary } from "@/shared/components/error-boundary/async-error-boundary";
 
 const inter = Inter({
   subsets: ["latin"],

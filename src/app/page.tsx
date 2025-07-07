@@ -1,12 +1,18 @@
 "use client";
 
-import { Thread } from "@/components/thread/thread-lazy";
-import { StreamProvider } from "@/providers/stream";
-import { ThreadProvider } from "@/providers/thread";
-import { ArtifactProvider } from "@/components/thread/artifact";
-import { Toaster } from "@/components/ui/sonner";
-import { ErrorBoundary } from "@/components/error-boundary";
 import React from "react";
+
+// For now, use original paths until we complete the migration
+const Thread = React.lazy(() =>
+  import("@/features/thread/components/thread/thread-lazy").then((m) => ({
+    default: m.Thread,
+  })),
+);
+import { StreamProvider } from "@/core/providers/stream";
+import { ThreadProvider } from "@/features/thread/providers/thread-provider";
+import { ArtifactProvider } from "@/features/artifacts/components/artifact";
+import { Toaster } from "@/shared";
+import { ErrorBoundary } from "@/shared/components/error-boundary";
 
 export default function DemoPage(): React.ReactNode {
   return (
