@@ -95,6 +95,6 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     // Exclude Next.js internals and static assets
-    "/((?!_next/(?:static|image|data)|favicon\.(?:ico|svg)).*)",
+    "/((?!_next/(?:static|image|data)|favicon.(?:ico|svg)).*)",
   ],
 };
