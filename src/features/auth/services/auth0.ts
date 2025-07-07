@@ -146,3 +146,16 @@ export async function getAuth0Session(request: NextRequest) {
     return null;
   }
 }
+
+/**
+ * Auth0 v4 client instance for use with proper middleware pattern
+ * This is the official client that should be used with auth0.middleware()
+ */
+export const auth0 = new Auth0Client({
+  authorizationParameters: {
+    redirect_uri: `${auth0EnvVars.APP_BASE_URL}/auth/callback`,
+    ...AUTH0_CONFIG.authorizationParams,
+    ...(auth0EnvVars.AUTH0_AUDIENCE ? { audience: auth0EnvVars.AUTH0_AUDIENCE } : {}),
+  },
+  session: AUTH0_CONFIG.session,
+});

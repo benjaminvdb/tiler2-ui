@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth0 } from "@/lib/auth0";
-import { isAuth0Configured } from "@/features/auth/services/auth0";
+import { auth0, isAuth0Configured } from "@/features/auth/services/auth0";
 import { reportAuthError } from "@/core/services/error-reporting";
 import { generateCSP } from "@/core/services/csp";
 
