@@ -17,6 +17,15 @@ export {
 } from "./services/auth0";
 export { AUTH0_CONFIG } from "./services/auth0-config";
 
+// Utilities
+export {
+  handleTokenError,
+  isAccessTokenError,
+  withTokenErrorHandling,
+  withSyncTokenErrorHandling,
+} from "./utils/token-error-handler";
+export type { TokenErrorContext } from "./utils/token-error-handler";
+
 // Types
 export type {
   AuthUser,
@@ -26,5 +35,5 @@ export type {
   AuthorizationParams,
 } from "./types";
 
-// Hooks (to be created)
-// export { useAuth } from './hooks/useAuth';
+// Hooks
+export { useAccessToken } from "./hooks/use-access-token";

@@ -14,7 +14,6 @@ export const { GET, POST, PUT, PATCH, DELETE, OPTIONS, runtime } =
     apiKey: langsmithApiKey,
     runtime: "edge", // default
     headers: async (_req) => {
-      // Check if Auth0 is configured before trying to get access token
       if (!isAuth0Configured()) {
         console.warn("Auth0 not configured, proceeding without authentication");
         return {};
@@ -34,24 +33,15 @@ export const { GET, POST, PUT, PATCH, DELETE, OPTIONS, runtime } =
           Authorization: `Bearer ${accessToken.token}`,
         };
       } catch (error) {
-        // Check if this is a session-related error (user not authenticated)
-        const errorMessage =
-          error instanceof Error ? error.message : String(error);
-        if (
-          errorMessage.includes("active session") ||
-          errorMessage.includes("not authenticated")
-        ) {
-          // Return 401 for API requests without session - client should handle redirect
+        if (error instanceof Error && error.name === "AccessTokenError") {
+          reportAuthError(error, {
+            operation: "getAccessToken",
+            component: "API route",
+            additionalData: { errorType: "AccessTokenError" },
+          });
           throw new Response("Unauthorized", { status: 401 });
         }
 
-        // Report unexpected auth errors
-        reportAuthError(error as Error, {
-          operation: "getAccessToken",
-          component: "API route",
-        });
-
-        // Re-throw unexpected errors
         throw error;
       }
     },

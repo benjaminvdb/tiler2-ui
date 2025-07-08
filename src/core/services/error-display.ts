@@ -35,6 +35,10 @@ const TOAST_TITLES: Record<ErrorSeverity, string> = {
 };
 
 const getDefaultDescription = (context: ErrorContext, error: Error): string => {
+  if (error.name === "AccessTokenError") {
+    return "Your session has expired. You will be redirected to login.";
+  }
+
   switch (context) {
     case "global":
       return "An unexpected error occurred. Please try refreshing the page.";

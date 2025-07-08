@@ -35,12 +35,15 @@ class GlobalErrorBoundary extends Component<Props, State> {
       errorInfo,
     });
 
-    // Use centralized error display service
+    if (error.name === "AccessTokenError") {
+      window.location.href = "/api/auth/login";
+      return;
+    }
+
     displayCriticalError(error, errorInfo.componentStack || undefined, [
       { label: "Retry", onClick: () => this.handleRetry() },
     ]);
 
-    // Call custom error handler if provided
     this.props.onError?.(error, errorInfo);
   }
   handleRetry = () => {
@@ -64,7 +67,6 @@ class GlobalErrorBoundary extends Component<Props, State> {
     return this.props.children;
   }
 }
-// Default error fallback component
 const DefaultErrorFallback: React.FC<{
   error: Error;
   retry: () => void;
