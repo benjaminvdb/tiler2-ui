@@ -25,9 +25,10 @@ interface UseAccessTokenResult {
  * Automatically handles AccessTokenError by redirecting to login
  */
 export const useAccessToken = (
-  options: UseAccessTokenOptions = {}
+  options: UseAccessTokenOptions = {},
 ): UseAccessTokenResult => {
-  const { component = "useAccessToken", operation = "getAccessToken" } = options;
+  const { component = "useAccessToken", operation = "getAccessToken" } =
+    options;
 
   const getToken = useCallback(async (): Promise<string | null> => {
     try {

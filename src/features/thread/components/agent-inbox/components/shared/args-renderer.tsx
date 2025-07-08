@@ -1,4 +1,4 @@
-import { MarkdownText } from "../../../markdown-text-lazy";
+import { MarkdownText } from "../../../markdown-text";
 import { prettifyText } from "../../utils";
 import { JsonValue } from "@/shared/types";
 

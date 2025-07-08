@@ -155,7 +155,9 @@ export const auth0 = new Auth0Client({
   authorizationParameters: {
     redirect_uri: `${auth0EnvVars.APP_BASE_URL}/auth/callback`,
     ...AUTH0_CONFIG.authorizationParams,
-    ...(auth0EnvVars.AUTH0_AUDIENCE ? { audience: auth0EnvVars.AUTH0_AUDIENCE } : {}),
+    ...(auth0EnvVars.AUTH0_AUDIENCE
+      ? { audience: auth0EnvVars.AUTH0_AUDIENCE }
+      : {}),
   },
   session: AUTH0_CONFIG.session,
 });

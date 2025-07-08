@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { cn } from "@/shared/utils/utils";
-import { MarkdownText } from "../../markdown-text-lazy";
+import { MarkdownText } from "../../markdown-text";
 import { StateViewObject } from "./state-view/state-view-object";
 import { StateViewControls } from "./state-view/state-view-controls";
 

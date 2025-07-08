@@ -117,7 +117,7 @@ export async function middleware(request: NextRequest) {
     authRes.headers.set("Content-Security-Policy", cspHeader);
     return authRes;
   }
-  
+
   const response = NextResponse.next({
     request: {
       headers: requestHeaders,

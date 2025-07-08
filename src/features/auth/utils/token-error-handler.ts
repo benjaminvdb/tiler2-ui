@@ -26,7 +26,7 @@ export const isAccessTokenError = (error: unknown): error is Error => {
  */
 export const handleTokenError = (
   error: unknown,
-  context: TokenErrorContext = {}
+  context: TokenErrorContext = {},
 ): boolean => {
   if (!isAccessTokenError(error)) {
     return false;
@@ -56,7 +56,7 @@ export const handleTokenError = (
  */
 export const withTokenErrorHandling = <T extends unknown[], R>(
   fn: (...args: T) => Promise<R>,
-  context: TokenErrorContext = {}
+  context: TokenErrorContext = {},
 ) => {
   return async (...args: T): Promise<R | null> => {
     try {
@@ -76,7 +76,7 @@ export const withTokenErrorHandling = <T extends unknown[], R>(
  */
 export const withSyncTokenErrorHandling = <T extends unknown[], R>(
   fn: (...args: T) => R,
-  context: TokenErrorContext = {}
+  context: TokenErrorContext = {},
 ) => {
   return (...args: T): R | null => {
     try {

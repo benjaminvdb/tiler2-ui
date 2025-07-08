@@ -17,9 +17,6 @@ const SyntaxHighlighterComponent = dynamic(
           <div className="mb-2 h-4 w-1/2 rounded bg-gray-700"></div>
           <div className="h-4 w-5/6 rounded bg-gray-700"></div>
         </div>
-        <p className="mt-2 text-sm text-gray-400">
-          Loading syntax highlighter...
-        </p>
       </div>
     ),
     ssr: false, // Disable SSR for this component to reduce initial bundle
@@ -41,9 +38,6 @@ export const SyntaxHighlighter: FC<SyntaxHighlighterProps> = (props) => {
             <div className="mb-2 h-4 w-1/2 rounded bg-gray-700"></div>
             <div className="h-4 w-5/6 rounded bg-gray-700"></div>
           </div>
-          <p className="mt-2 text-sm text-gray-400">
-            Loading syntax highlighter...
-          </p>
         </div>
       }
     >
