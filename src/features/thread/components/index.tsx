@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from "react";
+import React, { useMemo, useEffect, useRef } from "react";
 import { useQueryState } from "nuqs";
 import { cn } from "@/shared/utils/utils";
 import { useStreamContext } from "@/core/providers/stream";
@@ -47,24 +47,40 @@ export const Thread = (): React.JSX.Element => {
   const stream = useStreamContext();
   const messages = stream.messages;
   const [, setWorkflowParam] = useQueryState("workflow");
+  const workflowStartedRef = useRef(false);
+
+  // Reset workflow started flag when workflow type changes
+  useEffect(() => {
+    if (stream.workflowType) {
+      workflowStartedRef.current = false;
+    }
+  }, [stream.workflowType]);
 
   // Auto-start workflow if workflow parameter is present and no messages yet
   useEffect(() => {
-    if (stream.workflowType && messages.length === 0 && !stream.isLoading) {
+    if (stream.workflowType && messages.length === 0 && !stream.isLoading && !workflowStartedRef.current) {
+      console.log('Auto-starting workflow:', stream.workflowType);
+      workflowStartedRef.current = true;
       // Submit empty message to trigger workflow
-      stream.submit(
-        { messages: [] },
-        {
-          streamMode: ["values"],
-          config: {
-            configurable: {
-              workflow_type: stream.workflowType,
+      try {
+        stream.submit(
+          { messages: [] },
+          {
+            streamMode: ["values"],
+            config: {
+              configurable: {
+                workflow_type: stream.workflowType,
+              },
             },
           },
-        },
-      );
+        );
+      } catch (error) {
+        console.error('Failed to auto-start workflow:', error);
+        // Reset flag on error so it can be retried
+        workflowStartedRef.current = false;
+      }
     }
-  }, [stream.workflowType, messages.length, stream.isLoading, stream]);
+  }, [stream.workflowType, messages.length, stream.isLoading]);
 
   // Clear workflow parameter after workflow has started (has messages)
   useEffect(() => {
