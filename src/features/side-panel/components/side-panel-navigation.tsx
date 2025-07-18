@@ -33,17 +33,22 @@ export const SidePanelNavigation: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  const { chatHistoryOpen } = useUIContext();
+  const { chatHistoryOpen, onNewThread } = useUIContext();
 
   const handleNavigation = (path: string) => {
-    console.log("Navigating to:", path);
-    // Preserve the chatHistoryOpen state when navigating
-    const currentParams = new URLSearchParams(searchParams);
-    const newUrl = currentParams.toString()
-      ? `${path}?${currentParams.toString()}`
-      : path;
-    console.log("Final URL:", newUrl);
-    router.push(newUrl);
+    if (path === "/") {
+      // For new chat, use onNewThread to properly reset threadId
+      onNewThread();
+    } else {
+      console.log("Navigating to:", path);
+      // Preserve the chatHistoryOpen state when navigating
+      const currentParams = new URLSearchParams(searchParams);
+      const newUrl = currentParams.toString()
+        ? `${path}?${currentParams.toString()}`
+        : path;
+      console.log("Final URL:", newUrl);
+      router.push(newUrl);
+    }
   };
 
   const isActive = (path: string) => {

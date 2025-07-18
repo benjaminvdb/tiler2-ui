@@ -6,14 +6,11 @@ import { ThreadProvider } from "@/features/thread/providers/thread-provider";
 import { useMediaQuery } from "@/shared/hooks/use-media-query";
 import { useQueryState } from "nuqs";
 import { Toaster } from "@/shared";
-import { useRouter } from "next/navigation";
-
 interface AppProvidersProps {
   children: React.ReactNode;
 }
 
 export function AppProviders({ children }: AppProvidersProps): React.ReactNode {
-  const router = useRouter();
 
   // UI state management
   const [chatHistoryOpen, setChatHistoryOpen] = useQueryState(
@@ -53,9 +50,11 @@ export function AppProviders({ children }: AppProvidersProps): React.ReactNode {
   }, [chatHistoryOpen, setChatHistoryOpen]);
 
   const handleNewThread = useCallback(() => {
+    console.log('Starting new thread - clearing threadId');
+    // Clear threadId to start a new thread
+    // nuqs will automatically update the URL
     setThreadId(null);
-    router.push("/");
-  }, [setThreadId, router]);
+  }, [setThreadId]);
 
   const handleSidePanelWidthChange = useCallback((width: number) => {
     // Constrain width between 250px and 600px
