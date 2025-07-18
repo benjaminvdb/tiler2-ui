@@ -1,7 +1,5 @@
-import { motion } from "framer-motion";
 import { Button } from "@/shared/components/ui/button";
 import { PanelRightOpen, PanelRightClose, SquarePen } from "lucide-react";
-import { LinkLogoSVG } from "@/shared/components/icons/link";
 import { AuthButtons } from "@/features/auth/components";
 import { TooltipIconButton } from "../tooltip-icon-button";
 import { useUIContext } from "@/features/chat/providers/ui-provider";
@@ -30,29 +28,6 @@ const HistoryToggleButton: React.FC = () => {
   );
 };
 
-const BrandLogo: React.FC = () => {
-  const { chatHistoryOpen, onNewThread } = useUIContext();
-  return (
-    <motion.button
-      className="flex cursor-pointer items-center gap-2"
-      onClick={onNewThread}
-      animate={{
-        marginLeft: !chatHistoryOpen ? 48 : 0,
-      }}
-      transition={{
-        type: "spring",
-        stiffness: 300,
-        damping: 30,
-      }}
-    >
-      <LinkLogoSVG
-        width={32}
-        height={32}
-      />
-      <span className="text-xl font-semibold tracking-tight">Link Chat</span>
-    </motion.button>
-  );
-};
 
 const HeaderActions: React.FC = () => {
   const { onNewThread } = useUIContext();
@@ -78,10 +53,7 @@ const MainHeader: React.FC = () => {
   return (
     <div className="relative z-10 flex items-center justify-between gap-3 p-2">
       <div className="relative flex items-center justify-start gap-2">
-        <div className="absolute left-0 z-10">
-          <HistoryToggleButton />
-        </div>
-        <BrandLogo />
+        <HistoryToggleButton />
       </div>
       <HeaderActions />
       <div className="from-background to-background/0 absolute inset-x-0 top-full h-5 bg-gradient-to-b" />

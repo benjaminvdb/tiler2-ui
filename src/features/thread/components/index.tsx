@@ -1,19 +1,16 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useMemo } from "react";
 import { cn } from "@/shared/utils/utils";
 import { useStreamContext } from "@/core/providers/stream";
-import { useMediaQuery } from "@/shared/hooks/use-media-query";
 import { useFileUpload } from "@/features/file-upload/hooks/use-file-upload";
 
 // Import our new components and hooks
 import { useThreadState } from "./hooks/use-thread-state";
 import { useThreadHandlers } from "./hooks/use-thread-handlers";
 import { useThreadEffects } from "./hooks/use-thread-effects";
-import { SidebarHistory } from "./layout/sidebar-history";
 import { MainChatArea } from "./layout/main-chat-area";
 import { ArtifactPanel } from "./layout/artifact-panel";
 import { ComponentErrorBoundary } from "@/shared/components/error-boundary";
 import { ChatProvider } from "@/features/chat/providers/chat-provider";
-import { UIProvider } from "@/features/chat/providers/ui-provider";
 
 export const Thread = (): React.JSX.Element => {
   // Use our custom hooks for state management
@@ -22,9 +19,6 @@ export const Thread = (): React.JSX.Element => {
     artifactOpen,
     closeArtifact,
     threadId,
-    setThreadId,
-    chatHistoryOpen,
-    setChatHistoryOpen,
     hideToolCalls,
     setHideToolCalls,
     input,
@@ -49,7 +43,6 @@ export const Thread = (): React.JSX.Element => {
     handlePaste,
   } = useFileUpload();
 
-  const isLargeScreen = useMediaQuery("(min-width: 1024px)");
   const stream = useStreamContext();
   const messages = stream.messages;
 
@@ -79,15 +72,6 @@ export const Thread = (): React.JSX.Element => {
   });
 
   const chatStarted = !!threadId || !!messages.length;
-
-  // Memoized callback functions to prevent unnecessary rerenders
-  const handleToggleChatHistory = useCallback(() => {
-    setChatHistoryOpen(!chatHistoryOpen);
-  }, [chatHistoryOpen, setChatHistoryOpen]); // setChatHistoryOpen is stable from useQueryState
-
-  const handleNewThread = useCallback(() => {
-    setThreadId(null);
-  }, [setThreadId]); // setThreadId is stable from useState
 
   // Memoized computed values
   const memoizedChatStarted = useMemo(() => chatStarted, [chatStarted]);
@@ -131,40 +115,22 @@ export const Thread = (): React.JSX.Element => {
     ],
   );
 
-  const uiContextValue = useMemo(
-    () => ({
-      chatHistoryOpen,
-      isLargeScreen,
-      onToggleChatHistory: handleToggleChatHistory,
-      onNewThread: handleNewThread,
-    }),
-    [chatHistoryOpen, isLargeScreen, handleToggleChatHistory, handleNewThread],
-  );
-
   return (
-    <UIProvider value={uiContextValue}>
-      <ChatProvider value={chatContextValue}>
-        <div className="flex h-screen w-full overflow-hidden">
-          <ComponentErrorBoundary>
-            <SidebarHistory />
-          </ComponentErrorBoundary>
+    <ChatProvider value={chatContextValue}>
+      <div
+        className={cn(
+          "grid h-screen w-full grid-cols-[1fr_0fr] transition-all duration-500",
+          artifactOpen && "grid-cols-[3fr_2fr]",
+        )}
+      >
+        <ComponentErrorBoundary>
+          <MainChatArea />
+        </ComponentErrorBoundary>
 
-          <div
-            className={cn(
-              "grid w-full grid-cols-[1fr_0fr] transition-all duration-500",
-              artifactOpen && "grid-cols-[3fr_2fr]",
-            )}
-          >
-            <ComponentErrorBoundary>
-              <MainChatArea />
-            </ComponentErrorBoundary>
-
-            <ComponentErrorBoundary>
-              <ArtifactPanel onClose={closeArtifact} />
-            </ComponentErrorBoundary>
-          </div>
-        </div>
-      </ChatProvider>
-    </UIProvider>
+        <ComponentErrorBoundary>
+          <ArtifactPanel onClose={closeArtifact} />
+        </ComponentErrorBoundary>
+      </div>
+    </ChatProvider>
   );
 };

@@ -4,10 +4,12 @@ interface UIContextType {
   // UI state
   chatHistoryOpen: boolean;
   isLargeScreen: boolean;
+  sidePanelWidth: number;
 
   // UI actions
   onToggleChatHistory: () => void;
   onNewThread: () => void;
+  onSidePanelWidthChange: (width: number) => void;
 }
 const UIContext = createContext<UIContextType | undefined>(undefined);
 

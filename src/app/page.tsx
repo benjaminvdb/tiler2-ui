@@ -1,15 +1,27 @@
 "use client";
 
 import React from "react";
-
 import { Thread } from "@/features/thread/components";
 import { StreamProvider } from "@/core/providers/stream";
-import { ThreadProvider } from "@/features/thread/providers/thread-provider";
 import { ArtifactProvider } from "@/features/artifacts/components";
-import { Toaster } from "@/shared";
+import { SidePanel } from "@/features/side-panel";
 import { ErrorBoundary } from "@/shared/components/error-boundary";
+import { AppProviders } from "./app-providers";
 
-export default function DemoPage(): React.ReactNode {
+function ThreadsContent(): React.ReactNode {
+  return (
+    <StreamProvider>
+      <ArtifactProvider>
+        <div className="flex h-screen w-full overflow-hidden">
+          <SidePanel />
+          <Thread />
+        </div>
+      </ArtifactProvider>
+    </StreamProvider>
+  );
+}
+
+export default function ThreadsPage(): React.ReactNode {
   return (
     <ErrorBoundary>
       <React.Suspense
@@ -21,14 +33,9 @@ export default function DemoPage(): React.ReactNode {
           </div>
         }
       >
-        <Toaster />
-        <ThreadProvider>
-          <StreamProvider>
-            <ArtifactProvider>
-              <Thread />
-            </ArtifactProvider>
-          </StreamProvider>
-        </ThreadProvider>
+        <AppProviders>
+          <ThreadsContent />
+        </AppProviders>
       </React.Suspense>
     </ErrorBoundary>
   );

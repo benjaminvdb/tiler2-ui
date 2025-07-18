@@ -24,7 +24,7 @@ export const ThreadList: React.FC<ThreadListProps> = ({
           >
             <Button
               variant="ghost"
-              className="w-[280px] items-start justify-start text-left font-normal"
+              className="w-full items-start justify-start text-left font-normal"
               onClick={(e) => {
                 e.preventDefault();
                 onThreadClick?.(t.thread_id);
@@ -32,7 +32,7 @@ export const ThreadList: React.FC<ThreadListProps> = ({
                 setThreadId(t.thread_id);
               }}
             >
-              <p className="truncate text-ellipsis">{itemText}</p>
+              <p className="truncate text-ellipsis w-full">{itemText}</p>
             </Button>
           </div>
         );

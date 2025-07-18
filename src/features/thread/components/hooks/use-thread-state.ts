@@ -14,9 +14,6 @@ export function useThreadState(): {
   closeArtifact: () => void;
   // Thread state
   threadId: string | null;
-  setThreadId: (id: string | null) => void;
-  chatHistoryOpen: boolean;
-  setChatHistoryOpen: (open: boolean) => void;
   hideToolCalls: boolean;
   setHideToolCalls: (hide: boolean) => void;
   // Input state
@@ -37,10 +34,6 @@ export function useThreadState(): {
   const [artifactOpen, closeArtifact] = useArtifactOpen();
 
   const [threadId, _setThreadId] = useQueryState("threadId");
-  const [chatHistoryOpen, setChatHistoryOpen] = useQueryState(
-    "chatHistoryOpen",
-    parseAsBoolean.withDefault(false),
-  );
   const [hideToolCalls, setHideToolCalls] = useQueryState(
     "hideToolCalls",
     parseAsBoolean.withDefault(false),
@@ -55,13 +48,6 @@ export function useThreadState(): {
   const lastError = useRef<string | undefined>(undefined);
   const prevMessageLength = useRef(0);
 
-  const setThreadId = (id: string | null) => {
-    _setThreadId(id);
-    // close artifact and reset artifact context
-    closeArtifact();
-    setArtifactContext({});
-  };
-
   return {
     // Artifact state
     artifactContext,
@@ -71,9 +57,6 @@ export function useThreadState(): {
 
     // Thread state
     threadId,
-    setThreadId,
-    chatHistoryOpen,
-    setChatHistoryOpen,
     hideToolCalls,
     setHideToolCalls,
 

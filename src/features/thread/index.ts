@@ -20,4 +20,3 @@ export type {
 // Sub-components that might be used externally
 export { MessageList } from "./components/layout/message-list";
 export { ChatFooter } from "./components/layout/chat-footer";
-export { SidebarHistory } from "./components/layout/sidebar-history";
