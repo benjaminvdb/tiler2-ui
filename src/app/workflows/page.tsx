@@ -41,28 +41,6 @@ export default function WorkflowsPage(): React.ReactNode {
         </svg>
       ),
     },
-    {
-      id: "search_web",
-      title: "Web Research Workflow",
-      description:
-        "Search for the latest sustainability information, regulations, and best practices from trusted sources.",
-      color: "green",
-      icon: (
-        <svg
-          className="h-6 w-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-          />
-        </svg>
-      ),
-    },
   ];
 
   const handleWorkflowClick = (workflowType: WorkflowType) => {
@@ -80,7 +58,7 @@ export default function WorkflowsPage(): React.ReactNode {
         Especially for more complex tasks.
       </p>
 
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         {workflows.map((workflow) => (
           <div
             key={workflow.id}
