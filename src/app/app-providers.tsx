@@ -5,12 +5,16 @@ import { UIProvider } from "@/features/chat/providers/ui-provider";
 import { ThreadProvider } from "@/features/thread/providers/thread-provider";
 import { useMediaQuery } from "@/shared/hooks/use-media-query";
 import { useQueryState } from "nuqs";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Toaster } from "@/shared";
 interface AppProvidersProps {
   children: React.ReactNode;
 }
 
 export function AppProviders({ children }: AppProvidersProps): React.ReactNode {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   // UI state management
   const [chatHistoryOpen, setChatHistoryOpen] = useQueryState(
@@ -51,10 +55,21 @@ export function AppProviders({ children }: AppProvidersProps): React.ReactNode {
 
   const handleNewThread = useCallback(() => {
     console.log('Starting new thread - clearing threadId');
-    // Clear threadId to start a new thread
-    // nuqs will automatically update the URL
-    setThreadId(null);
-  }, [setThreadId]);
+    
+    // If we're on the workflows page, navigate to home first
+    if (pathname === '/workflows') {
+      // Preserve existing query parameters
+      const params = new URLSearchParams(searchParams);
+      params.delete('threadId'); // Remove threadId to start new thread
+      params.delete('workflow'); // Remove workflow parameter
+      const queryString = params.toString();
+      router.replace(queryString ? `/?${queryString}` : '/');
+    } else {
+      // Clear threadId to start a new thread
+      // nuqs will automatically update the URL
+      setThreadId(null);
+    }
+  }, [setThreadId, pathname, router, searchParams]);
 
   const handleSidePanelWidthChange = useCallback((width: number) => {
     // Constrain width between 250px and 600px
