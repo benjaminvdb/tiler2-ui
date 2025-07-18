@@ -11,7 +11,7 @@ export const SidePanelBrandHeader: React.FC = () => {
 
   return (
     <div
-      className="flex w-full items-center justify-between border-b border-slate-200 py-3"
+      className="flex w-full items-center justify-between py-3"
       style={{ padding: chatHistoryOpen ? "12px 16px" : "12px 8px" }}
     >
       {chatHistoryOpen ? (

@@ -57,7 +57,7 @@ export const SidePanelNavigation: React.FC = () => {
 
   return (
     <div
-      className={`flex w-full flex-col space-y-1 border-b border-slate-200 py-2 ${
+      className={`flex w-full flex-col space-y-1 py-2 ${
         isCollapsed ? "items-center px-1" : "px-2"
       }`}
     >
