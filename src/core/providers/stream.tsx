@@ -21,6 +21,9 @@ export const StreamProvider: React.FC<{ children: ReactNode }> = ({
   const [assistantId, setAssistantId] = useQueryState("assistantId", {
     defaultValue: clientConfig.assistantId || "",
   });
+  const [workflowType] = useQueryState("workflow", {
+    defaultValue: "",
+  });
 
   // Memoize final values to prevent unnecessary re-renders
   const finalApiUrl = useMemo(
@@ -49,6 +52,8 @@ export const StreamProvider: React.FC<{ children: ReactNode }> = ({
     <StreamSession
       apiUrl={finalApiUrl}
       assistantId={finalAssistantId}
+      {...(workflowType &&
+        workflowType.trim() && { workflowType: workflowType.trim() })}
     >
       {children}
     </StreamSession>

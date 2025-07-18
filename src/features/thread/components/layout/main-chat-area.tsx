@@ -1,5 +1,4 @@
 import React from "react";
-import { ThreadHeader } from "../thread-header";
 import { MessageList } from "./message-list";
 import { ChatFooter } from "./chat-footer";
 import { AnimatedContainer } from "./main-chat-area/components/animated-container";
@@ -19,8 +18,6 @@ const MainChatAreaComponent: React.FC = () => {
 
   return (
     <AnimatedContainer>
-      <ThreadHeader />
-
       <ScrollableContent
         content={messageListContent}
         footer={chatFooterContent}

@@ -28,7 +28,6 @@ const HistoryToggleButton: React.FC = () => {
   );
 };
 
-
 const HeaderActions: React.FC = () => {
   const { onNewThread } = useUIContext();
   return (

@@ -11,7 +11,16 @@ export const PlaceholderMessage: React.FC = () => {
   // Helper to send resume commands
   const handleAction = (type: "accept" | "ignore" | "edit", args?: any) => {
     const response = { type, args: args ?? null };
-    thread.submit(undefined, { command: { resume: response } });
+    thread.submit(null, {
+      command: { resume: response },
+      ...(thread.workflowType && {
+        config: {
+          configurable: {
+            workflow_type: thread.workflowType,
+          },
+        },
+      }),
+    });
   };
 
   if (isAgentInboxInterruptSchema(interruptVal)) {

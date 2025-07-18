@@ -1,4 +1,5 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useEffect } from "react";
+import { useQueryState } from "nuqs";
 import { cn } from "@/shared/utils/utils";
 import { useStreamContext } from "@/core/providers/stream";
 import { useFileUpload } from "@/features/file-upload/hooks/use-file-upload";
@@ -45,6 +46,32 @@ export const Thread = (): React.JSX.Element => {
 
   const stream = useStreamContext();
   const messages = stream.messages;
+  const [, setWorkflowParam] = useQueryState("workflow");
+
+  // Auto-start workflow if workflow parameter is present and no messages yet
+  useEffect(() => {
+    if (stream.workflowType && messages.length === 0 && !stream.isLoading) {
+      // Submit empty message to trigger workflow
+      stream.submit(
+        { messages: [] },
+        {
+          streamMode: ["values"],
+          config: {
+            configurable: {
+              workflow_type: stream.workflowType,
+            },
+          },
+        },
+      );
+    }
+  }, [stream.workflowType, messages.length, stream.isLoading, stream]);
+
+  // Clear workflow parameter after workflow has started (has messages)
+  useEffect(() => {
+    if (stream.workflowType && messages.length > 0) {
+      setWorkflowParam(null);
+    }
+  }, [stream.workflowType, messages.length, setWorkflowParam]);
 
   // Use our custom hooks for handlers and effects
   const { handleSubmit, handleRegenerate, handleActionClick } =
@@ -119,7 +146,7 @@ export const Thread = (): React.JSX.Element => {
     <ChatProvider value={chatContextValue}>
       <div
         className={cn(
-          "grid h-screen w-full grid-cols-[1fr_0fr] transition-all duration-500",
+          "grid h-full w-full grid-cols-[1fr_0fr] transition-all duration-500",
           artifactOpen && "grid-cols-[3fr_2fr]",
         )}
       >

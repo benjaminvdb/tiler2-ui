@@ -6,12 +6,15 @@ import { ThreadProvider } from "@/features/thread/providers/thread-provider";
 import { useMediaQuery } from "@/shared/hooks/use-media-query";
 import { useQueryState } from "nuqs";
 import { Toaster } from "@/shared";
+import { useRouter } from "next/navigation";
 
 interface AppProvidersProps {
   children: React.ReactNode;
 }
 
 export function AppProviders({ children }: AppProvidersProps): React.ReactNode {
+  const router = useRouter();
+
   // UI state management
   const [chatHistoryOpen, setChatHistoryOpen] = useQueryState(
     "chatHistoryOpen",
@@ -51,7 +54,8 @@ export function AppProviders({ children }: AppProvidersProps): React.ReactNode {
 
   const handleNewThread = useCallback(() => {
     setThreadId(null);
-  }, [setThreadId]);
+    router.push("/");
+  }, [setThreadId, router]);
 
   const handleSidePanelWidthChange = useCallback((width: number) => {
     // Constrain width between 250px and 600px
@@ -69,7 +73,14 @@ export function AppProviders({ children }: AppProvidersProps): React.ReactNode {
       onNewThread: handleNewThread,
       onSidePanelWidthChange: handleSidePanelWidthChange,
     }),
-    [chatHistoryOpen, isLargeScreen, sidePanelWidth, handleToggleChatHistory, handleNewThread, handleSidePanelWidthChange],
+    [
+      chatHistoryOpen,
+      isLargeScreen,
+      sidePanelWidth,
+      handleToggleChatHistory,
+      handleNewThread,
+      handleSidePanelWidthChange,
+    ],
   );
 
   return (

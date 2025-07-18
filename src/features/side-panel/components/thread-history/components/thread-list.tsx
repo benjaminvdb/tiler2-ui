@@ -32,7 +32,7 @@ export const ThreadList: React.FC<ThreadListProps> = ({
                 setThreadId(t.thread_id);
               }}
             >
-              <p className="truncate text-ellipsis w-full">{itemText}</p>
+              <p className="w-full truncate text-ellipsis">{itemText}</p>
             </Button>
           </div>
         );

@@ -15,6 +15,7 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
   children,
   apiUrl,
   assistantId,
+  workflowType,
 }) => {
   const [threadId, setThreadId] = useQueryState("threadId");
   const { getThreads, setThreads } = useThreads();
@@ -110,7 +111,9 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
   }, [apiUrl]);
 
   return (
-    <StreamContext.Provider value={streamValue}>
+    <StreamContext.Provider
+      value={{ ...streamValue, ...(workflowType && { workflowType }) }}
+    >
       {children}
     </StreamContext.Provider>
   );

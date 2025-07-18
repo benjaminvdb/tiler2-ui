@@ -19,12 +19,15 @@ export const useTypedStream = useStream<
   }
 >;
 
-export type StreamContextType = ReturnType<typeof useTypedStream>;
+export type StreamContextType = ReturnType<typeof useTypedStream> & {
+  workflowType?: string;
+};
 
 export interface StreamSessionProps {
   children: React.ReactNode;
   apiUrl: string;
   assistantId: string;
+  workflowType?: string;
 }
 
 export interface ConfigurationFormProps {

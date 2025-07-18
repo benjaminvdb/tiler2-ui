@@ -37,11 +37,22 @@ export const createSubmitHandler = (
       const response = buildInterruptResponse(input);
 
       // Resume the stream with the interrupt response
-      stream.submit(undefined, {
+      const interruptOptions: any = {
         command: {
           resume: response,
         },
-      });
+      };
+
+      // Only add config if we have a workflow type
+      if (stream.workflowType) {
+        interruptOptions.config = {
+          configurable: {
+            workflow_type: stream.workflowType,
+          },
+        };
+      }
+
+      stream.submit(null, interruptOptions);
 
       // Clear interrupt state
       setIsRespondingToInterrupt(false);
@@ -68,7 +79,7 @@ export const createSubmitHandler = (
       submitData.context = context;
     }
 
-    stream.submit(submitData, {
+    const submitOptions: any = {
       streamMode: ["values"],
       optimisticValues: (prev: any) => ({
         ...prev,
@@ -79,7 +90,18 @@ export const createSubmitHandler = (
           newHumanMessage,
         ],
       }),
-    });
+    };
+
+    // Only add config if we have a workflow type
+    if (stream.workflowType) {
+      submitOptions.config = {
+        configurable: {
+          workflow_type: stream.workflowType,
+        },
+      };
+    }
+
+    stream.submit(submitData, submitOptions);
 
     setInput("");
     setContentBlocks([]);

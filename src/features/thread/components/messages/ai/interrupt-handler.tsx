@@ -30,10 +30,17 @@ export const InterruptHandler: React.FC<InterruptHandlerProps> = ({
     };
 
     // Resume the stream with the interrupt response
-    stream.submit(undefined, {
+    stream.submit(null, {
       command: {
         resume: response,
       },
+      ...(stream.workflowType && {
+        config: {
+          configurable: {
+            workflow_type: stream.workflowType,
+          },
+        },
+      }),
     });
   };
 
