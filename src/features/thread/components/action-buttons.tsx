@@ -1,5 +1,5 @@
 import { Button } from "@/shared/components/ui/button";
-import { Rocket, FileText, Search, Lightbulb } from "lucide-react";
+import { Rocket, BarChart3, BookOpen, Puzzle } from "lucide-react";
 
 interface ActionButtonsProps {
   onActionClick: (prompt: string) => void;
@@ -7,28 +7,28 @@ interface ActionButtonsProps {
 }
 const actionItems = [
   {
-    prompt: "Show me what you can do.",
+    prompt: "What can you do for me?",
     icon: Rocket,
     iconColor: "text-blue-400",
-    label: "Get started",
-  },
-  {
-    prompt: "Help me summarize some data.",
-    icon: FileText,
-    iconColor: "text-orange-400",
-    label: "Summarize data",
+    label: "Getting started",
   },
   {
     prompt: "What resources do you have access to?",
-    icon: Search,
+    icon: BookOpen,
     iconColor: "text-purple-400",
-    label: "Explore Resources",
+    label: "Explore resources",
   },
   {
-    prompt: "Give me some ideas.",
-    icon: Lightbulb,
+    prompt: "What data does the system contain and how can I use it to generate insights?",
+    icon: BarChart3,
+    iconColor: "text-orange-400",
+    label: "Analyze data",
+  },
+  {
+    prompt: "Quiz me on my knowledge about corporate sustainability. No questions that require long or multiple answers. Go for it straight away.",
+    icon: Puzzle,
     iconColor: "text-yellow-400",
-    label: "Find Inspiration",
+    label: "Quiz me",
   },
 ];
 
