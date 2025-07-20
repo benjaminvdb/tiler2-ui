@@ -43,14 +43,14 @@ export const PasswordInput = React.forwardRef<
           {showPassword ? "Hide password" : "Show password"}
         </span>
       </Button>
-      {/* hides browsers password toggles */};
+      {/* hides browsers password toggles */}
       <style>{`
 					.hide-password-toggle::-ms-reveal,
 					.hide-password-toggle::-ms-clear {
 						visibility: hidden;
 						pointer-events: none;
 						display: none;
-					};
+					}
 				`}</style>
     </div>
   );
