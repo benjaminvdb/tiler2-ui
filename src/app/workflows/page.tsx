@@ -23,7 +23,7 @@ export default function WorkflowsPage(): React.ReactNode {
       id: "data_summary",
       title: "Data Analysis Workflow",
       description:
-        "Automatically analyze sustainability data and generate comprehensive reports with key insights and recommendations.",
+        "Create a comprehensive summary to get an overview for the scope and scale of your data.",
       color: "blue",
       icon: (
         <svg
