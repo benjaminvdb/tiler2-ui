@@ -54,16 +54,16 @@ export function AppProviders({ children }: AppProvidersProps): React.ReactNode {
   }, [chatHistoryOpen, setChatHistoryOpen]);
 
   const handleNewThread = useCallback(() => {
-    console.log('Starting new thread - clearing threadId');
-    
+    console.log("Starting new thread - clearing threadId");
+
     // If we're on the workflows page, navigate to home first
-    if (pathname === '/workflows') {
+    if (pathname === "/workflows") {
       // Preserve existing query parameters
       const params = new URLSearchParams(searchParams);
-      params.delete('threadId'); // Remove threadId to start new thread
-      params.delete('workflow'); // Remove workflow parameter
+      params.delete("threadId"); // Remove threadId to start new thread
+      params.delete("workflow"); // Remove workflow parameter
       const queryString = params.toString();
-      router.replace(queryString ? `/?${queryString}` : '/');
+      router.replace(queryString ? `/?${queryString}` : "/");
     } else {
       // Clear threadId to start a new thread
       // nuqs will automatically update the URL

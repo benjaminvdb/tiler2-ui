@@ -33,13 +33,13 @@ export const ThreadList: React.FC<ThreadListProps> = ({
                 e.preventDefault();
                 onThreadClick?.(t.thread_id);
                 if (t.thread_id === threadId) return;
-                
+
                 // If we're on the workflows page, navigate to home first
-                if (pathname === '/workflows') {
+                if (pathname === "/workflows") {
                   // Preserve existing query parameters
                   const params = new URLSearchParams(searchParams);
-                  params.set('threadId', t.thread_id);
-                  params.delete('workflow'); // Remove workflow parameter
+                  params.set("threadId", t.thread_id);
+                  params.delete("workflow"); // Remove workflow parameter
                   router.replace(`/?${params.toString()}`);
                 } else {
                   setThreadId(t.thread_id);

@@ -58,8 +58,13 @@ export const Thread = (): React.JSX.Element => {
 
   // Auto-start workflow if workflow parameter is present and no messages yet
   useEffect(() => {
-    if (stream.workflowType && messages.length === 0 && !stream.isLoading && !workflowStartedRef.current) {
-      console.log('Auto-starting workflow:', stream.workflowType);
+    if (
+      stream.workflowType &&
+      messages.length === 0 &&
+      !stream.isLoading &&
+      !workflowStartedRef.current
+    ) {
+      console.log("Auto-starting workflow:", stream.workflowType);
       workflowStartedRef.current = true;
       // Submit empty message to trigger workflow
       try {
@@ -75,7 +80,7 @@ export const Thread = (): React.JSX.Element => {
           },
         );
       } catch (error) {
-        console.error('Failed to auto-start workflow:', error);
+        console.error("Failed to auto-start workflow:", error);
         // Reset flag on error so it can be retried
         workflowStartedRef.current = false;
       }
