@@ -7,6 +7,7 @@ import { AppProviders } from "./app-providers";
 import { useUIContext } from "@/features/chat/providers/ui-provider";
 import { motion } from "framer-motion";
 import { SIDE_PANEL_COLLAPSED_WIDTH } from "@/features/side-panel/constants";
+import { MobileHeader } from "@/features/side-panel/components/mobile-header";
 
 // Removed GlobalToggleButton - expand button is now only in the sidebar
 
@@ -33,7 +34,7 @@ function AppLayoutContent({
     <div className="flex h-screen w-full overflow-hidden">
       <SidePanel />
       <motion.div
-        className="relative flex-1"
+        className="relative flex-1 flex flex-col"
         animate={{ marginLeft, width }}
         transition={
           isLargeScreen
@@ -42,7 +43,8 @@ function AppLayoutContent({
         }
         layout
       >
-        <main className="h-full overflow-hidden">{children}</main>
+        <MobileHeader />
+        <main className="flex-1 overflow-hidden">{children}</main>
       </motion.div>
     </div>
   );

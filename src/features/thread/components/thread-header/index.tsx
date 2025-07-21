@@ -1,5 +1,5 @@
 import { Button } from "@/shared/components/ui/button";
-import { PanelRightOpen, PanelRightClose, SquarePen } from "lucide-react";
+import { PanelRightClose, SquarePen } from "lucide-react";
 import { AuthButtons } from "@/features/auth/components";
 import { TooltipIconButton } from "../tooltip-icon-button";
 import { useUIContext } from "@/features/chat/providers/ui-provider";
@@ -8,7 +8,8 @@ import { useChatContext } from "@/features/chat/providers/chat-provider";
 const HistoryToggleButton: React.FC = () => {
   const { chatHistoryOpen, isLargeScreen, onToggleChatHistory } =
     useUIContext();
-  const shouldShow = !chatHistoryOpen || !isLargeScreen;
+  // Only show on large screens (desktop) and when chat history is closed
+  const shouldShow = isLargeScreen && !chatHistoryOpen;
 
   if (!shouldShow) {
     return null;
@@ -19,11 +20,7 @@ const HistoryToggleButton: React.FC = () => {
       variant="ghost"
       onClick={onToggleChatHistory}
     >
-      {chatHistoryOpen ? (
-        <PanelRightOpen className="size-5" />
-      ) : (
-        <PanelRightClose className="size-5" />
-      )}
+      <PanelRightClose className="size-5" />
     </Button>
   );
 };

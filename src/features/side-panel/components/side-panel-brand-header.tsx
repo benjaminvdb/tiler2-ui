@@ -7,7 +7,7 @@ import { useUIContext } from "@/features/chat/providers/ui-provider";
 import { NavigationButton } from "./navigation-button";
 
 export const SidePanelBrandHeader: React.FC = () => {
-  const { chatHistoryOpen, onToggleChatHistory, onNewThread } = useUIContext();
+  const { chatHistoryOpen, onToggleChatHistory, onNewThread, isLargeScreen } = useUIContext();
 
   return (
     <div
@@ -28,26 +28,32 @@ export const SidePanelBrandHeader: React.FC = () => {
               Link Chat
             </span>
           </button>
-          <div className="flex-shrink-0">
-            <NavigationButton
-              icon={PanelRightOpen}
-              label="Collapse"
-              isActive={false}
-              onClick={onToggleChatHistory}
-              isCollapsed={false}
-            />
-          </div>
+          {/* Only show collapse button on desktop */}
+          {isLargeScreen && (
+            <div className="flex-shrink-0">
+              <NavigationButton
+                icon={PanelRightOpen}
+                label="Collapse"
+                isActive={false}
+                onClick={onToggleChatHistory}
+                isCollapsed={false}
+              />
+            </div>
+          )}
         </>
       ) : (
-        <div className="flex w-full justify-center">
-          <NavigationButton
-            icon={PanelRightClose}
-            label="Expand"
-            isActive={false}
-            onClick={onToggleChatHistory}
-            isCollapsed={true}
-          />
-        </div>
+        /* Only show expand button on desktop */
+        isLargeScreen && (
+          <div className="flex w-full justify-center">
+            <NavigationButton
+              icon={PanelRightClose}
+              label="Expand"
+              isActive={false}
+              onClick={onToggleChatHistory}
+              isCollapsed={true}
+            />
+          </div>
+        )
       )}
     </div>
   );
