@@ -5,6 +5,7 @@ import "katex/dist/katex.min.css";
 
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import remarkBreaks from "remark-breaks";
 import rehypeKatex from "rehype-katex";
 import rehypeSanitize from "rehype-sanitize";
 import remarkMath from "remark-math";
@@ -15,7 +16,7 @@ const MarkdownTextImpl: FC<{ children: string }> = ({ children }) => {
   return (
     <div className="markdown-content">
       <ReactMarkdown
-        remarkPlugins={[remarkGfm, remarkMath]}
+        remarkPlugins={[remarkGfm, remarkBreaks, remarkMath]}
         rehypePlugins={[rehypeKatex, rehypeSanitize]}
         components={defaultComponents as any}
       >

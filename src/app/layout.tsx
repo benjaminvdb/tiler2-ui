@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Inter } from "next/font/google";
+import "@fontsource/comic-mono/400.css";
+import "@fontsource/comic-mono/700.css";
 import React from "react";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { Auth0Provider } from "@auth0/nextjs-auth0";

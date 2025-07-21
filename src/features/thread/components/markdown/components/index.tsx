@@ -6,7 +6,6 @@ import {
   h5,
   h6,
   p,
-  a,
   blockquote,
   ul,
   ol,
@@ -14,6 +13,7 @@ import {
 } from "./markdown-elements";
 import { table, tr, th, td } from "./table";
 import { code } from "./code";
+import { CitationLink } from "./citation-link";
 
 export const defaultComponents = {
   h1,
@@ -23,7 +23,7 @@ export const defaultComponents = {
   h5,
   h6,
   p,
-  a,
+  a: CitationLink, // Use citation-aware link component
   blockquote,
   ul,
   ol,
