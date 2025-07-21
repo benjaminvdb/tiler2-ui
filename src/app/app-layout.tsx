@@ -5,21 +5,11 @@ import { SidePanel } from "@/features/side-panel";
 import { ErrorBoundary } from "@/shared/components/error-boundary";
 import { AppProviders } from "./app-providers";
 import { useUIContext } from "@/features/chat/providers/ui-provider";
-import { AuthButtons } from "@/features/auth/components";
 import { motion } from "framer-motion";
 import { SIDE_PANEL_COLLAPSED_WIDTH } from "@/features/side-panel/constants";
 
 // Removed GlobalToggleButton - expand button is now only in the sidebar
 
-const GlobalHeader: React.FC = () => {
-  return (
-    <div className="absolute top-0 left-0 z-10 flex w-full items-center justify-end gap-3 p-2 pr-4">
-      <div className="flex items-center">
-        <AuthButtons />
-      </div>
-    </div>
-  );
-};
 
 interface AppLayoutContentProps {
   children: React.ReactNode;
@@ -52,8 +42,7 @@ function AppLayoutContent({
         }
         layout
       >
-        <GlobalHeader />
-        <main className="h-full overflow-hidden pt-16">{children}</main>
+        <main className="h-full overflow-hidden">{children}</main>
       </motion.div>
     </div>
   );
