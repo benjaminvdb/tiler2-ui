@@ -3,10 +3,12 @@
 import React, { useCallback, useMemo, useState, useEffect } from "react";
 import { UIProvider } from "@/features/chat/providers/ui-provider";
 import { ThreadProvider } from "@/features/thread/providers/thread-provider";
+import { HotkeysProvider } from "@/features/hotkeys";
 import { useMediaQuery } from "@/shared/hooks/use-media-query";
 import { useQueryState } from "nuqs";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Toaster } from "@/shared";
+
 interface AppProvidersProps {
   children: React.ReactNode;
 }
@@ -101,7 +103,9 @@ export function AppProviders({ children }: AppProvidersProps): React.ReactNode {
     <>
       <Toaster />
       <UIProvider value={uiContextValue}>
-        <ThreadProvider>{children}</ThreadProvider>
+        <HotkeysProvider>
+          <ThreadProvider>{children}</ThreadProvider>
+        </HotkeysProvider>
       </UIProvider>
     </>
   );

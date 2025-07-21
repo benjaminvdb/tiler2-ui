@@ -9,6 +9,7 @@ import {
   TooltipTrigger,
 } from "@/shared/components/ui/tooltip";
 import { LucideIcon } from "lucide-react";
+import { getShortcutText } from "@/features/hotkeys";
 
 interface NavigationButtonProps {
   icon: LucideIcon;
@@ -16,6 +17,7 @@ interface NavigationButtonProps {
   isActive: boolean;
   onClick: () => void;
   isCollapsed?: boolean;
+  shortcut?: "new-chat" | "workflows" | undefined;
 }
 
 export const NavigationButton: React.FC<NavigationButtonProps> = ({
@@ -24,11 +26,14 @@ export const NavigationButton: React.FC<NavigationButtonProps> = ({
   isActive,
   onClick,
   isCollapsed = false,
+  shortcut,
 }) => {
   const handleClick = () => {
     console.log("NavigationButton clicked:", label);
     onClick();
   };
+
+  const shortcutText = shortcut ? getShortcutText(shortcut) : null;
 
   const buttonContent = (
     <Button
@@ -54,7 +59,12 @@ export const NavigationButton: React.FC<NavigationButtonProps> = ({
         <Tooltip>
           <TooltipTrigger asChild>{buttonContent}</TooltipTrigger>
           <TooltipContent side="right">
-            <p>{label}</p>
+            <div className="text-center">
+              <p className="font-medium">{label}</p>
+              {shortcutText && (
+                <p className="text-xs text-muted-foreground mt-1">{shortcutText}</p>
+              )}
+            </div>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>

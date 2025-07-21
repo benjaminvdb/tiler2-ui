@@ -12,6 +12,7 @@ interface MenuItemConfig {
   icon: LucideIcon;
   label: string;
   path: string;
+  shortcut?: "new-chat" | "workflows";
 }
 
 const menuItems: MenuItemConfig[] = [
@@ -20,12 +21,14 @@ const menuItems: MenuItemConfig[] = [
     icon: MessageCircle,
     label: "New Chat",
     path: "/",
+    shortcut: "new-chat",
   },
   {
     id: "workflows",
     icon: Workflow,
     label: "Workflows",
     path: "/workflows",
+    shortcut: "workflows",
   },
 ];
 
@@ -74,6 +77,7 @@ export const SidePanelNavigation: React.FC = () => {
           isActive={isActive(item.path)}
           onClick={() => handleNavigation(item.path)}
           isCollapsed={isCollapsed}
+          shortcut={item.shortcut}
         />
       ))}
     </div>
