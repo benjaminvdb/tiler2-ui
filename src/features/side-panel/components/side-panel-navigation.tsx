@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { MessageCircle, Workflow } from "lucide-react";
+import { MessageCircle, Workflow, BookOpen } from "lucide-react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { NavigationButton } from "./navigation-button";
 import { useUIContext } from "@/features/chat/providers/ui-provider";
@@ -30,6 +30,12 @@ const menuItems: MenuItemConfig[] = [
     path: "/workflows",
     shortcut: "workflows",
   },
+  {
+    id: "wiki",
+    icon: BookOpen,
+    label: "Wiki",
+    path: "https://impossible-chauffeur-129.notion.site/Link-Chat-Wiki-218b67580800806ea99efb583280d2c8",
+  },
 ];
 
 export const SidePanelNavigation: React.FC = () => {
@@ -42,6 +48,9 @@ export const SidePanelNavigation: React.FC = () => {
     if (path === "/") {
       // For new chat, use onNewThread to properly reset threadId
       onNewThread();
+    } else if (path.startsWith("http")) {
+      // For external links, open in new tab
+      window.open(path, "_blank", "noopener,noreferrer");
     } else {
       console.log("Navigating to:", path);
       // Preserve the chatHistoryOpen state when navigating
@@ -57,6 +66,10 @@ export const SidePanelNavigation: React.FC = () => {
   const isActive = (path: string) => {
     if (path === "/") {
       return pathname === "/";
+    }
+    if (path.startsWith("http")) {
+      // External links are never active
+      return false;
     }
     return pathname.startsWith(path);
   };
