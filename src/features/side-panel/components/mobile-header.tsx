@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Menu } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -26,6 +26,7 @@ export const MobileHeader: React.FC = () => {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { onNewThread } = useUIContext();
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleNavigation = (path: string) => {
     if (path === "/") {
@@ -42,6 +43,8 @@ export const MobileHeader: React.FC = () => {
         : path;
       router.push(newUrl);
     }
+    // Close the mobile menu after navigation
+    setIsOpen(false);
   };
 
   const isActive = (path: string) => {
@@ -59,7 +62,7 @@ export const MobileHeader: React.FC = () => {
     <div className="lg:hidden border-b bg-white">
       <div className="flex h-14 items-center justify-between px-4">
         {/* Hamburger Menu Button (Top Left) */}
-        <Sheet>
+        <Sheet open={isOpen} onOpenChange={setIsOpen}>
           <SheetTrigger asChild>
             <Button variant="ghost" size="sm" className="p-2">
               <Menu className="h-5 w-5" />
@@ -116,7 +119,10 @@ export const MobileHeader: React.FC = () => {
                 {threadsLoading ? (
                   <ThreadHistoryLoading />
                 ) : (
-                  <ThreadList threads={threads} />
+                  <ThreadList 
+                    threads={threads} 
+                    onThreadClick={() => setIsOpen(false)}
+                  />
                 )}
               </div>
             </div>
