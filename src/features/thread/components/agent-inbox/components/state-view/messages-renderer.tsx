@@ -12,7 +12,9 @@ export const MessagesRenderer: React.FC<MessagesRendererProps> = ({
 }) => {
   return (
     <div className="flex w-full flex-col gap-1">
-      {messages.map((msg, idx) => {
+      {messages
+        .filter((msg) => (msg as any).type !== "system")
+        .map((msg, idx) => {
         const messageTypeLabel = messageTypeToLabel(msg);
         const content =
           typeof msg.content === "string"

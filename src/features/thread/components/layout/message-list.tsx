@@ -22,7 +22,7 @@ export const MessageList: React.FC<MessageListProps> = ({
       {messages
         .filter((m) => {
           if (m.id?.startsWith(DO_NOT_RENDER_ID_PREFIX)) return false;
-          // Hide messages that contain the "hidden" tag
+          if (m.type === "system") return false;
           const tags = (m as any).tags;
           if (Array.isArray(tags) && tags.includes("hidden")) return false;
           return true;
