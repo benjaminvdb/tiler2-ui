@@ -16,7 +16,7 @@ export const chatInputSchema = z.object({
   input: z
     .string()
     .trim()
-    .max(10000, "Message cannot exceed 10,000 characters"),
+    .max(20000, "Message cannot exceed 10,000 characters"),
   contentBlocks: z
     .array(
       z.object({
