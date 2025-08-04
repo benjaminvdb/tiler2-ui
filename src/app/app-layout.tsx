@@ -11,7 +11,6 @@ import { MobileHeader } from "@/features/side-panel/components/mobile-header";
 
 // Removed GlobalToggleButton - expand button is now only in the sidebar
 
-
 interface AppLayoutContentProps {
   children: React.ReactNode;
 }
@@ -34,7 +33,7 @@ function AppLayoutContent({
     <div className="flex h-screen w-full overflow-hidden">
       <SidePanel />
       <motion.div
-        className="relative flex-1 flex flex-col"
+        className="relative flex flex-1 flex-col"
         animate={{ marginLeft, width }}
         transition={
           isLargeScreen

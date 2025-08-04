@@ -48,12 +48,13 @@ export const StreamProvider: React.FC<{ children: ReactNode }> = ({
       />
     );
   }
+
+  const trimmedWorkflowType = workflowType && workflowType.trim();
   return (
     <StreamSession
       apiUrl={finalApiUrl}
       assistantId={finalAssistantId}
-      {...(workflowType &&
-        workflowType.trim() && { workflowType: workflowType.trim() })}
+      {...(trimmedWorkflowType && { workflowType: trimmedWorkflowType })}
     >
       {children}
     </StreamSession>

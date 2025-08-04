@@ -1,52 +1,105 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PageContainer } from "@/shared/components/layout";
-
-// Workflow type constants matching backend
-type WorkflowType = "data_summary" | "search_web" | "conversation";
+import * as LucideIcons from "lucide-react";
 
 interface WorkflowConfig {
-  id: WorkflowType;
+  id: number;
+  workflow_id: string;
   title: string;
   description: string;
-  icon: React.ReactNode;
-  color: string;
+  icon: string;
+  icon_color: string;
+  order_index: number;
 }
+
+// Dynamic Lucide icon mapping
+const getWorkflowIcon = (iconName: string): React.ReactNode => {
+  // Convert icon name to PascalCase for Lucide component names
+  const toPascalCase = (str: string): string => {
+    return str
+      .replace(/[-_]/g, " ") // Replace hyphens and underscores with spaces
+      .replace(/\b\w/g, (char) => char.toUpperCase()) // Capitalize first letter of each word
+      .replace(/\s+/g, ""); // Remove spaces
+  };
+
+  const iconComponentName = toPascalCase(iconName);
+  const IconComponent = (LucideIcons as any)[iconComponentName];
+
+  if (IconComponent) {
+    return <IconComponent className="h-6 w-6" />;
+  }
+
+  // Fallback to HelpCircle if icon not found
+  return <LucideIcons.HelpCircle className="h-6 w-6" />;
+};
 
 export default function WorkflowsPage(): React.ReactNode {
   const router = useRouter();
+  const [workflows, setWorkflows] = useState<WorkflowConfig[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const workflows: WorkflowConfig[] = [
-    {
-      id: "data_summary",
-      title: "Data Analysis Workflow",
-      description:
-        "Create a comprehensive summary to get an overview for the scope and scale of your data.",
-      color: "blue",
-      icon: (
-        <svg
-          className="h-6 w-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
-          />
-        </svg>
-      ),
-    },
-  ];
+  // Fetch workflows from backend API
+  useEffect(() => {
+    const fetchWorkflows = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch("/api/workflows");
 
-  const handleWorkflowClick = (workflowType: WorkflowType) => {
-    // Navigate to chat with workflow type parameter
-    router.push(`/?workflow=${workflowType}`);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch workflows: ${response.statusText}`);
+        }
+
+        const data: WorkflowConfig[] = await response.json();
+        setWorkflows(data);
+      } catch (err) {
+        console.error("Error fetching workflows:", err);
+        setError(
+          err instanceof Error ? err.message : "Failed to load workflows",
+        );
+
+        // Fallback to built-in workflow
+        setWorkflows([
+          {
+            id: 1,
+            workflow_id: "data_summary",
+            title: "Data Analysis Workflow",
+            description:
+              "Create a comprehensive summary to get an overview for the scope and scale of your data.",
+            icon: "clipboard-list",
+            icon_color: "blue",
+            order_index: 0,
+          },
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWorkflows();
+  }, []);
+
+  const handleWorkflowClick = (workflowId: string) => {
+    router.push(`/?workflow=${workflowId}`);
   };
+
+  if (loading) {
+    return (
+      <PageContainer>
+        <h1 className="mb-4 text-3xl font-bold">Workflows</h1>
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <div className="animate-pulse text-gray-500">
+              Loading workflows...
+            </div>
+          </div>
+        </div>
+      </PageContainer>
+    );
+  }
 
   return (
     <PageContainer>
@@ -58,20 +111,28 @@ export default function WorkflowsPage(): React.ReactNode {
         Especially for more complex tasks.
       </p>
 
+      {error && (
+        <div className="mb-6 rounded-lg border border-yellow-200 bg-yellow-50 p-4">
+          <div className="text-sm text-yellow-800">
+            Warning: {error}. Showing fallback workflows.
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         {workflows.map((workflow) => (
           <div
-            key={workflow.id}
-            onClick={() => handleWorkflowClick(workflow.id)}
+            key={workflow.workflow_id}
+            onClick={() => handleWorkflowClick(workflow.workflow_id)}
             className="cursor-pointer rounded-lg border border-gray-200 p-6 transition-all duration-200 hover:border-gray-300 hover:shadow-md"
           >
             <div className="flex items-start space-x-4">
               <div className="flex-shrink-0">
                 <div
-                  className={`flex h-12 w-12 items-center justify-center rounded-lg bg-${workflow.color}-100`}
+                  className={`flex h-12 w-12 items-center justify-center rounded-lg bg-${workflow.icon_color}-100`}
                 >
-                  <div className={`text-${workflow.color}-600`}>
-                    {workflow.icon}
+                  <div className={`text-${workflow.icon_color}-600`}>
+                    {getWorkflowIcon(workflow.icon)}
                   </div>
                 </div>
               </div>

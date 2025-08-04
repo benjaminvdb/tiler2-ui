@@ -15,7 +15,9 @@ export const HotkeysProvider: React.FC<{ children: React.ReactNode }> = ({
   const { onNewThread } = useUIContext();
 
   // Detect platform for cross-platform shortcuts
-  const isMac = typeof window !== "undefined" && /Mac|iPod|iPhone|iPad/.test(navigator.platform);
+  const isMac =
+    typeof window !== "undefined" &&
+    /Mac|iPod|iPhone|iPad/.test(navigator.platform);
 
   // New Chat shortcut: Ctrl+Alt+C (Windows/Linux) or Cmd+Opt+C (macOS)
   useHotkeys(
@@ -27,7 +29,7 @@ export const HotkeysProvider: React.FC<{ children: React.ReactNode }> = ({
     {
       enableOnFormTags: true, // Allow shortcuts to work in form elements
       preventDefault: true,
-    }
+    },
   );
 
   // Workflows shortcut: Ctrl+Alt+W (Windows/Linux) or Cmd+Opt+W (macOS)
@@ -40,7 +42,7 @@ export const HotkeysProvider: React.FC<{ children: React.ReactNode }> = ({
     {
       enableOnFormTags: true, // Allow shortcuts to work in form elements
       preventDefault: true,
-    }
+    },
   );
 
   return <>{children}</>;
@@ -50,13 +52,15 @@ export const HotkeysProvider: React.FC<{ children: React.ReactNode }> = ({
  * Get platform-specific shortcut display text
  */
 export const getShortcutText = (shortcut: "new-chat" | "workflows"): string => {
-  const isMac = typeof window !== "undefined" && /Mac|iPod|iPhone|iPad/.test(navigator.platform);
-  
+  const isMac =
+    typeof window !== "undefined" &&
+    /Mac|iPod|iPhone|iPad/.test(navigator.platform);
+
   if (shortcut === "new-chat") {
     return isMac ? "⌘⌥C" : "Ctrl+Alt+C";
   } else if (shortcut === "workflows") {
     return isMac ? "⌘⌥W" : "Ctrl+Alt+W";
   }
-  
+
   return "";
 };

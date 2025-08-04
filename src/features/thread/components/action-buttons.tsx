@@ -19,13 +19,15 @@ const actionItems = [
     label: "Explore resources",
   },
   {
-    prompt: "What data does the system contain and how can I use it to generate insights?",
+    prompt:
+      "What data does the system contain and how can I use it to generate insights?",
     icon: BarChart3,
     iconColor: "text-orange-400",
     label: "Analyze data",
   },
   {
-    prompt: "Quiz me on my knowledge about corporate sustainability. No questions that require long or multiple answers. Go for it straight away.",
+    prompt:
+      "Quiz me on my knowledge about corporate sustainability. No questions that require long or multiple answers. Go for it straight away.",
     icon: Puzzle,
     iconColor: "text-yellow-400",
     label: "Quiz me",

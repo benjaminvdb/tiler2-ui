@@ -5,7 +5,7 @@ import { BaseComponentProps } from "./markdown-elements";
 // Citation metadata interface (matching backend structure)
 export interface CitationMetadata {
   refId: number;
-  sourceType: 'web' | 'knowledge_base' | 'methods_base';
+  sourceType: "web" | "knowledge_base" | "methods_base";
   title: string;
   url?: string;
   date?: string;
@@ -24,32 +24,33 @@ interface CitationLinkProps extends BaseComponentProps {
 // Regular expression to detect citation links [1], [2], etc. or just numbers 1, 2, etc.
 const CITATION_PATTERN = /^(\[\d+\]|\d+)$/;
 
-export const CitationLink: FC<CitationLinkProps> = ({ 
-  href, 
-  children, 
-  className, 
+export const CitationLink: FC<CitationLinkProps> = ({
+  href,
+  children,
+  className,
   citationData,
-  ...props 
+  ...props
 }) => {
   // Check if this is a citation link (e.g., [1], [2])
-  const isCitationNumber = typeof children === 'string' && CITATION_PATTERN.test(children);
-  
+  const isCitationNumber =
+    typeof children === "string" && CITATION_PATTERN.test(children);
+
   if (isCitationNumber) {
     // This is a citation reference - could be [1] or [1](url)
-    if (href && href.startsWith('http')) {
+    if (href && href.startsWith("http")) {
       // Web source with URL - render with light gray background and monospace font
       return (
         <a
           href={href}
           className={cn(
-            "inline-block px-1 py-0.5 mx-0.5",
-            "bg-gray-100 hover:bg-gray-200", 
+            "mx-0.5 inline-block px-1 py-0.5",
+            "bg-gray-100 hover:bg-gray-200",
             "text-gray-700 hover:text-gray-900",
-            "citation-comic-mono font-semibold text-xs tracking-tighter",
+            "citation-comic-mono text-xs font-semibold tracking-tighter",
             "rounded border border-gray-300",
-            "transition-colors cursor-pointer no-underline",
+            "cursor-pointer no-underline transition-colors",
             "!text-gray-700 hover:!text-gray-900",
-            className
+            className,
           )}
           target="_blank"
           rel="noopener noreferrer"
@@ -64,20 +65,20 @@ export const CitationLink: FC<CitationLinkProps> = ({
       return (
         <span
           className={cn(
-            "inline-block px-1 py-0.5 mx-0.5",
+            "mx-0.5 inline-block px-1 py-0.5",
             "bg-gray-100 hover:bg-gray-200",
-            "text-gray-700 hover:text-gray-900", 
-            "citation-comic-mono font-semibold text-xs tracking-tighter",
+            "text-gray-700 hover:text-gray-900",
+            "citation-comic-mono text-xs font-semibold tracking-tighter",
             "rounded border border-gray-300",
-            "transition-colors cursor-pointer",
+            "cursor-pointer transition-colors",
             "!text-gray-700 hover:!text-gray-900",
-            className
+            className,
           )}
           title={`Citation [${children}] - Document reference (see References section)`}
           onClick={(e) => {
             e.preventDefault();
             // Future: Open citation modal with document details
-            console.log('Document citation clicked:', children, citationData);
+            console.log("Document citation clicked:", children, citationData);
           }}
           {...props}
         >
@@ -94,10 +95,10 @@ export const CitationLink: FC<CitationLinkProps> = ({
       className={cn(
         "text-primary font-medium underline underline-offset-4",
         "hover:text-primary/80 transition-colors",
-        className
+        className,
       )}
-      target={href?.startsWith('http') ? '_blank' : undefined}
-      rel={href?.startsWith('http') ? 'noopener noreferrer' : undefined}
+      target={href?.startsWith("http") ? "_blank" : undefined}
+      rel={href?.startsWith("http") ? "noopener noreferrer" : undefined}
       {...props}
     >
       {children}

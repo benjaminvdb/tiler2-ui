@@ -46,7 +46,6 @@ export const Thread = (): React.JSX.Element => {
 
   const stream = useStreamContext();
   const messages = stream.messages;
-  const [, setWorkflowParam] = useQueryState("workflow");
   const workflowStartedRef = useRef(false);
 
   // Reset workflow started flag when workflow type changes
@@ -64,9 +63,7 @@ export const Thread = (): React.JSX.Element => {
       !stream.isLoading &&
       !workflowStartedRef.current
     ) {
-      console.log("Auto-starting workflow:", stream.workflowType);
       workflowStartedRef.current = true;
-      // Submit empty message to trigger workflow
       try {
         stream.submit(
           { messages: [] },
@@ -75,24 +72,17 @@ export const Thread = (): React.JSX.Element => {
             config: {
               configurable: {
                 workflow_type: stream.workflowType,
+                workflow_id: stream.workflowType,
               },
             },
           },
         );
       } catch (error) {
         console.error("Failed to auto-start workflow:", error);
-        // Reset flag on error so it can be retried
         workflowStartedRef.current = false;
       }
     }
   }, [stream.workflowType, messages.length, stream.isLoading]);
-
-  // Clear workflow parameter after workflow has started (has messages)
-  useEffect(() => {
-    if (stream.workflowType && messages.length > 0) {
-      setWorkflowParam(null);
-    }
-  }, [stream.workflowType, messages.length, setWorkflowParam]);
 
   // Use our custom hooks for handlers and effects
   const { handleSubmit, handleRegenerate, handleActionClick } =

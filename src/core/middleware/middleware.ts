@@ -49,7 +49,8 @@ export async function middleware(request: NextRequest) {
   requestHeaders.set("Content-Security-Policy", cspHeader);
 
   // Fail closed in production if Auth0 is misconfigured
-  if (!isAuth0Configured()) {
+  const auth0Configured = isAuth0Configured();
+  if (!auth0Configured) {
     if (process.env.NODE_ENV === "development") {
       console.warn("[Auth0] not configured – allowing all requests (dev only)");
       const response = NextResponse.next({
@@ -100,16 +101,19 @@ export async function middleware(request: NextRequest) {
   }
 
   // From this point on, all routes require authentication (including home page)
-  const session = await auth0.getSession(request);
-  if (!session) {
-    const redirectUrl = new URL("/auth/login", request.nextUrl.origin);
+  // But only if Auth0 is configured - otherwise allow in development
+  if (isAuth0Configured()) {
+    const session = await auth0.getSession(request);
+    if (!session) {
+      const redirectUrl = new URL("/auth/login", request.nextUrl.origin);
 
-    // Prevent open redirect attacks
-    if (redirectUrl.origin !== request.nextUrl.origin) {
-      redirectUrl.host = request.nextUrl.host;
+      // Prevent open redirect attacks
+      if (redirectUrl.origin !== request.nextUrl.origin) {
+        redirectUrl.host = request.nextUrl.host;
+      }
+
+      return NextResponse.redirect(redirectUrl);
     }
-
-    return NextResponse.redirect(redirectUrl);
   }
 
   // Set CSP headers for authenticated requests

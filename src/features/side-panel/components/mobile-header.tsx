@@ -59,31 +59,44 @@ export const MobileHeader: React.FC = () => {
   };
 
   return (
-    <div className="lg:hidden border-b bg-white">
+    <div className="border-b bg-white lg:hidden">
       <div className="flex h-14 items-center justify-between px-4">
         {/* Hamburger Menu Button (Top Left) */}
-        <Sheet open={isOpen} onOpenChange={setIsOpen}>
+        <Sheet
+          open={isOpen}
+          onOpenChange={setIsOpen}
+        >
           <SheetTrigger asChild>
-            <Button variant="ghost" size="sm" className="p-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="p-2"
+            >
               <Menu className="h-5 w-5" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-80 flex flex-col max-h-screen">
+          <SheetContent
+            side="left"
+            className="flex max-h-screen w-80 flex-col"
+          >
             <SheetHeader>
               <SheetTitle className="flex items-center justify-start">
                 {/* Brand Logo + Text (Always Visible) */}
                 <div className="flex items-center gap-2">
-                  <LinkLogoSVG width={24} height={24} />
+                  <LinkLogoSVG
+                    width={24}
+                    height={24}
+                  />
                   <span className="text-lg font-semibold tracking-tight">
                     Link Chat
                   </span>
                 </div>
               </SheetTitle>
             </SheetHeader>
-            
+
             {/* Navigation Section */}
             <div className="mt-6">
-              <div className="flex w-full flex-col space-y-1 py-2 px-2">
+              <div className="flex w-full flex-col space-y-1 px-2 py-2">
                 <NavigationButton
                   icon={MessageCircle}
                   label="New Chat"
@@ -103,24 +116,32 @@ export const MobileHeader: React.FC = () => {
                 <NavigationButton
                   icon={BookOpen}
                   label="Wiki"
-                  isActive={isActive("https://impossible-chauffeur-129.notion.site/Link-Chat-Wiki-218b67580800806ea99efb583280d2c8")}
-                  onClick={() => handleNavigation("https://impossible-chauffeur-129.notion.site/Link-Chat-Wiki-218b67580800806ea99efb583280d2c8")}
+                  isActive={isActive(
+                    "https://impossible-chauffeur-129.notion.site/Link-Chat-Wiki-218b67580800806ea99efb583280d2c8",
+                  )}
+                  onClick={() =>
+                    handleNavigation(
+                      "https://impossible-chauffeur-129.notion.site/Link-Chat-Wiki-218b67580800806ea99efb583280d2c8",
+                    )
+                  }
                   isCollapsed={false}
                 />
               </div>
             </div>
 
             {/* Thread History Section */}
-            <div className="mt-6 flex-1 flex flex-col min-h-0">
-              <div className="px-2 mb-4">
-                <h2 className="text-sm font-medium tracking-tight">Chat History</h2>
+            <div className="mt-6 flex min-h-0 flex-1 flex-col">
+              <div className="mb-4 px-2">
+                <h2 className="text-sm font-medium tracking-tight">
+                  Chat History
+                </h2>
               </div>
-              <div className="flex-1 overflow-y-auto overscroll-contain px-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+              <div className="scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent flex-1 overflow-y-auto overscroll-contain px-4">
                 {threadsLoading ? (
                   <ThreadHistoryLoading />
                 ) : (
-                  <ThreadList 
-                    threads={threads} 
+                  <ThreadList
+                    threads={threads}
                     onThreadClick={() => setIsOpen(false)}
                   />
                 )}
@@ -128,7 +149,6 @@ export const MobileHeader: React.FC = () => {
             </div>
           </SheetContent>
         </Sheet>
-
 
         {/* Profile/Auth Button (Top Right) */}
         <AuthButtons />

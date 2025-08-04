@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { useQueryState } from "nuqs";
+import { useRouter } from "next/navigation";
 import {
   uiMessageReducer,
   isUIMessage,
@@ -18,13 +19,26 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
   workflowType,
 }) => {
   const [threadId, setThreadId] = useQueryState("threadId");
+  const router = useRouter();
   const { getThreads, setThreads } = useThreads();
   const threadFetchControllerRef = useRef<AbortController | null>(null);
-  const streamValue = useTypedStream({
+  const streamConfig = {
     apiUrl,
-    apiKey: undefined, // API key is handled server-side
+    apiKey: undefined,
     assistantId,
     threadId: threadId ?? null,
+    ...(workflowType && {
+      config: {
+        configurable: {
+          workflow_type: workflowType,
+          workflow_id: workflowType,
+        },
+      },
+    }),
+  };
+
+  const streamValue = useTypedStream({
+    ...streamConfig,
     onCustomEvent: (event, options) => {
       if (isUIMessage(event) || isRemoveUIMessage(event)) {
         options.mutate((prev) => {
@@ -34,7 +48,15 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
       }
     },
     onThreadId: (id) => {
-      setThreadId(id);
+      if (workflowType) {
+        const params = new URLSearchParams(window.location.search);
+        params.set("threadId", id);
+        params.set("workflow", workflowType);
+        const newUrl = `${window.location.pathname}?${params.toString()}`;
+        router.replace(newUrl);
+      } else {
+        setThreadId(id);
+      }
 
       // Cancel any previous thread fetch operation
       if (threadFetchControllerRef.current) {

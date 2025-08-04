@@ -7,7 +7,8 @@ import { useUIContext } from "@/features/chat/providers/ui-provider";
 import { NavigationButton } from "./navigation-button";
 
 export const SidePanelBrandHeader: React.FC = () => {
-  const { chatHistoryOpen, onToggleChatHistory, onNewThread, isLargeScreen } = useUIContext();
+  const { chatHistoryOpen, onToggleChatHistory, onNewThread, isLargeScreen } =
+    useUIContext();
 
   return (
     <div

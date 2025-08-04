@@ -77,7 +77,7 @@ export const humanResponseSchema = z.object({
 export const toolCallSchema = z.object({
   id: z.string().min(1, "Tool call ID is required"),
   name: z.string().min(1, "Tool name is required"),
-  args: z.record(z.unknown()),
+  args: z.record(z.string(), z.unknown()),
   result: z.unknown().optional(),
 });
 
@@ -87,7 +87,7 @@ export const fieldValueSchema = z.union([
   z.number(),
   z.boolean(),
   z.array(z.unknown()),
-  z.record(z.unknown()),
+  z.record(z.string(), z.unknown()),
 ]);
 
 // URL parameter validation
@@ -117,8 +117,8 @@ export function validateInput<T>(
     if (error instanceof z.ZodError) {
       return {
         success: false,
-        errors: error.errors.map(
-          (err) => `${err.path.join(".")}: ${err.message}`,
+        errors: error.issues.map(
+          (err: z.ZodIssue) => `${err.path.join(".")}: ${err.message}`,
         ),
       };
     }

@@ -151,6 +151,8 @@
 
   /* Force Comic Mono font with highest specificity */
   .citation-comic-mono {
-    font-family: "Comic Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+    font-family:
+      "Comic Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+      "Liberation Mono", "Courier New", monospace !important;
   }
 }

@@ -62,7 +62,9 @@ export const NavigationButton: React.FC<NavigationButtonProps> = ({
             <div className="text-center">
               <p className="font-medium">{label}</p>
               {shortcutText && (
-                <p className="text-xs text-muted-foreground mt-1">{shortcutText}</p>
+                <p className="text-muted-foreground mt-1 text-xs">
+                  {shortcutText}
+                </p>
               )}
             </div>
           </TooltipContent>

@@ -9,7 +9,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        'comic-mono': ['"Comic Mono"', 'ui-monospace', 'monospace'],
+        "comic-mono": ['"Comic Mono"', "ui-monospace", "monospace"],
       },
       borderRadius: {
         lg: "var(--radius)",
