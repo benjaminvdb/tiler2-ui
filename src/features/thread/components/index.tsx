@@ -1,5 +1,4 @@
 import React, { useMemo, useEffect, useRef } from "react";
-import { useQueryState } from "nuqs";
 import { cn } from "@/shared/utils/utils";
 import { useStreamContext } from "@/core/providers/stream";
 import { useFileUpload } from "@/features/file-upload/hooks/use-file-upload";
@@ -82,7 +81,7 @@ export const Thread = (): React.JSX.Element => {
         workflowStartedRef.current = false;
       }
     }
-  }, [stream.workflowType, messages.length, stream.isLoading]);
+  }, [stream.workflowType, messages.length, stream.isLoading, stream]);
 
   // Use our custom hooks for handlers and effects
   const { handleSubmit, handleRegenerate, handleActionClick } =

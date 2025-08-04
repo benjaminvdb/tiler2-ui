@@ -26,7 +26,7 @@ const getWorkflowIcon = (iconName: string): React.ReactNode => {
   };
 
   const iconComponentName = toPascalCase(iconName);
-  const IconComponent = (LucideIcons as any)[iconComponentName];
+  const IconComponent = (LucideIcons as Record<string, React.ComponentType<any>>)[iconComponentName];
 
   if (IconComponent) {
     return <IconComponent className="h-6 w-6" />;
