@@ -43,14 +43,6 @@ export const createSubmitHandler = (
         },
       };
 
-      // Only add config if we have a workflow type
-      if (stream.workflowType) {
-        interruptOptions.config = {
-          configurable: {
-            workflow_type: stream.workflowType,
-          },
-        };
-      }
 
       stream.submit(null, interruptOptions);
 
@@ -92,14 +84,6 @@ export const createSubmitHandler = (
       }),
     };
 
-    // Only add config if we have a workflow type
-    if (stream.workflowType) {
-      submitOptions.config = {
-        configurable: {
-          workflow_type: stream.workflowType,
-        },
-      };
-    }
 
     stream.submit(submitData, submitOptions);
 

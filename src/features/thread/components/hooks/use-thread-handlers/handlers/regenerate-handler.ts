@@ -13,13 +13,6 @@ export const createRegenerateHandler = (
     stream.submit(null, {
       checkpoint: parentCheckpoint || null,
       streamMode: ["values"],
-      ...(stream.workflowType && {
-        config: {
-          configurable: {
-            workflow_type: stream.workflowType,
-          },
-        },
-      }),
     });
   };
 };

@@ -1,10 +1,14 @@
 import React, { createContext, useContext, ReactNode } from "react";
+import { NavigationService } from "@/core/services/navigation";
 
 interface UIContextType {
   // UI state
   chatHistoryOpen: boolean;
   isLargeScreen: boolean;
   sidePanelWidth: number;
+
+  // Services
+  navigationService: NavigationService;
 
   // UI actions
   onToggleChatHistory: () => void;

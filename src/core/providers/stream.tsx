@@ -14,15 +14,12 @@ export const StreamProvider: React.FC<{ children: ReactNode }> = ({
   // Get client configuration
   const clientConfig = getClientConfig();
 
-  // Use URL params with env var fallbacks
+  // Use URL params with env var fallbacks (only for development configuration)
   const [apiUrl, setApiUrl] = useQueryState("apiUrl", {
     defaultValue: clientConfig.apiUrl || "",
   });
   const [assistantId, setAssistantId] = useQueryState("assistantId", {
     defaultValue: clientConfig.assistantId || "",
-  });
-  const [workflowType] = useQueryState("workflow", {
-    defaultValue: "",
   });
 
   // Memoize final values to prevent unnecessary re-renders
@@ -49,12 +46,10 @@ export const StreamProvider: React.FC<{ children: ReactNode }> = ({
     );
   }
 
-  const trimmedWorkflowType = workflowType && workflowType.trim();
   return (
     <StreamSession
       apiUrl={finalApiUrl}
       assistantId={finalAssistantId}
-      {...(trimmedWorkflowType && { workflowType: trimmedWorkflowType })}
     >
       {children}
     </StreamSession>

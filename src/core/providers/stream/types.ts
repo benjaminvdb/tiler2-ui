@@ -16,18 +16,19 @@ export const useTypedStream = useStream<
       context?: Record<string, unknown>;
     };
     CustomEventType: UIMessage | RemoveUIMessage;
+    ConfigurableType: {
+      workflow_id?: string;
+      workflow_type?: string;
+    };
   }
 >;
 
-export type StreamContextType = ReturnType<typeof useTypedStream> & {
-  workflowType?: string;
-};
+export type StreamContextType = ReturnType<typeof useTypedStream>;
 
 export interface StreamSessionProps {
   children: React.ReactNode;
   apiUrl: string;
   assistantId: string;
-  workflowType?: string;
 }
 
 export interface ConfigurationFormProps {

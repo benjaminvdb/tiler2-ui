@@ -6,8 +6,9 @@ import { ThreadProvider } from "@/features/thread/providers/thread-provider";
 import { HotkeysProvider } from "@/features/hotkeys";
 import { useMediaQuery } from "@/shared/hooks/use-media-query";
 import { useQueryState } from "nuqs";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Toaster } from "@/shared";
+import { createNavigationService } from "@/core/services/navigation";
 
 interface AppProvidersProps {
   children: React.ReactNode;
@@ -15,8 +16,6 @@ interface AppProvidersProps {
 
 export function AppProviders({ children }: AppProvidersProps): React.ReactNode {
   const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
 
   // UI state management
   const [chatHistoryOpen, setChatHistoryOpen] = useQueryState(
@@ -55,17 +54,16 @@ export function AppProviders({ children }: AppProvidersProps): React.ReactNode {
     setChatHistoryOpen(!chatHistoryOpen);
   }, [chatHistoryOpen, setChatHistoryOpen]);
 
+  const navigationService = useMemo(
+    () => createNavigationService(router),
+    [router]
+  );
+
+  // Simplified new thread handler - just clear thread ID and go to home
   const handleNewThread = useCallback(() => {
-    if (pathname === "/workflows") {
-      const params = new URLSearchParams(searchParams);
-      params.delete("threadId");
-      const queryString = params.toString();
-      const targetUrl = queryString ? `/?${queryString}` : "/";
-      router.replace(targetUrl);
-    } else {
-      setThreadId(null);
-    }
-  }, [setThreadId, pathname, router, searchParams]);
+    setThreadId(null);
+    navigationService.navigateToHome();
+  }, [setThreadId, navigationService]);
 
   const handleSidePanelWidthChange = useCallback((width: number) => {
     // Constrain width between 250px and 600px
@@ -79,6 +77,7 @@ export function AppProviders({ children }: AppProvidersProps): React.ReactNode {
       chatHistoryOpen,
       isLargeScreen,
       sidePanelWidth,
+      navigationService,
       onToggleChatHistory: handleToggleChatHistory,
       onNewThread: handleNewThread,
       onSidePanelWidthChange: handleSidePanelWidthChange,
@@ -87,6 +86,7 @@ export function AppProviders({ children }: AppProvidersProps): React.ReactNode {
       chatHistoryOpen,
       isLargeScreen,
       sidePanelWidth,
+      navigationService,
       handleToggleChatHistory,
       handleNewThread,
       handleSidePanelWidthChange,

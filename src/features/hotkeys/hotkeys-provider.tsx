@@ -2,7 +2,6 @@
 
 import React from "react";
 import { useHotkeys } from "react-hotkeys-hook";
-import { useRouter } from "next/navigation";
 import { useUIContext } from "@/features/chat/providers/ui-provider";
 
 /**
@@ -11,8 +10,7 @@ import { useUIContext } from "@/features/chat/providers/ui-provider";
 export const HotkeysProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const router = useRouter();
-  const { onNewThread } = useUIContext();
+  const { navigationService, onNewThread } = useUIContext();
 
   // Detect platform for cross-platform shortcuts
   const isMac =
@@ -37,7 +35,7 @@ export const HotkeysProvider: React.FC<{ children: React.ReactNode }> = ({
     isMac ? "meta+alt+w" : "ctrl+alt+w",
     (event) => {
       event.preventDefault();
-      router.push("/workflows");
+      navigationService.navigateToWorkflows();
     },
     {
       enableOnFormTags: true, // Allow shortcuts to work in form elements

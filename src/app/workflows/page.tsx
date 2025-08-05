@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { PageContainer } from "@/shared/components/layout";
+import { useUIContext } from "@/features/chat/providers/ui-provider";
 import * as LucideIcons from "lucide-react";
 
 interface WorkflowConfig {
@@ -36,44 +36,60 @@ const getWorkflowIcon = (iconName: string): React.ReactNode => {
   return <LucideIcons.HelpCircle className="h-6 w-6" />;
 };
 
+// Hard-coded built-in workflows that are always available
+const BUILT_IN_WORKFLOWS: WorkflowConfig[] = [
+  {
+    id: 1,
+    workflow_id: "data_summary",
+    title: "Data Analysis Workflow",
+    description:
+      "Create a comprehensive summary to get an overview for the scope and scale of your data.",
+    icon: "clipboard-list",
+    icon_color: "blue",
+    order_index: 0,
+  },
+];
+
 export default function WorkflowsPage(): React.ReactNode {
-  const router = useRouter();
-  const [workflows, setWorkflows] = useState<WorkflowConfig[]>([]);
+  const { navigationService } = useUIContext();
+  const [workflows, setWorkflows] = useState<WorkflowConfig[]>(BUILT_IN_WORKFLOWS);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch workflows from backend API
+  // Fetch dynamic workflows from backend API and combine with built-in ones
   useEffect(() => {
     const fetchWorkflows = async () => {
       try {
         setLoading(true);
         const response = await fetch("/api/workflows");
 
-        if (!response.ok) {
+        if (response.ok) {
+          const dynamicWorkflows: WorkflowConfig[] = await response.json();
+          
+          // Combine built-in workflows with dynamic ones
+          // Filter out any duplicates based on workflow_id
+          const existingIds = new Set(BUILT_IN_WORKFLOWS.map(w => w.workflow_id));
+          const uniqueDynamicWorkflows = dynamicWorkflows.filter(
+            w => !existingIds.has(w.workflow_id)
+          );
+          
+          // Combine and sort by order_index
+          const combinedWorkflows = [...BUILT_IN_WORKFLOWS, ...uniqueDynamicWorkflows]
+            .sort((a, b) => a.order_index - b.order_index);
+          
+          setWorkflows(combinedWorkflows);
+          setError(null);
+        } else {
           throw new Error(`Failed to fetch workflows: ${response.statusText}`);
         }
-
-        const data: WorkflowConfig[] = await response.json();
-        setWorkflows(data);
       } catch (err) {
-        console.error("Error fetching workflows:", err);
+        console.error("Error fetching dynamic workflows:", err);
         setError(
-          err instanceof Error ? err.message : "Failed to load workflows",
+          err instanceof Error ? err.message : "Failed to load dynamic workflows",
         );
-
-        // Fallback to built-in workflow
-        setWorkflows([
-          {
-            id: 1,
-            workflow_id: "data_summary",
-            title: "Data Analysis Workflow",
-            description:
-              "Create a comprehensive summary to get an overview for the scope and scale of your data.",
-            icon: "clipboard-list",
-            icon_color: "blue",
-            order_index: 0,
-          },
-        ]);
+        
+        // Keep built-in workflows even if dynamic fetch fails
+        setWorkflows(BUILT_IN_WORKFLOWS);
       } finally {
         setLoading(false);
       }
@@ -83,7 +99,7 @@ export default function WorkflowsPage(): React.ReactNode {
   }, []);
 
   const handleWorkflowClick = (workflowId: string) => {
-    router.push(`/?workflow=${workflowId}`);
+    navigationService.navigateToWorkflow(workflowId);
   };
 
   if (loading) {
@@ -114,7 +130,7 @@ export default function WorkflowsPage(): React.ReactNode {
       {error && (
         <div className="mb-6 rounded-lg border border-yellow-200 bg-yellow-50 p-4">
           <div className="text-sm text-yellow-800">
-            Warning: {error}. Showing fallback workflows.
+            Warning: {error}. Showing built-in workflows only.
           </div>
         </div>
       )}

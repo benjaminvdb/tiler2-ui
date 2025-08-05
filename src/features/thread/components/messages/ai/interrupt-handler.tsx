@@ -34,13 +34,6 @@ export const InterruptHandler: React.FC<InterruptHandlerProps> = ({
       command: {
         resume: response,
       },
-      ...(stream.workflowType && {
-        config: {
-          configurable: {
-            workflow_type: stream.workflowType,
-          },
-        },
-      }),
     });
   };
 

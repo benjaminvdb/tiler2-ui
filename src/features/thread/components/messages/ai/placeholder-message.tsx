@@ -13,13 +13,6 @@ export const PlaceholderMessage: React.FC = () => {
     const response = { type, args: args ?? null };
     thread.submit(null, {
       command: { resume: response },
-      ...(thread.workflowType && {
-        config: {
-          configurable: {
-            workflow_type: thread.workflowType,
-          },
-        },
-      }),
     });
   };
 

@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useRef } from "react";
+import React, { useMemo } from "react";
 import { cn } from "@/shared/utils/utils";
 import { useStreamContext } from "@/core/providers/stream";
 import { useFileUpload } from "@/features/file-upload/hooks/use-file-upload";
@@ -45,43 +45,7 @@ export const Thread = (): React.JSX.Element => {
 
   const stream = useStreamContext();
   const messages = stream.messages;
-  const workflowStartedRef = useRef(false);
 
-  // Reset workflow started flag when workflow type changes
-  useEffect(() => {
-    if (stream.workflowType) {
-      workflowStartedRef.current = false;
-    }
-  }, [stream.workflowType]);
-
-  // Auto-start workflow if workflow parameter is present and no messages yet
-  useEffect(() => {
-    if (
-      stream.workflowType &&
-      messages.length === 0 &&
-      !stream.isLoading &&
-      !workflowStartedRef.current
-    ) {
-      workflowStartedRef.current = true;
-      try {
-        stream.submit(
-          { messages: [] },
-          {
-            streamMode: ["values"],
-            config: {
-              configurable: {
-                workflow_type: stream.workflowType,
-                workflow_id: stream.workflowType,
-              },
-            },
-          },
-        );
-      } catch (error) {
-        console.error("Failed to auto-start workflow:", error);
-        workflowStartedRef.current = false;
-      }
-    }
-  }, [stream.workflowType, messages.length, stream.isLoading, stream]);
 
   // Use our custom hooks for handlers and effects
   const { handleSubmit, handleRegenerate, handleActionClick } =
