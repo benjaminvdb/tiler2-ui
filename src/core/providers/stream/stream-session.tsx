@@ -28,6 +28,7 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
 
   const streamValue = useTypedStream({
     ...streamConfig,
+    fetchStateHistory: true,
     onCustomEvent: (event, options) => {
       if (isUIMessage(event) || isRemoveUIMessage(event)) {
         options.mutate((prev) => {

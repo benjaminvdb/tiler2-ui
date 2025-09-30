@@ -4,6 +4,16 @@ export const isComplexValue = (value: FieldValue): boolean => {
   return Array.isArray(value) || (typeof value === "object" && value !== null);
 };
 
+export const isUrl = (value: any): boolean => {
+  if (typeof value !== "string") return false;
+  try {
+    new URL(value);
+    return value.startsWith("http://") || value.startsWith("https://");
+  } catch {
+    return false;
+  }
+};
+
 export const shouldTruncateContent = (interrupt: JsonValue): boolean => {
   const contentStr = JSON.stringify(interrupt, null, 2);
   const contentLines = contentStr.split("\n");
@@ -15,6 +25,10 @@ export const truncateValue = (
   isExpanded: boolean,
 ): FieldValue => {
   if (typeof value === "string" && value.length > 100) {
+    // Don't truncate URLs so they remain clickable
+    if (isUrl(value)) {
+      return value;
+    }
     return value.substring(0, 100) + "...";
   }
 

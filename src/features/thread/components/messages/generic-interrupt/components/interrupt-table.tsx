@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { isComplexValue } from "../utils/value-helpers";
+import { isComplexValue, isUrl } from "../utils/value-helpers";
 
 interface InterruptTableProps {
   displayEntries: [string, any][];
@@ -33,6 +33,15 @@ export const InterruptTable: React.FC<InterruptTableProps> = ({
                   <code className="rounded bg-gray-50 px-2 py-1 font-mono text-sm">
                     {JSON.stringify(value, null, 2)}
                   </code>
+                ) : isUrl(value) ? (
+                  <a
+                    href={value}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="break-all text-blue-600 underline hover:text-blue-800"
+                  >
+                    {value}
+                  </a>
                 ) : (
                   String(value)
                 )}
