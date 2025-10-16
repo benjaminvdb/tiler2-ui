@@ -33,7 +33,7 @@ export const PageContainer: React.FC<PageContainerProps> = ({
   padding = "lg",
 }) => {
   return (
-    <div className="flex h-full w-full flex-col">
+    <div className="flex h-full w-full flex-col overflow-y-auto">
       <div
         className={cn(
           "mx-auto w-full flex-1",
