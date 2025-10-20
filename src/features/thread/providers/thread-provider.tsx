@@ -42,11 +42,19 @@ export const ThreadProvider: React.FC<{ children: ReactNode }> = ({
     if (!apiUrl || !assistantId) return [];
 
     try {
-      // Use the API route which handles authentication server-side
+      // Get fresh token from server-side endpoint
+      const tokenResponse = await fetch("/api/auth/token");
+      if (!tokenResponse.ok) {
+        throw new Error("Failed to get access token");
+      }
+      const { token } = await tokenResponse.json();
+
+      // Call LangGraph API directly with Authorization header
       const response = await fetch(`${apiUrl}/threads/search`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           metadata: {

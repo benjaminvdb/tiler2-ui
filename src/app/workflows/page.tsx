@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from "react";
 import { PageContainer } from "@/shared/components/layout";
 import { useUIContext } from "@/features/chat/providers/ui-provider";
+import { getClientConfig } from "@/core/config/client";
+import { LoadingScreen } from "@/shared/components/loading-spinner";
 import * as LucideIcons from "lucide-react";
 
 interface WorkflowConfig {
@@ -61,22 +63,40 @@ export default function WorkflowsPage(): React.ReactNode {
     const fetchWorkflows = async () => {
       try {
         setLoading(true);
-        const response = await fetch("/api/workflows");
+
+        // Get backend URL from config
+        const { apiUrl } = getClientConfig();
+
+        // Get fresh auth token from server-side endpoint
+        const tokenResponse = await fetch("/api/auth/token");
+        if (!tokenResponse.ok) {
+          throw new Error("Failed to get access token");
+        }
+        const { token } = await tokenResponse.json();
+
+        // Call backend API directly with Authorization header
+        const response = await fetch(`${apiUrl}/workflows`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
         if (response.ok) {
           const dynamicWorkflows: WorkflowConfig[] = await response.json();
-          
+
           // Combine built-in workflows with dynamic ones
           // Filter out any duplicates based on workflow_id
           const existingIds = new Set(BUILT_IN_WORKFLOWS.map(w => w.workflow_id));
           const uniqueDynamicWorkflows = dynamicWorkflows.filter(
             w => !existingIds.has(w.workflow_id)
           );
-          
+
           // Combine and sort by order_index
           const combinedWorkflows = [...BUILT_IN_WORKFLOWS, ...uniqueDynamicWorkflows]
             .sort((a, b) => a.order_index - b.order_index);
-          
+
           setWorkflows(combinedWorkflows);
           setError(null);
         } else {
@@ -87,7 +107,7 @@ export default function WorkflowsPage(): React.ReactNode {
         setError(
           err instanceof Error ? err.message : "Failed to load dynamic workflows",
         );
-        
+
         // Keep built-in workflows even if dynamic fetch fails
         setWorkflows(BUILT_IN_WORKFLOWS);
       } finally {
@@ -103,18 +123,7 @@ export default function WorkflowsPage(): React.ReactNode {
   };
 
   if (loading) {
-    return (
-      <PageContainer>
-        <h1 className="mb-4 text-3xl font-bold">Workflows</h1>
-        <div className="flex items-center justify-center py-12">
-          <div className="text-center">
-            <div className="animate-pulse text-gray-500">
-              Loading workflows...
-            </div>
-          </div>
-        </div>
-      </PageContainer>
-    );
+    return <LoadingScreen />;
   }
 
   return (

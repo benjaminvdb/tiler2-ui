@@ -1,5 +1,6 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useQueryState } from "nuqs";
+import { useUser } from "@auth0/nextjs-auth0";
 import {
   uiMessageReducer,
   isUIMessage,
@@ -10,6 +11,7 @@ import { useThreads } from "@/features/thread/providers/thread-provider";
 import { StreamContext } from "./stream-context";
 import { useTypedStream, StreamSessionProps } from "./types";
 import { sleep, checkGraphStatus } from "./utils";
+import { LoadingScreen } from "@/shared/components/loading-spinner";
 
 export const StreamSession: React.FC<StreamSessionProps> = ({
   children,
@@ -19,11 +21,55 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
   const [threadId, setThreadId] = useQueryState("threadId");
   const { getThreads, setThreads } = useThreads();
   const threadFetchControllerRef = useRef<AbortController | null>(null);
+  const { user, isLoading: isUserLoading } = useUser();
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [tokenError, setTokenError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    if (!user || isUserLoading) return;
+
+    const fetchToken = async () => {
+      try {
+        const response = await fetch("/api/auth/token");
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(
+            errorData.error || `Token fetch failed: ${response.status}`,
+          );
+        }
+
+        const data = await response.json();
+        setAccessToken(data.token);
+        setTokenError(null);
+      } catch (error) {
+        console.error("Failed to fetch access token:", error);
+        setTokenError(
+          error instanceof Error ? error : new Error(String(error)),
+        );
+        setAccessToken(null);
+      }
+    };
+
+    fetchToken();
+
+    // Refresh token every 14 minutes (before 15-min expiry from Auth0 config)
+    const intervalId = setInterval(fetchToken, 14 * 60 * 1000);
+
+    return () => clearInterval(intervalId);
+  }, [user, isUserLoading]);
+
   const streamConfig = {
     apiUrl,
-    apiKey: undefined,
+    apiKey: undefined, // Don't use LangSmith API key - we're using Auth0
     assistantId,
     threadId: threadId ?? null,
+    // Pass Auth0 token as Authorization header
+    defaultHeaders: accessToken
+      ? {
+          Authorization: `Bearer ${accessToken}`,
+        }
+      : undefined,
   };
 
   const streamValue = useTypedStream({
@@ -86,8 +132,7 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
             description: () => (
               <p>
                 Please ensure your graph is running at <code>{apiUrl}</code> and
-                your API key is correctly set (if connecting to a deployed
-                graph).
+                you are properly authenticated.
               </p>
             ),
             duration: 10000,
@@ -113,6 +158,29 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
       }
     };
   }, [apiUrl]);
+
+  // Show loading state while fetching token
+  if (isUserLoading || (!accessToken && !tokenError && user)) {
+    return (
+      <StreamContext.Provider value={streamValue}>
+        <LoadingScreen />
+      </StreamContext.Provider>
+    );
+  }
+
+  // Show error if token fetch failed
+  if (tokenError) {
+    return (
+      <StreamContext.Provider value={streamValue}>
+        <LoadingScreen>
+          <p className="text-destructive">
+            Authentication error: {tokenError.message}
+          </p>
+          <p className="text-sm">Please refresh the page or log in again.</p>
+        </LoadingScreen>
+      </StreamContext.Provider>
+    );
+  }
 
   return (
     <StreamContext.Provider value={streamValue}>

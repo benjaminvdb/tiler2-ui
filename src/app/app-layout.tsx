@@ -8,6 +8,7 @@ import { useUIContext } from "@/features/chat/providers/ui-provider";
 import { motion } from "framer-motion";
 import { SIDE_PANEL_COLLAPSED_WIDTH } from "@/features/side-panel/constants";
 import { MobileHeader } from "@/features/side-panel/components/mobile-header";
+import { LoadingScreen } from "@/shared/components/loading-spinner";
 
 // Removed GlobalToggleButton - expand button is now only in the sidebar
 
@@ -56,15 +57,7 @@ interface AppLayoutProps {
 export function AppLayout({ children }: AppLayoutProps): React.ReactNode {
   return (
     <ErrorBoundary>
-      <React.Suspense
-        fallback={
-          <div className="bg-background flex h-screen w-full items-center justify-center">
-            <div className="text-center">
-              <div className="border-primary mb-4 h-8 w-8 animate-spin rounded-full border-4 border-t-transparent"></div>
-            </div>
-          </div>
-        }
-      >
+      <React.Suspense fallback={<LoadingScreen />}>
         <AppProviders>
           <AppLayoutContent>{children}</AppLayoutContent>
         </AppProviders>

@@ -3,6 +3,7 @@ import { HumanInterrupt } from "@langchain/langgraph/prebuilt";
 import { EditAndOrAcceptComponent } from "../../edit-and-accept";
 import { Response } from "../../response-component";
 import { Separator } from "@/shared/components/ui/separator";
+import { LoadingSpinner } from "@/shared/components/loading-spinner";
 
 interface MethodSeparatorProps {
   supportsMultipleMethods: boolean;
@@ -31,7 +32,12 @@ const StatusIndicator: React.FC<StatusIndicatorProps> = ({
   streamFinished,
 }) => {
   if (streaming) {
-    return <p className="text-sm text-gray-600">Running...</p>;
+    return (
+      <div className="flex items-center gap-2">
+        <LoadingSpinner size="sm" />
+        <span className="text-sm text-gray-600">Running</span>
+      </div>
+    );
   }
   if (streamFinished) {
     return (

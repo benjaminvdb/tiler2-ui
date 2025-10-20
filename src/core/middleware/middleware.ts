@@ -114,36 +114,6 @@ export async function middleware(request: NextRequest) {
 
       return NextResponse.redirect(redirectUrl);
     }
-
-    try {
-      await auth0.getAccessToken(request, authRes);
-    } catch (error) {
-      if (error instanceof Error && error.name === "AccessTokenError") {
-        console.error("[Middleware] Token refresh failed:", error.message);
-        reportAuthError(error, {
-          operation: "token_refresh",
-          component: "middleware",
-          url: pathname,
-          additionalData: {
-            errorName: error.name,
-            hasSession: !!session,
-          },
-        });
-
-        const redirectUrl = new URL("/auth/login", request.nextUrl.origin);
-        return NextResponse.redirect(redirectUrl);
-      }
-
-      console.error("[Middleware] Unexpected error during token refresh:", error);
-      reportAuthError(
-        error instanceof Error ? error : new Error(String(error)),
-        {
-          operation: "token_refresh",
-          component: "middleware",
-          url: pathname,
-        },
-      );
-    }
   }
 
   // Set CSP headers for authenticated requests
