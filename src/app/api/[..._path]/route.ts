@@ -12,7 +12,7 @@ export const { GET, POST, PUT, PATCH, DELETE, OPTIONS, runtime } =
   initApiPassthrough({
     apiUrl: langgraphApiUrl,
     apiKey: langsmithApiKey,
-    runtime: "edge", // default
+    runtime: "nodejs", // Use Node.js runtime for proper Auth0 session management
     headers: async (_req) => {
       if (!isAuth0Configured()) {
         console.warn("Auth0 not configured, proceeding without authentication");
@@ -28,12 +28,18 @@ export const { GET, POST, PUT, PATCH, DELETE, OPTIONS, runtime } =
       }
 
       try {
+        // Token is already refreshed by middleware if needed
+        // This just retrieves the fresh token from the session
         const accessToken = await auth0Client.getAccessToken();
         return {
           Authorization: `Bearer ${accessToken.token}`,
         };
       } catch (error) {
         if (error instanceof Error && error.name === "AccessTokenError") {
+          console.error(
+            "[API Route] Failed to retrieve token from session:",
+            error.message,
+          );
           reportAuthError(error, {
             operation: "getAccessToken",
             component: "API route",
@@ -42,7 +48,20 @@ export const { GET, POST, PUT, PATCH, DELETE, OPTIONS, runtime } =
           throw new Response("Unauthorized", { status: 401 });
         }
 
-        throw error;
+        // Log unexpected errors
+        console.error(
+          "[API Route] Unexpected error getting access token:",
+          error,
+        );
+        reportAuthError(
+          error instanceof Error ? error : new Error(String(error)),
+          {
+            operation: "getAccessToken",
+            component: "API route",
+            additionalData: { errorType: "UnexpectedError" },
+          },
+        );
+        throw new Response("Internal Server Error", { status: 500 });
       }
     },
     disableWarningLog: true,
