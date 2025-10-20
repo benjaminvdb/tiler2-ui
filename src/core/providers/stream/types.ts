@@ -4,11 +4,16 @@ import {
   type RemoveUIMessage,
 } from "@langchain/langgraph-sdk/react-ui";
 import { useStream } from "@langchain/langgraph-sdk/react";
+import { Source } from "@/features/thread/components/markdown/components/citation-link";
 
-export type StateType = { messages: Message[]; ui?: UIMessage[] };
+export type GraphState = {
+  messages: Message[];
+  ui?: UIMessage[];
+  sources?: Source[];
+};
 
 export const useTypedStream = useStream<
-  StateType,
+  GraphState,
   {
     UpdateType: {
       messages?: Message[] | Message | string;

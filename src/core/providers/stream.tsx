@@ -6,7 +6,7 @@ import { StreamSession } from "./stream/stream-session";
 
 // Re-export stream context and types for convenience
 export { useStreamContext } from "./stream/stream-context";
-export type { StreamContextType, StateType } from "./stream/types";
+export type { StreamContextType, GraphState } from "./stream/types";
 
 export const StreamProvider: React.FC<{ children: ReactNode }> = ({
   children,

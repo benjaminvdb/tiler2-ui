@@ -3,6 +3,8 @@ import { CustomComponent } from "../../custom-component";
 import { MessageText } from "./message-text";
 import { ToolCallsSection } from "./tool-calls-section";
 import { MessageActions } from "./message-actions";
+import { SourcesList } from "../../sources-list";
+import { renumberCitations } from "../../../../markdown/utils/citation-renumbering";
 import type { StreamContextType } from "@/core/providers/stream/types";
 import type { MessageMetadata, JsonValue } from "@/shared/types";
 
@@ -34,9 +36,18 @@ export const RegularMessage: React.FC<RegularMessageProps> = ({
   parentCheckpoint,
   handleRegenerate,
 }) => {
+  // Get sources from thread state
+  const sources = thread.values?.sources || [];
+
+  // Renumber citations from unique backend IDs to sequential [1], [2], [3]
+  const { renumberedSources, renumberedContent } = renumberCitations(
+    contentString,
+    sources
+  );
+
   return (
     <>
-      <MessageText contentString={contentString} />
+      <MessageText contentString={renumberedContent} />
       <ToolCallsSection
         message={message}
         hideToolCalls={hideToolCalls}
@@ -49,8 +60,9 @@ export const RegularMessage: React.FC<RegularMessageProps> = ({
         message={message}
         thread={thread}
       />
+      <SourcesList sources={renumberedSources} />
       <MessageActions
-        contentString={contentString}
+        contentString={renumberedContent}
         isLoading={isLoading}
         meta={meta}
         thread={thread}

@@ -2,23 +2,22 @@ import { ReactNode, FC } from "react";
 import { cn } from "@/shared/utils/utils";
 import { BaseComponentProps } from "./markdown-elements";
 
-// Citation metadata interface (matching backend structure)
-export interface CitationMetadata {
-  refId: number;
-  sourceType: "web" | "knowledge_base" | "methods_base";
+// Source interface matching backend structure
+// Note: Filenames for library sources are already in MLA format,
+// so we don't need separate metadata fields
+export interface Source {
+  id: string;  // Changed from number to string - format: ref-[a-z0-9]{7}
+  type: "web" | "knowledge_base" | "methods_base" | "csrd_reports";
   title: string;
   url?: string;
-  date?: string;
   filename?: string;
-  author?: string;
-  pageNumber?: number;
+  page_number?: number;
 }
 
 // Props for citation-aware link component
 interface CitationLinkProps extends BaseComponentProps {
   href?: string;
   children?: ReactNode;
-  citationData?: CitationMetadata;
 }
 
 // Regular expression to detect citation links [1], [2], etc. or just numbers 1, 2, etc.
@@ -28,7 +27,6 @@ export const CitationLink: FC<CitationLinkProps> = ({
   href,
   children,
   className,
-  citationData,
   ...props
 }) => {
   // Check if this is a citation link (e.g., [1], [2])
@@ -74,11 +72,14 @@ export const CitationLink: FC<CitationLinkProps> = ({
             "!text-gray-700 hover:!text-gray-900",
             className,
           )}
-          title={`Citation [${children}] - Document reference (see References section)`}
+          title={`Citation [${children}] - Document reference (see Sources section)`}
           onClick={(e) => {
             e.preventDefault();
-            // Future: Open citation modal with document details
-            console.log("Document citation clicked:", children, citationData);
+            // Scroll to sources section
+            const sourcesSection = document.getElementById("sources-section");
+            if (sourcesSection) {
+              sourcesSection.scrollIntoView({ behavior: "smooth" });
+            }
           }}
           {...props}
         >
