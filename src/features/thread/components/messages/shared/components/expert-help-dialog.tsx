@@ -142,11 +142,12 @@ export const ExpertHelpDialog: React.FC<ExpertHelpDialogProps> = ({
             <p className="text-sm font-medium">What happens next:</p>
             <ul className="list-disc list-outside ml-5 space-y-1 text-sm text-muted-foreground">
               <li>
-                Your chat history and context will be shared with Link Nature's
-                expert team
+                Your chat history and context will be shared with Link
+                Nature&apos;s expert team
               </li>
               <li>
-                You'll receive a detailed response via email within 48 hours
+                You&apos;ll receive a detailed response via email within 48
+                hours
               </li>
             </ul>
           </div>
