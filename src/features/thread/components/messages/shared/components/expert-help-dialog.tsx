@@ -113,18 +113,29 @@ export const ExpertHelpDialog: React.FC<ExpertHelpDialogProps> = ({
       <DialogContent className="sm:max-w-[500px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Get Expert Help</DialogTitle>
-            <DialogDescription>
-              Describe your question or issue and our team will assist you.
+            <DialogTitle>Ask an Expert</DialogTitle>
+            <DialogDescription className="space-y-3">
+              <p>
+                Before escalating to our expert team, please ensure you have:
+              </p>
+              <ul className="list-disc list-outside ml-5 space-y-1">
+                <li>Tried asking your question in different ways</li>
+                <li>Provided specific context about your situation</li>
+                <li>Refined your question based on the AI&apos;s responses</li>
+              </ul>
+              <p>
+                If you&apos;ve completed these steps and still need additional
+                support, please describe your specific question below.
+              </p>
             </DialogDescription>
           </DialogHeader>
 
-          <div className="grid gap-4 py-4">
+          <div className="grid gap-4 py-4 pt-6">
             <div className="grid gap-2">
               <Label htmlFor="message">Your Message</Label>
               <Textarea
                 id="message"
-                placeholder="Please explain what you need help with..."
+                placeholder="What's missing from the AI's response? What specifically should the expert address?"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 disabled={isSubmitting}
