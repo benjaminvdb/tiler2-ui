@@ -1,7 +1,10 @@
 import { FC } from "react";
 import { BookCheck, Globe } from "lucide-react";
 import { Source } from "../../markdown/components/citation-link";
-import { formatMLA, groupSourcesByType } from "../../markdown/utils/citation-utils";
+import {
+  formatMLA,
+  groupSourcesByType,
+} from "../../markdown/utils/citation-utils";
 
 interface SourcesListProps {
   sources: Source[];
@@ -69,7 +72,7 @@ export const SourcesList: FC<SourcesListProps> = ({ sources }) => {
                         href={source.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-primary/70 hover:text-primary/90 underline underline-offset-2 transition-colors font-normal"
+                        className="text-primary/70 hover:text-primary/90 font-normal underline underline-offset-2 transition-colors"
                       >
                         {source.url}
                       </a>

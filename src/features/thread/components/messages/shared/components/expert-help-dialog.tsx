@@ -109,7 +109,10 @@ export const ExpertHelpDialog: React.FC<ExpertHelpDialogProps> = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={onOpenChange}
+    >
       <DialogContent className="sm:max-w-[500px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
@@ -118,7 +121,7 @@ export const ExpertHelpDialog: React.FC<ExpertHelpDialogProps> = ({
               <p>
                 Before escalating to our expert team, please ensure you have:
               </p>
-              <ul className="list-disc list-outside ml-5 space-y-1">
+              <ul className="ml-5 list-outside list-disc space-y-1">
                 <li>Tried asking your question in different ways</li>
                 <li>Provided specific context about your situation</li>
                 <li>Refined your question based on the AI&apos;s responses</li>
@@ -149,9 +152,9 @@ export const ExpertHelpDialog: React.FC<ExpertHelpDialogProps> = ({
             </div>
           </div>
 
-          <div className="rounded-lg bg-muted p-4 space-y-2 mb-6">
+          <div className="bg-muted mb-6 space-y-2 rounded-lg p-4">
             <p className="text-sm font-medium">What happens next:</p>
-            <ul className="list-disc list-outside ml-5 space-y-1 text-sm text-muted-foreground">
+            <ul className="text-muted-foreground ml-5 list-outside list-disc space-y-1 text-sm">
               <li>
                 Your chat history and context will be shared with Link
                 Nature&apos;s expert team
@@ -172,7 +175,10 @@ export const ExpertHelpDialog: React.FC<ExpertHelpDialogProps> = ({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+            >
               {isSubmitting ? "Sending..." : "Send to Expert"}
             </Button>
           </DialogFooter>

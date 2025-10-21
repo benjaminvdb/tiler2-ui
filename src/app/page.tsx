@@ -12,23 +12,23 @@ function ThreadWithWorkflowHandler(): React.ReactNode {
   const searchParams = useSearchParams();
   const router = useRouter();
   const stream = useStreamContext();
-  const workflowId = searchParams.get('workflow');
+  const workflowId = searchParams.get("workflow");
   const [threadId, setThreadId] = useQueryState("threadId");
-  
+
   // Use ref to track if workflow has been submitted for this component instance
   const submittedWorkflowRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (workflowId && submittedWorkflowRef.current !== workflowId) {
-      console.log('Starting workflow:', workflowId);
+      console.log("Starting workflow:", workflowId);
       submittedWorkflowRef.current = workflowId;
-      
+
       // Clear the current thread ID to force creation of a new thread for the workflow
       if (threadId) {
-        console.log('Clearing existing thread ID to start fresh workflow');
+        console.log("Clearing existing thread ID to start fresh workflow");
         setThreadId(null);
       }
-      
+
       stream.submit(
         { messages: [] },
         {
@@ -37,12 +37,12 @@ function ThreadWithWorkflowHandler(): React.ReactNode {
               workflow_id: workflowId,
             },
           },
-        }
+        },
       );
-      
+
       // Clean URL after successful submission
       setTimeout(() => {
-        router.replace('/');
+        router.replace("/");
       }, 100);
     }
   }, [workflowId, router, stream, threadId, setThreadId]);

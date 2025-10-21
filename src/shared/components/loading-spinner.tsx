@@ -36,8 +36,13 @@ export const LoadingScreen = ({
   return (
     <div className="bg-background flex h-screen w-full items-center justify-center">
       <div className="text-center">
-        <LoadingSpinner size="md" className="mb-4" />
-        {children && <div className="text-muted-foreground mt-2">{children}</div>}
+        <LoadingSpinner
+          size="md"
+          className="mb-4"
+        />
+        {children && (
+          <div className="text-muted-foreground mt-2">{children}</div>
+        )}
       </div>
     </div>
   );

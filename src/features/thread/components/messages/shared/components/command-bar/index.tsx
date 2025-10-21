@@ -1,5 +1,11 @@
 import React from "react";
-import { XIcon, SendHorizontal, RefreshCcw, Pencil, UserCircle } from "lucide-react";
+import {
+  XIcon,
+  SendHorizontal,
+  RefreshCcw,
+  Pencil,
+  UserCircle,
+} from "lucide-react";
 import { TooltipIconButton } from "../../../../tooltip-icon-button";
 import { ContentCopyable } from "../content-copyable";
 import { CommandBarProps } from "../../types";

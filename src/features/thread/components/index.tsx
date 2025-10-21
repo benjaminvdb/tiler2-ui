@@ -46,7 +46,6 @@ export const Thread = (): React.JSX.Element => {
   const stream = useStreamContext();
   const messages = stream.messages;
 
-
   // Use our custom hooks for handlers and effects
   const { handleSubmit, handleRegenerate, handleActionClick } =
     useThreadHandlers({

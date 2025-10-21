@@ -1,12 +1,17 @@
 /**
  * Unified Navigation Component
- * 
+ *
  * Centralizes navigation logic and eliminates duplication between desktop and mobile.
  * Uses the central navigation service for consistent behavior.
  */
 
 import React from "react";
-import { MessageCircle, Workflow, BookOpen, type LucideIcon } from "lucide-react";
+import {
+  MessageCircle,
+  Workflow,
+  BookOpen,
+  type LucideIcon,
+} from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useUIContext } from "@/features/chat/providers/ui-provider";
 import { NavigationButton } from "@/features/side-panel/components/navigation-button";
@@ -26,9 +31,9 @@ interface NavigationProps {
   onItemClick?: () => void; // For mobile to close menu after click
 }
 
-export const Navigation: React.FC<NavigationProps> = ({ 
+export const Navigation: React.FC<NavigationProps> = ({
   isCollapsed = false,
-  onItemClick 
+  onItemClick,
 }) => {
   const { navigationService } = useUIContext();
   const pathname = usePathname();
@@ -48,7 +53,7 @@ export const Navigation: React.FC<NavigationProps> = ({
     },
     {
       id: "workflows",
-      label: "Workflows", 
+      label: "Workflows",
       icon: Workflow,
       action: () => {
         navigationService.navigateToWorkflows();
@@ -62,7 +67,9 @@ export const Navigation: React.FC<NavigationProps> = ({
       label: "Wiki",
       icon: BookOpen,
       action: () => {
-        navigateExternal("https://impossible-chauffeur-129.notion.site/Link-Chat-Wiki-218b67580800806ea99efb583280d2c8");
+        navigateExternal(
+          "https://impossible-chauffeur-129.notion.site/Link-Chat-Wiki-218b67580800806ea99efb583280d2c8",
+        );
         onItemClick?.();
       },
       isActive: false, // External links are never active

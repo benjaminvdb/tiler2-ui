@@ -28,7 +28,9 @@ const getWorkflowIcon = (iconName: string): React.ReactNode => {
   };
 
   const iconComponentName = toPascalCase(iconName);
-  const IconComponent = (LucideIcons as any)[iconComponentName] as React.ComponentType<{ className?: string }> | undefined;
+  const IconComponent = (LucideIcons as any)[iconComponentName] as
+    | React.ComponentType<{ className?: string }>
+    | undefined;
 
   if (IconComponent) {
     return <IconComponent className="h-6 w-6" />;
@@ -54,7 +56,8 @@ const BUILT_IN_WORKFLOWS: WorkflowConfig[] = [
 
 export default function WorkflowsPage(): React.ReactNode {
   const { navigationService } = useUIContext();
-  const [workflows, setWorkflows] = useState<WorkflowConfig[]>(BUILT_IN_WORKFLOWS);
+  const [workflows, setWorkflows] =
+    useState<WorkflowConfig[]>(BUILT_IN_WORKFLOWS);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -88,14 +91,18 @@ export default function WorkflowsPage(): React.ReactNode {
 
           // Combine built-in workflows with dynamic ones
           // Filter out any duplicates based on workflow_id
-          const existingIds = new Set(BUILT_IN_WORKFLOWS.map(w => w.workflow_id));
+          const existingIds = new Set(
+            BUILT_IN_WORKFLOWS.map((w) => w.workflow_id),
+          );
           const uniqueDynamicWorkflows = dynamicWorkflows.filter(
-            w => !existingIds.has(w.workflow_id)
+            (w) => !existingIds.has(w.workflow_id),
           );
 
           // Combine and sort by order_index
-          const combinedWorkflows = [...BUILT_IN_WORKFLOWS, ...uniqueDynamicWorkflows]
-            .sort((a, b) => a.order_index - b.order_index);
+          const combinedWorkflows = [
+            ...BUILT_IN_WORKFLOWS,
+            ...uniqueDynamicWorkflows,
+          ].sort((a, b) => a.order_index - b.order_index);
 
           setWorkflows(combinedWorkflows);
           setError(null);
@@ -105,7 +112,9 @@ export default function WorkflowsPage(): React.ReactNode {
       } catch (err) {
         console.error("Error fetching dynamic workflows:", err);
         setError(
-          err instanceof Error ? err.message : "Failed to load dynamic workflows",
+          err instanceof Error
+            ? err.message
+            : "Failed to load dynamic workflows",
         );
 
         // Keep built-in workflows even if dynamic fetch fails

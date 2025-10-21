@@ -43,7 +43,6 @@ export const createSubmitHandler = (
         },
       };
 
-
       stream.submit(null, interruptOptions);
 
       // Clear interrupt state
@@ -83,7 +82,6 @@ export const createSubmitHandler = (
         ],
       }),
     };
-
 
     stream.submit(submitData, submitOptions);
 

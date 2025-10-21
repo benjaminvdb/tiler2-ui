@@ -1,4 +1,3 @@
-
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 export interface NavigationService {
@@ -10,14 +9,14 @@ export interface NavigationService {
 }
 
 export function createNavigationService(
-  router: AppRouterInstance
+  router: AppRouterInstance,
 ): NavigationService {
   const navigateToHome = () => {
-    router.push('/');
+    router.push("/");
   };
 
   const navigateToWorkflows = () => {
-    router.push('/workflows');
+    router.push("/workflows");
   };
 
   const navigateToWorkflow = (workflowId: string) => {
@@ -25,11 +24,11 @@ export function createNavigationService(
   };
 
   const isHomePage = (pathname: string): boolean => {
-    return pathname === '/';
+    return pathname === "/";
   };
 
   const isWorkflowsPage = (pathname: string): boolean => {
-    return pathname === '/workflows';
+    return pathname === "/workflows";
   };
 
   return {
@@ -41,14 +40,13 @@ export function createNavigationService(
   };
 }
 
-
 export function navigateExternal(url: string): void {
   window.open(url, "_blank", "noopener,noreferrer");
 }
 
 export const ROUTES = {
-  HOME: '/',
-  WORKFLOWS: '/workflows',
+  HOME: "/",
+  WORKFLOWS: "/workflows",
 } as const;
 
-export type Route = typeof ROUTES[keyof typeof ROUTES];
+export type Route = (typeof ROUTES)[keyof typeof ROUTES];

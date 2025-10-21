@@ -56,7 +56,7 @@ export function AppProviders({ children }: AppProvidersProps): React.ReactNode {
 
   const navigationService = useMemo(
     () => createNavigationService(router),
-    [router]
+    [router],
   );
 
   // Simplified new thread handler - just clear thread ID and go to home

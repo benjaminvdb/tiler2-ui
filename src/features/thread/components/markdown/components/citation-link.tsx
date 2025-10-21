@@ -6,7 +6,7 @@ import { BaseComponentProps } from "./markdown-elements";
 // Note: Filenames for library sources are already in MLA format,
 // so we don't need separate metadata fields
 export interface Source {
-  id: string;  // Changed from number to string - format: ref-[a-z0-9]{7}
+  id: string; // Changed from number to string - format: ref-[a-z0-9]{7}
   type: "web" | "knowledge_base" | "methods_base" | "csrd_reports";
   title: string;
   url?: string;

@@ -42,7 +42,7 @@ export const RegularMessage: React.FC<RegularMessageProps> = ({
   // Renumber citations from unique backend IDs to sequential [1], [2], [3]
   const { renumberedSources, renumberedContent } = renumberCitations(
     contentString,
-    sources
+    sources,
   );
 
   return (
