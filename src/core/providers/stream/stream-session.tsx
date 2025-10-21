@@ -8,6 +8,7 @@ import {
 } from "@langchain/langgraph-sdk/react-ui";
 import { toast } from "sonner";
 import { useThreads } from "@/features/thread/providers/thread-provider";
+import { checkTokenExpiry } from "@/features/auth/utils/token-utils";
 import { StreamContext } from "./stream-context";
 import { useTypedStream, StreamSessionProps } from "./types";
 import { sleep, checkGraphStatus } from "./utils";
@@ -24,22 +25,45 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
   const { user, isLoading: isUserLoading } = useUser();
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [tokenError, setTokenError] = useState<Error | null>(null);
+  const [currentRunId, setCurrentRunId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user || isUserLoading) return;
 
-    const fetchToken = async () => {
+    const fetchToken = async (retryCount: number = 0) => {
       try {
         const response = await fetch("/api/auth/token");
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
+
+          // Retry once on 401 errors (token might have just expired)
+          if (response.status === 401 && retryCount < 1) {
+            console.log("Token fetch failed with 401, retrying...");
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            return fetchToken(retryCount + 1);
+          }
+
           throw new Error(
             errorData.error || `Token fetch failed: ${response.status}`,
           );
         }
 
         const data = await response.json();
+
+        // Verify token is not already expired or expiring very soon
+        const tokenStatus = checkTokenExpiry(data.token, 30); // 30 second buffer
+        if (tokenStatus.isExpired) {
+          console.warn("Received expired token from server");
+          throw new Error("Received expired token");
+        }
+
+        if (tokenStatus.isExpiringSoon) {
+          console.warn(
+            `Token expires soon (in ${tokenStatus.secondsUntilExpiry}s)`,
+          );
+        }
+
         setAccessToken(data.token);
         setTokenError(null);
       } catch (error) {
@@ -53,8 +77,10 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
 
     fetchToken();
 
-    // Refresh token every 14 minutes (before 15-min expiry from Auth0 config)
-    const intervalId = setInterval(fetchToken, 14 * 60 * 1000);
+    // Refresh token every 10 minutes (more aggressive to avoid expiration)
+    // Auth0 tokens typically expire after 15 minutes, so this provides a
+    // 5-minute safety buffer before expiration
+    const intervalId = setInterval(() => fetchToken(), 10 * 60 * 1000);
 
     return () => clearInterval(intervalId);
   }, [user, isUserLoading]);
@@ -75,6 +101,12 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
   const streamValue = useTypedStream({
     ...streamConfig,
     fetchStateHistory: true,
+    onMetadataEvent: (data) => {
+      // Capture run_id from metadata events for trace tracking
+      if (data.run_id) {
+        setCurrentRunId(data.run_id);
+      }
+    },
     onCustomEvent: (event, options) => {
       if (isUIMessage(event) || isRemoveUIMessage(event)) {
         options.mutate((prev) => {
@@ -159,10 +191,17 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
     };
   }, [apiUrl]);
 
+  // Extend stream context with currentRunId and threadId for trace tracking
+  const extendedStreamValue = {
+    ...streamValue,
+    currentRunId,
+    threadId,
+  };
+
   // Show loading state while fetching token
   if (isUserLoading || (!accessToken && !tokenError && user)) {
     return (
-      <StreamContext.Provider value={streamValue}>
+      <StreamContext.Provider value={extendedStreamValue}>
         <LoadingScreen />
       </StreamContext.Provider>
     );
@@ -171,7 +210,7 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
   // Show error if token fetch failed
   if (tokenError) {
     return (
-      <StreamContext.Provider value={streamValue}>
+      <StreamContext.Provider value={extendedStreamValue}>
         <LoadingScreen>
           <p className="text-destructive">
             Authentication error: {tokenError.message}
@@ -183,7 +222,7 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
   }
 
   return (
-    <StreamContext.Provider value={streamValue}>
+    <StreamContext.Provider value={extendedStreamValue}>
       {children}
     </StreamContext.Provider>
   );

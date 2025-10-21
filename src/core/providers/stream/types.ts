@@ -28,7 +28,10 @@ export const useTypedStream = useStream<
   }
 >;
 
-export type StreamContextType = ReturnType<typeof useTypedStream>;
+export type StreamContextType = ReturnType<typeof useTypedStream> & {
+  currentRunId: string | null;
+  threadId: string | null;
+};
 
 export interface StreamSessionProps {
   children: React.ReactNode;

@@ -1,5 +1,5 @@
 import React from "react";
-import { XIcon, SendHorizontal, RefreshCcw, Pencil } from "lucide-react";
+import { XIcon, SendHorizontal, RefreshCcw, Pencil, UserCircle } from "lucide-react";
 import { TooltipIconButton } from "../../../../tooltip-icon-button";
 import { ContentCopyable } from "../content-copyable";
 import { CommandBarProps } from "../../types";
@@ -44,6 +44,7 @@ interface MessageActionsProps {
   showEdit: boolean;
   handleRegenerate?: (() => void) | undefined;
   setIsEditing?: React.Dispatch<React.SetStateAction<boolean>> | undefined;
+  onExpertHelpClick?: (() => void) | undefined;
 }
 const MessageActions: React.FC<MessageActionsProps> = ({
   content,
@@ -52,6 +53,7 @@ const MessageActions: React.FC<MessageActionsProps> = ({
   showEdit,
   handleRegenerate,
   setIsEditing,
+  onExpertHelpClick,
 }) => {
   return (
     <div className="flex items-center gap-2">
@@ -67,6 +69,16 @@ const MessageActions: React.FC<MessageActionsProps> = ({
           onClick={handleRegenerate}
         >
           <RefreshCcw />
+        </TooltipIconButton>
+      )}
+      {isAiMessage && !!onExpertHelpClick && (
+        <TooltipIconButton
+          disabled={isLoading}
+          tooltip="Get expert help"
+          variant="ghost"
+          onClick={onExpertHelpClick}
+        >
+          <UserCircle />
         </TooltipIconButton>
       )}
       {showEdit && (
@@ -92,6 +104,7 @@ export const CommandBar: React.FC<CommandBarProps> = ({
   handleSubmitEdit,
   handleRegenerate,
   isLoading,
+  onExpertHelpClick,
 }) => {
   // Validation logic removed to avoid TypeScript strict optional property issues
 
@@ -122,6 +135,7 @@ export const CommandBar: React.FC<CommandBarProps> = ({
       showEdit={!!showEdit}
       handleRegenerate={handleRegenerate}
       setIsEditing={setIsEditing}
+      onExpertHelpClick={onExpertHelpClick}
     />
   );
 };

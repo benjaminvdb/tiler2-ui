@@ -19,4 +19,7 @@ export interface CommandBarProps {
   handleSubmitEdit?: () => void;
   handleRegenerate?: () => void;
   isLoading: boolean;
+  threadId?: string | null;
+  runId?: string | null;
+  onExpertHelpClick?: () => void;
 }
