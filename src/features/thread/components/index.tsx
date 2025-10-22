@@ -64,7 +64,6 @@ export const Thread = (): React.JSX.Element => {
 
   useThreadEffects({
     lastError,
-    prevMessageLength,
     setFirstTokenReceived,
     isRespondingToInterrupt,
     setIsRespondingToInterrupt,

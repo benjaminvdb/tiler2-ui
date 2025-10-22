@@ -29,6 +29,17 @@ export const MessageContent: React.FC<MessageContentProps> = ({
   if (isToolResult && hideToolCalls) {
     return null;
   }
+
+  // Don't render empty messages during streaming
+  // This prevents empty bubbles when agent is making tool calls
+  if (
+    !isToolResult &&
+    contentString.trim().length === 0 &&
+    !hasToolCalls &&
+    !hasAnthropicToolCalls
+  ) {
+    return null;
+  }
   return (
     <div className="group mr-auto flex items-start gap-2">
       <div className="flex flex-col gap-2">

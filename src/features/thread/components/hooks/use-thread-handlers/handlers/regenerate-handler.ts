@@ -13,6 +13,7 @@ export const createRegenerateHandler = (
     stream.submit(null, {
       checkpoint: parentCheckpoint || null,
       streamMode: ["values"],
+      streamSubgraphs: true,
     });
   };
 };

@@ -1,10 +1,10 @@
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { useStreamContext } from "@/core/providers/stream";
+import { getContentString } from "../utils";
 
 interface UseThreadEffectsProps {
   lastError: React.MutableRefObject<string | undefined>;
-  prevMessageLength: React.MutableRefObject<number>;
   setFirstTokenReceived: (value: boolean) => void;
   isRespondingToInterrupt: boolean;
   setIsRespondingToInterrupt: (value: boolean) => void;
@@ -13,7 +13,6 @@ interface UseThreadEffectsProps {
 
 export function useThreadEffects({
   lastError,
-  prevMessageLength,
   setFirstTokenReceived,
   isRespondingToInterrupt,
   setIsRespondingToInterrupt,
@@ -49,16 +48,16 @@ export function useThreadEffects({
 
   // First token received effect
   useEffect(() => {
-    if (
-      messages.length !== prevMessageLength.current &&
-      messages?.length &&
-      messages[messages.length - 1].type === "ai"
-    ) {
-      setFirstTokenReceived(true);
+    if (messages?.length && messages[messages.length - 1].type === "ai") {
+      // Only hide loading indicator if there's visible content
+      // This prevents premature hiding when agent makes tool calls with empty content
+      const lastMessage = messages[messages.length - 1];
+      const contentString = getContentString(lastMessage.content);
+      if (contentString.trim().length > 0) {
+        setFirstTokenReceived(true);
+      }
     }
-
-    prevMessageLength.current = messages.length;
-  }, [messages, setFirstTokenReceived, prevMessageLength]);
+  }, [messages, setFirstTokenReceived]);
 
   // Interrupt handling effect
   useEffect(() => {

@@ -72,6 +72,7 @@ export const createSubmitHandler = (
 
     const submitOptions: any = {
       streamMode: ["values"],
+      streamSubgraphs: true,
       optimisticValues: (prev: any) => ({
         ...prev,
         context,
