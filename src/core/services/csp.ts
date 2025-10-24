@@ -12,7 +12,6 @@ export function generateCSP(): string {
   // Determine the appropriate domains based on environment
   const isProduction = process.env.NODE_ENV === "production";
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
-  const langgraphUrl = process.env.LANGGRAPH_API_URL || "";
 
   // Extract domain from URLs for connect-src
   const getOrigin = (url: string) => {
@@ -45,14 +44,14 @@ export function generateCSP(): string {
     scriptSources.push("'unsafe-eval'");
   }
 
-  // Add production API domains
+  // Add production API domain if configured
   if (apiUrl) {
-    connectSources.push(getOrigin(apiUrl));
-  }
-  if (langgraphUrl) {
-    connectSources.push(getOrigin(langgraphUrl));
-    // Add WebSocket variant
-    connectSources.push(langgraphUrl.replace("https://", "wss://"));
+    const origin = getOrigin(apiUrl);
+    if (origin) {
+      connectSources.push(origin);
+      // Add WebSocket variant for LangGraph streaming
+      connectSources.push(origin.replace("https://", "wss://"));
+    }
   }
 
   // Add Sentry domains to connect-src

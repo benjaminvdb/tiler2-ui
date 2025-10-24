@@ -192,30 +192,27 @@ Once you're ready to go to production, you'll need to update how you connect, an
 
 To productionize the Agent Chat UI, you'll need to pick one of two ways to authenticate requests to your LangGraph server. Below, I'll outline the two options:
 
-### Quickstart - API Passthrough
+### Production Setup - Direct Connection with Auth0
 
-The quickest way to productionize the Agent Chat UI is to use the [API Passthrough](https://github.com/langchain-ai/langgraph-nextjs-api-passthrough) package. This package provides a simple way to proxy requests to your LangGraph server, and handle authentication for you.
+This application uses **direct connection** to your LangGraph server with **Auth0 authentication**. The client connects directly to your LangGraph backend, which handles authentication via Auth0 tokens.
 
-This repository already contains all of the code you need to start using this method. The only configuration you need to do is set the proper environment variables.
+The only configuration you need is to set the proper environment variables:
 
 ```bash
 NEXT_PUBLIC_ASSISTANT_ID="agent"
-# This should be the deployment URL of your LangGraph server
-LANGGRAPH_API_URL="https://my-agent.default.us.langgraph.app"
-# This should be the URL of your website + "/api". This is how you connect to the API proxy
-NEXT_PUBLIC_API_URL="https://my-website.com/api"
-# Your LangSmith API key which is injected into requests inside the API proxy
+# Point directly to your LangGraph server
+NEXT_PUBLIC_API_URL="https://my-agent.default.us.langgraph.app"
+# Optional: LangSmith API key for tracing/monitoring
 LANGSMITH_API_KEY="lsv2_..."
 ```
 
 Let's cover what each of these environment variables does:
 
-- `NEXT_PUBLIC_ASSISTANT_ID`: The ID of the assistant you want to use when fetching, and submitting runs via the chat interface. This still needs the `NEXT_PUBLIC_` prefix, since it's not a secret, and we use it on the client when submitting requests.
-- `LANGGRAPH_API_URL`: The URL of your LangGraph server. This should be the production deployment URL.
-- `NEXT_PUBLIC_API_URL`: The URL of your website + `/api`. This is how you connect to the API proxy. For the [Agent Chat demo](https://agentchat.vercel.app), this would be set as `https://agentchat.vercel.app/api`. You should set this to whatever your production URL is.
-- `LANGSMITH_API_KEY`: Your LangSmith API key to use when authenticating requests sent to LangGraph servers. Once again, do _not_ prefix this with `NEXT_PUBLIC_` since it's a secret, and is only used on the server when the API proxy injects it into the request to your deployed LangGraph server.
+- `NEXT_PUBLIC_ASSISTANT_ID`: The ID of the assistant you want to use when fetching and submitting runs via the chat interface. This needs the `NEXT_PUBLIC_` prefix since it's used on the client.
+- `NEXT_PUBLIC_API_URL`: The URL of your LangGraph server. For production, this should be your LangGraph deployment URL (e.g., `https://my-agent.default.us.langgraph.app`). For local development, use `http://localhost:2024`.
+- `LANGSMITH_API_KEY`: (Optional) Your LangSmith API key for tracing and monitoring. This is a server-side secret - do _not_ prefix it with `NEXT_PUBLIC_`.
 
-For in depth documentation, consult the [LangGraph Next.js API Passthrough](https://www.npmjs.com/package/langgraph-nextjs-api-passthrough) docs.
+**Note**: This application does NOT use the API passthrough pattern. It connects directly to your LangGraph server using Auth0 JWT tokens for authentication.
 
 ### Advanced Setup - Custom Authentication
 

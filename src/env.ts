@@ -27,8 +27,7 @@ export const env = createEnv({
     AUTH0_AUDIENCE: z.url().optional(),
     APP_BASE_URL: z.url(),
 
-    // LangGraph Server Configuration
-    LANGGRAPH_API_URL: z.string().optional(),
+    // LangSmith API Key
     LANGSMITH_API_KEY: z.string().optional(),
 
     // Sentry Configuration (Server-side only)
@@ -67,7 +66,6 @@ export const env = createEnv({
     AUTH0_CLIENT_SECRET: process.env.AUTH0_CLIENT_SECRET,
     AUTH0_AUDIENCE: process.env.AUTH0_AUDIENCE,
     APP_BASE_URL: process.env.APP_BASE_URL,
-    LANGGRAPH_API_URL: process.env.LANGGRAPH_API_URL,
     LANGSMITH_API_KEY: process.env.LANGSMITH_API_KEY,
     SENTRY_DSN: process.env.SENTRY_DSN,
     SENTRY_AUTH_TOKEN: process.env.SENTRY_AUTH_TOKEN,
