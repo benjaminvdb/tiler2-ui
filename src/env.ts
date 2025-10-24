@@ -31,10 +31,10 @@ export const env = createEnv({
     LANGSMITH_API_KEY: z.string().optional(),
 
     // Sentry Configuration (Server-side only)
-    SENTRY_DSN: z.string().url().optional(),
+    SENTRY_DSN: z.url().optional(),
     SENTRY_AUTH_TOKEN: z.string().optional(),
     SENTRY_ENVIRONMENT: z
-      .enum(["development", "staging", "production"])
+      .enum(["development", "test", "production"])
       .optional(),
 
     // Logging Configuration (Server-side only)
@@ -51,7 +51,7 @@ export const env = createEnv({
     NEXT_PUBLIC_ASSISTANT_ID: z.string().optional(),
 
     // Sentry Configuration (Optional client-side override)
-    NEXT_PUBLIC_SENTRY_DSN: z.string().url().optional(),
+    NEXT_PUBLIC_SENTRY_DSN: z.url().optional(),
   },
 
   /**
