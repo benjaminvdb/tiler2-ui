@@ -50,6 +50,9 @@ importers:
       '@sentry/nextjs':
         specifier: ^10.22.0
         version: 10.22.0(@opentelemetry/context-async-hooks@2.2.0(@opentelemetry/api@1.9.0))(@opentelemetry/core@2.2.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@2.2.0(@opentelemetry/api@1.9.0))(next@15.4.5(@babel/core@7.28.5)(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react@19.1.1)(webpack@5.102.1(esbuild@0.25.8))
+      '@sentry/webpack-plugin':
+        specifier: ^4.5.0
+        version: 4.5.0(webpack@5.102.1(esbuild@0.25.8))
       '@t3-oss/env-nextjs':
         specifier: ^0.13.8
         version: 0.13.8(typescript@5.9.2)(zod@4.0.14)
@@ -4954,7 +4957,7 @@ snapshots:
     dependencies:
       '@babel/compat-data': 7.28.5
       '@babel/helper-validator-option': 7.27.1
-      browserslist: 4.25.1
+      browserslist: 4.27.0
       lru-cache: 5.1.1
       semver: 6.3.1
 
