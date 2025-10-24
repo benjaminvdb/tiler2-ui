@@ -9,6 +9,7 @@ import { useQueryState } from "nuqs";
 import { useRouter } from "next/navigation";
 import { Toaster } from "@/shared";
 import { createNavigationService } from "@/core/services/navigation";
+import { StreamProvider } from "@/core/providers/stream";
 
 interface AppProvidersProps {
   children: React.ReactNode;
@@ -98,7 +99,9 @@ export function AppProviders({ children }: AppProvidersProps): React.ReactNode {
       <Toaster />
       <UIProvider value={uiContextValue}>
         <HotkeysProvider>
-          <ThreadProvider>{children}</ThreadProvider>
+          <ThreadProvider>
+            <StreamProvider>{children}</StreamProvider>
+          </ThreadProvider>
         </HotkeysProvider>
       </UIProvider>
     </>

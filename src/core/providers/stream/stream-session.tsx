@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useQueryState } from "nuqs";
 import { useUser } from "@auth0/nextjs-auth0";
 import {
@@ -8,6 +8,7 @@ import {
 } from "@langchain/langgraph-sdk/react-ui";
 import { toast } from "sonner";
 import { useThreads } from "@/features/thread/providers/thread-provider";
+import { calculateTokenTimings } from "@/features/auth/config/token-config";
 import { checkTokenExpiry } from "@/features/auth/utils/token-utils";
 import { StreamContext } from "./stream-context";
 import { useTypedStream, StreamSessionProps } from "./types";
@@ -24,66 +25,163 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
   const threadFetchControllerRef = useRef<AbortController | null>(null);
   const { user, isLoading: isUserLoading } = useUser();
   const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [tokenExpiresAt, setTokenExpiresAt] = useState<number | null>(null);
   const [tokenError, setTokenError] = useState<Error | null>(null);
   const [currentRunId, setCurrentRunId] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!user || isUserLoading) return;
+  // Refactored fetchToken as useCallback for reuse across multiple effects
+  const fetchToken = useCallback(async (retryCount: number = 0) => {
+    try {
+      const response = await fetch("/api/auth/token");
 
-    const fetchToken = async (retryCount: number = 0) => {
-      try {
-        const response = await fetch("/api/auth/token");
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
 
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-
-          // Retry once on 401 errors (token might have just expired)
-          if (response.status === 401 && retryCount < 1) {
-            console.log("Token fetch failed with 401, retrying...");
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-            return fetchToken(retryCount + 1);
-          }
-
-          throw new Error(
-            errorData.error || `Token fetch failed: ${response.status}`,
-          );
+        // Retry once on 401 errors (token might have just expired)
+        if (response.status === 401 && retryCount < 1) {
+          console.log("[Token] Fetch failed with 401, retrying...");
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          return fetchToken(retryCount + 1);
         }
 
-        const data = await response.json();
-
-        // Verify token is not already expired or expiring very soon
-        const tokenStatus = checkTokenExpiry(data.token, 30); // 30 second buffer
-        if (tokenStatus.isExpired) {
-          console.warn("Received expired token from server");
-          throw new Error("Received expired token");
-        }
-
-        if (tokenStatus.isExpiringSoon) {
-          console.warn(
-            `Token expires soon (in ${tokenStatus.secondsUntilExpiry}s)`,
-          );
-        }
-
-        setAccessToken(data.token);
-        setTokenError(null);
-      } catch (error) {
-        console.error("Failed to fetch access token:", error);
-        setTokenError(
-          error instanceof Error ? error : new Error(String(error)),
+        throw new Error(
+          errorData.error || `Token fetch failed: ${response.status}`,
         );
-        setAccessToken(null);
+      }
+
+      const data: { token: string; expiresAt: number } = await response.json();
+
+      // Calculate dynamic timing configuration from actual token expiration
+      const timings = calculateTokenTimings(data.expiresAt);
+
+      // Verify token is not already expired or expiring very soon
+      const tokenStatus = checkTokenExpiry(
+        data.token,
+        timings.minimalBufferSeconds,
+      );
+      if (tokenStatus.isExpired) {
+        console.warn("[Token] Received expired token from server");
+        throw new Error("Received expired token");
+      }
+
+      if (tokenStatus.isExpiringSoon) {
+        console.warn(
+          `[Token] Token expires soon (in ${tokenStatus.secondsUntilExpiry}s)`,
+        );
+      }
+
+      // Diagnostic: Decode and log token payload to debug email format issue
+      try {
+        const parts = data.token.split(".");
+        if (parts.length === 3) {
+          const payload = JSON.parse(
+            atob(parts[1].replace(/-/g, "+").replace(/_/g, "/")),
+          );
+          console.log("[Token Debug] Token payload:", {
+            email: payload.email,
+            emailType: typeof payload.email,
+            sub: payload.sub,
+            aud: payload.aud,
+            customEmail: payload[`${payload.aud}/email`],
+            allKeys: Object.keys(payload),
+          });
+        }
+      } catch (decodeError) {
+        console.error("[Token Debug] Failed to decode token:", decodeError);
+      }
+
+      setAccessToken(data.token);
+      setTokenExpiresAt(data.expiresAt);
+      setTokenError(null);
+    } catch (error) {
+      console.error("[Token] Failed to fetch access token:", error);
+      setTokenError(
+        error instanceof Error ? error : new Error(String(error)),
+      );
+      setAccessToken(null);
+    }
+  }, []);
+
+  // Initial token fetch (only on mount or when user changes)
+  useEffect(() => {
+    if (!user || isUserLoading || accessToken) return; // Don't fetch if already have token
+
+    fetchToken();
+  }, [user, isUserLoading, accessToken, fetchToken]);
+
+  // Set up periodic refresh based on token expiration
+  useEffect(() => {
+    if (!tokenExpiresAt) return;
+
+    const timings = calculateTokenTimings(tokenExpiresAt);
+
+    // Refresh token at 2/3 of remaining lifetime
+    const intervalId = setInterval(() => {
+      console.log(
+        `[Token] Periodic refresh triggered (every ${timings.refreshIntervalSeconds}s)`,
+      );
+      fetchToken();
+    }, timings.refreshIntervalMs);
+
+    return () => clearInterval(intervalId);
+  }, [tokenExpiresAt, fetchToken]);
+
+  // Detect when tab becomes visible after being hidden (primary solution)
+  useEffect(() => {
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === "visible" && accessToken && tokenExpiresAt) {
+        // Calculate current timing based on token expiration
+        const timings = calculateTokenTimings(tokenExpiresAt);
+
+        // Tab became visible - check if token needs refresh
+        const tokenStatus = checkTokenExpiry(
+          accessToken,
+          timings.expiryBufferSeconds,
+        );
+
+        if (tokenStatus.isExpired || tokenStatus.isExpiringSoon) {
+          console.log(
+            `[Token] Tab became visible with ${tokenStatus.isExpired ? "expired" : "expiring"} token ` +
+              `(${tokenStatus.secondsUntilExpiry}s remaining), refreshing...`,
+          );
+          await fetchToken();
+        } else {
+          console.log(
+            `[Token] Tab became visible, token still valid (${tokenStatus.secondsUntilExpiry}s remaining)`,
+          );
+        }
       }
     };
 
-    fetchToken();
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () =>
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [accessToken, tokenExpiresAt, fetchToken]);
 
-    // Refresh token every 10 minutes (more aggressive to avoid expiration)
-    // Auth0 tokens typically expire after 15 minutes, so this provides a
-    // 5-minute safety buffer before expiration
-    const intervalId = setInterval(() => fetchToken(), 10 * 60 * 1000);
+  // Detect when window gains focus (backup for browsers with inconsistent visibilitychange)
+  useEffect(() => {
+    const handleFocus = async () => {
+      if (accessToken && tokenExpiresAt) {
+        // Calculate current timing based on token expiration
+        const timings = calculateTokenTimings(tokenExpiresAt);
 
-    return () => clearInterval(intervalId);
-  }, [user, isUserLoading]);
+        const tokenStatus = checkTokenExpiry(
+          accessToken,
+          timings.expiryBufferSeconds,
+        );
+
+        if (tokenStatus.isExpired || tokenStatus.isExpiringSoon) {
+          console.log(
+            `[Token] Window focused with ${tokenStatus.isExpired ? "expired" : "expiring"} token, refreshing...`,
+          );
+          await fetchToken();
+        }
+      }
+    };
+
+    window.addEventListener("focus", handleFocus);
+    return () => window.removeEventListener("focus", handleFocus);
+  }, [accessToken, tokenExpiresAt, fetchToken]);
 
   const streamConfig = {
     apiUrl,
@@ -212,10 +310,21 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
     return (
       <StreamContext.Provider value={extendedStreamValue}>
         <LoadingScreen>
-          <p className="text-destructive">
-            Authentication error: {tokenError.message}
-          </p>
-          <p className="text-sm">Please refresh the page or log in again.</p>
+          <div className="flex flex-col items-center gap-4">
+            <p className="text-destructive">
+              Authentication error: {tokenError.message}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              This may occur after leaving the tab inactive for extended
+              periods.
+            </p>
+            <button
+              onClick={() => window.location.reload()}
+              className="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:bg-primary/90"
+            >
+              Refresh Page
+            </button>
+          </div>
         </LoadingScreen>
       </StreamContext.Provider>
     );

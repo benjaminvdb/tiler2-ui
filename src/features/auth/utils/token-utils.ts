@@ -2,6 +2,8 @@
  * JWT token utilities for checking expiration and decoding
  */
 
+import { DEFAULT_LATENCY_BUFFER_SECONDS } from "../config/token-config";
+
 interface JwtPayload {
   exp?: number;
   iat?: number;
@@ -32,12 +34,12 @@ export function decodeJwt(token: string): JwtPayload | null {
 /**
  * Check if a JWT token is expired or will expire soon
  * @param token - The JWT token to check
- * @param bufferSeconds - Time in seconds before expiry to consider token as "expiring soon" (default: 120 = 2 minutes)
+ * @param bufferSeconds - Time in seconds before expiry to consider token as "expiring soon" (default: 60s for latency mitigation)
  * @returns Object with expiry information
  */
 export function checkTokenExpiry(
   token: string,
-  bufferSeconds: number = 120,
+  bufferSeconds: number = DEFAULT_LATENCY_BUFFER_SECONDS,
 ): {
   isExpired: boolean;
   isExpiringSoon: boolean;

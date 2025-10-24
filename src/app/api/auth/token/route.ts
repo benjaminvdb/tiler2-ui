@@ -22,9 +22,10 @@ export async function GET() {
 
   try {
     // Get token from session - auto-refreshes if expired
-    const { token } = await auth0.getAccessToken();
+    // Returns { token, expiresAt, scope }
+    const { token, expiresAt } = await auth0.getAccessToken();
 
-    return NextResponse.json({ token });
+    return NextResponse.json({ token, expiresAt });
   } catch (error) {
     console.error("[Token API] Failed to get access token:", error);
 

@@ -17,6 +17,13 @@ export {
 } from "./services/auth0";
 export { AUTH0_CONFIG } from "./services/auth0-config";
 
+// Configuration
+export {
+  calculateTokenTimings,
+  DEFAULT_LATENCY_BUFFER_SECONDS,
+} from "./config/token-config";
+export type { TokenTimings } from "./config/token-config";
+
 // Utilities
 export {
   handleTokenError,
@@ -25,6 +32,11 @@ export {
   withSyncTokenErrorHandling,
 } from "./utils/token-error-handler";
 export type { TokenErrorContext } from "./utils/token-error-handler";
+export {
+  checkTokenExpiry,
+  decodeJwt,
+  getTokenInfo,
+} from "./utils/token-utils";
 
 // Types
 export type {

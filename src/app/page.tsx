@@ -2,7 +2,6 @@
 
 import React, { useEffect, useRef } from "react";
 import { Thread } from "@/features/thread/components";
-import { StreamProvider } from "@/core/providers/stream";
 import { ArtifactProvider } from "@/features/artifacts/components";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useStreamContext } from "@/core/providers/stream";
@@ -52,10 +51,8 @@ function ThreadWithWorkflowHandler(): React.ReactNode {
 
 export default function ThreadsPage(): React.ReactNode {
   return (
-    <StreamProvider>
-      <ArtifactProvider>
-        <ThreadWithWorkflowHandler />
-      </ArtifactProvider>
-    </StreamProvider>
+    <ArtifactProvider>
+      <ThreadWithWorkflowHandler />
+    </ArtifactProvider>
   );
 }

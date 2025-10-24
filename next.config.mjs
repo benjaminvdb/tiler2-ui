@@ -1,4 +1,11 @@
 import bundleAnalyzer from "@next/bundle-analyzer";
+import { fileURLToPath } from "node:url";
+import createJiti from "jiti";
+
+// Validate environment variables at build time
+// Using jiti to import TypeScript env.ts file
+const jiti = createJiti(fileURLToPath(import.meta.url));
+jiti("./src/env.ts");
 
 const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === "true",
