@@ -1,5 +1,10 @@
 import { toast } from "sonner";
 import { reportErrorBoundary } from "./error-reporting";
+import { getLogger } from "./logging";
+
+const logger = getLogger().child({
+  component: "error-display",
+});
 
 export type ErrorSeverity = "critical" | "error" | "warning" | "info";
 export type ErrorContext = "global" | "feature" | "component" | "async";
@@ -146,10 +151,12 @@ export const displayError = (
 
   // Log error for debugging
   if (process.env.NODE_ENV === "development") {
-    console.error(`[${severity.toUpperCase()}][${context}]:`, error);
-    if (componentStack) {
-      console.error("Component stack:", componentStack);
-    }
+    logger.error(error, {
+      operation: "display_error",
+      severity,
+      context,
+      ...(componentStack && { componentStack }),
+    });
   }
 
   return {

@@ -2,6 +2,11 @@ import { toast } from "sonner";
 import { HumanResponse } from "@langchain/langgraph/prebuilt";
 import { HumanResponseWithEdits, SubmitType } from "../../../types";
 import { UseSubmitHandlerProps } from "./types";
+import { getLogger } from "@/core/services/logging";
+
+const logger = getLogger().child({
+  component: "use-submit-handler-utils",
+});
 
 // Validation utilities
 export function validateHumanResponse(
@@ -65,8 +70,10 @@ export function transformHumanResponse(
 }
 
 // Error handling utilities
-export function handleSubmissionError(error: any): void {
-  console.error("Submission error:", error);
+export function handleSubmissionError(error: unknown): void {
+  logger.error(error instanceof Error ? error : new Error(String(error)), {
+    operation: "submit_response",
+  });
   toast.error("Error", {
     description: "Failed to submit response. Please try again.",
     duration: 5000,

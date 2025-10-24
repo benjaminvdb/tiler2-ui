@@ -32,11 +32,7 @@ export {
   withSyncTokenErrorHandling,
 } from "./utils/token-error-handler";
 export type { TokenErrorContext } from "./utils/token-error-handler";
-export {
-  checkTokenExpiry,
-  decodeJwt,
-  getTokenInfo,
-} from "./utils/token-utils";
+export { checkTokenExpiry, decodeJwt, getTokenInfo } from "./utils/token-utils";
 
 // Types
 export type {

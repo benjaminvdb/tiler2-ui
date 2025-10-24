@@ -3,6 +3,11 @@
  */
 
 import { DEFAULT_LATENCY_BUFFER_SECONDS } from "../config/token-config";
+import { getLogger } from "@/core/services/logging";
+
+const logger = getLogger().child({
+  component: "token-utils",
+});
 
 interface JwtPayload {
   exp?: number;
@@ -26,7 +31,9 @@ export function decodeJwt(token: string): JwtPayload | null {
     const decoded = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
     return JSON.parse(decoded) as JwtPayload;
   } catch (error) {
-    console.error("Failed to decode JWT:", error);
+    logger.error(error instanceof Error ? error : new Error(String(error)), {
+      operation: "decode_jwt",
+    });
     return null;
   }
 }

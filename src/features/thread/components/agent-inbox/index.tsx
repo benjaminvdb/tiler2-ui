@@ -3,6 +3,7 @@ import { ThreadActionsView } from "./components/thread-actions-view";
 import { useState } from "react";
 import { HumanInterrupt } from "@langchain/langgraph/prebuilt";
 import { useStreamContext } from "@/core/providers/stream";
+import { useLogger } from "@/core/services/logging";
 
 interface ThreadViewProps {
   interrupt: HumanInterrupt | HumanInterrupt[];
@@ -10,6 +11,7 @@ interface ThreadViewProps {
 export const ThreadView: React.FC<ThreadViewProps> = ({ interrupt }) => {
   const interruptObj = Array.isArray(interrupt) ? interrupt[0] : interrupt;
   const thread = useStreamContext();
+  const logger = useLogger();
   const [showDescription, setShowDescription] = useState(false);
   const [showState, setShowState] = useState(false);
   const showSidePanel = showDescription || showState;
@@ -19,7 +21,10 @@ export const ThreadView: React.FC<ThreadViewProps> = ({ interrupt }) => {
     showDescription: boolean,
   ) => {
     if (showState && showDescription) {
-      console.error("Cannot show both state and description");
+      logger.error("Invalid state: cannot show both state and description", {
+        component: "ThreadView",
+        operation: "show_side_panel",
+      });
       return;
     }
     if (showState) {

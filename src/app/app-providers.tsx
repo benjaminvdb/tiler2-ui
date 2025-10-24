@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { Toaster } from "@/shared";
 import { createNavigationService } from "@/core/services/navigation";
 import { StreamProvider } from "@/core/providers/stream";
+import { LoggerProvider } from "@/core/services/logging";
 import * as Sentry from "@sentry/nextjs";
 
 interface AppProvidersProps {
@@ -112,13 +113,15 @@ export function AppProviders({ children }: AppProvidersProps): React.ReactNode {
   return (
     <>
       <Toaster />
-      <UIProvider value={uiContextValue}>
-        <HotkeysProvider>
-          <ThreadProvider>
-            <StreamProvider>{children}</StreamProvider>
-          </ThreadProvider>
-        </HotkeysProvider>
-      </UIProvider>
+      <LoggerProvider>
+        <UIProvider value={uiContextValue}>
+          <HotkeysProvider>
+            <ThreadProvider>
+              <StreamProvider>{children}</StreamProvider>
+            </ThreadProvider>
+          </HotkeysProvider>
+        </UIProvider>
+      </LoggerProvider>
     </>
   );
 }

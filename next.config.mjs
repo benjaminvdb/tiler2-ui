@@ -14,6 +14,8 @@ const withBundleAnalyzer = bundleAnalyzer({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Prevent Next.js from bundling Pino (required for proper operation)
+  serverExternalPackages: ["pino", "pino-pretty"],
   experimental: {
     serverActions: {
       bodySizeLimit: "10mb",

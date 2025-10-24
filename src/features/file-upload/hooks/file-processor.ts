@@ -4,6 +4,11 @@ import { fileToContentBlock } from "@/features/file-upload/services/multimodal-u
 import { validateFiles } from "./validation";
 import { ERROR_MESSAGES } from "./constants";
 import { debounce } from "./debounce";
+import { getLogger } from "@/core/services/logging";
+
+const logger = getLogger().child({
+  component: "file-processor",
+});
 
 export interface FileProcessingOptions {
   showDuplicateError?: boolean;
@@ -45,7 +50,10 @@ async function processFilesInternal(
       const newBlocks = await Promise.all(uniqueFiles.map(fileToContentBlock));
       setContentBlocks((prev) => [...prev, ...newBlocks]);
     } catch (error) {
-      console.error("Error processing files:", error);
+      logger.error(error instanceof Error ? error : new Error(String(error)), {
+        operation: "process_files",
+        fileCount: uniqueFiles.length,
+      });
       toast.error("Failed to process one or more files. Please try again.");
     }
   }

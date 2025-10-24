@@ -56,9 +56,10 @@ export function calculateTokenTimings(expiresAt: number): TokenTimings {
 
   // Use Auth0's recommended buffer for short-lived tokens (< 5 minutes)
   // For longer tokens, use proportional buffer (1/5 of lifetime)
-  const expiryBufferSeconds = lifetimeSeconds < 300
-    ? Math.min(DEFAULT_LATENCY_BUFFER_SECONDS, lifetimeSeconds * 0.5)
-    : Math.floor(lifetimeSeconds / 5);
+  const expiryBufferSeconds =
+    lifetimeSeconds < 300
+      ? Math.min(DEFAULT_LATENCY_BUFFER_SECONDS, lifetimeSeconds * 0.5)
+      : Math.floor(lifetimeSeconds / 5);
 
   return {
     lifetimeSeconds,

@@ -18,7 +18,9 @@ export const env = createEnv({
    */
   server: {
     // Auth0 Configuration
-    AUTH0_SECRET: z.string().min(32, "AUTH0_SECRET must be at least 32 characters"),
+    AUTH0_SECRET: z
+      .string()
+      .min(32, "AUTH0_SECRET must be at least 32 characters"),
     AUTH0_DOMAIN: z.string().min(1),
     AUTH0_CLIENT_ID: z.string().min(1),
     AUTH0_CLIENT_SECRET: z.string().min(1),
@@ -32,7 +34,13 @@ export const env = createEnv({
     // Sentry Configuration (Server-side only)
     SENTRY_DSN: z.string().url().optional(),
     SENTRY_AUTH_TOKEN: z.string().optional(),
-    SENTRY_ENVIRONMENT: z.enum(["development", "staging", "production"]).optional(),
+    SENTRY_ENVIRONMENT: z
+      .enum(["development", "staging", "production"])
+      .optional(),
+
+    // Logging Configuration (Server-side only)
+    LOG_LEVEL: z.enum(["debug", "info", "warn", "error", "fatal"]).optional(),
+    LOG_PRETTY: z.string().optional(),
   },
 
   /**
@@ -64,6 +72,8 @@ export const env = createEnv({
     SENTRY_DSN: process.env.SENTRY_DSN,
     SENTRY_AUTH_TOKEN: process.env.SENTRY_AUTH_TOKEN,
     SENTRY_ENVIRONMENT: process.env.SENTRY_ENVIRONMENT,
+    LOG_LEVEL: process.env.LOG_LEVEL,
+    LOG_PRETTY: process.env.LOG_PRETTY,
 
     // Client
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,

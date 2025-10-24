@@ -2,6 +2,11 @@
  * Client-side Auth0 utilities for graceful degradation
  */
 import React from "react";
+import { getLogger } from "@/core/services/logging";
+
+const logger = getLogger().child({
+  component: "auth0-client",
+});
 
 /**
  * Check if Auth0 is configured in the client environment
@@ -25,14 +30,18 @@ export function isAuth0ConfiguredClient(): boolean {
  */
 export function warnAuth0NotConfigured(): void {
   if (process.env.NODE_ENV === "development") {
-    console.warn(
-      "🔐 Auth0 not configured. The app will work without authentication in development mode.\n" +
-        "To enable authentication, set the following environment variables:\n" +
-        "- AUTH0_DOMAIN\n" +
-        "- AUTH0_CLIENT_ID\n" +
-        "- AUTH0_CLIENT_SECRET\n" +
-        "- AUTH0_SECRET\n" +
-        "- APP_BASE_URL",
+    logger.warn(
+      "Auth0 not configured - running in development mode without authentication",
+      {
+        operation: "auth0_config_check",
+        requiredVars: [
+          "AUTH0_DOMAIN",
+          "AUTH0_CLIENT_ID",
+          "AUTH0_CLIENT_SECRET",
+          "AUTH0_SECRET",
+          "APP_BASE_URL",
+        ],
+      },
     );
   }
 }

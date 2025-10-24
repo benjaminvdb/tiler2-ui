@@ -1,5 +1,11 @@
 import { NextResponse } from "next/server";
 import { getAuth0 } from "@/features/auth/services/auth0";
+import { getLogger } from "@/core/services/logging";
+
+const logger = getLogger().child({
+  component: "token-api",
+  operation: "get_access_token",
+});
 
 /**
  * Server-side endpoint to securely retrieve access token
@@ -27,7 +33,9 @@ export async function GET() {
 
     return NextResponse.json({ token, expiresAt });
   } catch (error) {
-    console.error("[Token API] Failed to get access token:", error);
+    logger.error(error instanceof Error ? error : new Error(String(error)), {
+      errorName: error instanceof Error ? error.name : "unknown",
+    });
 
     // Check if it's an Auth0-specific error
     if (error instanceof Error && error.name === "AccessTokenError") {

@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, MutableRefObject } from "react";
 import { HumanInterrupt } from "@langchain/langgraph/prebuilt";
 import { HumanResponseWithEdits, SubmitType } from "../../types";
 import { createDefaultHumanResponse } from "../../utils";
+import { useLogger } from "@/core/services/logging";
 
 interface UseInterruptStateReturn {
   humanResponse: HumanResponseWithEdits[];
@@ -43,6 +44,8 @@ export function useInterruptState(
   const [acceptAllowed, setAcceptAllowed] = useState(false);
   const initialHumanInterruptEditValue = useRef<Record<string, string>>({});
 
+  const logger = useLogger();
+
   useEffect(() => {
     try {
       const { responses, defaultSubmitType, hasAccept } =
@@ -51,9 +54,12 @@ export function useInterruptState(
       setHumanResponse(responses);
       setAcceptAllowed(hasAccept);
     } catch (e) {
-      console.error("Error formatting and setting human response state", e);
+      logger.error(e instanceof Error ? e : new Error(String(e)), {
+        operation: "format_human_response_state",
+        component: "use-interrupt-state",
+      });
     }
-  }, [interrupt]);
+  }, [interrupt, logger]);
 
   const supportsMultipleMethods =
     humanResponse.filter(

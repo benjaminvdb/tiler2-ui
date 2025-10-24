@@ -1,5 +1,10 @@
 import { HumanInterrupt } from "@langchain/langgraph/prebuilt";
 import { HumanResponseWithEdits, SubmitType } from "../types";
+import { getLogger } from "@/core/services/logging";
+
+const logger = getLogger().child({
+  component: "human-response-factory",
+});
 
 // Types
 export interface HumanResponseFactoryResult {
@@ -46,14 +51,12 @@ function validateAndUpdateEditValue(
     key in initialHumanInterruptEditValue.current &&
     initialHumanInterruptEditValue.current[key] !== stringValue
   ) {
-    console.error(
-      "KEY AND VALUE FOUND IN initialHumanInterruptEditValue.current THAT DOES NOT MATCH THE ACTION REQUEST",
-      {
-        key: key,
-        value: stringValue,
-        expectedValue: initialHumanInterruptEditValue.current[key],
-      },
-    );
+    logger.error("Mismatch in initialHumanInterruptEditValue", {
+      operation: "extract_human_responses",
+      key,
+      value: stringValue,
+      expectedValue: initialHumanInterruptEditValue.current[key],
+    });
   }
 }
 

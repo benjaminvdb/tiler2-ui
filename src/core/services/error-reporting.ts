@@ -150,8 +150,7 @@ const sendToSentry = (structuredError: StructuredError): void => {
       structuredError;
 
     // Use the original error if available, otherwise create a new one
-    const errorToSend =
-      originalError || new Error(message || "Unknown error");
+    const errorToSend = originalError || new Error(message || "Unknown error");
 
     // Capture in Sentry with full context
     Sentry.captureException(errorToSend, {

@@ -1,6 +1,11 @@
 import { Auth0Client } from "@auth0/nextjs-auth0/server";
 import type { NextRequest } from "next/server";
 import { AUTH0_CONFIG } from "./auth0-config";
+import { getLogger } from "@/core/services/logging";
+
+const logger = getLogger().child({
+  component: "auth0",
+});
 
 // Auth0 environment variables (no validation at module level)
 const auth0EnvVars = {
@@ -72,7 +77,10 @@ export function getAuth0Client(): Auth0Client | null {
   if (!validation.isValid) {
     // In development, log the errors for easier debugging
     if (process.env.NODE_ENV === "development") {
-      console.warn("Auth0 configuration invalid:", validation.errors);
+      logger.warn("Auth0 configuration invalid", {
+        operation: "auth0_config_validation",
+        errors: validation.errors,
+      });
     }
     return null;
   }
@@ -115,7 +123,10 @@ export async function auth0Middleware(
   if (!client) {
     // Auth0 not configured - allow request to proceed without auth
     if (process.env.NODE_ENV === "development") {
-      console.warn("Auth0 not configured, skipping authentication");
+      logger.warn("Auth0 not configured", {
+        operation: "auth0_middleware",
+        action: "skipping_authentication",
+      });
     }
     return null;
   }
@@ -124,7 +135,9 @@ export async function auth0Middleware(
     return await client.middleware(request);
   } catch (error) {
     // Log error but don't crash the app
-    console.error("Auth0 middleware error:", error);
+    logger.error(error instanceof Error ? error : new Error(String(error)), {
+      operation: "auth0_middleware",
+    });
     return null;
   }
 }
@@ -142,7 +155,9 @@ export async function getAuth0Session(request: NextRequest) {
   try {
     return await client.getSession(request);
   } catch (error) {
-    console.error("Error getting Auth0 session:", error);
+    logger.error(error instanceof Error ? error : new Error(String(error)), {
+      operation: "auth0_get_session",
+    });
     return null;
   }
 }

@@ -71,7 +71,7 @@ export function useSubmitHandler({
         if (!errorOccurred) {
           setStreamFinished(true);
         }
-      } catch (e: any) {
+      } catch (e: unknown) {
         handleSubmissionError(e);
         errorOccurred = true;
         handleStateError(context);

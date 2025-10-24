@@ -3,6 +3,7 @@ import { END } from "@langchain/langgraph/web";
 import { useStreamContext } from "@/core/providers/stream";
 import { HumanResponseWithEdits } from "../../types";
 import { useResponseProcessing } from "./use-response-processing";
+import { useLogger } from "@/core/services/logging";
 
 interface UseActionHandlersProps {
   humanResponse: HumanResponseWithEdits[];
@@ -19,6 +20,7 @@ export function useActionHandlers({
 }: UseActionHandlersProps) {
   const thread = useStreamContext();
   const { resumeRun } = useResponseProcessing();
+  const logger = useLogger();
 
   const handleIgnore = async (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
@@ -68,7 +70,10 @@ export function useActionHandlers({
         duration: 3000,
       });
     } catch (e) {
-      console.error("Error marking thread as resolved", e);
+      logger.error(e instanceof Error ? e : new Error(String(e)), {
+        operation: "mark_thread_resolved",
+        component: "use-action-handlers",
+      });
       toast.error("Error", {
         description: "Failed to mark thread as resolved.",
         richColors: true,
