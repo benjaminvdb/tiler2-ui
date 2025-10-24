@@ -55,6 +55,9 @@ export function generateCSP(): string {
     connectSources.push(langgraphUrl.replace("https://", "wss://"));
   }
 
+  // Add Sentry domains to connect-src
+  connectSources.push("*.ingest.sentry.io", "*.sentry.io");
+
   // Build the CSP header with fallbacks for Next.js compatibility
   const cspDirectives = [
     `default-src 'self'`,
@@ -67,6 +70,10 @@ export function generateCSP(): string {
     `img-src 'self' data: blob: *.auth0.com https://s.gravatar.com https://cdn.auth0.com https://i2.wp.com`,
     `connect-src ${connectSources.join(" ")}`,
     `frame-src 'self' *.auth0.com https://vercel.live`,
+    // Allow workers for Session Replay (Sentry)
+    `worker-src 'self' blob:`,
+    // Safari <= 15.4 fallback for worker-src
+    `child-src 'self' blob:`,
     `object-src 'none'`,
     `base-uri 'self'`,
     `form-action 'self'`,
@@ -89,6 +96,6 @@ export const CSP_CONFIG = {
   },
   // Optional domains for monitoring services
   OPTIONAL_DOMAINS: {
-    monitoring: ["*.sentry.io", "*.datadoghq.com"],
+    monitoring: ["*.sentry.io", "*.ingest.sentry.io", "*.datadoghq.com"],
   },
 } as const;

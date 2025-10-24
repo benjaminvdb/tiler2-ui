@@ -10,6 +10,7 @@ import { GlobalErrorBoundary } from "@/shared/components/error-boundary/global-e
 import { AsyncErrorBoundary } from "@/shared/components/error-boundary/async-error-boundary";
 import { AppLayout } from "./app-layout";
 import { getAuth0 } from "@/features/auth/services/auth0";
+import { SentryUserContext } from "@/core/providers/sentry-user-context";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -40,6 +41,7 @@ export default async function RootLayout({
         <GlobalErrorBoundary>
           <AsyncErrorBoundary>
             <Auth0Provider {...auth0ProviderProps}>
+              <SentryUserContext user={session?.user || null} />
               <NuqsAdapter>
                 <AppLayout>{children}</AppLayout>
               </NuqsAdapter>

@@ -28,6 +28,11 @@ export const env = createEnv({
     // LangGraph Server Configuration
     LANGGRAPH_API_URL: z.string().optional(),
     LANGSMITH_API_KEY: z.string().optional(),
+
+    // Sentry Configuration (Server-side only)
+    SENTRY_DSN: z.string().url().optional(),
+    SENTRY_AUTH_TOKEN: z.string().optional(),
+    SENTRY_ENVIRONMENT: z.enum(["development", "staging", "production"]).optional(),
   },
 
   /**
@@ -37,6 +42,9 @@ export const env = createEnv({
   client: {
     NEXT_PUBLIC_API_URL: z.string().optional(),
     NEXT_PUBLIC_ASSISTANT_ID: z.string().optional(),
+
+    // Sentry Configuration (Optional client-side override)
+    NEXT_PUBLIC_SENTRY_DSN: z.string().url().optional(),
   },
 
   /**
@@ -53,10 +61,14 @@ export const env = createEnv({
     APP_BASE_URL: process.env.APP_BASE_URL,
     LANGGRAPH_API_URL: process.env.LANGGRAPH_API_URL,
     LANGSMITH_API_KEY: process.env.LANGSMITH_API_KEY,
+    SENTRY_DSN: process.env.SENTRY_DSN,
+    SENTRY_AUTH_TOKEN: process.env.SENTRY_AUTH_TOKEN,
+    SENTRY_ENVIRONMENT: process.env.SENTRY_ENVIRONMENT,
 
     // Client
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
     NEXT_PUBLIC_ASSISTANT_ID: process.env.NEXT_PUBLIC_ASSISTANT_ID,
+    NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
   },
 
   /**

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, ReactNode } from "react";
 import { displayAsyncError } from "@/core/services/error-display";
+import * as Sentry from "@sentry/nextjs";
 
 interface AsyncErrorBoundaryProps {
   children: ReactNode;
@@ -28,6 +29,22 @@ export const AsyncErrorBoundary: React.FC<AsyncErrorBoundaryProps> = ({
           : new Error(String(event.reason));
 
       setError(error);
+
+      // Send error to Sentry with context
+      Sentry.captureException(error, {
+        contexts: {
+          async: {
+            type: "unhandled_rejection",
+            reason: String(event.reason),
+          },
+        },
+        tags: {
+          errorBoundary: "AsyncErrorBoundary",
+          category: "async",
+          severity: "high",
+        },
+        level: "error",
+      });
 
       // Use centralized error display service
       displayAsyncError(

@@ -14,6 +14,7 @@ import { StreamContext } from "./stream-context";
 import { useTypedStream, StreamSessionProps } from "./types";
 import { sleep, checkGraphStatus } from "./utils";
 import { LoadingScreen } from "@/shared/components/loading-spinner";
+import * as Sentry from "@sentry/nextjs";
 
 export const StreamSession: React.FC<StreamSessionProps> = ({
   children,
@@ -28,6 +29,17 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
   const [tokenExpiresAt, setTokenExpiresAt] = useState<number | null>(null);
   const [tokenError, setTokenError] = useState<Error | null>(null);
   const [currentRunId, setCurrentRunId] = useState<string | null>(null);
+
+  // Set Sentry context for assistant and API URL
+  useEffect(() => {
+    if (assistantId) {
+      Sentry.setContext("assistant", {
+        id: assistantId,
+        apiUrl: apiUrl,
+      });
+      Sentry.setTag("assistant_id", assistantId);
+    }
+  }, [assistantId, apiUrl]);
 
   // Refactored fetchToken as useCallback for reuse across multiple effects
   const fetchToken = useCallback(async (retryCount: number = 0) => {

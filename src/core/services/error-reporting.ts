@@ -1,9 +1,10 @@
 /**
  * Comprehensive error reporting and logging system
  * Handles development logging, production monitoring, and user feedback
+ * Integrates with Sentry for production error monitoring
  */
 
-// Remove unused import of z from zod
+import * as Sentry from "@sentry/nextjs";
 
 // Error severity levels
 export type ErrorSeverity = "low" | "medium" | "high" | "critical";
@@ -124,7 +125,85 @@ const formatErrorForConsole = (structuredError: StructuredError): string => {
   ].join("\n");
 };
 
-// Send error to remote monitoring service
+// Map error severity to Sentry level
+const mapSeverityToSentryLevel = (
+  severity: ErrorSeverity,
+): Sentry.SeverityLevel => {
+  switch (severity) {
+    case "critical":
+      return "fatal";
+    case "high":
+      return "error";
+    case "medium":
+      return "warning";
+    case "low":
+      return "info";
+    default:
+      return "error";
+  }
+};
+
+// Send error to Sentry
+const sendToSentry = (structuredError: StructuredError): void => {
+  try {
+    const { originalError, message, severity, category, context } =
+      structuredError;
+
+    // Use the original error if available, otherwise create a new one
+    const errorToSend =
+      originalError || new Error(message || "Unknown error");
+
+    // Capture in Sentry with full context
+    Sentry.captureException(errorToSend, {
+      level: mapSeverityToSentryLevel(severity),
+      tags: {
+        category,
+        severity,
+        errorId: structuredError.id,
+        ...(context.operation && { operation: context.operation }),
+        ...(context.component && { component: context.component }),
+      },
+      contexts: {
+        error: {
+          id: structuredError.id,
+          timestamp: structuredError.timestamp,
+          environment: structuredError.environment,
+        },
+        ...(context.threadId && {
+          thread: {
+            id: context.threadId,
+          },
+        }),
+        ...(context.userId && {
+          user: {
+            id: context.userId,
+          },
+        }),
+      },
+      extra: {
+        ...context.additionalData,
+        url: context.url,
+        userAgent: context.userAgent,
+      },
+    });
+
+    // Add breadcrumb for the error
+    Sentry.addBreadcrumb({
+      category,
+      message: message || "Error occurred",
+      level: mapSeverityToSentryLevel(severity),
+      data: {
+        errorId: structuredError.id,
+        ...context,
+      },
+    });
+  } catch (error) {
+    // Silently fail Sentry reporting to avoid recursive errors
+    console.warn("Failed to send error to Sentry:", error);
+  }
+};
+
+// Send error to remote monitoring service (legacy support)
 const sendToRemoteService = async (
   structuredError: StructuredError,
 ): Promise<void> => {
@@ -260,7 +339,12 @@ export const reportError = (
   // User notification
   showUserNotification(structuredError);
 
-  // Remote logging (fire and forget)
+  // Send to Sentry (client-side only)
+  if (typeof window !== "undefined") {
+    sendToSentry(structuredError);
+  }
+
+  // Remote logging (legacy, fire and forget)
   if (config.enableRemoteLogging) {
     sendToRemoteService(structuredError).catch(() => {
       // Silently fail remote logging to avoid recursive errors
@@ -339,6 +423,20 @@ export const trackPerformance = (
 ): void => {
   if (!config.enablePerformanceTracking) {
     return;
+  }
+
+  // Send performance metrics to Sentry
+  if (typeof window !== "undefined") {
+    Sentry.addBreadcrumb({
+      category: "performance",
+      message: `${operation} completed`,
+      level: duration > 5000 ? "warning" : "info",
+      data: {
+        operation,
+        duration,
+        ...context,
+      },
+    });
   }
 
   if (duration > 5000) {

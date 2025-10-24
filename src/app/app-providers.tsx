@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { Toaster } from "@/shared";
 import { createNavigationService } from "@/core/services/navigation";
 import { StreamProvider } from "@/core/providers/stream";
+import * as Sentry from "@sentry/nextjs";
 
 interface AppProvidersProps {
   children: React.ReactNode;
@@ -28,11 +29,25 @@ export function AppProviders({ children }: AppProvidersProps): React.ReactNode {
     },
   );
 
-  const [_threadId, setThreadId] = useQueryState("threadId", {
+  const [threadId, setThreadId] = useQueryState("threadId", {
     defaultValue: null,
     parse: (value) => (value ? value : null),
     serialize: (value) => value || "",
   });
+
+  // Set Sentry context when threadId changes
+  useEffect(() => {
+    if (threadId) {
+      Sentry.setContext("thread", {
+        id: threadId,
+      });
+      Sentry.setTag("thread_id", threadId);
+    } else {
+      // Clear thread context when no thread is active
+      Sentry.setContext("thread", null);
+      Sentry.setTag("thread_id", undefined);
+    }
+  }, [threadId]);
 
   // Side panel width state with localStorage persistence
   const [sidePanelWidth, setSidePanelWidth] = useState(350);

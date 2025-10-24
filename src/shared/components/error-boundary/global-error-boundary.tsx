@@ -2,6 +2,7 @@
 
 import React, { Component, ReactNode } from "react";
 import { displayCriticalError } from "@/core/services/error-display";
+import * as Sentry from "@sentry/nextjs";
 
 interface Props {
   children: ReactNode;
@@ -39,6 +40,21 @@ class GlobalErrorBoundary extends Component<Props, State> {
       window.location.href = "/api/auth/login";
       return;
     }
+
+    // Send error to Sentry with context
+    Sentry.captureException(error, {
+      contexts: {
+        react: {
+          componentStack: errorInfo.componentStack,
+        },
+      },
+      tags: {
+        errorBoundary: "GlobalErrorBoundary",
+        category: "ui",
+        severity: "critical",
+      },
+      level: "error",
+    });
 
     displayCriticalError(error, errorInfo.componentStack || undefined, [
       { label: "Retry", onClick: () => this.handleRetry() },
