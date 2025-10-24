@@ -50,6 +50,15 @@ export class ClientLogger implements ILogger {
     context?: LogContext,
   ): void {
     const sanitized = this.sanitizeContext(context);
+
+    // In development, only log to console (skip Sentry)
+    if (isDevelopment) {
+      const consoleMethod = level === "fatal" ? "error" : level;
+      console[consoleMethod](`[${level.toUpperCase()}]`, msg, sanitized);
+      return;
+    }
+
+    // Production: send to Sentry
     const sentryLevel = mapToSentryLevel(level);
 
     // Extract tags for better filtering in Sentry
@@ -75,12 +84,6 @@ export class ClientLogger implements ILogger {
           log: sanitized,
         },
       });
-    }
-
-    // Also log to console in development for immediate feedback
-    if (isDevelopment) {
-      const consoleMethod = level === "fatal" ? "error" : level;
-      console[consoleMethod](`[${level.toUpperCase()}]`, msg, sanitized);
     }
   }
 
