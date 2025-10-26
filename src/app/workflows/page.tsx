@@ -1,11 +1,20 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { PageContainer } from "@/shared/components/layout";
+import React, { useEffect, useState, useMemo, useRef } from "react";
+import { motion } from "framer-motion";
 import { useUIContext } from "@/features/chat/providers/ui-provider";
 import { getClientConfig } from "@/core/config/client";
 import { LoadingScreen } from "@/shared/components/loading-spinner";
+import { Button } from "@/shared/components/ui/button";
 import * as LucideIcons from "lucide-react";
+
+interface CategoryResponse {
+  id: number;
+  name: string;
+  color: string;
+  icon_name: string;
+  order_index: number;
+}
 
 interface WorkflowConfig {
   id: number;
@@ -15,6 +24,7 @@ interface WorkflowConfig {
   icon: string;
   icon_color: string;
   order_index: number;
+  category: CategoryResponse;
 }
 
 // Dynamic Lucide icon mapping
@@ -28,19 +38,53 @@ const getWorkflowIcon = (iconName: string): React.ReactNode => {
   };
 
   const iconComponentName = toPascalCase(iconName);
-  const IconComponent = (LucideIcons as any)[iconComponentName] as
-    | React.ComponentType<{ className?: string }>
-    | undefined;
+  const IconComponent = (
+    LucideIcons as unknown as Record<
+      string,
+      React.ComponentType<{ className?: string }>
+    >
+  )[iconComponentName];
 
   if (IconComponent) {
-    return <IconComponent className="h-6 w-6" />;
+    return <IconComponent className="h-5 w-5" />;
   }
 
   // Fallback to HelpCircle if icon not found
-  return <LucideIcons.HelpCircle className="h-6 w-6" />;
+  return <LucideIcons.HelpCircle className="h-5 w-5" />;
+};
+
+// Map category names to reference design colors
+const getCategoryColorByName = (categoryName: string): string => {
+  const colorMap: Record<string, string> = {
+    Onboarding: "#767C91", // slate-gray
+    Strategy: "#82889f", // cool-gray
+    "Policies & Governance": "#7ca2b7", // air-superiority-blue
+    "Impacts & Risk Assessment": "#72a6a6", // verdigris
+    Interventions: "#a6c887", // olivine
+    "Standards & Reporting": "#e39c5a", // sandy-brown
+    "Stakeholder Engagement": "#ac876c", // beaver
+    "Knowledge & Guidance": "#878879", // battleship-gray
+  };
+  return colorMap[categoryName] || "#767C91";
+};
+
+// Map category names to illustration images
+const getCategoryIllustration = (categoryName: string): string => {
+  const illustrationMap: Record<string, string> = {
+    Onboarding: "/fern.png",
+    Strategy: "/fern.png",
+    "Policies & Governance": "/beetle.png",
+    "Impacts & Risk Assessment": "/leaves.png",
+    Interventions: "/fern.png",
+    "Standards & Reporting": "/leaves.png",
+    "Stakeholder Engagement": "/beetle.png",
+    "Knowledge & Guidance": "/leaves.png",
+  };
+  return illustrationMap[categoryName] || "/leaves.png";
 };
 
 // Hard-coded built-in workflows that are always available
+// Note: These are fallback workflows if backend is unavailable
 const BUILT_IN_WORKFLOWS: WorkflowConfig[] = [
   {
     id: 1,
@@ -51,6 +95,13 @@ const BUILT_IN_WORKFLOWS: WorkflowConfig[] = [
     icon: "clipboard-list",
     icon_color: "blue",
     order_index: 0,
+    category: {
+      id: 7,
+      name: "Strategy",
+      color: "#767C91",
+      icon_name: "map",
+      order_index: 1,
+    },
   },
 ];
 
@@ -60,6 +111,10 @@ export default function WorkflowsPage(): React.ReactNode {
     useState<WorkflowConfig[]>(BUILT_IN_WORKFLOWS);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Refs for category sections (for smooth scrolling)
+  const categoryRefs = useRef<Record<string, HTMLElement | null>>({});
 
   // Fetch dynamic workflows from backend API and combine with built-in ones
   useEffect(() => {
@@ -88,6 +143,9 @@ export default function WorkflowsPage(): React.ReactNode {
 
         if (response.ok) {
           const dynamicWorkflows: WorkflowConfig[] = await response.json();
+          console.log(
+            `[Workflows API] Received ${dynamicWorkflows.length} workflows from backend`,
+          );
 
           // Combine built-in workflows with dynamic ones
           // Filter out any duplicates based on workflow_id
@@ -97,12 +155,18 @@ export default function WorkflowsPage(): React.ReactNode {
           const uniqueDynamicWorkflows = dynamicWorkflows.filter(
             (w) => !existingIds.has(w.workflow_id),
           );
+          console.log(
+            `[Workflows API] After filtering duplicates: ${uniqueDynamicWorkflows.length} unique dynamic workflows`,
+          );
 
           // Combine and sort by order_index
           const combinedWorkflows = [
             ...BUILT_IN_WORKFLOWS,
             ...uniqueDynamicWorkflows,
           ].sort((a, b) => a.order_index - b.order_index);
+          console.log(
+            `[Workflows API] Total workflows to display: ${combinedWorkflows.length}`,
+          );
 
           setWorkflows(combinedWorkflows);
           setError(null);
@@ -127,6 +191,64 @@ export default function WorkflowsPage(): React.ReactNode {
     fetchWorkflows();
   }, []);
 
+  // Filter workflows based on search query
+  const filteredWorkflows = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return workflows;
+    }
+
+    const query = searchQuery.toLowerCase();
+    return workflows.filter(
+      (w) =>
+        w.title.toLowerCase().includes(query) ||
+        w.description.toLowerCase().includes(query),
+    );
+  }, [workflows, searchQuery]);
+
+  // Group workflows by category (memoized for performance)
+  const workflowsByCategory = useMemo(() => {
+    const grouped: Record<string, WorkflowConfig[]> = {};
+
+    filteredWorkflows.forEach((workflow) => {
+      const categoryName = workflow.category.name;
+      if (!grouped[categoryName]) {
+        grouped[categoryName] = [];
+      }
+      grouped[categoryName].push(workflow);
+    });
+
+    // Sort categories by order_index
+    const sortedCategories = Object.entries(grouped).sort(
+      ([, workflowsA], [, workflowsB]) => {
+        return (
+          workflowsA[0].category.order_index -
+          workflowsB[0].category.order_index
+        );
+      },
+    );
+
+    return Object.fromEntries(sortedCategories);
+  }, [filteredWorkflows]);
+
+  // Extract unique categories for navigation pills (excluding Onboarding)
+  const categories = useMemo(() => {
+    const uniqueCategories = Array.from(
+      new Map(workflows.map((w) => [w.category.name, w.category])).values(),
+    );
+    // Filter out Onboarding category and sort by order_index from API
+    return uniqueCategories
+      .filter((cat) => cat.name !== "Onboarding")
+      .sort((a, b) => a.order_index - b.order_index);
+  }, [workflows]);
+
+  // Scroll to category section
+  const scrollToCategory = (categoryName: string) => {
+    categoryRefs.current[categoryName]?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  };
+
   const handleWorkflowClick = (workflowId: string) => {
     navigationService.navigateToWorkflow(workflowId);
   };
@@ -136,48 +258,477 @@ export default function WorkflowsPage(): React.ReactNode {
   }
 
   return (
-    <PageContainer>
-      <h1 className="mb-4 text-3xl font-bold">Workflows</h1>
-      <p className="mb-8 text-lg leading-relaxed text-gray-600">
-        Workflows are predefined sequences of steps designed to accurately
-        address sustainability objectives. In general, workflows have more
-        controlled outcomes, are faster, and more accurate than an agent route.
-        Especially for more complex tasks.
-      </p>
+    <div className="mx-auto max-w-5xl px-6 py-12">
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+        className="mb-12"
+      >
+        <h1
+          className="mb-3 font-serif text-3xl"
+          style={{ letterSpacing: "0.01em" }}
+        >
+          Sustainability Workflows
+        </h1>
+        <p className="text-muted-foreground max-w-2xl leading-relaxed">
+          Select a workflow to begin. Each workflow guides you through a
+          specific sustainability task with tailored intelligence and best
+          practices.
+        </p>
 
+        {/* Search */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.15, ease: [0.4, 0, 0.2, 1] }}
+          className="mb-6 mt-8"
+        >
+          <div className="relative max-w-xl">
+            <LucideIcons.Search
+              className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+              strokeWidth={2}
+            />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search workflows..."
+              className="w-full rounded-lg border border-border bg-white py-3 pl-11 pr-10 text-foreground placeholder:text-muted-foreground focus:border-transparent focus:outline-none focus:ring-2 focus:ring-sage"
+              style={{
+                boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",
+                transition: "all 250ms cubic-bezier(0.4, 0, 0.2, 1)",
+              }}
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-1 transition-colors duration-250 hover:bg-sand"
+              >
+                <LucideIcons.X
+                  className="h-4 w-4 text-muted-foreground"
+                  strokeWidth={2}
+                />
+              </button>
+            )}
+          </div>
+          {searchQuery && (
+            <p className="mt-3 text-[13px] text-muted-foreground">
+              {filteredWorkflows.length} workflow
+              {filteredWorkflows.length !== 1 ? "s" : ""} found
+            </p>
+          )}
+        </motion.div>
+      </motion.div>
+
+      {/* Error Warning */}
       {error && (
-        <div className="mb-6 rounded-lg border border-yellow-200 bg-yellow-50 p-4">
-          <div className="text-sm text-yellow-800">
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+          className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4"
+        >
+          <div className="text-sm text-amber-800">
             Warning: {error}. Showing built-in workflows only.
           </div>
+        </motion.div>
+      )}
+
+      {/* Info: Limited workflows available */}
+      {!error &&
+        !loading &&
+        workflows.length === BUILT_IN_WORKFLOWS.length && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+            className="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4"
+          >
+            <div className="text-sm text-blue-800">
+              <strong>Note:</strong> Only showing built-in workflows. The
+              backend may not have returned additional workflows. Check the
+              browser console for details.
+            </div>
+          </motion.div>
+        )}
+
+      {/* Category Navigation Pills - Only show when not searching */}
+      {!searchQuery.trim() && categories.length > 0 && (
+        <>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2, ease: [0.4, 0, 0.2, 1] }}
+            className="mb-6"
+          >
+            <div className="flex flex-wrap gap-2">
+              {categories.map((category) => {
+                const categoryColor = getCategoryColorByName(category.name);
+
+                return (
+                  <button
+                    key={category.id}
+                    onClick={() => scrollToCategory(category.name)}
+                    className="group flex items-center gap-2 rounded-md border-0 px-3 py-1.5 text-white transition-all duration-250 hover:opacity-90"
+                    style={{
+                      backgroundColor: categoryColor,
+                      boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+                    }}
+                    aria-label={`Navigate to ${category.name} section`}
+                  >
+                    <span
+                      className="flex h-3.5 w-3.5 items-center justify-center text-white"
+                      style={{ strokeWidth: 1.5 }}
+                    >
+                      {getWorkflowIcon(category.icon_name)}
+                    </span>
+                    <span
+                      className="text-[13px] text-white transition-colors duration-250"
+                      style={{ letterSpacing: "-0.005em" }}
+                    >
+                      {category.name}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </motion.div>
+
+          {/* Divider */}
+          <div className="mb-12 border-t border-border" />
+        </>
+      )}
+
+      {/* Workflow Display - Conditional: Flat grid when searching, Category sections when not */}
+      {searchQuery.trim() ? (
+        // Search Mode: Show flat grid of filtered workflows
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {filteredWorkflows.map((workflow, index) => {
+            const categoryColor = getCategoryColorByName(workflow.category.name);
+            const illustrationSrc = getCategoryIllustration(
+              workflow.category.name,
+            );
+
+            return (
+              <motion.button
+                key={workflow.workflow_id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: 0.4,
+                  delay: index * 0.05,
+                  ease: [0.4, 0, 0.2, 1],
+                }}
+                whileHover={{ y: -1, transition: { duration: 0.2 } }}
+                onClick={() => handleWorkflowClick(workflow.workflow_id)}
+                className="group border-border relative w-full overflow-hidden rounded-lg border bg-white text-left transition-all duration-250 hover:border-transparent"
+                style={{
+                  boxShadow: "0 1px 3px rgba(0, 0, 0, 0.08)",
+                  transitionTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)",
+                  minHeight: "280px",
+                }}
+              >
+                {/* Nature illustration background */}
+                {illustrationSrc && (
+                  <img
+                    src={illustrationSrc}
+                    alt=""
+                    className="pointer-events-none absolute right-0 bottom-0 h-48 w-48 object-contain"
+                    style={{
+                      opacity: 0.15,
+                      transform: "translate(20%, 20%) scale(1.4)",
+                    }}
+                  />
+                )}
+
+                {/* Hover shadow enhancement */}
+                <div
+                  className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-250 group-hover:opacity-100"
+                  style={{
+                    boxShadow: `0 12px 40px ${categoryColor}20`,
+                  }}
+                />
+
+                {/* Content */}
+                <div className="relative z-10 flex h-full flex-col px-7 pt-7 pb-8">
+                  {/* Category badge */}
+                  <div className="mb-8">
+                    <div
+                      className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1"
+                      style={{
+                        backgroundColor: categoryColor,
+                        boxShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
+                      }}
+                    >
+                      <span className="flex h-3 w-3 items-center justify-center text-white">
+                        {getWorkflowIcon(workflow.category.icon_name)}
+                      </span>
+                      <span
+                        className="text-[11px] tracking-wider text-white uppercase"
+                        style={{
+                          letterSpacing: "0.05em",
+                          fontWeight: 600,
+                        }}
+                      >
+                        {workflow.category.name}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Title */}
+                  <h4
+                    className="text-foreground group-hover:text-foreground mb-4 transition-colors duration-250"
+                    style={{
+                      letterSpacing: "-0.01em",
+                      lineHeight: "1.4",
+                      fontSize: "18px",
+                      fontWeight: 500,
+                      fontFamily:
+                        "var(--font-source-serif-pro), Georgia, serif",
+                    }}
+                  >
+                    {workflow.title}
+                  </h4>
+
+                  {/* Description */}
+                  <p
+                    className="text-muted-foreground leading-relaxed"
+                    style={{
+                      lineHeight: "1.7",
+                      letterSpacing: "-0.003em",
+                      fontSize: "14px",
+                      opacity: 0.85,
+                    }}
+                  >
+                    {workflow.description}
+                  </p>
+                </div>
+              </motion.button>
+            );
+          })}
+        </div>
+      ) : (
+        // Category Mode: Show grouped sections
+        <div className="space-y-12">
+          {Object.entries(workflowsByCategory).map(
+            ([categoryName, categoryWorkflows], categoryIndex) => {
+              const category = categoryWorkflows[0].category;
+              const categoryColor = getCategoryColorByName(categoryName);
+              const isOnboarding = categoryName === "Onboarding";
+
+              return (
+                <motion.section
+                  key={categoryName}
+                  ref={(el) => {
+                    if (el) {
+                      categoryRefs.current[categoryName] = el;
+                    }
+                  }}
+                  data-category={categoryName}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{
+                    duration: 0.5,
+                    delay: categoryIndex * 0.1,
+                    ease: [0.4, 0, 0.2, 1],
+                  }}
+                  style={{ scrollMarginTop: "2rem" }}
+                  className={`mb-16 border-b pb-12 ${isOnboarding ? "border-border border-b-2" : "border-gray-200"}`}
+                >
+                  {/* Category Header */}
+                  <div className="mb-6 flex items-center gap-3">
+                    <div
+                      className={`flex items-center justify-center rounded-lg ${isOnboarding ? "h-12 w-12" : "h-10 w-10"}`}
+                      style={{
+                        backgroundColor: `${categoryColor}${isOnboarding ? "20" : "15"}`,
+                        boxShadow: isOnboarding
+                          ? `0 2px 8px ${categoryColor}15`
+                          : undefined,
+                      }}
+                    >
+                      <div
+                        className={`${isOnboarding ? "h-6 w-6" : "h-5 w-5"} flex items-center justify-center`}
+                        style={{ color: categoryColor, strokeWidth: 1.5 }}
+                      >
+                        {getWorkflowIcon(category.icon_name)}
+                      </div>
+                    </div>
+                    <div>
+                      <h2
+                        className="font-serif text-[24px] font-normal text-[rgb(20,32,26)]"
+                        style={{ letterSpacing: "0.01em" }}
+                      >
+                        {categoryName}
+                      </h2>
+                    </div>
+                  </div>
+
+                  {/* Workflows Grid */}
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    {categoryWorkflows.map((workflow, workflowIndex) => {
+                      const illustrationSrc = getCategoryIllustration(
+                        workflow.category.name,
+                      );
+
+                      return (
+                        <motion.button
+                          key={workflow.workflow_id}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{
+                            duration: 0.4,
+                            delay: workflowIndex * 0.05,
+                            ease: [0.4, 0, 0.2, 1],
+                          }}
+                          whileHover={{ y: -1, transition: { duration: 0.2 } }}
+                          onClick={() =>
+                            handleWorkflowClick(workflow.workflow_id)
+                          }
+                          className="group border-border relative w-full overflow-hidden rounded-lg border bg-white text-left transition-all duration-250 hover:border-transparent"
+                          style={{
+                            boxShadow: "0 1px 3px rgba(0, 0, 0, 0.08)",
+                            transitionTimingFunction:
+                              "cubic-bezier(0.4, 0, 0.2, 1)",
+                            minHeight: "280px",
+                          }}
+                        >
+                          {/* Nature illustration background */}
+                          {illustrationSrc && (
+                            <img
+                              src={illustrationSrc}
+                              alt=""
+                              className="pointer-events-none absolute right-0 bottom-0 h-48 w-48 object-contain"
+                              style={{
+                                opacity: 0.15,
+                                transform: "translate(20%, 20%) scale(1.4)",
+                              }}
+                            />
+                          )}
+
+                          {/* Hover shadow enhancement */}
+                          <div
+                            className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-250 group-hover:opacity-100"
+                            style={{
+                              boxShadow: `0 12px 40px ${categoryColor}20`,
+                            }}
+                          />
+
+                          {/* Content */}
+                          <div className="relative z-10 flex h-full flex-col px-7 pt-7 pb-8">
+                            {/* Category badge */}
+                            <div className="mb-8">
+                              <div
+                                className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1"
+                                style={{
+                                  backgroundColor: categoryColor,
+                                  boxShadow: "0 1px 2px rgba(0, 0, 0, 0.1)",
+                                }}
+                              >
+                                <span className="flex h-3 w-3 items-center justify-center text-white">
+                                  {getWorkflowIcon(workflow.category.icon_name)}
+                                </span>
+                                <span
+                                  className="text-[11px] tracking-wider text-white uppercase"
+                                  style={{
+                                    letterSpacing: "0.05em",
+                                    fontWeight: 600,
+                                  }}
+                                >
+                                  {workflow.category.name}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Title */}
+                            <h4
+                              className="text-foreground group-hover:text-foreground mb-4 transition-colors duration-250"
+                              style={{
+                                letterSpacing: "-0.01em",
+                                lineHeight: "1.4",
+                                fontSize: "18px",
+                                fontWeight: 500,
+                                fontFamily:
+                                  "var(--font-source-serif-pro), Georgia, serif",
+                              }}
+                            >
+                              {workflow.title}
+                            </h4>
+
+                            {/* Description */}
+                            <p
+                              className="text-muted-foreground leading-relaxed"
+                              style={{
+                                lineHeight: "1.7",
+                                letterSpacing: "-0.003em",
+                                fontSize: "14px",
+                                opacity: 0.85,
+                              }}
+                            >
+                              {workflow.description}
+                            </p>
+                          </div>
+                        </motion.button>
+                      );
+                    })}
+                  </div>
+
+                  {/* "My option isn't here" link */}
+                  <div className="mt-5 text-center">
+                    <button
+                      onClick={() => {
+                        // Navigate to home/chat page
+                        navigationService.navigateToHome();
+                      }}
+                      className="text-muted-foreground decoration-muted-foreground/30 hover:text-foreground hover:decoration-foreground/50 text-[14px] underline decoration-1 underline-offset-4 transition-colors duration-250"
+                      style={{
+                        letterSpacing: "-0.003em",
+                      }}
+                    >
+                      My option isn&apos;t here – discuss another{" "}
+                      {categoryName.toLowerCase()} matter
+                    </button>
+                  </div>
+                </motion.section>
+              );
+            },
+          )}
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        {workflows.map((workflow) => (
-          <div
-            key={workflow.workflow_id}
-            onClick={() => handleWorkflowClick(workflow.workflow_id)}
-            className="cursor-pointer rounded-lg border border-gray-200 p-6 transition-all duration-200 hover:border-gray-300 hover:shadow-md"
+      {/* No Results Message */}
+      {filteredWorkflows.length === 0 && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-muted-foreground py-12 text-center"
+        >
+          <p className="text-lg">
+            No workflows found matching &ldquo;{searchQuery}&rdquo;
+          </p>
+          <Button
+            variant="ghost"
+            onClick={() => setSearchQuery("")}
+            className="mt-4"
           >
-            <div className="flex items-start space-x-4">
-              <div className="flex-shrink-0">
-                <div
-                  className={`flex h-12 w-12 items-center justify-center rounded-lg bg-${workflow.icon_color}-100`}
-                >
-                  <div className={`text-${workflow.icon_color}-600`}>
-                    {getWorkflowIcon(workflow.icon)}
-                  </div>
-                </div>
-              </div>
-              <div className="flex-1">
-                <h3 className="mb-2 text-lg font-semibold">{workflow.title}</h3>
-                <p className="text-sm text-gray-600">{workflow.description}</p>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </PageContainer>
+            Clear search
+          </Button>
+        </motion.div>
+      )}
+
+      {/* Footer note */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.8 }}
+        className="border-border mt-16 border-t pt-8"
+      >
+        <p className="text-muted-foreground text-center text-sm">
+          Can&apos;t find what you&apos;re looking for? Start a new chat to
+          discuss your specific needs.
+        </p>
+      </motion.div>
+    </div>
   );
 }

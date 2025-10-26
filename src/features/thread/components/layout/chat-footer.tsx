@@ -1,5 +1,4 @@
 import React, { useCallback } from "react";
-import { LinkLogoSVG } from "@/shared/components/icons/link";
 import { ScrollToBottom } from "../scroll-utils";
 import { ActionButtons } from "../action-buttons";
 import { ChatInput } from "../chat-input-components";
@@ -31,13 +30,7 @@ const ChatFooterComponent: React.FC = () => {
   }, [stream]);
 
   return (
-    <div className="sticky bottom-0 flex flex-col items-center gap-8 bg-white">
-      {!chatStarted && (
-        <div className="flex items-center gap-3">
-          <LinkLogoSVG className="h-8 flex-shrink-0" />
-          <h1 className="text-2xl font-semibold tracking-tight">Link Chat</h1>
-        </div>
-      )}
+    <div className="sticky bottom-0 flex flex-col items-center gap-8 bg-background pb-12">
       <ScrollToBottom className="animate-in fade-in-0 zoom-in-95 absolute bottom-full left-1/2 mb-4 -translate-x-1/2" />
       {/* Mobile action buttons */}
       {!chatStarted && (

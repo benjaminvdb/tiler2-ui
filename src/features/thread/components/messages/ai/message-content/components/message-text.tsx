@@ -13,7 +13,15 @@ export const MessageText: React.FC<MessageTextProps> = ({ contentString }) => {
   }
 
   return (
-    <div className="py-1">
+    <div
+      style={{
+        fontFamily:
+          "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+        fontSize: "15px",
+        letterSpacing: "0.01em",
+        lineHeight: "1.7",
+      }}
+    >
       <MarkdownText>{displayedText}</MarkdownText>
     </div>
   );

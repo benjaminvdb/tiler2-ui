@@ -6,6 +6,7 @@ import "@fontsource/comic-mono/700.css";
 import React from "react";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { Auth0Provider } from "@auth0/nextjs-auth0";
+import { MotionConfigProvider } from "@/core/providers/motion-config-provider";
 import { GlobalErrorBoundary } from "@/shared/components/error-boundary/global-error-boundary";
 import { AsyncErrorBoundary } from "@/shared/components/error-boundary/async-error-boundary";
 import { AppLayout } from "./app-layout";
@@ -50,16 +51,18 @@ export default async function RootLayout({
       className={`${inter.variable} ${sourceSerifPro.variable}`}
     >
       <body className={inter.className}>
-        <GlobalErrorBoundary>
-          <AsyncErrorBoundary>
-            <Auth0Provider {...auth0ProviderProps}>
-              <SentryUserContext user={session?.user || null} />
-              <NuqsAdapter>
-                <AppLayout>{children}</AppLayout>
-              </NuqsAdapter>
-            </Auth0Provider>
-          </AsyncErrorBoundary>
-        </GlobalErrorBoundary>
+        <MotionConfigProvider>
+          <GlobalErrorBoundary>
+            <AsyncErrorBoundary>
+              <Auth0Provider {...auth0ProviderProps}>
+                <SentryUserContext user={session?.user || null} />
+                <NuqsAdapter>
+                  <AppLayout>{children}</AppLayout>
+                </NuqsAdapter>
+              </Auth0Provider>
+            </AsyncErrorBoundary>
+          </GlobalErrorBoundary>
+        </MotionConfigProvider>
       </body>
     </html>
   );

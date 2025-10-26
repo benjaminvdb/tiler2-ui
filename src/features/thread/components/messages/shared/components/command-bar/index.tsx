@@ -1,13 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   XIcon,
   SendHorizontal,
   RefreshCcw,
   Pencil,
   UserCircle,
+  Copy,
 } from "lucide-react";
 import { TooltipIconButton } from "../../../../tooltip-icon-button";
-import { ContentCopyable } from "../content-copyable";
 import { CommandBarProps } from "../../types";
 import { shouldShowEditButton } from "./validation";
 
@@ -61,41 +61,74 @@ const MessageActions: React.FC<MessageActionsProps> = ({
   setIsEditing,
   onExpertHelpClick,
 }) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(content);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <div className="flex items-center gap-2">
-      <ContentCopyable
-        content={content}
+      <button
+        onClick={handleCopy}
         disabled={isLoading}
-      />
+        className="flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 transition-colors duration-200 hover:bg-sand disabled:cursor-not-allowed disabled:opacity-50"
+        style={{ boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)" }}
+      >
+        <Copy
+          className="h-3.5 w-3.5 text-muted-foreground"
+          strokeWidth={2}
+        />
+        <span className="text-[13px] text-foreground">
+          {copied ? "Copied!" : "Copy"}
+        </span>
+      </button>
+
       {isAiMessage && !!handleRegenerate && (
-        <TooltipIconButton
-          disabled={isLoading}
-          tooltip="Refresh"
-          variant="ghost"
+        <button
           onClick={handleRegenerate}
+          disabled={isLoading}
+          className="flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 transition-colors duration-200 hover:bg-sand disabled:cursor-not-allowed disabled:opacity-50"
+          style={{ boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)" }}
         >
-          <RefreshCcw />
-        </TooltipIconButton>
+          <RefreshCcw
+            className="h-3.5 w-3.5 text-muted-foreground"
+            strokeWidth={2}
+          />
+          <span className="text-[13px] text-foreground">Refresh</span>
+        </button>
       )}
+
       {isAiMessage && !!onExpertHelpClick && (
-        <TooltipIconButton
-          disabled={isLoading}
-          tooltip="Get expert help"
-          variant="ghost"
+        <button
           onClick={onExpertHelpClick}
-        >
-          <UserCircle />
-        </TooltipIconButton>
-      )}
-      {showEdit && (
-        <TooltipIconButton
           disabled={isLoading}
-          tooltip="Edit"
-          variant="ghost"
-          onClick={() => setIsEditing?.(true)}
+          className="flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 transition-colors duration-200 hover:bg-sand disabled:cursor-not-allowed disabled:opacity-50"
+          style={{ boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)" }}
         >
-          <Pencil />
-        </TooltipIconButton>
+          <UserCircle
+            className="h-3.5 w-3.5 text-muted-foreground"
+            strokeWidth={2}
+          />
+          <span className="text-[13px] text-foreground">Ask an Expert</span>
+        </button>
+      )}
+
+      {showEdit && (
+        <button
+          onClick={() => setIsEditing?.(true)}
+          disabled={isLoading}
+          className="flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 transition-colors duration-200 hover:bg-sand disabled:cursor-not-allowed disabled:opacity-50"
+          style={{ boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)" }}
+        >
+          <Pencil
+            className="h-3.5 w-3.5 text-muted-foreground"
+            strokeWidth={2}
+          />
+          <span className="text-[13px] text-foreground">Edit</span>
+        </button>
       )}
     </div>
   );

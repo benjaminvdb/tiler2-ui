@@ -21,7 +21,7 @@ function AppLayoutContent({
         <NewSidebar />
         <SidebarInset className="flex flex-col">
           <MobileHeader />
-          <main className="flex-1 overflow-hidden">{children}</main>
+          <main className="flex-1 overflow-y-auto">{children}</main>
         </SidebarInset>
       </div>
     </SidebarProvider>

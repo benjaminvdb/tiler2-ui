@@ -22,7 +22,7 @@ import {
   AvatarFallback,
 } from "@/shared/components/ui/avatar";
 import { useUser } from "@auth0/nextjs-auth0";
-import { ChevronUp, LogOut, User, LogIn } from "lucide-react";
+import { ChevronDown, LogOut, User, LogIn } from "lucide-react";
 import { getInitials } from "./utils/get-initials";
 
 export const SidebarUserProfile = (): React.JSX.Element => {
@@ -54,16 +54,14 @@ export const SidebarUserProfile = (): React.JSX.Element => {
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <SidebarMenuButton
-                  {...(isCollapsed && { tooltip: "Sign in" })}
-                >
+                <SidebarMenuButton {...(isCollapsed && { tooltip: "Sign in" })}>
                   <Avatar className="size-6">
                     <AvatarFallback className="bg-sage/20">
                       <User className="text-sage h-3 w-3" />
                     </AvatarFallback>
                   </Avatar>
                   <span className="truncate">Guest</span>
-                  <ChevronUp className="ml-auto size-4 group-data-[collapsible=icon]:hidden" />
+                  <ChevronDown className="ml-auto size-4 group-data-[collapsible=icon]:hidden" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent
@@ -114,7 +112,7 @@ export const SidebarUserProfile = (): React.JSX.Element => {
                   </AvatarFallback>
                 </Avatar>
                 <span className="truncate">{displayName}</span>
-                <ChevronUp className="ml-auto size-4 group-data-[collapsible=icon]:hidden" />
+                <ChevronDown className="ml-auto size-4 group-data-[collapsible=icon]:hidden" />
               </SidebarMenuButton>
             </DropdownMenuTrigger>
             <DropdownMenuContent

@@ -118,17 +118,19 @@ export const Thread = (): React.JSX.Element => {
     <ChatProvider value={chatContextValue}>
       <div
         className={cn(
-          "grid h-full w-full grid-cols-[1fr_0fr] transition-all duration-500",
-          artifactOpen && "grid-cols-[3fr_2fr]",
+          "grid h-full w-full transition-all duration-500",
+          artifactOpen ? "grid-cols-[3fr_2fr]" : "grid-cols-[1fr]",
         )}
       >
         <ComponentErrorBoundary>
           <MainChatArea />
         </ComponentErrorBoundary>
 
-        <ComponentErrorBoundary>
-          <ArtifactPanel onClose={closeArtifact} />
-        </ComponentErrorBoundary>
+        {artifactOpen && (
+          <ComponentErrorBoundary>
+            <ArtifactPanel onClose={closeArtifact} />
+          </ComponentErrorBoundary>
+        )}
       </div>
     </ChatProvider>
   );

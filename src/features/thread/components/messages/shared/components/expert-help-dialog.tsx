@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { toast } from "sonner";
+import { UserCircle } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -116,15 +117,29 @@ export const ExpertHelpDialog: React.FC<ExpertHelpDialogProps> = ({
       <DialogContent className="sm:max-w-[500px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Ask an Expert</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              <UserCircle className="text-forest-green h-5 w-5" />
+              Ask an Expert
+            </DialogTitle>
             <DialogDescription className="space-y-3">
               <p>
                 Before escalating to our expert team, please ensure you have:
               </p>
-              <ul className="ml-5 list-outside list-disc space-y-1">
-                <li>Tried asking your question in different ways</li>
-                <li>Provided specific context about your situation</li>
-                <li>Refined your question based on the AI&apos;s responses</li>
+              <ul className="ml-5 list-outside space-y-1">
+                <li className="flex items-start gap-2">
+                  <span className="text-sage mt-0.5">•</span>
+                  <span>Tried asking your question in different ways</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-sage mt-0.5">•</span>
+                  <span>Provided specific context about your situation</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-sage mt-0.5">•</span>
+                  <span>
+                    Refined your question based on the AI&apos;s responses
+                  </span>
+                </li>
               </ul>
               <p>
                 If you&apos;ve completed these steps and still need additional
@@ -152,16 +167,22 @@ export const ExpertHelpDialog: React.FC<ExpertHelpDialogProps> = ({
             </div>
           </div>
 
-          <div className="bg-muted mb-6 space-y-2 rounded-lg p-4">
+          <div className="bg-sand border-border mb-6 space-y-2 rounded-lg border p-4">
             <p className="text-sm font-medium">What happens next:</p>
-            <ul className="text-muted-foreground ml-5 list-outside list-disc space-y-1 text-sm">
-              <li>
-                Your chat history and context will be shared with Link
-                Nature&apos;s expert team
+            <ul className="text-muted-foreground ml-5 list-outside space-y-1 text-sm">
+              <li className="flex items-start gap-2">
+                <span className="text-sage mt-0.5">•</span>
+                <span>
+                  Your chat history and context will be shared with Link
+                  Nature&apos;s expert team
+                </span>
               </li>
-              <li>
-                You&apos;ll receive a detailed response via email within 48
-                hours
+              <li className="flex items-start gap-2">
+                <span className="text-sage mt-0.5">•</span>
+                <span>
+                  You&apos;ll receive a detailed response via email within 48
+                  hours
+                </span>
               </li>
             </ul>
           </div>

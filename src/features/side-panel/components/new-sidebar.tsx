@@ -58,7 +58,7 @@ export const NewSidebar = (): React.JSX.Element => {
           {/* Link Logo - Clickable to start new chat */}
           <button
             onClick={onNewThread}
-            className="flex flex-1 items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity group-data-[collapsible=icon]:hidden"
+            className="flex flex-1 cursor-pointer items-center gap-2 transition-opacity group-data-[collapsible=icon]:hidden hover:opacity-80"
             aria-label="Start New Chat"
           >
             <Image
@@ -90,7 +90,7 @@ export const NewSidebar = (): React.JSX.Element => {
                     children: (
                       <div className="text-center">
                         <p className="font-medium">Start New Chat</p>
-                        <p className="text-white/60 mt-1 text-xs">
+                        <p className="mt-1 text-xs text-white/60">
                           {getShortcutText("new-chat")}
                         </p>
                       </div>
@@ -118,7 +118,7 @@ export const NewSidebar = (): React.JSX.Element => {
                     children: (
                       <div className="text-center">
                         <p className="font-medium">Browse Workflows</p>
-                        <p className="text-white/60 mt-1 text-xs">
+                        <p className="mt-1 text-xs text-white/60">
                           {getShortcutText("workflows")}
                         </p>
                       </div>

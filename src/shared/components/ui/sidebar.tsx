@@ -87,7 +87,10 @@ function SidebarProvider({
   });
 
   const setWidth = React.useCallback((newWidth: number) => {
-    const constrainedWidth = Math.min(Math.max(newWidth, SIDEBAR_WIDTH_MIN), SIDEBAR_WIDTH_MAX);
+    const constrainedWidth = Math.min(
+      Math.max(newWidth, SIDEBAR_WIDTH_MIN),
+      SIDEBAR_WIDTH_MAX,
+    );
     _setWidth(constrainedWidth);
     localStorage.setItem("sidebar_width", constrainedWidth.toString());
   }, []);
@@ -148,7 +151,17 @@ function SidebarProvider({
       width,
       setWidth,
     }),
-    [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar, width, setWidth],
+    [
+      state,
+      open,
+      setOpen,
+      isMobile,
+      openMobile,
+      setOpenMobile,
+      toggleSidebar,
+      width,
+      setWidth,
+    ],
   );
 
   return (
@@ -320,7 +333,9 @@ function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
       e.preventDefault();
       setIsResizing(true);
       startXRef.current = e.clientX;
-      const sidebarElement = (e.target as HTMLElement).closest('[data-sidebar="sidebar"]');
+      const sidebarElement = (e.target as HTMLElement).closest(
+        '[data-sidebar="sidebar"]',
+      );
       if (sidebarElement) {
         startWidthRef.current = sidebarElement.getBoundingClientRect().width;
       }
@@ -447,7 +462,7 @@ function SidebarContent({ className, ...props }: React.ComponentProps<"div">) {
       data-slot="sidebar-content"
       data-sidebar="content"
       className={cn(
-        "flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto overflow-x-hidden group-data-[collapsible=icon]:overflow-hidden",
+        "flex min-h-0 flex-1 flex-col gap-2 overflow-x-hidden overflow-y-auto group-data-[collapsible=icon]:overflow-hidden",
         className,
       )}
       {...props}

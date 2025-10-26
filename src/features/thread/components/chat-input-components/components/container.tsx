@@ -11,12 +11,15 @@ export const Container: React.FC<ContainerProps> = ({
     <div
       ref={dropRef}
       className={cn(
-        "relative z-10 mx-auto w-full max-w-3xl rounded-2xl bg-white shadow-xs transition-all",
+        "bg-sand relative z-10 mx-auto w-full max-w-3xl rounded-lg transition-all focus-within:border-sage focus-within:shadow-sm",
         dragOver
           ? "border-primary border-2 border-dotted"
-          : "border border-solid",
+          : "border-border border",
         chatStarted && "mb-8",
       )}
+      style={{
+        boxShadow: "0 1px 3px rgba(0, 0, 0, 0.04)",
+      }}
     >
       {children}
     </div>
