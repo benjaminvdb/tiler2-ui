@@ -1,16 +1,12 @@
 "use client";
 
 import React from "react";
-import { SidePanel } from "@/features/side-panel";
 import { ErrorBoundary } from "@/shared/components/error-boundary";
 import { AppProviders } from "./app-providers";
-import { useUIContext } from "@/features/chat/providers/ui-provider";
-import { motion } from "framer-motion";
-import { SIDE_PANEL_COLLAPSED_WIDTH } from "@/features/side-panel/constants";
-import { MobileHeader } from "@/features/side-panel/components/mobile-header";
 import { LoadingScreen } from "@/shared/components/loading-spinner";
-
-// Removed GlobalToggleButton - expand button is now only in the sidebar
+import { SidebarProvider, SidebarInset } from "@/shared/components/ui/sidebar";
+import { NewSidebar } from "@/features/side-panel/components/new-sidebar";
+import { MobileHeader } from "@/features/side-panel/components/mobile-header";
 
 interface AppLayoutContentProps {
   children: React.ReactNode;
@@ -19,34 +15,16 @@ interface AppLayoutContentProps {
 function AppLayoutContent({
   children,
 }: AppLayoutContentProps): React.ReactNode {
-  const { chatHistoryOpen, sidePanelWidth, isLargeScreen } = useUIContext();
-
-  // Calculate animation values
-  const currentSidePanelWidth = chatHistoryOpen
-    ? sidePanelWidth
-    : SIDE_PANEL_COLLAPSED_WIDTH;
-  const marginLeft = isLargeScreen ? currentSidePanelWidth : 0;
-  const width = isLargeScreen
-    ? `calc(100% - ${currentSidePanelWidth}px)`
-    : "100%";
-
   return (
-    <div className="flex h-screen w-full overflow-hidden">
-      <SidePanel />
-      <motion.div
-        className="relative flex flex-1 flex-col"
-        animate={{ marginLeft, width }}
-        transition={
-          isLargeScreen
-            ? { type: "spring", stiffness: 300, damping: 30 }
-            : { duration: 0 }
-        }
-        layout
-      >
-        <MobileHeader />
-        <main className="flex-1 overflow-hidden">{children}</main>
-      </motion.div>
-    </div>
+    <SidebarProvider defaultOpen={true}>
+      <div className="flex h-screen w-full">
+        <NewSidebar />
+        <SidebarInset className="flex flex-col">
+          <MobileHeader />
+          <main className="flex-1 overflow-hidden">{children}</main>
+        </SidebarInset>
+      </div>
+    </SidebarProvider>
   );
 }
 

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Inter } from "next/font/google";
+import { Inter, Source_Serif_4 } from "next/font/google";
 import "@fontsource/comic-mono/400.css";
 import "@fontsource/comic-mono/700.css";
 import React from "react";
@@ -16,6 +16,15 @@ const inter = Inter({
   subsets: ["latin"],
   preload: true,
   display: "swap",
+  variable: "--font-inter",
+});
+
+const sourceSerifPro = Source_Serif_4({
+  subsets: ["latin"],
+  weight: ["400", "600", "700"],
+  preload: true,
+  display: "swap",
+  variable: "--font-source-serif-pro",
 });
 
 export const metadata: Metadata = {
@@ -36,7 +45,10 @@ export default async function RootLayout({
   const auth0ProviderProps = session?.user ? { user: session.user } : {};
 
   return (
-    <html lang="en">
+    <html
+      lang="en"
+      className={`${inter.variable} ${sourceSerifPro.variable}`}
+    >
       <body className={inter.className}>
         <GlobalErrorBoundary>
           <AsyncErrorBoundary>

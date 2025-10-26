@@ -72,3 +72,5 @@ export const AuthButtons = (): React.JSX.Element => {
   }
   return <GuestDropdown />;
 };
+
+export { SidebarUserProfile } from "./sidebar-user-profile";

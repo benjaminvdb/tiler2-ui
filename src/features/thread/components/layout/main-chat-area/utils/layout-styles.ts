@@ -10,8 +10,8 @@ export const getMainContainerClassName = (chatStarted: boolean) => {
 export const getContentClassName = (chatStarted: boolean) => {
   return cn(
     "absolute inset-0 overflow-y-scroll px-4 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-track]:bg-transparent",
-    !chatStarted && "mt-[25vh] flex flex-col items-stretch",
-    chatStarted && "grid grid-rows-[1fr_auto]",
+    "grid grid-rows-[1fr_auto]",
+    !chatStarted && "mt-[25vh]",
   );
 };
 
