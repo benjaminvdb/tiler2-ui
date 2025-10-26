@@ -6,50 +6,50 @@
 import * as Sentry from "@sentry/nextjs";
 
 const isDevelopment = process.env.NODE_ENV === "development";
+const dsn = process.env.SENTRY_DSN;
 
-Sentry.init({
-  // Disable Sentry in development - console logs are sufficient
-  enabled: !isDevelopment,
+// Only initialize Sentry in production when DSN is explicitly configured
+// This prevents development data from polluting production Sentry logs
+if (!isDevelopment && dsn) {
+  Sentry.init({
+    dsn,
 
-  dsn:
-    process.env.SENTRY_DSN ||
-    "https://69e051b0a0690b7b1c826f3b6dcce4a5@o4510232763170816.ingest.de.sentry.io/4510243735928912",
+    // Environment configuration
+    environment:
+      process.env.SENTRY_ENVIRONMENT || process.env.NODE_ENV || "development",
 
-  // Environment configuration
-  environment:
-    process.env.SENTRY_ENVIRONMENT || process.env.NODE_ENV || "development",
+    // Performance monitoring - different rates for dev vs production
+    // Development: 100% for complete visibility
+    // Production: 30% for middleware (higher than server to track auth issues)
+    tracesSampleRate: isDevelopment ? 1.0 : 0.3,
 
-  // Performance monitoring - different rates for dev vs production
-  // Development: 100% for complete visibility
-  // Production: 30% for middleware (higher than server to track auth issues)
-  tracesSampleRate: isDevelopment ? 1.0 : 0.3,
+    // Enable logs to be sent to Sentry
+    enableLogs: true,
 
-  // Enable logs to be sent to Sentry
-  enableLogs: true,
+    // Privacy: Disable sendDefaultPii
+    sendDefaultPii: false,
 
-  // Privacy: Disable sendDefaultPii
-  sendDefaultPii: false,
+    // Data sanitization hook
+    beforeSend(event) {
+      // Remove sensitive request data
+      if (event.request?.headers) {
+        const headers = { ...event.request.headers };
+        delete headers.authorization;
+        delete headers.Authorization;
+        delete headers.cookie;
+        delete headers.Cookie;
+        event.request.headers = headers;
+      }
 
-  // Data sanitization hook
-  beforeSend(event) {
-    // Remove sensitive request data
-    if (event.request?.headers) {
-      const headers = { ...event.request.headers };
-      delete headers.authorization;
-      delete headers.Authorization;
-      delete headers.cookie;
-      delete headers.Cookie;
-      event.request.headers = headers;
-    }
+      // In development, log all events to console
+      if (isDevelopment) {
+        console.log("[Sentry Edge Event]", event);
+      }
 
-    // In development, log all events to console
-    if (isDevelopment) {
-      console.log("[Sentry Edge Event]", event);
-    }
+      return event;
+    },
 
-    return event;
-  },
-
-  // Ignore specific errors
-  ignoreErrors: ["AccessTokenError", "UnauthorizedError"],
-});
+    // Ignore specific errors
+    ignoreErrors: ["AccessTokenError", "UnauthorizedError"],
+  });
+}

@@ -5,86 +5,86 @@
 import * as Sentry from "@sentry/nextjs";
 
 const isDevelopment = process.env.NODE_ENV === "development";
+const dsn = process.env.SENTRY_DSN;
 
-Sentry.init({
-  // Disable Sentry in development - console logs are sufficient
-  enabled: !isDevelopment,
+// Only initialize Sentry in production when DSN is explicitly configured
+// This prevents development data from polluting production Sentry logs
+if (!isDevelopment && dsn) {
+  Sentry.init({
+    dsn,
 
-  dsn:
-    process.env.SENTRY_DSN ||
-    "https://69e051b0a0690b7b1c826f3b6dcce4a5@o4510232763170816.ingest.de.sentry.io/4510243735928912",
+    // Environment configuration
+    environment:
+      process.env.SENTRY_ENVIRONMENT || process.env.NODE_ENV || "development",
 
-  // Environment configuration
-  environment:
-    process.env.SENTRY_ENVIRONMENT || process.env.NODE_ENV || "development",
+    // Performance monitoring - different rates for dev vs production
+    // Development: 100% for complete visibility
+    // Production: 20% to reduce data volume
+    tracesSampleRate: isDevelopment ? 1.0 : 0.2,
 
-  // Performance monitoring - different rates for dev vs production
-  // Development: 100% for complete visibility
-  // Production: 20% to reduce data volume
-  tracesSampleRate: isDevelopment ? 1.0 : 0.2,
+    // Pino integration for structured logging
+    integrations: [
+      Sentry.pinoIntegration({
+        // Capture info/warn/error as Sentry logs
+        log: {
+          levels: ["info", "warn", "error"],
+        },
+        // Capture error/fatal as Sentry error events
+        error: {
+          levels: ["error", "fatal"],
+          handled: true, // Mark as handled (true is default)
+        },
+      }),
+    ],
 
-  // Pino integration for structured logging
-  integrations: [
-    Sentry.pinoIntegration({
-      // Capture info/warn/error as Sentry logs
-      log: {
-        levels: ["info", "warn", "error"],
-      },
-      // Capture error/fatal as Sentry error events
-      error: {
-        levels: ["error", "fatal"],
-        handled: true, // Mark as handled (true is default)
-      },
-    }),
-  ],
+    // Enable logs to be sent to Sentry
+    enableLogs: true,
 
-  // Enable logs to be sent to Sentry
-  enableLogs: true,
+    // Privacy: Disable sendDefaultPii to avoid sending sensitive user data
+    // Enable in production only if you need user IPs for debugging
+    sendDefaultPii: false,
 
-  // Privacy: Disable sendDefaultPii to avoid sending sensitive user data
-  // Enable in production only if you need user IPs for debugging
-  sendDefaultPii: false,
-
-  // Data sanitization hook
-  beforeSend(event) {
-    // Remove sensitive environment variables
-    if (event.contexts?.runtime?.env) {
-      const env = {
-        ...(event.contexts.runtime.env as Record<string, unknown>),
-      };
-      // Remove sensitive keys
-      delete env["AUTH0_SECRET"];
-      delete env["AUTH0_CLIENT_SECRET"];
-      delete env["LANGSMITH_API_KEY"];
-      delete env["SENTRY_AUTH_TOKEN"];
-      event.contexts.runtime.env = env;
-    }
-
-    // Remove sensitive request data
-    if (event.request) {
-      // Remove authorization headers
-      if (event.request.headers) {
-        const headers = { ...event.request.headers };
-        delete headers.authorization;
-        delete headers.Authorization;
-        delete headers.cookie;
-        delete headers.Cookie;
-        event.request.headers = headers;
+    // Data sanitization hook
+    beforeSend(event) {
+      // Remove sensitive environment variables
+      if (event.contexts?.runtime?.env) {
+        const env = {
+          ...(event.contexts.runtime.env as Record<string, unknown>),
+        };
+        // Remove sensitive keys
+        delete env["AUTH0_SECRET"];
+        delete env["AUTH0_CLIENT_SECRET"];
+        delete env["LANGSMITH_API_KEY"];
+        delete env["SENTRY_AUTH_TOKEN"];
+        event.contexts.runtime.env = env;
       }
-    }
 
-    // In development, log all events to console
-    if (isDevelopment) {
-      console.log("[Sentry Server Event]", event);
-    }
+      // Remove sensitive request data
+      if (event.request) {
+        // Remove authorization headers
+        if (event.request.headers) {
+          const headers = { ...event.request.headers };
+          delete headers.authorization;
+          delete headers.Authorization;
+          delete headers.cookie;
+          delete headers.Cookie;
+          event.request.headers = headers;
+        }
+      }
 
-    return event;
-  },
+      // In development, log all events to console
+      if (isDevelopment) {
+        console.log("[Sentry Server Event]", event);
+      }
 
-  // Ignore specific errors
-  ignoreErrors: [
-    // Auth0 handled errors
-    "AccessTokenError",
-    "UnauthorizedError",
-  ],
-});
+      return event;
+    },
+
+    // Ignore specific errors
+    ignoreErrors: [
+      // Auth0 handled errors
+      "AccessTokenError",
+      "UnauthorizedError",
+    ],
+  });
+}
