@@ -1,7 +1,7 @@
 import { Button } from "@/shared/components/ui/button";
 import { Thread } from "@langchain/langgraph-sdk";
 import { useQueryState } from "nuqs";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { extractThreadDisplayText } from "../utils/thread-text-extractor";
 
 interface ThreadListProps {
@@ -12,10 +12,8 @@ export const ThreadList: React.FC<ThreadListProps> = ({
   threads,
   onThreadClick,
 }) => {
-  const [threadId, setThreadId] = useQueryState("threadId");
+  const [threadId] = useQueryState("threadId");
   const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
 
   return (
     <div className="flex h-full w-full flex-col items-start justify-start gap-2 overflow-y-scroll [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-track]:bg-transparent">
@@ -34,14 +32,9 @@ export const ThreadList: React.FC<ThreadListProps> = ({
                 onThreadClick?.(t.thread_id);
                 if (t.thread_id === threadId) return;
 
-                if (pathname === "/workflows") {
-                  const params = new URLSearchParams(searchParams);
-                  params.set("threadId", t.thread_id);
-                  const targetUrl = `/?${params.toString()}`;
-                  router.replace(targetUrl);
-                } else {
-                  setThreadId(t.thread_id);
-                }
+                // Always use router.replace to create a clean URL with only threadId
+                // This ensures any workflow or other query parameters are removed
+                router.replace(`/?threadId=${t.thread_id}`);
               }}
             >
               <p className="w-full truncate text-ellipsis">{itemText}</p>

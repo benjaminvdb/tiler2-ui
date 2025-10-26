@@ -6,6 +6,7 @@ import { ScrollableContent } from "./main-chat-area/components/scrollable-conten
 import { useChatContext } from "@/features/chat/providers/chat-provider";
 import { useStreamContext } from "@/core/providers/stream";
 import { EmptyState } from "@/features/chat/components/empty-state";
+import { LoadingSpinner } from "@/shared/components/loading-spinner";
 import { useRouter } from "next/navigation";
 
 const MainChatAreaComponent: React.FC = () => {
@@ -15,6 +16,7 @@ const MainChatAreaComponent: React.FC = () => {
 
   const messages = stream.messages;
   const hasMessages = messages && messages.length > 0;
+  const isLoading = stream.isLoading;
 
   // Handlers for EmptyState
   const handleSuggestionClick = (text: string) => {
@@ -28,12 +30,19 @@ const MainChatAreaComponent: React.FC = () => {
     router.push("/workflows");
   };
 
+  // Determine what to show in the main chat area
   const messageListContent = hasMessages ? (
     <MessageList
       firstTokenReceived={firstTokenReceived}
       handleRegenerate={handleRegenerate}
     />
+  ) : isLoading ? (
+    // Show loading indicator when workflow is being processed
+    <div className="flex h-full items-center justify-center">
+      <LoadingSpinner size="lg" />
+    </div>
   ) : (
+    // Show empty state only when not loading and no messages
     <EmptyState
       onSuggestionClick={handleSuggestionClick}
       onWorkflowCategoryClick={handleWorkflowCategoryClick}

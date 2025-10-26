@@ -16,7 +16,6 @@ export interface ChatInputProps {
   onStop: () => void;
   dragOver: boolean;
   dropRef: React.RefObject<HTMLDivElement | null>;
-  chatStarted: boolean;
 }
 
 export interface ContainerProps {

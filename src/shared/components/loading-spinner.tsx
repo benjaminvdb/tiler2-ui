@@ -37,7 +37,7 @@ export const LoadingScreen = ({
     <div className="bg-background flex h-screen w-full items-center justify-center">
       <div className="text-center">
         <LoadingSpinner
-          size="md"
+          size="lg"
           className="mb-4"
         />
         {children && (

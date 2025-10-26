@@ -1,10 +1,11 @@
 "use client";
 
 import * as React from "react";
-import { Plus, GitBranch, BookOpen } from "lucide-react";
+import { Plus, GitBranch, BookOpen, PanelLeftOpen, PanelLeftClose } from "lucide-react";
 import Image from "next/image";
 import { Thread } from "@langchain/langgraph-sdk";
 import { useQueryState } from "nuqs";
+import { useRouter } from "next/navigation";
 
 import {
   Sidebar,
@@ -19,9 +20,9 @@ import {
   SidebarMenuSkeleton,
   SidebarRail,
   SidebarSeparator,
-  SidebarTrigger,
   useSidebar,
 } from "@/shared/components/ui/sidebar";
+import { Button } from "@/shared/components/ui/button";
 import { extractThreadDisplayText } from "../components/thread-history/utils/thread-text-extractor";
 import { useThreadHistory } from "../components/thread-history/hooks/use-thread-history";
 import { SidebarUserProfile } from "@/features/auth/components/sidebar-user-profile";
@@ -31,14 +32,16 @@ import { navigateExternal } from "@/core/services/navigation";
 
 export const NewSidebar = (): React.JSX.Element => {
   const { navigationService, onNewThread } = useUIContext();
-  const [threadId, setThreadId] = useQueryState("threadId");
+  const [threadId] = useQueryState("threadId");
   const { threads, threadsLoading } = useThreadHistory();
-  const { state } = useSidebar();
+  const { state, toggleSidebar } = useSidebar();
   const isCollapsed = state === "collapsed";
+  const router = useRouter();
 
   const handleThreadClick = (clickedThreadId: string) => {
     if (clickedThreadId === threadId) return;
-    setThreadId(clickedThreadId);
+    // Use router.replace to create a clean URL with only threadId, removing any workflow parameter
+    router.replace(`/?threadId=${clickedThreadId}`);
   };
 
   const handleNavigate = (section: "workflows" | "wiki") => {
@@ -54,12 +57,14 @@ export const NewSidebar = (): React.JSX.Element => {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
-        <div className="flex items-center justify-between gap-2 px-2 py-2">
-          {/* Link Logo - Clickable to start new chat */}
+        <div
+          className={`flex items-center gap-2 px-2 py-2 ${isCollapsed ? "justify-center" : "justify-between"}`}
+        >
+          {/* Link Logo - Clickable to navigate home */}
           <button
-            onClick={onNewThread}
+            onClick={() => navigationService.navigateToHome()}
             className="flex flex-1 cursor-pointer items-center gap-2 transition-opacity group-data-[collapsible=icon]:hidden hover:opacity-80"
-            aria-label="Start New Chat"
+            aria-label="Go to Home"
           >
             <Image
               src="/link.svg"
@@ -73,7 +78,19 @@ export const NewSidebar = (): React.JSX.Element => {
           </button>
 
           {/* Collapse/Expand Button */}
-          <SidebarTrigger />
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-7 opacity-80 hover:opacity-100"
+            onClick={toggleSidebar}
+            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {isCollapsed ? (
+              <PanelLeftOpen className="h-4 w-4" />
+            ) : (
+              <PanelLeftClose className="h-4 w-4" />
+            )}
+          </Button>
         </div>
       </SidebarHeader>
 
@@ -144,7 +161,9 @@ export const NewSidebar = (): React.JSX.Element => {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarSeparator />
+        <div className="px-2">
+          <SidebarSeparator className="mx-0" />
+        </div>
 
         {/* Thread History - Only show when expanded */}
         {!isCollapsed && (
@@ -192,6 +211,11 @@ export const NewSidebar = (): React.JSX.Element => {
           </SidebarGroup>
         )}
       </SidebarContent>
+
+      {/* Divider above profile footer - wrapped for overflow clipping and padding */}
+      <div className="overflow-x-hidden px-2">
+        <SidebarSeparator className="mx-0" />
+      </div>
 
       {/* User Profile Footer */}
       <SidebarUserProfile />

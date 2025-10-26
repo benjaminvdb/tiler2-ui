@@ -21,7 +21,6 @@ const ChatInputComponent = ({
   onStop,
   dragOver,
   dropRef,
-  chatStarted,
 }: ChatInputProps) => {
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -55,10 +54,7 @@ const ChatInputComponent = ({
   return (
     <div
       ref={dropRef}
-      className={cn(
-        "relative mx-auto w-full max-w-3xl",
-        chatStarted && "mb-8",
-      )}
+      className="relative mx-auto w-full max-w-3xl"
     >
       <form
         onSubmit={onSubmit}

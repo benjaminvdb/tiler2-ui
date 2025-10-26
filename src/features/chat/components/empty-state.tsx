@@ -11,6 +11,7 @@ import {
   Map,
   UserCircle,
   Sparkles,
+  BookOpen,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -33,12 +34,13 @@ const onboardingOptions = [
 ];
 
 const workflowCategories = [
-  { name: "Policies & Governance", icon: Shield, color: "#5A7FA8" },
-  { name: "Impacts & Risk Assessment", icon: Target, color: "#9B5B5B" },
-  { name: "Interventions", icon: Lightbulb, color: "#8BA89B" },
-  { name: "Standards & Reporting", icon: BookCheck, color: "#C9A865" },
-  { name: "Stakeholder Engagement", icon: Users, color: "#3D4447" },
-  { name: "Strategy", icon: Map, color: "#B39FC4" },
+  { name: "Strategy", icon: Map, color: "#767C91" },
+  { name: "Policies & Governance", icon: Shield, color: "#7ca2b7" },
+  { name: "Impacts & Risk Assessment", icon: Target, color: "#72a6a6" },
+  { name: "Interventions", icon: Lightbulb, color: "#a6c887" },
+  { name: "Standards & Reporting", icon: BookCheck, color: "#e39c5a" },
+  { name: "Stakeholder Engagement", icon: Users, color: "#ac876c" },
+  { name: "Knowledge & Guidance", icon: BookOpen, color: "#878879" },
 ];
 
 export const EmptyState = ({
