@@ -25,9 +25,25 @@ dist-ssr
 
 # LangGraph API
 .langgraph_api
-.env
 .next/
 next-env.d.ts
 
-# Sentry Config File
+# Environment Variables
+# IMPORTANT: Never commit files with real secrets!
+# .env.example is the ONLY env file that should be committed
+.env
+.env*.local
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.development
+.env.production
+.env.test
+
+# Sentry Config Files
 .env.sentry-build-plugin
+.sentryclirc
+
+# Vercel
+.vercel
