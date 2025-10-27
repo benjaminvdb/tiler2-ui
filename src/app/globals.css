@@ -245,4 +245,42 @@ html {
       "Comic Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
       "Liberation Mono", "Courier New", monospace !important;
   }
+
+  /* Custom scrollbar for sidebar - ultra-minimal, design-system-aligned */
+  .scrollbar-sidebar {
+    /* Webkit scrollbar styling for Chrome, Safari, Edge */
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    &::-webkit-scrollbar-button {
+      display: none;
+      width: 0;
+      height: 0;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: var(--clay);
+      border-radius: 0px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background-color: var(--sage);
+    }
+  }
+
+  /* Dark mode scrollbar */
+  .dark .scrollbar-sidebar {
+    &::-webkit-scrollbar-thumb {
+      background-color: rgba(147, 177, 166, 0.3);
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background-color: rgba(147, 177, 166, 0.5);
+    }
+  }
 }

@@ -382,7 +382,7 @@ function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
       onMouseDown={handleMouseDown}
       title="Resize Sidebar"
       className={cn(
-        "hover:after:bg-sidebar-border absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:left-1/2 after:w-[2px] sm:flex",
+        "absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear group-data-[side=left]:-right-[18px] group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:left-1/2 after:w-1 after:bg-transparent after:transition-colors after:duration-250 after:delay-250 sm:flex",
         "cursor-col-resize",
         "hover:after:bg-sidebar-accent",
         className,
@@ -462,7 +462,7 @@ function SidebarContent({ className, ...props }: React.ComponentProps<"div">) {
       data-slot="sidebar-content"
       data-sidebar="content"
       className={cn(
-        "flex min-h-0 flex-1 flex-col gap-2 overflow-x-hidden overflow-y-auto group-data-[collapsible=icon]:overflow-hidden",
+        "flex min-h-0 flex-1 flex-col gap-2 overflow-x-hidden group-data-[collapsible=icon]:overflow-hidden",
         className,
       )}
       {...props}

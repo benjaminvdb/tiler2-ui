@@ -16,7 +16,7 @@ export const ThreadList: React.FC<ThreadListProps> = ({
   const router = useRouter();
 
   return (
-    <div className="flex h-full w-full flex-col items-start justify-start gap-2 overflow-y-scroll [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-track]:bg-transparent">
+    <div className="flex w-full flex-col items-start justify-start gap-2">
       {threads.map((t) => {
         const itemText = extractThreadDisplayText(t);
         return (

@@ -106,7 +106,7 @@ export const NewSidebar = (): React.JSX.Element => {
       </SidebarHeader>
 
       <SidebarContent>
-        {/* Primary Actions */}
+        {/* Fixed Primary Actions - Always visible at top */}
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -188,50 +188,52 @@ export const NewSidebar = (): React.JSX.Element => {
           <SidebarSeparator className="mx-0" />
         </div>
 
-        {/* Thread History - Only show when expanded */}
+        {/* Scrollable Thread History - Only show when expanded */}
         {!isCollapsed && (
-          <SidebarGroup>
-            <SidebarGroupLabel>CHATS</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {threadsLoading ? (
-                  // Loading skeleton
-                  <>
-                    {[...Array(5)].map((_, i) => (
-                      <SidebarMenuItem key={i}>
-                        <SidebarMenuSkeleton showIcon />
-                      </SidebarMenuItem>
-                    ))}
-                  </>
-                ) : threads.length === 0 ? (
-                  // No threads message
-                  <div className="px-2 py-4 text-center">
-                    <p className="text-muted-foreground text-xs">
-                      No chats yet. Start a new conversation!
-                    </p>
-                  </div>
-                ) : (
-                  // Thread list
-                  threads.map((thread: Thread) => {
-                    const displayText = extractThreadDisplayText(thread);
-                    const isActive = thread.thread_id === threadId;
+          <div className="scrollbar-sidebar flex min-h-0 flex-1 flex-col overflow-y-auto">
+            <SidebarGroup>
+              <SidebarGroupLabel>CHATS</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {threadsLoading ? (
+                    // Loading skeleton
+                    <>
+                      {[...Array(5)].map((_, i) => (
+                        <SidebarMenuItem key={i}>
+                          <SidebarMenuSkeleton showIcon />
+                        </SidebarMenuItem>
+                      ))}
+                    </>
+                  ) : threads.length === 0 ? (
+                    // No threads message
+                    <div className="px-2 py-4 text-center">
+                      <p className="text-muted-foreground text-xs">
+                        No chats yet. Start a new conversation!
+                      </p>
+                    </div>
+                  ) : (
+                    // Thread list
+                    threads.map((thread: Thread) => {
+                      const displayText = extractThreadDisplayText(thread);
+                      const isActive = thread.thread_id === threadId;
 
-                    return (
-                      <SidebarMenuItem key={thread.thread_id}>
-                        <SidebarMenuButton
-                          onClick={() => handleThreadClick(thread.thread_id)}
-                          isActive={isActive}
-                          tooltip={displayText}
-                        >
-                          <span className="truncate">{displayText}</span>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    );
-                  })
-                )}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
+                      return (
+                        <SidebarMenuItem key={thread.thread_id}>
+                          <SidebarMenuButton
+                            onClick={() => handleThreadClick(thread.thread_id)}
+                            isActive={isActive}
+                            tooltip={displayText}
+                          >
+                            <span className="truncate">{displayText}</span>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      );
+                    })
+                  )}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </div>
         )}
       </SidebarContent>
 
