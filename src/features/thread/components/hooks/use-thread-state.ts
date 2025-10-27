@@ -58,7 +58,8 @@ export function useThreadState(): {
 
     // Thread state
     threadId,
-    hideToolCalls: hideToolCalls !== null ? (hideToolCalls === true) : envDefaultHide,
+    hideToolCalls:
+      hideToolCalls !== null ? hideToolCalls === true : envDefaultHide,
     setHideToolCalls: (value: boolean) => setHideToolCalls(value ? true : null),
 
     // Input state
