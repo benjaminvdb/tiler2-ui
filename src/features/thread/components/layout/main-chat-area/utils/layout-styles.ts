@@ -7,11 +7,11 @@ export const getMainContainerClassName = (chatStarted: boolean) => {
   );
 };
 
-export const getContentClassName = (chatStarted: boolean) => {
+export const getContentClassName = () => {
   return cn(
     "absolute overflow-y-scroll px-4 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-track]:bg-transparent",
     "grid grid-rows-[1fr_auto]",
-    chatStarted ? "inset-0" : "left-0 right-0 top-[10vh] bottom-0",
+    "inset-0",
   );
 };
 

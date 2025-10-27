@@ -1,6 +1,5 @@
 import React, { useCallback } from "react";
 import { ScrollToBottom } from "../scroll-utils";
-import { ActionButtons } from "../action-buttons";
 import { ChatInput } from "../chat-input-components";
 import { useStreamContext } from "@/core/providers/stream";
 import { useChatContext } from "@/features/chat/providers/chat-provider";
@@ -21,7 +20,6 @@ const ChatFooterComponent: React.FC = () => {
     onHideToolCallsChange,
     dragOver,
     dropRef,
-    handleActionClick,
   } = useChatContext();
   const stream = useStreamContext();
   const isLoading = stream.isLoading;
@@ -38,13 +36,6 @@ const ChatFooterComponent: React.FC = () => {
       )}
     >
       <ScrollToBottom className="animate-in fade-in-0 zoom-in-95 absolute bottom-full left-1/2 mb-4 -translate-x-1/2" />
-      {/* Mobile action buttons */}
-      {!chatStarted && (
-        <ActionButtons
-          onActionClick={handleActionClick}
-          isMobile={true}
-        />
-      )}
       <ChatInput
         input={input}
         onInputChange={onInputChange}
@@ -61,13 +52,6 @@ const ChatFooterComponent: React.FC = () => {
         dragOver={dragOver}
         dropRef={dropRef}
       />
-      {/* Desktop action buttons */}
-      {!chatStarted && (
-        <ActionButtons
-          onActionClick={handleActionClick}
-          isMobile={false}
-        />
-      )}
     </div>
   );
 };

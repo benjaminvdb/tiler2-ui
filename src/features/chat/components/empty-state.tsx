@@ -14,6 +14,7 @@ import {
   BookOpen,
 } from "lucide-react";
 import Image from "next/image";
+import earthImage from "@/../public/images/earth-satellite.webp";
 
 interface EmptyStateProps {
   onSuggestionClick?: (text: string) => void;
@@ -48,8 +49,8 @@ export const EmptyState = ({
   onWorkflowCategoryClick,
 }: EmptyStateProps): React.JSX.Element => {
   return (
-    <div className="flex h-full flex-col items-center justify-center px-6 py-16">
-      <div className="flex w-full max-w-2xl flex-col items-center space-y-8">
+    <div className="flex h-full flex-col items-center justify-start px-6 py-12 sm:py-16 md:py-20 lg:py-24">
+      <div className="flex w-full max-w-2xl flex-col items-center space-y-4 sm:space-y-6 md:space-y-8">
         {/* Satellite Image Circle */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
@@ -69,44 +70,24 @@ export const EmptyState = ({
               repeat: Infinity,
               ease: "easeInOut",
             }}
-            className="from-ocean-blue/20 to-forest-green/20 relative h-80 w-80 overflow-hidden rounded-full bg-gradient-to-br"
+            className="from-ocean-blue/20 to-forest-green/20 relative h-56 max-h-[90vw] w-56 max-w-[90vw] overflow-hidden rounded-full bg-gradient-to-br sm:h-64 sm:w-64 md:h-72 md:w-72 lg:h-80 lg:w-80"
             style={{
               boxShadow:
                 "0 8px 32px rgba(11, 61, 46, 0.15), 0 2px 8px rgba(0, 0, 0, 0.08)",
             }}
           >
             <Image
-              src="/images/earth-satellite.png"
+              src={earthImage}
               alt="Earth from space"
-              fill
+              sizes="(max-width: 640px) 224px, (max-width: 768px) 256px, (max-width: 1024px) 288px, 320px"
               className="object-cover"
               priority
+              placeholder="blur"
             />
 
             {/* Subtle overlay for depth */}
             <div className="to-forest-green/5 absolute inset-0 bg-gradient-to-b from-transparent via-transparent" />
           </motion.div>
-        </motion.div>
-
-        {/* Link Chat Branding */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{
-            duration: 0.5,
-            delay: 0.2,
-            ease: [0.4, 0, 0.2, 1],
-          }}
-          className="flex items-center justify-center"
-        >
-          <Image
-            src="/link.svg"
-            alt="Link"
-            width={40}
-            height={13}
-            className="object-contain"
-            style={{ filter: "brightness(0)" }}
-          />
         </motion.div>
 
         {/* Onboarding Quick Actions */}
