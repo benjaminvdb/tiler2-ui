@@ -8,7 +8,10 @@ export function useMessageContent(message: Message) {
   const content = message?.content ?? [];
   const contentString = getContentString(content);
   const [hideToolCallsParam] = useSearchParamState("hideToolCalls");
-  const hideToolCalls = hideToolCallsParam === true;
+
+  // Fail-safe: Hide tool calls by default unless explicitly set to false
+  const envDefaultHide = process.env.NEXT_PUBLIC_HIDE_TOOL_CALLS !== "false";
+  const hideToolCalls = hideToolCallsParam !== null ? (hideToolCallsParam === true) : envDefaultHide;
 
   const thread = useStreamContext();
   const meta = thread.getMessagesMetadata(message);

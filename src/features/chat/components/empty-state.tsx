@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import earthImage from "@/../public/images/earth-satellite.webp";
+import { useUIContext } from "@/features/chat/providers/ui-provider";
 
 interface EmptyStateProps {
   onSuggestionClick?: (text: string) => void;
@@ -48,6 +49,8 @@ export const EmptyState = ({
   onSuggestionClick,
   onWorkflowCategoryClick,
 }: EmptyStateProps): React.JSX.Element => {
+  const { navigationService } = useUIContext();
+
   return (
     <div className="flex h-full flex-col items-center justify-start px-6 py-12 sm:py-16 md:py-20 lg:py-24">
       <div className="flex w-full max-w-2xl flex-col items-center space-y-4 sm:space-y-6 md:space-y-8">
@@ -118,9 +121,22 @@ export const EmptyState = ({
                   delay: 0.45 + index * 0.05,
                   ease: [0.4, 0, 0.2, 1],
                 }}
-                onClick={() =>
-                  onSuggestionClick?.(`I'd like help with: ${option.name}`)
-                }
+                onClick={() => {
+                  // Map button names to workflow IDs
+                  const workflowId =
+                    option.name === "Personalize Link AI"
+                      ? "onb-1"
+                      : option.name === "Tips & Tricks"
+                        ? "onb-2"
+                        : null;
+
+                  if (workflowId) {
+                    navigationService.navigateToWorkflow(workflowId);
+                  } else {
+                    // Fallback to suggestion click for other options
+                    onSuggestionClick?.(`I'd like help with: ${option.name}`);
+                  }
+                }}
                 className="group bg-card border-sage/20 hover:border-sage/40 hover:bg-sage/5 flex items-center gap-2 rounded-lg border px-4 py-2.5 transition-all duration-200"
                 style={{
                   boxShadow: "0 1px 3px rgba(107, 144, 128, 0.08)",
