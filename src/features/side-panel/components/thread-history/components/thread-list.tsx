@@ -1,6 +1,6 @@
 import { Button } from "@/shared/components/ui/button";
 import { Thread } from "@langchain/langgraph-sdk";
-import { useQueryState } from "nuqs";
+import { useSearchParamState } from "@/core/routing/hooks";
 import { useRouter } from "next/navigation";
 import { extractThreadDisplayText } from "../utils/thread-text-extractor";
 
@@ -12,7 +12,7 @@ export const ThreadList: React.FC<ThreadListProps> = ({
   threads,
   onThreadClick,
 }) => {
-  const [threadId] = useQueryState("threadId");
+  const [threadId] = useSearchParamState("threadId");
   const router = useRouter();
 
   return (

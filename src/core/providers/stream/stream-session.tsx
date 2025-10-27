@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { useQueryState } from "nuqs";
+import { useSearchParamState } from "@/core/routing/hooks";
 import { useUser } from "@auth0/nextjs-auth0";
 import {
   uiMessageReducer,
@@ -28,7 +28,7 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
   apiUrl,
   assistantId,
 }) => {
-  const [threadId, setThreadId] = useQueryState("threadId");
+  const [threadId, setThreadId] = useSearchParamState("threadId");
   const { getThreads, setThreads } = useThreads();
   const threadFetchControllerRef = useRef<AbortController | null>(null);
   const { user, isLoading: isUserLoading } = useUser();

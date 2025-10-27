@@ -1,5 +1,5 @@
 import React from "react";
-import { useQueryState } from "nuqs";
+import { useSearchParamState } from "@/core/routing/hooks";
 import { Button } from "@/shared/components/ui/button";
 import { cn } from "@/shared/utils/utils";
 import { toast } from "sonner";
@@ -183,8 +183,8 @@ export const ThreadActionsView: React.FC<ThreadActionsViewProps> = ({
   showDescription,
   showState,
 }) => {
-  const [threadId] = useQueryState("threadId");
-  const [apiUrl] = useQueryState("apiUrl");
+  const [threadId] = useSearchParamState("threadId");
+  const [apiUrl] = useSearchParamState("apiUrl");
 
   const {
     acceptAllowed,

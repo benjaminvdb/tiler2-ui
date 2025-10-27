@@ -5,7 +5,7 @@ import { UIProvider } from "@/features/chat/providers/ui-provider";
 import { ThreadProvider } from "@/features/thread/providers/thread-provider";
 import { HotkeysProvider } from "@/features/hotkeys";
 import { useMediaQuery } from "@/shared/hooks/use-media-query";
-import { useQueryState } from "nuqs";
+import { useSearchParamState } from "@/core/routing/hooks";
 import { useRouter } from "next/navigation";
 import { Toaster } from "@/shared";
 import { createNavigationService } from "@/core/services/navigation";
@@ -21,20 +21,10 @@ export function AppProviders({ children }: AppProvidersProps): React.ReactNode {
   const router = useRouter();
 
   // UI state management
-  const [chatHistoryOpen, setChatHistoryOpen] = useQueryState(
-    "chatHistoryOpen",
-    {
-      defaultValue: false,
-      parse: (value) => value === "true",
-      serialize: (value) => value.toString(),
-    },
-  );
+  const [chatHistoryOpen, setChatHistoryOpen] =
+    useSearchParamState("chatHistoryOpen");
 
-  const [threadId, setThreadId] = useQueryState("threadId", {
-    defaultValue: null,
-    parse: (value) => (value ? value : null),
-    serialize: (value) => value || "",
-  });
+  const [threadId, setThreadId] = useSearchParamState("threadId");
 
   // Set Sentry context when threadId changes
   useEffect(() => {
@@ -68,7 +58,7 @@ export function AppProviders({ children }: AppProvidersProps): React.ReactNode {
 
   // Memoized callback functions to prevent unnecessary rerenders
   const handleToggleChatHistory = useCallback(() => {
-    setChatHistoryOpen(!chatHistoryOpen);
+    setChatHistoryOpen(chatHistoryOpen ? null : true);
   }, [chatHistoryOpen, setChatHistoryOpen]);
 
   const navigationService = useMemo(
@@ -91,7 +81,7 @@ export function AppProviders({ children }: AppProvidersProps): React.ReactNode {
 
   const uiContextValue = useMemo(
     () => ({
-      chatHistoryOpen,
+      chatHistoryOpen: chatHistoryOpen === true,
       isLargeScreen,
       sidePanelWidth,
       navigationService,

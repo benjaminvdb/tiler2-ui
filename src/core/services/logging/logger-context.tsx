@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useMemo, ReactNode } from "react";
 import { useUser } from "@auth0/nextjs-auth0";
-import { useQueryState } from "nuqs";
+import { useSearchParamState } from "@/core/routing/hooks";
 import { createLogger } from "./logger";
 import { ILogger, LogContext } from "./types";
 import { getLogger } from "./logger";
@@ -27,7 +27,7 @@ export function LoggerProvider({
   additionalContext = {},
 }: LoggerProviderProps): React.JSX.Element {
   const { user } = useUser();
-  const [threadId] = useQueryState("threadId");
+  const [threadId] = useSearchParamState("threadId");
 
   const logger = useMemo(() => {
     const context: LogContext = {

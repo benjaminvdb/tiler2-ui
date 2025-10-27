@@ -1,5 +1,5 @@
 import React, { ReactNode, useMemo } from "react";
-import { useQueryState } from "nuqs";
+import { useSearchParamState } from "@/core/routing/hooks";
 import { getClientConfig } from "@/core/config/client";
 import { ConfigurationForm } from "./stream/configuration-form";
 import { StreamSession } from "./stream/stream-session";
@@ -15,12 +15,8 @@ export const StreamProvider: React.FC<{ children: ReactNode }> = ({
   const clientConfig = getClientConfig();
 
   // Use URL params with env var fallbacks (only for development configuration)
-  const [apiUrl, setApiUrl] = useQueryState("apiUrl", {
-    defaultValue: clientConfig.apiUrl || "",
-  });
-  const [assistantId, setAssistantId] = useQueryState("assistantId", {
-    defaultValue: clientConfig.assistantId || "",
-  });
+  const [apiUrl, setApiUrl] = useSearchParamState("apiUrl");
+  const [assistantId, setAssistantId] = useSearchParamState("assistantId");
 
   // Memoize final values to prevent unnecessary re-renders
   const finalApiUrl = useMemo(
@@ -36,11 +32,11 @@ export const StreamProvider: React.FC<{ children: ReactNode }> = ({
   if (!finalApiUrl || !finalAssistantId) {
     return (
       <ConfigurationForm
-        apiUrl={apiUrl}
-        assistantId={assistantId}
+        apiUrl={apiUrl || ""}
+        assistantId={assistantId || ""}
         onSubmit={({ apiUrl, assistantId }) => {
-          setApiUrl(apiUrl);
-          setAssistantId(assistantId);
+          setApiUrl(apiUrl || null);
+          setAssistantId(assistantId || null);
         }}
       />
     );

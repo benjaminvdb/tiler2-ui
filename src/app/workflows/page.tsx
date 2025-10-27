@@ -265,11 +265,11 @@ export default function WorkflowsPage(): React.ReactNode {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.15, ease: [0.4, 0, 0.2, 1] }}
-          className="mb-6 mt-8"
+          className="mt-8 mb-6"
         >
           <div className="relative max-w-xl">
             <LucideIcons.Search
-              className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+              className="text-muted-foreground absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2"
               strokeWidth={2}
             />
             <input
@@ -277,7 +277,7 @@ export default function WorkflowsPage(): React.ReactNode {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search workflows..."
-              className="w-full rounded-lg border border-border bg-white py-3 pl-11 pr-10 text-foreground placeholder:text-muted-foreground focus:border-transparent focus:outline-none focus:ring-2 focus:ring-sage"
+              className="border-border text-foreground placeholder:text-muted-foreground focus:ring-sage w-full rounded-lg border bg-white py-3 pr-10 pl-11 focus:border-transparent focus:ring-2 focus:outline-none"
               style={{
                 boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",
                 transition: "all 250ms cubic-bezier(0.4, 0, 0.2, 1)",
@@ -286,17 +286,17 @@ export default function WorkflowsPage(): React.ReactNode {
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-1 transition-colors duration-250 hover:bg-sand"
+                className="hover:bg-sand absolute top-1/2 right-3 -translate-y-1/2 rounded p-1 transition-colors duration-250"
               >
                 <LucideIcons.X
-                  className="h-4 w-4 text-muted-foreground"
+                  className="text-muted-foreground h-4 w-4"
                   strokeWidth={2}
                 />
               </button>
             )}
           </div>
           {searchQuery && (
-            <p className="mt-3 text-[13px] text-muted-foreground">
+            <p className="text-muted-foreground mt-3 text-[13px]">
               {filteredWorkflows.length} workflow
               {filteredWorkflows.length !== 1 ? "s" : ""} found
             </p>
@@ -319,22 +319,20 @@ export default function WorkflowsPage(): React.ReactNode {
       )}
 
       {/* Info: Limited workflows available */}
-      {!error &&
-        !loading &&
-        workflows.length === BUILT_IN_WORKFLOWS.length && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-            className="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4"
-          >
-            <div className="text-sm text-blue-800">
-              <strong>Note:</strong> Only showing built-in workflows. The
-              backend may not have returned additional workflows. Check the
-              browser console for details.
-            </div>
-          </motion.div>
-        )}
+      {!error && !loading && workflows.length === BUILT_IN_WORKFLOWS.length && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+          className="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4"
+        >
+          <div className="text-sm text-blue-800">
+            <strong>Note:</strong> Only showing built-in workflows. The backend
+            may not have returned additional workflows. Check the browser
+            console for details.
+          </div>
+        </motion.div>
+      )}
 
       {/* Category Navigation Pills - Only show when not searching */}
       {!searchQuery.trim() && categories.length > 0 && (
@@ -379,7 +377,7 @@ export default function WorkflowsPage(): React.ReactNode {
           </motion.div>
 
           {/* Divider */}
-          <div className="mb-12 border-t border-border" />
+          <div className="border-border mb-12 border-t" />
         </>
       )}
 
@@ -388,7 +386,9 @@ export default function WorkflowsPage(): React.ReactNode {
         // Search Mode: Show flat grid of filtered workflows
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filteredWorkflows.map((workflow, index) => {
-            const categoryColor = getCategoryColorByName(workflow.category.name);
+            const categoryColor = getCategoryColorByName(
+              workflow.category.name,
+            );
             const illustrationSrc = getCategoryIllustration(
               workflow.category.name,
             );
@@ -499,8 +499,13 @@ export default function WorkflowsPage(): React.ReactNode {
               const category = categoryWorkflows[0].category;
               const categoryColor = getCategoryColorByName(categoryName);
               const isOnboarding = categoryName === "Onboarding";
-              const totalCategories = Object.entries(workflowsByCategory).length;
+              const totalCategories =
+                Object.entries(workflowsByCategory).length;
               const isLastCategory = categoryIndex === totalCategories - 1;
+              // Find fallback workflow (order_index = 0) for this category
+              const fallbackWorkflow = categoryWorkflows.find(
+                (w) => w.order_index === 0,
+              );
 
               return (
                 <motion.section
@@ -662,22 +667,26 @@ export default function WorkflowsPage(): React.ReactNode {
                     })}
                   </div>
 
-                  {/* "My option isn't here" link */}
-                  <div className="mt-5 text-center">
-                    <button
-                      onClick={() => {
-                        // Navigate to home/chat page
-                        navigationService.navigateToHome();
-                      }}
-                      className="text-muted-foreground decoration-muted-foreground/30 hover:text-foreground hover:decoration-foreground/50 text-[14px] underline decoration-1 underline-offset-4 transition-colors duration-250"
-                      style={{
-                        letterSpacing: "-0.003em",
-                      }}
-                    >
-                      My option isn&apos;t here – discuss another{" "}
-                      {categoryName.toLowerCase()} matter
-                    </button>
-                  </div>
+                  {/* "My option isn't here" link - only show if fallback workflow exists */}
+                  {fallbackWorkflow && (
+                    <div className="mt-5 text-center">
+                      <button
+                        onClick={() => {
+                          // Navigate to fallback workflow
+                          navigationService.navigateToWorkflow(
+                            fallbackWorkflow.workflow_id,
+                          );
+                        }}
+                        className="text-muted-foreground decoration-muted-foreground/30 hover:text-foreground hover:decoration-foreground/50 text-[14px] underline decoration-1 underline-offset-4 transition-colors duration-250"
+                        style={{
+                          letterSpacing: "-0.003em",
+                        }}
+                      >
+                        My option isn&apos;t here – discuss another{" "}
+                        {categoryName.toLowerCase()} matter
+                      </button>
+                    </div>
+                  )}
                 </motion.section>
               );
             },

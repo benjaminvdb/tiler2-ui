@@ -33,7 +33,7 @@ const ChatFooterComponent: React.FC = () => {
   return (
     <div
       className={cn(
-        "sticky bottom-0 flex flex-col items-center gap-8 bg-background",
+        "bg-background sticky bottom-0 flex flex-col items-center gap-8",
         chatStarted ? "pb-4" : "pb-12",
       )}
     >

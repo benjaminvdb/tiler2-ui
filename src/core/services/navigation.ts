@@ -1,9 +1,21 @@
+/**
+ * Navigation Service
+ *
+ * Centralized navigation service with type-safe routing and search params.
+ * Provides a clean API for all navigation operations in the application.
+ */
+
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+import { ROUTES, type Route } from "@/core/routing/routes";
+import { buildUrl, type SearchParams } from "@/core/routing";
 
 export interface NavigationService {
-  navigateToHome: () => void;
+  // Page navigation
+  navigateToHome: (params?: Partial<SearchParams>) => void;
   navigateToWorkflows: () => void;
   navigateToWorkflow: (workflowId: string) => void;
+
+  // Route checking
   isHomePage: (pathname: string) => boolean;
   isWorkflowsPage: (pathname: string) => boolean;
 }
@@ -11,24 +23,26 @@ export interface NavigationService {
 export function createNavigationService(
   router: AppRouterInstance,
 ): NavigationService {
-  const navigateToHome = () => {
-    router.push("/");
+  const navigateToHome = (params?: Partial<SearchParams>) => {
+    const url = buildUrl(ROUTES.HOME, params);
+    router.push(url);
   };
 
   const navigateToWorkflows = () => {
-    router.push("/workflows");
+    router.push(ROUTES.WORKFLOWS);
   };
 
   const navigateToWorkflow = (workflowId: string) => {
-    router.push(`/?workflow=${workflowId}`);
+    const url = buildUrl(ROUTES.HOME, { workflow: workflowId });
+    router.push(url);
   };
 
   const isHomePage = (pathname: string): boolean => {
-    return pathname === "/";
+    return pathname === ROUTES.HOME;
   };
 
   const isWorkflowsPage = (pathname: string): boolean => {
-    return pathname === "/workflows";
+    return pathname === ROUTES.WORKFLOWS;
   };
 
   return {
@@ -40,13 +54,12 @@ export function createNavigationService(
   };
 }
 
+/**
+ * Open URL in new tab
+ */
 export function navigateExternal(url: string): void {
   window.open(url, "_blank", "noopener,noreferrer");
 }
 
-export const ROUTES = {
-  HOME: "/",
-  WORKFLOWS: "/workflows",
-} as const;
-
-export type Route = (typeof ROUTES)[keyof typeof ROUTES];
+// Re-export for convenience
+export { ROUTES, type Route };

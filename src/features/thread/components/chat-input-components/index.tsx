@@ -67,8 +67,10 @@ const ChatInputComponent = ({
 
         <div
           className={cn(
-            "relative rounded-lg border bg-card transition-all duration-200 focus-within:border-sage focus-within:shadow-sm",
-            dragOver ? "border-primary border-2 border-dotted" : "border-border",
+            "bg-card focus-within:border-sage relative rounded-lg border transition-all duration-200 focus-within:shadow-sm",
+            dragOver
+              ? "border-primary border-2 border-dotted"
+              : "border-border",
           )}
           style={{
             boxShadow: "0 1px 3px rgba(0, 0, 0, 0.04)",
@@ -77,7 +79,7 @@ const ChatInputComponent = ({
           <button
             type="button"
             onClick={handleFileUploadClick}
-            className="absolute bottom-2.5 left-2 flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-all duration-200 hover:bg-sand hover:text-foreground"
+            className="text-muted-foreground hover:bg-sand hover:text-foreground absolute bottom-2.5 left-2 flex h-8 w-8 items-center justify-center rounded-md transition-all duration-200"
             aria-label="Attach file"
           >
             <Plus
@@ -107,7 +109,7 @@ const ChatInputComponent = ({
             }
             disabled={isLoading}
             rows={1}
-            className="field-sizing-content max-h-[200px] w-full resize-none overflow-y-auto bg-transparent py-3.5 pr-11 pl-11 outline-none placeholder:text-muted-foreground placeholder:opacity-40 disabled:cursor-not-allowed disabled:opacity-50"
+            className="placeholder:text-muted-foreground field-sizing-content max-h-[200px] w-full resize-none overflow-y-auto bg-transparent py-3.5 pr-11 pl-11 outline-none placeholder:opacity-40 disabled:cursor-not-allowed disabled:opacity-50"
             style={{
               lineHeight: "1.5",
               fontFamily:

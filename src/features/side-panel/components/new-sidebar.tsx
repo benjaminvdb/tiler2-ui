@@ -1,10 +1,16 @@
 "use client";
 
 import * as React from "react";
-import { Plus, GitBranch, BookOpen, PanelLeftOpen, PanelLeftClose } from "lucide-react";
+import {
+  Plus,
+  GitBranch,
+  BookOpen,
+  PanelLeftOpen,
+  PanelLeftClose,
+} from "lucide-react";
 import Image from "next/image";
 import { Thread } from "@langchain/langgraph-sdk";
-import { useQueryState } from "nuqs";
+import { useSearchParamState } from "@/core/routing/hooks";
 import { useRouter } from "next/navigation";
 
 import {
@@ -31,8 +37,8 @@ import { useUIContext } from "@/features/chat/providers/ui-provider";
 import { navigateExternal } from "@/core/services/navigation";
 
 export const NewSidebar = (): React.JSX.Element => {
-  const { navigationService, onNewThread } = useUIContext();
-  const [threadId] = useQueryState("threadId");
+  const { navigationService } = useUIContext();
+  const [threadId] = useSearchParamState("threadId");
   const { threads, threadsLoading } = useThreadHistory();
   const { state, toggleSidebar } = useSidebar();
   const isCollapsed = state === "collapsed";
@@ -160,7 +166,12 @@ export const NewSidebar = (): React.JSX.Element => {
                     children: (
                       <div className="text-center">
                         <p className="font-medium">{LABEL_WIKI}</p>
-                        <p className="mt-1 text-xs text-white/60 invisible" aria-hidden="true">&nbsp;</p>
+                        <p
+                          className="invisible mt-1 text-xs text-white/60"
+                          aria-hidden="true"
+                        >
+                          &nbsp;
+                        </p>
                       </div>
                     ),
                   }}

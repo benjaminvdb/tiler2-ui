@@ -11,7 +11,7 @@ export const Container: React.FC<ContainerProps> = ({
     <div
       ref={dropRef}
       className={cn(
-        "bg-sand relative z-10 mx-auto w-full max-w-3xl rounded-lg transition-all focus-within:border-sage focus-within:shadow-sm",
+        "bg-sand focus-within:border-sage relative z-10 mx-auto w-full max-w-3xl rounded-lg transition-all focus-within:shadow-sm",
         dragOver
           ? "border-primary border-2 border-dotted"
           : "border-border border",

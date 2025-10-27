@@ -74,14 +74,14 @@ const MessageActions: React.FC<MessageActionsProps> = ({
       <button
         onClick={handleCopy}
         disabled={isLoading}
-        className="flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 transition-colors duration-200 hover:bg-sand disabled:cursor-not-allowed disabled:opacity-50"
+        className="border-border bg-card hover:bg-sand flex items-center gap-1.5 rounded-md border px-3 py-1.5 transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-50"
         style={{ boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)" }}
       >
         <Copy
-          className="h-3.5 w-3.5 text-muted-foreground"
+          className="text-muted-foreground h-3.5 w-3.5"
           strokeWidth={2}
         />
-        <span className="text-[13px] text-foreground">
+        <span className="text-foreground text-[13px]">
           {copied ? "Copied!" : "Copy"}
         </span>
       </button>
@@ -90,14 +90,14 @@ const MessageActions: React.FC<MessageActionsProps> = ({
         <button
           onClick={handleRegenerate}
           disabled={isLoading}
-          className="flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 transition-colors duration-200 hover:bg-sand disabled:cursor-not-allowed disabled:opacity-50"
+          className="border-border bg-card hover:bg-sand flex items-center gap-1.5 rounded-md border px-3 py-1.5 transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-50"
           style={{ boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)" }}
         >
           <RefreshCcw
-            className="h-3.5 w-3.5 text-muted-foreground"
+            className="text-muted-foreground h-3.5 w-3.5"
             strokeWidth={2}
           />
-          <span className="text-[13px] text-foreground">Refresh</span>
+          <span className="text-foreground text-[13px]">Refresh</span>
         </button>
       )}
 
@@ -105,14 +105,14 @@ const MessageActions: React.FC<MessageActionsProps> = ({
         <button
           onClick={onExpertHelpClick}
           disabled={isLoading}
-          className="flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 transition-colors duration-200 hover:bg-sand disabled:cursor-not-allowed disabled:opacity-50"
+          className="border-border bg-card hover:bg-sand flex items-center gap-1.5 rounded-md border px-3 py-1.5 transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-50"
           style={{ boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)" }}
         >
           <UserCircle
-            className="h-3.5 w-3.5 text-muted-foreground"
+            className="text-muted-foreground h-3.5 w-3.5"
             strokeWidth={2}
           />
-          <span className="text-[13px] text-foreground">Ask an Expert</span>
+          <span className="text-foreground text-[13px]">Ask an Expert</span>
         </button>
       )}
 
@@ -120,14 +120,14 @@ const MessageActions: React.FC<MessageActionsProps> = ({
         <button
           onClick={() => setIsEditing?.(true)}
           disabled={isLoading}
-          className="flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 transition-colors duration-200 hover:bg-sand disabled:cursor-not-allowed disabled:opacity-50"
+          className="border-border bg-card hover:bg-sand flex items-center gap-1.5 rounded-md border px-3 py-1.5 transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-50"
           style={{ boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)" }}
         >
           <Pencil
-            className="h-3.5 w-3.5 text-muted-foreground"
+            className="text-muted-foreground h-3.5 w-3.5"
             strokeWidth={2}
           />
-          <span className="text-[13px] text-foreground">Edit</span>
+          <span className="text-foreground text-[13px]">Edit</span>
         </button>
       )}
     </div>

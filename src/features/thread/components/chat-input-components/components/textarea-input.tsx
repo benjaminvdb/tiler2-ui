@@ -47,7 +47,7 @@ const TextareaInputComponent = ({
           : "Type your message..."
       }
       className={cn(
-        "field-sizing-content resize-none border-none bg-transparent p-3.5 pb-0 shadow-none ring-0 outline-none focus:ring-0 focus:outline-none placeholder:opacity-40",
+        "field-sizing-content resize-none border-none bg-transparent p-3.5 pb-0 shadow-none ring-0 outline-none placeholder:opacity-40 focus:ring-0 focus:outline-none",
       )}
       style={{
         fontSize: "15px",

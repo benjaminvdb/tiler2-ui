@@ -4,7 +4,6 @@ import { Inter, Source_Serif_4 } from "next/font/google";
 import "@fontsource/comic-mono/400.css";
 import "@fontsource/comic-mono/700.css";
 import React from "react";
-import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { Auth0Provider } from "@auth0/nextjs-auth0";
 import { MotionConfigProvider } from "@/core/providers/motion-config-provider";
 import { GlobalErrorBoundary } from "@/shared/components/error-boundary/global-error-boundary";
@@ -56,9 +55,7 @@ export default async function RootLayout({
             <AsyncErrorBoundary>
               <Auth0Provider {...auth0ProviderProps}>
                 <SentryUserContext user={session?.user || null} />
-                <NuqsAdapter>
-                  <AppLayout>{children}</AppLayout>
-                </NuqsAdapter>
+                <AppLayout>{children}</AppLayout>
               </Auth0Provider>
             </AsyncErrorBoundary>
           </GlobalErrorBoundary>

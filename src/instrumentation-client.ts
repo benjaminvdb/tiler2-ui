@@ -92,6 +92,5 @@ if (!isDevelopment && dsn) {
 }
 
 // Only export router transition tracking if Sentry was initialized
-export const onRouterTransitionStart = (!isDevelopment && dsn)
-  ? Sentry.captureRouterTransitionStart
-  : undefined;
+export const onRouterTransitionStart =
+  !isDevelopment && dsn ? Sentry.captureRouterTransitionStart : undefined;

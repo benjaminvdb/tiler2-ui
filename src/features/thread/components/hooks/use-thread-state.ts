@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { useQueryState, parseAsBoolean } from "nuqs";
+import { useSearchParamState } from "@/core/routing/hooks";
 import {
   useArtifactContext,
   useArtifactOpen,
@@ -33,11 +33,9 @@ export function useThreadState(): {
   const [artifactContext, setArtifactContext] = useArtifactContext();
   const [artifactOpen, closeArtifact] = useArtifactOpen();
 
-  const [threadId, _setThreadId] = useQueryState("threadId");
-  const [hideToolCalls, setHideToolCalls] = useQueryState(
-    "hideToolCalls",
-    parseAsBoolean.withDefault(false),
-  );
+  const [threadId, _setThreadId] = useSearchParamState("threadId");
+  const [hideToolCalls, setHideToolCalls] =
+    useSearchParamState("hideToolCalls");
 
   const [input, setInput] = useState("");
   const [firstTokenReceived, setFirstTokenReceived] = useState(false);
@@ -57,8 +55,8 @@ export function useThreadState(): {
 
     // Thread state
     threadId,
-    hideToolCalls,
-    setHideToolCalls,
+    hideToolCalls: hideToolCalls === true,
+    setHideToolCalls: (value: boolean) => setHideToolCalls(value ? true : null),
 
     // Input state
     input,

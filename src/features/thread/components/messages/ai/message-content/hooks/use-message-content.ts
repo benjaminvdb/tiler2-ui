@@ -1,4 +1,4 @@
-import { useQueryState, parseAsBoolean } from "nuqs";
+import { useSearchParamState } from "@/core/routing/hooks";
 import { Message } from "@langchain/langgraph-sdk";
 import { useStreamContext } from "@/core/providers/stream";
 import { getContentString } from "../../../../utils";
@@ -7,10 +7,8 @@ import { parseAnthropicStreamedToolCalls } from "../../utils";
 export function useMessageContent(message: Message) {
   const content = message?.content ?? [];
   const contentString = getContentString(content);
-  const [hideToolCalls] = useQueryState(
-    "hideToolCalls",
-    parseAsBoolean.withDefault(true),
-  );
+  const [hideToolCallsParam] = useSearchParamState("hideToolCalls");
+  const hideToolCalls = hideToolCallsParam === true;
 
   const thread = useStreamContext();
   const meta = thread.getMessagesMetadata(message);
