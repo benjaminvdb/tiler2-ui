@@ -38,6 +38,11 @@ export const NewSidebar = (): React.JSX.Element => {
   const isCollapsed = state === "collapsed";
   const router = useRouter();
 
+  // Navigation labels - single source of truth for button text and tooltips
+  const LABEL_NEW_CHAT = "New Chat";
+  const LABEL_WORKFLOWS = "Workflows";
+  const LABEL_WIKI = "Wiki";
+
   const handleThreadClick = (clickedThreadId: string) => {
     if (clickedThreadId === threadId) return;
     // Use router.replace to create a clean URL with only threadId, removing any workflow parameter
@@ -102,11 +107,11 @@ export const NewSidebar = (): React.JSX.Element => {
               {/* New Chat Button - Highlighted in Forest Green */}
               <SidebarMenuItem>
                 <SidebarMenuButton
-                  onClick={onNewThread}
+                  onClick={() => navigationService.navigateToHome()}
                   tooltip={{
                     children: (
                       <div className="text-center">
-                        <p className="font-medium">Start New Chat</p>
+                        <p className="font-medium">{LABEL_NEW_CHAT}</p>
                         <p className="mt-1 text-xs text-white/60">
                           {getShortcutText("new-chat")}
                         </p>
@@ -123,7 +128,7 @@ export const NewSidebar = (): React.JSX.Element => {
                     className="h-4 w-4"
                     strokeWidth={2}
                   />
-                  <span className="font-medium">New Chat</span>
+                  <span className="font-medium">{LABEL_NEW_CHAT}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
 
@@ -134,7 +139,7 @@ export const NewSidebar = (): React.JSX.Element => {
                   tooltip={{
                     children: (
                       <div className="text-center">
-                        <p className="font-medium">Browse Workflows</p>
+                        <p className="font-medium">{LABEL_WORKFLOWS}</p>
                         <p className="mt-1 text-xs text-white/60">
                           {getShortcutText("workflows")}
                         </p>
@@ -143,7 +148,7 @@ export const NewSidebar = (): React.JSX.Element => {
                   }}
                 >
                   <GitBranch className="h-4 w-4" />
-                  <span>Workflows</span>
+                  <span>{LABEL_WORKFLOWS}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
 
@@ -151,10 +156,17 @@ export const NewSidebar = (): React.JSX.Element => {
               <SidebarMenuItem>
                 <SidebarMenuButton
                   onClick={() => handleNavigate("wiki")}
-                  tooltip="Knowledge Base"
+                  tooltip={{
+                    children: (
+                      <div className="text-center">
+                        <p className="font-medium">{LABEL_WIKI}</p>
+                        <p className="mt-1 text-xs text-white/60 invisible" aria-hidden="true">&nbsp;</p>
+                      </div>
+                    ),
+                  }}
                 >
                   <BookOpen className="h-4 w-4" />
-                  <span>Wiki</span>
+                  <span>{LABEL_WIKI}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>

@@ -85,25 +85,7 @@ const getCategoryIllustration = (categoryName: string): string => {
 
 // Hard-coded built-in workflows that are always available
 // Note: These are fallback workflows if backend is unavailable
-const BUILT_IN_WORKFLOWS: WorkflowConfig[] = [
-  {
-    id: 1,
-    workflow_id: "data_summary",
-    title: "Data Analysis Workflow",
-    description:
-      "Create a comprehensive summary to get an overview for the scope and scale of your data.",
-    icon: "clipboard-list",
-    icon_color: "blue",
-    order_index: 0,
-    category: {
-      id: 7,
-      name: "Strategy",
-      color: "#767C91",
-      icon_name: "map",
-      order_index: 1,
-    },
-  },
-];
+const BUILT_IN_WORKFLOWS: WorkflowConfig[] = [];
 
 export default function WorkflowsPage(): React.ReactNode {
   const { navigationService } = useUIContext();
@@ -231,15 +213,15 @@ export default function WorkflowsPage(): React.ReactNode {
   }, [filteredWorkflows]);
 
   // Extract unique categories for navigation pills (excluding Onboarding)
+  // Derive from workflowsByCategory to ensure pills only show for categories with workflows
   const categories = useMemo(() => {
-    const uniqueCategories = Array.from(
-      new Map(workflows.map((w) => [w.category.name, w.category])).values(),
-    );
-    // Filter out Onboarding category and sort by order_index from API
-    return uniqueCategories
+    const categoriesWithWorkflows = Object.values(workflowsByCategory)
+      .map((workflows) => workflows[0].category)
       .filter((cat) => cat.name !== "Onboarding")
       .sort((a, b) => a.order_index - b.order_index);
-  }, [workflows]);
+
+    return categoriesWithWorkflows;
+  }, [workflowsByCategory]);
 
   // Scroll to category section
   const scrollToCategory = (categoryName: string) => {
@@ -517,6 +499,8 @@ export default function WorkflowsPage(): React.ReactNode {
               const category = categoryWorkflows[0].category;
               const categoryColor = getCategoryColorByName(categoryName);
               const isOnboarding = categoryName === "Onboarding";
+              const totalCategories = Object.entries(workflowsByCategory).length;
+              const isLastCategory = categoryIndex === totalCategories - 1;
 
               return (
                 <motion.section
@@ -535,7 +519,11 @@ export default function WorkflowsPage(): React.ReactNode {
                     ease: [0.4, 0, 0.2, 1],
                   }}
                   style={{ scrollMarginTop: "2rem" }}
-                  className={`mb-16 border-b pb-12 ${isOnboarding ? "border-border border-b-2" : "border-gray-200"}`}
+                  className={`${isLastCategory ? "mb-6" : "mb-16"} pb-12 ${
+                    !isLastCategory
+                      ? `border-b ${isOnboarding ? "border-border border-b-2" : "border-gray-200"}`
+                      : ""
+                  }`}
                 >
                   {/* Category Header */}
                   <div className="mb-6 flex items-center gap-3">
