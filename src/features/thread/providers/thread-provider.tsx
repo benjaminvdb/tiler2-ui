@@ -10,6 +10,7 @@ import {
   SetStateAction,
 } from "react";
 import { reportThreadError } from "@/core/services/error-reporting";
+import { fetchWithAuth } from "@/core/services/http-client";
 
 interface ThreadContextType {
   getThreads: () => Promise<Thread[]>;
@@ -42,19 +43,11 @@ export const ThreadProvider: React.FC<{ children: ReactNode }> = ({
     if (!apiUrl || !assistantId) return [];
 
     try {
-      // Get fresh token from server-side endpoint
-      const tokenResponse = await fetch("/api/auth/token");
-      if (!tokenResponse.ok) {
-        throw new Error("Failed to get access token");
-      }
-      const { token } = await tokenResponse.json();
-
-      // Call LangGraph API directly with Authorization header
-      const response = await fetch(`${apiUrl}/threads/search`, {
+      // Call LangGraph API with automatic authentication and 403 handling
+      const response = await fetchWithAuth(`${apiUrl}/threads/search`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           metadata: {
@@ -70,6 +63,8 @@ export const ThreadProvider: React.FC<{ children: ReactNode }> = ({
       const threads = await response.json();
       return threads;
     } catch (error) {
+      // fetchWithAuth handles 403 errors with retry and logout
+      // All other errors are reported here
       reportThreadError(error as Error, {
         operation: "searchThreads",
         component: "ThreadProvider",

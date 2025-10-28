@@ -51,14 +51,38 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
     }
   }, [assistantId, apiUrl]);
 
-  // Fetch access token on mount
-  // Auth0's getAccessToken() automatically handles token refresh server-side
+  // Fetch access token once on mount if we don't have one
+  // The `accessToken` check prevents unnecessary refetches - token is reused until cleared
+  // Auth0's getAccessToken() automatically refreshes server-side if expired
+  // 403 retry mechanism in fetchWithAuth() handles expired tokens during API calls
   useEffect(() => {
     if (!user || isUserLoading || accessToken) return;
 
     const fetchToken = async () => {
       try {
         const response = await fetch("/api/auth/token");
+
+        // Handle 403 Forbidden - user session invalid or permissions revoked
+        if (response.status === 403) {
+          logger.error(new Error("403 Forbidden from token endpoint"), {
+            operation: "token_fetch",
+            statusCode: 403,
+          });
+          // Trigger immediate logout - cannot recover from 403 at token level
+          window.location.href = "/api/auth/logout";
+          return;
+        }
+
+        // Handle 401 Unauthorized - session expired
+        if (response.status === 401) {
+          logger.error(new Error("401 Unauthorized - session expired"), {
+            operation: "token_fetch",
+            statusCode: 401,
+          });
+          // Redirect to login
+          window.location.href = "/api/auth/login";
+          return;
+        }
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));

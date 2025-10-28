@@ -7,6 +7,7 @@ import { getClientConfig } from "@/core/config/client";
 import { LoadingScreen } from "@/shared/components/loading-spinner";
 import { Button } from "@/shared/components/ui/button";
 import * as LucideIcons from "lucide-react";
+import { fetchWithAuth } from "@/core/services/http-client";
 
 interface CategoryResponse {
   id: number;
@@ -107,19 +108,11 @@ export default function WorkflowsPage(): React.ReactNode {
         // Get backend URL from config
         const { apiUrl } = getClientConfig();
 
-        // Get fresh auth token from server-side endpoint
-        const tokenResponse = await fetch("/api/auth/token");
-        if (!tokenResponse.ok) {
-          throw new Error("Failed to get access token");
-        }
-        const { token } = await tokenResponse.json();
-
-        // Call backend API directly with Authorization header
-        const response = await fetch(`${apiUrl}/workflows`, {
+        // Call backend API with automatic authentication and 403 handling
+        const response = await fetchWithAuth(`${apiUrl}/workflows`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
           },
         });
 

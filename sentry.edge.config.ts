@@ -50,6 +50,11 @@ if (!isDevelopment && dsn) {
     },
 
     // Ignore specific errors
-    ignoreErrors: ["AccessTokenError", "UnauthorizedError"],
+    ignoreErrors: [
+      // AccessTokenError (401) - handled by automatic redirect to login
+      "AccessTokenError",
+      // NOTE: UnauthorizedError removed - we want to track 403 Forbidden errors
+      // ForbiddenError (403) - NOT ignored, these are important security events
+    ],
   });
 }

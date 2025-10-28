@@ -44,6 +44,10 @@ const getDefaultDescription = (context: ErrorContext, error: Error): string => {
     return "Your session has expired. You will be redirected to login.";
   }
 
+  if (error.name === "ForbiddenError") {
+    return "Access denied. Logging you out...";
+  }
+
   switch (context) {
     case "global":
       return "An unexpected error occurred. Please try refreshing the page.";

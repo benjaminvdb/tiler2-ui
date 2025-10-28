@@ -382,7 +382,7 @@ function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
       onMouseDown={handleMouseDown}
       title="Resize Sidebar"
       className={cn(
-        "absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear group-data-[side=left]:-right-[18px] group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:left-1/2 after:w-1 after:bg-transparent after:transition-colors after:duration-250 after:delay-250 sm:flex",
+        "absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear group-data-[side=left]:-right-[18px] group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:left-1/2 after:w-1 after:bg-transparent after:transition-colors after:delay-250 after:duration-250 sm:flex",
         "cursor-col-resize",
         "hover:after:bg-sidebar-accent",
         className,
