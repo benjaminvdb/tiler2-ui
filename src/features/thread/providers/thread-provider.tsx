@@ -43,7 +43,6 @@ export const ThreadProvider: React.FC<{ children: ReactNode }> = ({
     if (!apiUrl || !assistantId) return [];
 
     try {
-      // Call LangGraph API with automatic authentication and 403 handling
       const response = await fetchWithAuth(`${apiUrl}/threads/search`, {
         method: "POST",
         headers: {
@@ -63,8 +62,6 @@ export const ThreadProvider: React.FC<{ children: ReactNode }> = ({
       const threads = await response.json();
       return threads;
     } catch (error) {
-      // fetchWithAuth handles 403 errors with retry and logout
-      // All other errors are reported here
       reportThreadError(error as Error, {
         operation: "searchThreads",
         component: "ThreadProvider",

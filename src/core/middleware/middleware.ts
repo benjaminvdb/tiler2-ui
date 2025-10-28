@@ -29,10 +29,8 @@ function normalise(pathname: string): string {
 function isStaticFile(pathname: string): boolean {
   const p = normalise(pathname);
 
-  // Allow Next.js internals
   if (p.startsWith("/_next/")) return true;
 
-  // Allow static file extensions
   const ext = getExtname(p);
   if (STATIC_EXTENSIONS.has(ext)) return true;
 
@@ -43,7 +41,6 @@ export async function middleware(request: NextRequest) {
   try {
     const { pathname } = request.nextUrl;
 
-    // Add breadcrumb for middleware execution
     Sentry.addBreadcrumb({
       category: "middleware",
       message: `Processing request: ${pathname}`,
@@ -54,14 +51,14 @@ export async function middleware(request: NextRequest) {
       },
     });
 
-    // Generate CSP header
     const cspHeader = generateCSP();
 
-    // Set up request headers with CSP
     const requestHeaders = new Headers(request.headers);
     requestHeaders.set("Content-Security-Policy", cspHeader);
 
-    // Fail closed in production if Auth0 is misconfigured
+    /**
+     * Fail closed in production if Auth0 is misconfigured for security.
+     */
     const auth0Configured = isAuth0Configured();
     if (!auth0Configured) {
       if (process.env.NODE_ENV === "development") {
@@ -104,10 +101,11 @@ export async function middleware(request: NextRequest) {
       });
     }
 
-    // First, let Auth0 handle its own requests and auto-mount auth routes
+    /**
+     * Let Auth0 handle its own endpoints first.
+     */
     const authRes = await auth0.middleware(request);
 
-    // Let Auth0 handle its own endpoints
     if (pathname.startsWith("/auth")) {
       if (authRes) {
         authRes.headers.set("Content-Security-Policy", cspHeader);
@@ -115,7 +113,9 @@ export async function middleware(request: NextRequest) {
       }
     }
 
-    // Allow static files and Next.js internals (but NOT application routes)
+    /**
+     * Allow static files but NOT application routes.
+     */
     if (isStaticFile(pathname)) {
       if (authRes) {
         authRes.headers.set("Content-Security-Policy", cspHeader);
@@ -130,12 +130,12 @@ export async function middleware(request: NextRequest) {
       return response;
     }
 
-    // From this point on, all routes require authentication (including home page)
-    // But only if Auth0 is configured - otherwise allow in development
+    /**
+     * All routes beyond this point require authentication.
+     */
     if (isAuth0Configured()) {
       const session = await auth0.getSession(request);
       if (!session) {
-        // Add breadcrumb for unauthorized access attempt
         Sentry.addBreadcrumb({
           category: "auth",
           message: "Unauthorized access attempt - redirecting to login",
@@ -147,7 +147,6 @@ export async function middleware(request: NextRequest) {
 
         const redirectUrl = new URL("/auth/login", request.nextUrl.origin);
 
-        // Prevent open redirect attacks
         if (redirectUrl.origin !== request.nextUrl.origin) {
           redirectUrl.host = request.nextUrl.host;
         }
@@ -156,7 +155,6 @@ export async function middleware(request: NextRequest) {
       }
     }
 
-    // Set CSP headers for authenticated requests
     if (authRes) {
       authRes.headers.set("Content-Security-Policy", cspHeader);
       return authRes;
@@ -170,7 +168,6 @@ export async function middleware(request: NextRequest) {
     response.headers.set("Content-Security-Policy", cspHeader);
     return response;
   } catch (error) {
-    // Capture any unexpected middleware errors
     Sentry.captureException(error, {
       tags: {
         category: "middleware",
@@ -184,18 +181,12 @@ export async function middleware(request: NextRequest) {
       },
     });
 
-    // Re-throw to let Next.js handle it
     throw error;
   }
 }
 
 export const config = {
   matcher: [
-    // Match all request paths except for the ones starting with:
-    // - _next/static (static files)
-    // - _next/image (image optimization files)
-    // - _next/data (data files)
-    // - favicon.ico, favicon.svg (favicon files)
     {
       source:
         "/((?!_next/static|_next/image|_next/data|favicon.ico|favicon.svg).*)",

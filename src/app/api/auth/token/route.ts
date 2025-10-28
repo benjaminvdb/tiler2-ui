@@ -8,13 +8,8 @@ const logger = getLogger().child({
 });
 
 /**
- * Server-side endpoint to securely retrieve access token
- * Token stays in encrypted session cookie - never exposed to browser storage
- *
- * Auth0 SDK automatically:
- * - Returns cached token if valid
- * - Refreshes token if expired (using refresh token)
- * - Updates session cookie with new token
+ * Retrieve Auth0 access token from encrypted session cookie.
+ * Auth0 SDK automatically handles token caching and refresh.
  */
 export async function GET() {
   const auth0 = getAuth0();
@@ -27,8 +22,6 @@ export async function GET() {
   }
 
   try {
-    // Get token from session - auto-refreshes if expired
-    // Returns { token, expiresAt, scope }
     const { token, expiresAt } = await auth0.getAccessToken();
 
     return NextResponse.json({ token, expiresAt });
@@ -37,7 +30,6 @@ export async function GET() {
       errorName: error instanceof Error ? error.name : "unknown",
     });
 
-    // Check if it's an Auth0-specific error
     if (error instanceof Error && error.name === "AccessTokenError") {
       return NextResponse.json({ error: "Session expired" }, { status: 401 });
     }

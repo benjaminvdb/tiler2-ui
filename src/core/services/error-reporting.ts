@@ -33,6 +33,8 @@ export interface ErrorContext {
   userAgent?: string;
   timestamp?: number;
   additionalData?: Record<string, unknown>;
+  /** Skip showing user notification (toast). Still logs to console and Sentry. */
+  skipNotification?: boolean;
 }
 
 // Structured error interface
@@ -335,8 +337,10 @@ export const reportError = (
     console[consoleMethod](formatErrorForConsole(structuredError));
   }
 
-  // User notification
-  showUserNotification(structuredError);
+  // User notification (skip if explicitly requested)
+  if (!context.skipNotification) {
+    showUserNotification(structuredError);
+  }
 
   // Send to Sentry (client-side only)
   if (typeof window !== "undefined") {

@@ -28,7 +28,6 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
   const [tokenError, setTokenError] = useState<Error | null>(null);
   const [currentRunId, setCurrentRunId] = useState<string | null>(null);
 
-  // Get logger with component context
   const baseLogger = useLogger();
   const logger = useMemo(
     () =>
@@ -40,7 +39,6 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
     [baseLogger, assistantId, apiUrl],
   );
 
-  // Set Sentry context for assistant and API URL
   useEffect(() => {
     if (assistantId) {
       Sentry.setContext("assistant", {
@@ -51,10 +49,10 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
     }
   }, [assistantId, apiUrl]);
 
-  // Fetch access token once on mount if we don't have one
-  // The `accessToken` check prevents unnecessary refetches - token is reused until cleared
-  // Auth0's getAccessToken() automatically refreshes server-side if expired
-  // 403 retry mechanism in fetchWithAuth() handles expired tokens during API calls
+  /**
+   * Fetch access token on mount. Token is reused until cleared or invalidated.
+   * Auth0 handles server-side refresh automatically when expired.
+   */
   useEffect(() => {
     if (!user || isUserLoading || accessToken) return;
 
@@ -62,24 +60,20 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
       try {
         const response = await fetch("/api/auth/token");
 
-        // Handle 403 Forbidden - user session invalid or permissions revoked
         if (response.status === 403) {
           logger.error(new Error("403 Forbidden from token endpoint"), {
             operation: "token_fetch",
             statusCode: 403,
           });
-          // Trigger immediate logout - cannot recover from 403 at token level
           window.location.href = "/api/auth/logout";
           return;
         }
 
-        // Handle 401 Unauthorized - session expired
         if (response.status === 401) {
           logger.error(new Error("401 Unauthorized - session expired"), {
             operation: "token_fetch",
             statusCode: 401,
           });
-          // Redirect to login
           window.location.href = "/api/auth/login";
           return;
         }
@@ -113,10 +107,9 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
 
   const streamConfig = {
     apiUrl,
-    apiKey: undefined, // Don't use LangSmith API key - we're using Auth0
+    apiKey: undefined,
     assistantId,
     threadId: threadId ?? null,
-    // Pass Auth0 token as Authorization header
     defaultHeaders: accessToken
       ? {
           Authorization: `Bearer ${accessToken}`,
@@ -128,7 +121,6 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
     ...streamConfig,
     fetchStateHistory: true,
     onMetadataEvent: (data) => {
-      // Capture run_id from metadata events for trace tracking
       if (data.run_id) {
         setCurrentRunId(data.run_id);
       }
@@ -144,16 +136,15 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
     onThreadId: (id) => {
       setThreadId(id);
 
-      // Cancel any previous thread fetch operation
       if (threadFetchControllerRef.current) {
         threadFetchControllerRef.current.abort();
       }
-      // Create new controller for this fetch operation
       const controller = new AbortController();
       threadFetchControllerRef.current = controller;
 
-      // Refetch threads list when thread ID changes.
-      // Wait for some seconds before fetching so we're able to get the new thread that was created.
+      /**
+       * Delay thread list refresh to allow backend to persist the new thread.
+       */
       const fetchThreadsWithDelay = async () => {
         try {
           await sleep(4000, controller.signal);
@@ -187,7 +178,6 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
       try {
         const ok = await checkGraphStatus(apiUrl, null, controller.signal);
 
-        // Only show toast if component is still mounted
         if (!controller.signal.aborted && !ok) {
           toast.error("Failed to connect to LangGraph server", {
             description: () => (
@@ -202,7 +192,6 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
           });
         }
       } catch (error: unknown) {
-        // Don't show errors for aborted requests
         if (error instanceof Error && error.name !== "AbortError") {
           logger.error(error, {
             operation: "check_graph_status",
@@ -216,21 +205,18 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
 
     return () => {
       controller.abort();
-      // Also cancel any pending thread fetch operations
       if (threadFetchControllerRef.current) {
         threadFetchControllerRef.current.abort();
       }
     };
   }, [apiUrl, logger]);
 
-  // Extend stream context with currentRunId and threadId for trace tracking
   const extendedStreamValue = {
     ...streamValue,
     currentRunId,
     threadId,
   };
 
-  // Show loading state while fetching token
   if (isUserLoading || (!accessToken && !tokenError && user)) {
     return (
       <StreamContext.Provider value={extendedStreamValue}>
@@ -239,7 +225,6 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
     );
   }
 
-  // Show error if token fetch failed
   if (tokenError) {
     return (
       <StreamContext.Provider value={extendedStreamValue}>
