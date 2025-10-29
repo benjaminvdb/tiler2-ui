@@ -9,6 +9,7 @@ import type { MessageMetadata } from "@/shared/types";
 
 interface MessageActionsProps {
   contentString: string;
+  htmlContainerRef: React.RefObject<HTMLDivElement | null>;
   isLoading: boolean;
   meta: MessageMetadata | null;
   thread: StreamContextType;
@@ -17,6 +18,7 @@ interface MessageActionsProps {
 }
 export const MessageActions: React.FC<MessageActionsProps> = ({
   contentString,
+  htmlContainerRef,
   isLoading,
   meta,
   thread,
@@ -48,6 +50,7 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
           />
           <CommandBar
             content={contentString}
+            htmlContainerRef={htmlContainerRef}
             isLoading={isLoading}
             isAiMessage={true}
             handleRegenerate={() => handleRegenerate(parentCheckpoint)}

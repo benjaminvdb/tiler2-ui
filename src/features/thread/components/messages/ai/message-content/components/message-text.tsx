@@ -3,9 +3,13 @@ import { useStreamingText } from "./hooks/use-streaming-text";
 
 interface MessageTextProps {
   contentString: string;
+  containerRef?: React.RefObject<HTMLDivElement | null>;
 }
 
-export const MessageText: React.FC<MessageTextProps> = ({ contentString }) => {
+export const MessageText: React.FC<MessageTextProps> = ({
+  contentString,
+  containerRef,
+}) => {
   const displayedText = useStreamingText(contentString);
 
   if (displayedText.length === 0) {
@@ -14,6 +18,7 @@ export const MessageText: React.FC<MessageTextProps> = ({ contentString }) => {
 
   return (
     <div
+      ref={containerRef}
       style={{
         fontFamily:
           "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",

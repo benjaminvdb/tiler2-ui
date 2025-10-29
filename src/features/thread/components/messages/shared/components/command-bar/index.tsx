@@ -45,6 +45,7 @@ const EditActions: React.FC<EditActionsProps> = ({
 
 interface MessageActionsProps {
   content: string;
+  htmlContainerRef?: React.RefObject<HTMLDivElement | null>;
   isLoading: boolean;
   isAiMessage?: boolean | undefined;
   showEdit: boolean;
@@ -54,6 +55,7 @@ interface MessageActionsProps {
 }
 const MessageActions: React.FC<MessageActionsProps> = ({
   content,
+  htmlContainerRef,
   isLoading,
   isAiMessage,
   showEdit,
@@ -63,8 +65,32 @@ const MessageActions: React.FC<MessageActionsProps> = ({
 }) => {
   const [copied, setCopied] = useState(false);
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(content);
+  const handleCopy = async () => {
+    try {
+      // Try to copy as HTML if htmlContainerRef is available
+      if (htmlContainerRef?.current) {
+        const htmlContent = htmlContainerRef.current.innerHTML;
+
+        // Use ClipboardItem API with both HTML and plain text MIME types
+        const clipboardItem = new ClipboardItem({
+          "text/html": new Blob([htmlContent], { type: "text/html" }),
+          "text/plain": new Blob([content], { type: "text/plain" }),
+        });
+
+        await navigator.clipboard.write([clipboardItem]);
+      } else {
+        // Fallback to plain text if ref is not available
+        await navigator.clipboard.writeText(content);
+      }
+    } catch {
+      // Fallback to plain text for Safari/Firefox or if HTML copy fails
+      try {
+        await navigator.clipboard.writeText(content);
+      } catch (fallbackErr) {
+        console.error("Failed to copy:", fallbackErr);
+      }
+    }
+
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -136,6 +162,7 @@ const MessageActions: React.FC<MessageActionsProps> = ({
 
 export const CommandBar: React.FC<CommandBarProps> = ({
   content,
+  htmlContainerRef,
   isHumanMessage,
   isAiMessage,
   isEditing,
@@ -169,6 +196,7 @@ export const CommandBar: React.FC<CommandBarProps> = ({
   return (
     <MessageActions
       content={content}
+      {...(htmlContainerRef && { htmlContainerRef })}
       isLoading={isLoading}
       isAiMessage={isAiMessage}
       showEdit={!!showEdit}

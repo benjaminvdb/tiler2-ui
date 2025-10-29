@@ -12,6 +12,7 @@ export interface BranchSwitcherProps {
 
 export interface CommandBarProps {
   content: string;
+  htmlContainerRef?: React.RefObject<HTMLDivElement | null>;
   isHumanMessage?: boolean;
   isAiMessage?: boolean;
   isEditing?: boolean;

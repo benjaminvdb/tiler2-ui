@@ -1,4 +1,5 @@
 import { Message, Checkpoint } from "@langchain/langgraph-sdk";
+import { useRef } from "react";
 import { CustomComponent } from "../../custom-component";
 import { MessageText } from "./message-text";
 import { ToolCallsSection } from "./tool-calls-section";
@@ -36,6 +37,9 @@ export const RegularMessage: React.FC<RegularMessageProps> = ({
   parentCheckpoint,
   handleRegenerate,
 }) => {
+  // Create ref to capture rendered HTML for copy functionality
+  const htmlContainerRef = useRef<HTMLDivElement>(null);
+
   // Get sources from thread state
   const sources = thread.values?.sources || [];
 
@@ -47,7 +51,10 @@ export const RegularMessage: React.FC<RegularMessageProps> = ({
 
   return (
     <>
-      <MessageText contentString={renumberedContent} />
+      <MessageText
+        contentString={renumberedContent}
+        containerRef={htmlContainerRef}
+      />
       <ToolCallsSection
         message={message}
         hideToolCalls={hideToolCalls}
@@ -63,6 +70,7 @@ export const RegularMessage: React.FC<RegularMessageProps> = ({
       <SourcesList sources={renumberedSources} />
       <MessageActions
         contentString={renumberedContent}
+        htmlContainerRef={htmlContainerRef}
         isLoading={isLoading}
         meta={meta}
         thread={thread}
