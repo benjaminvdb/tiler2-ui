@@ -35,11 +35,16 @@ import { SidebarUserProfile } from "@/features/auth/components/sidebar-user-prof
 import { getShortcutText } from "@/features/hotkeys";
 import { useUIContext } from "@/features/chat/providers/ui-provider";
 import { navigateExternal } from "@/core/services/navigation";
+import { useThreads } from "@/features/thread/providers/thread-provider";
+import { ThreadActionsMenu } from "./thread-actions-menu";
+import { ThreadTitle } from "./thread-title";
+import { toast } from "sonner";
 
 export const NewSidebar = (): React.JSX.Element => {
   const { navigationService } = useUIContext();
   const [threadId] = useSearchParamState("threadId");
   const { threads, threadsLoading } = useThreadHistory();
+  const { deleteThread, renameThread } = useThreads();
   const { state, toggleSidebar } = useSidebar();
   const isCollapsed = state === "collapsed";
   const router = useRouter();
@@ -62,6 +67,38 @@ export const NewSidebar = (): React.JSX.Element => {
       navigateExternal(
         "https://impossible-chauffeur-129.notion.site/Link-Chat-Wiki-218b67580800806ea99efb583280d2c8",
       );
+    }
+  };
+
+  const handleRename = async (
+    targetThreadId: string,
+    newTitle: string,
+  ): Promise<void> => {
+    try {
+      await renameThread(targetThreadId, newTitle);
+      toast.success("Thread renamed successfully");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to rename thread",
+      );
+      throw error;
+    }
+  };
+
+  const handleDelete = async (targetThreadId: string): Promise<void> => {
+    try {
+      await deleteThread(targetThreadId);
+      toast.success("Thread deleted successfully");
+
+      // If we deleted the currently active thread, navigate to home
+      if (targetThreadId === threadId) {
+        router.replace("/");
+      }
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to delete thread",
+      );
+      throw error;
     }
   };
 
@@ -224,8 +261,14 @@ export const NewSidebar = (): React.JSX.Element => {
                             isActive={isActive}
                             tooltip={displayText}
                           >
-                            <span className="truncate">{displayText}</span>
+                            <ThreadTitle text={displayText} />
                           </SidebarMenuButton>
+                          <ThreadActionsMenu
+                            threadId={thread.thread_id}
+                            threadTitle={displayText}
+                            onRename={handleRename}
+                            onDelete={handleDelete}
+                          />
                         </SidebarMenuItem>
                       );
                     })

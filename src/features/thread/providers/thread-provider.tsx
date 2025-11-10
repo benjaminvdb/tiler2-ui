@@ -18,6 +18,8 @@ interface ThreadContextType {
   setThreads: Dispatch<SetStateAction<Thread[]>>;
   threadsLoading: boolean;
   setThreadsLoading: Dispatch<SetStateAction<boolean>>;
+  deleteThread: (threadId: string) => Promise<void>;
+  renameThread: (threadId: string, newName: string) => Promise<void>;
 }
 const ThreadContext = createContext<ThreadContextType | undefined>(undefined);
 
@@ -71,12 +73,108 @@ export const ThreadProvider: React.FC<{ children: ReactNode }> = ({
     }
   }, [apiUrl, assistantId]);
 
+  const deleteThread = useCallback(
+    async (threadId: string): Promise<void> => {
+      if (!apiUrl) {
+        throw new Error("API URL not configured");
+      }
+
+      try {
+        const response = await fetchWithAuth(`${apiUrl}/threads/${threadId}`, {
+          method: "DELETE",
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to delete thread: ${response.status}`);
+        }
+
+        // Optimistically update local state
+        setThreads((prev) => prev.filter((t) => t.thread_id !== threadId));
+      } catch (error) {
+        reportThreadError(error as Error, {
+          operation: "deleteThread",
+          component: "ThreadProvider",
+          url: apiUrl,
+          threadId,
+        });
+        throw error; // Re-throw for UI handling
+      }
+    },
+    [apiUrl],
+  );
+
+  const renameThread = useCallback(
+    async (threadId: string, newName: string): Promise<void> => {
+      if (!apiUrl) {
+        throw new Error("API URL not configured");
+      }
+
+      const trimmedName = newName.trim();
+      if (trimmedName === "") {
+        throw new Error("Thread name cannot be empty");
+      }
+
+      // Store previous state for rollback
+      const previousThreads = threads;
+
+      try {
+        // Optimistically update local state
+        setThreads((prev) =>
+          prev.map((t) =>
+            t.thread_id === threadId
+              ? {
+                  ...t,
+                  metadata: { ...t.metadata, name: trimmedName },
+                }
+              : t,
+          ),
+        );
+
+        const response = await fetchWithAuth(`${apiUrl}/threads/${threadId}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            metadata: {
+              name: trimmedName,
+            },
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to rename thread: ${response.status}`);
+        }
+
+        // Update with server response to ensure sync
+        const updatedThread: Thread = await response.json();
+        setThreads((prev) =>
+          prev.map((t) => (t.thread_id === threadId ? updatedThread : t)),
+        );
+      } catch (error) {
+        // Rollback optimistic update on error
+        setThreads(previousThreads);
+
+        reportThreadError(error as Error, {
+          operation: "renameThread",
+          component: "ThreadProvider",
+          url: apiUrl,
+          threadId,
+        });
+        throw error; // Re-throw for UI handling
+      }
+    },
+    [apiUrl, threads],
+  );
+
   const value = {
     getThreads,
     threads,
     setThreads,
     threadsLoading,
     setThreadsLoading,
+    deleteThread,
+    renameThread,
   };
 
   return (
