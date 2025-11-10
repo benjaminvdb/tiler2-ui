@@ -6,10 +6,27 @@ import {
 import { useStream } from "@langchain/langgraph-sdk/react";
 import { Source } from "@/features/thread/components/markdown/components/citation-link";
 
+export type StepInfo = {
+  step_id: string;
+  step_type: "tool_call" | "model_response";
+  action: string;
+  tool_name: string | null;
+  status: "running" | "completed" | "error";
+  started_at: string;
+  completed_at: string | null;
+  error: string | null;
+};
+
 export type GraphState = {
   messages: Message[];
   ui?: UIMessage[];
   sources?: Source[];
+  steps?: StepInfo[];
+};
+
+export type StepEvent = {
+  event: "step_start" | "step_complete";
+  step: StepInfo;
 };
 
 export const useTypedStream = useStream<
@@ -19,8 +36,9 @@ export const useTypedStream = useStream<
       messages?: Message[] | Message | string;
       ui?: (UIMessage | RemoveUIMessage)[] | UIMessage | RemoveUIMessage;
       context?: Record<string, unknown>;
+      steps?: StepInfo[];
     };
-    CustomEventType: UIMessage | RemoveUIMessage;
+    CustomEventType: UIMessage | RemoveUIMessage | StepEvent;
     ConfigurableType: {
       workflow_id?: string;
       workflow_type?: string;

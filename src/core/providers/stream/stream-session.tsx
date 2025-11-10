@@ -9,11 +9,23 @@ import {
 import { toast } from "sonner";
 import { useThreads } from "@/features/thread/providers/thread-provider";
 import { StreamContext } from "./stream-context";
-import { useTypedStream, StreamSessionProps } from "./types";
+import { useTypedStream, StreamSessionProps, StepEvent } from "./types";
 import { sleep, checkGraphStatus } from "./utils";
 import { LoadingScreen } from "@/shared/components/loading-spinner";
 import { useLogger } from "@/core/services/logging";
 import * as Sentry from "@sentry/nextjs";
+
+/**
+ * Type guard to check if an event is a StepEvent.
+ */
+const isStepEvent = (event: unknown): event is StepEvent => {
+  if (typeof event !== "object" || event === null) return false;
+  if (!("event" in event) || !("step" in event)) return false;
+  const stepEvent = event as StepEvent;
+  return (
+    stepEvent.event === "step_start" || stepEvent.event === "step_complete"
+  );
+};
 
 export const StreamSession: React.FC<StreamSessionProps> = ({
   children,
@@ -127,9 +139,57 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
     },
     onCustomEvent: (event, options) => {
       if (isUIMessage(event) || isRemoveUIMessage(event)) {
+        logger.debug("UI message received", {
+          operation: "custom_event",
+          eventType: "ui_message",
+        });
         options.mutate((prev) => {
           const ui = uiMessageReducer(prev.ui ?? [], event);
           return { ...prev, ui };
+        });
+      } else if (isStepEvent(event)) {
+        // Handle assistant step events (tool calls, completions)
+        logger.debug("Step event received", {
+          operation: "custom_event",
+          eventType: "step_event",
+          stepEvent: event.event,
+          stepId: event.step.step_id,
+          action: event.step.action,
+          status: event.step.status,
+        });
+        options.mutate((prev) => {
+          const steps = prev.steps ?? [];
+          if (event.event === "step_start") {
+            logger.debug("Adding new step", {
+              operation: "step_tracking",
+              action: "step_start",
+              stepCount: steps.length + 1,
+              stepId: event.step.step_id,
+            });
+            // Add new step to list
+            return { ...prev, steps: [...steps, event.step] };
+          } else if (event.event === "step_complete") {
+            logger.debug("Updating step completion", {
+              operation: "step_tracking",
+              action: "step_complete",
+              stepId: event.step.step_id,
+              newStatus: event.step.status,
+            });
+            // Update existing step
+            return {
+              ...prev,
+              steps: steps.map((s) =>
+                s.step_id === event.step.step_id ? event.step : s,
+              ),
+            };
+          }
+          return prev;
+        });
+      } else {
+        logger.debug("Unknown custom event received", {
+          operation: "custom_event",
+          eventType: typeof event,
+          event: JSON.stringify(event).substring(0, 100),
         });
       }
     },

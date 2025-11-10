@@ -8,6 +8,7 @@ import { useStreamContext } from "@/core/providers/stream";
 import { EmptyState } from "@/features/chat/components/empty-state";
 import { LoadingSpinner } from "@/shared/components/loading-spinner";
 import { useRouter } from "next/navigation";
+import { StepTracker } from "../step-tracker";
 
 const MainChatAreaComponent: React.FC = () => {
   const { firstTokenReceived, handleRegenerate } = useChatContext();
@@ -32,10 +33,13 @@ const MainChatAreaComponent: React.FC = () => {
 
   // Determine what to show in the main chat area
   const messageListContent = hasMessages ? (
-    <MessageList
-      firstTokenReceived={firstTokenReceived}
-      handleRegenerate={handleRegenerate}
-    />
+    <>
+      <MessageList
+        firstTokenReceived={firstTokenReceived}
+        handleRegenerate={handleRegenerate}
+      />
+      <StepTracker />
+    </>
   ) : isLoading ? (
     // Show loading indicator when workflow is being processed
     <div className="flex h-full items-center justify-center">
