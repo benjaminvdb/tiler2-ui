@@ -3,15 +3,17 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Thread } from "@/features/thread/components";
 import { ArtifactProvider } from "@/features/artifacts/components";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useStreamContext } from "@/core/providers/stream";
-import { useSearchParamState } from "@/core/routing/hooks";
+import {
+  useSearchParamState,
+  useSearchParamsUpdate,
+} from "@/core/routing/hooks";
 import { useThreads } from "@/features/thread/providers/thread-provider";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import { fetchWithAuth } from "@/core/services/http-client";
 import { generateThreadName } from "@/features/thread/utils/generate-thread-name";
 import { buildOptimisticThread } from "@/features/thread/utils/build-optimistic-thread";
-import { useRuntimeClientConfig } from "@/core/config/use-runtime-config";
 
 interface WorkflowData {
   id: number;
@@ -22,10 +24,10 @@ interface WorkflowData {
 
 function ThreadWithWorkflowHandler(): React.ReactNode {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const stream = useStreamContext();
   const workflowId = searchParams.get("workflow");
   const [threadId, setThreadId] = useSearchParamState("threadId");
+  const updateSearchParams = useSearchParamsUpdate();
   const { addOptimisticThread } = useThreads();
   const { user } = useUser();
   const [isSubmittingWorkflow, setIsSubmittingWorkflow] = useState(false);
@@ -33,8 +35,8 @@ function ThreadWithWorkflowHandler(): React.ReactNode {
   // Use ref to track if workflow has been submitted for this component instance
   const submittedWorkflowRef = useRef<string | null>(null);
 
-  // Get runtime configuration (URL overrides env defaults)
-  const { apiUrl, assistantId } = useRuntimeClientConfig();
+  // Get environment variables
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   useEffect(() => {
     const submitWorkflow = async () => {
@@ -81,7 +83,6 @@ function ThreadWithWorkflowHandler(): React.ReactNode {
               const optimisticThread = buildOptimisticThread({
                 threadId: optimisticThreadId,
                 threadName,
-                assistantId,
                 userEmail: user.email,
               });
 
@@ -159,12 +160,10 @@ function ThreadWithWorkflowHandler(): React.ReactNode {
     submitWorkflow();
   }, [
     workflowId,
-    router,
     stream,
     threadId,
     setThreadId,
     apiUrl,
-    assistantId,
     user,
     addOptimisticThread,
     isSubmittingWorkflow,
@@ -174,10 +173,9 @@ function ThreadWithWorkflowHandler(): React.ReactNode {
   useEffect(() => {
     if (threadId && workflowId) {
       console.log("Workflow started, clearing workflow param from URL");
-      // Use router.replace to clear workflow param but keep threadId
-      router.replace(`/?threadId=${threadId}`);
+      updateSearchParams({ workflow: undefined });
     }
-  }, [threadId, workflowId, router]);
+  }, [threadId, workflowId, updateSearchParams]);
 
   return <Thread />;
 }

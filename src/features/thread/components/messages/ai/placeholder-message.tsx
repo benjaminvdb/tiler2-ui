@@ -1,6 +1,21 @@
 import { useStreamContext } from "@/core/providers/stream";
-import { isAgentInboxInterruptSchema } from "@/features/thread/services/agent-inbox-interrupt";
 import { ChatInterrupt } from "../chat-interrupt";
+import type { HumanInterrupt } from "@langchain/langgraph/prebuilt";
+
+const isHumanInterrupt = (value: unknown): value is HumanInterrupt => {
+  if (!value || typeof value !== "object") return false;
+  return (
+    "action_request" in (value as Record<string, unknown>) &&
+    "config" in (value as Record<string, unknown>)
+  );
+};
+
+const normalizeInterrupt = (value: unknown): HumanInterrupt | null => {
+  if (Array.isArray(value)) {
+    return value.length && isHumanInterrupt(value[0]) ? value[0] : null;
+  }
+  return isHumanInterrupt(value) ? (value as HumanInterrupt) : null;
+};
 
 export const PlaceholderMessage: React.FC = () => {
   const thread = useStreamContext();
@@ -16,34 +31,8 @@ export const PlaceholderMessage: React.FC = () => {
     });
   };
 
-  if (isAgentInboxInterruptSchema(interruptVal)) {
-    const interrupt = Array.isArray(interruptVal)
-      ? interruptVal[0]
-      : interruptVal;
-
-    // Special case: if only allow_respond is true and all other flags are false,
-    // display as a regular AI message instead of special interrupt UI
-    const isRespondOnlyInterrupt =
-      interrupt.config.allow_respond &&
-      !interrupt.config.allow_accept &&
-      !interrupt.config.allow_edit &&
-      !interrupt.config.allow_ignore;
-
-    if (isRespondOnlyInterrupt) {
-      // Render as regular AI message - the user can respond normally via chat input
-      return (
-        <div className="flex flex-col gap-2">
-          <div className="flex items-start gap-3 p-4">
-            <div className="flex-1 space-y-2 overflow-hidden">
-              <div className="prose prose-neutral dark:prose-invert max-w-none break-words">
-                {interrupt.description ||
-                  `Please confirm: ${interrupt.action_request.action}`}
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-    }
+  const interrupt = normalizeInterrupt(interruptVal);
+  if (interrupt) {
     return (
       <ChatInterrupt
         interrupt={interrupt}

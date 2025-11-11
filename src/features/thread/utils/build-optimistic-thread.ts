@@ -19,11 +19,6 @@ interface OptimisticThreadOptions {
   threadName: string;
 
   /**
-   * Assistant/graph ID from environment
-   */
-  assistantId: string;
-
-  /**
    * Current user's email for owner metadata
    */
   userEmail: string;
@@ -47,6 +42,7 @@ export function buildOptimisticThread(
   options: OptimisticThreadOptions,
 ): Thread {
   const now = new Date().toISOString();
+  const assistantId = process.env.NEXT_PUBLIC_ASSISTANT_ID;
 
   const thread: Thread = {
     thread_id: options.threadId,
@@ -55,7 +51,7 @@ export function buildOptimisticThread(
     metadata: {
       name: options.threadName,
       owner: options.userEmail,
-      ...(options.assistantId && { assistant_id: options.assistantId }),
+      ...(assistantId && { assistant_id: assistantId }),
     },
     status: "idle",
     values: options.firstMessage

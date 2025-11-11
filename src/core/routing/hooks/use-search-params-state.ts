@@ -121,12 +121,6 @@ export function useSearchParamsObject(): Partial<SearchParams> {
   if (searchParams.has("workflow")) {
     params.workflow = searchParams.get("workflow") || undefined;
   }
-  if (searchParams.has("apiUrl")) {
-    params.apiUrl = searchParams.get("apiUrl") || undefined;
-  }
-  if (searchParams.has("assistantId")) {
-    params.assistantId = searchParams.get("assistantId") || undefined;
-  }
 
   return params;
 }

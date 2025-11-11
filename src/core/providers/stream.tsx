@@ -1,7 +1,5 @@
 import React, { ReactNode, useMemo } from "react";
-import { useSearchParamState } from "@/core/routing/hooks";
 import { getClientConfig } from "@/core/config/client";
-import { ConfigurationForm } from "./stream/configuration-form";
 import { StreamSession } from "./stream/stream-session";
 import { StreamErrorBoundary } from "@/shared/components/error-boundary/stream-error-boundary";
 
@@ -13,28 +11,24 @@ export const StreamProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const clientConfig = getClientConfig();
 
-  const [apiUrl, setApiUrl] = useSearchParamState("apiUrl");
-  const [assistantId, setAssistantId] = useSearchParamState("assistantId");
-
-  const finalApiUrl = useMemo(
-    () => apiUrl || clientConfig.apiUrl,
-    [apiUrl, clientConfig.apiUrl],
-  );
+  const finalApiUrl = useMemo(() => clientConfig.apiUrl, [clientConfig.apiUrl]);
   const finalAssistantId = useMemo(
-    () => assistantId || clientConfig.assistantId,
-    [assistantId, clientConfig.assistantId],
+    () => clientConfig.assistantId,
+    [clientConfig.assistantId],
   );
 
   if (!finalApiUrl || !finalAssistantId) {
     return (
-      <ConfigurationForm
-        apiUrl={apiUrl || ""}
-        assistantId={assistantId || ""}
-        onSubmit={({ apiUrl, assistantId }) => {
-          setApiUrl(apiUrl || null);
-          setAssistantId(assistantId || null);
-        }}
-      />
+      <div className="flex min-h-screen items-center justify-center p-6 text-center">
+        <div className="space-y-4">
+          <h2 className="text-2xl font-semibold">Configuration required</h2>
+          <p className="text-muted-foreground">
+            Please set <code>NEXT_PUBLIC_API_URL</code> and{" "}
+            <code>NEXT_PUBLIC_ASSISTANT_ID</code> in your environment before
+            running the app.
+          </p>
+        </div>
+      </div>
     );
   }
 

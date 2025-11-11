@@ -1,8 +1,8 @@
 import { Button } from "@/shared/components/ui/button";
 import { Thread } from "@langchain/langgraph-sdk";
 import { useSearchParamState } from "@/core/routing/hooks";
-import { useRouter } from "next/navigation";
 import { extractThreadDisplayText } from "../utils/thread-text-extractor";
+import { useUIContext } from "@/features/chat/providers/ui-provider";
 
 interface ThreadListProps {
   threads: Thread[];
@@ -13,7 +13,7 @@ export const ThreadList: React.FC<ThreadListProps> = ({
   onThreadClick,
 }) => {
   const [threadId] = useSearchParamState("threadId");
-  const router = useRouter();
+  const { navigationService } = useUIContext();
 
   return (
     <div className="flex w-full flex-col items-start justify-start gap-2">
@@ -32,9 +32,7 @@ export const ThreadList: React.FC<ThreadListProps> = ({
                 onThreadClick?.(t.thread_id);
                 if (t.thread_id === threadId) return;
 
-                // Always use router.replace to create a clean URL with only threadId
-                // This ensures any workflow or other query parameters are removed
-                router.replace(`/?threadId=${t.thread_id}`);
+                navigationService.navigateToHome({ threadId: t.thread_id });
               }}
             >
               <p className="w-full truncate text-ellipsis">{itemText}</p>

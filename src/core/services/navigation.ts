@@ -7,12 +7,12 @@
 
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { ROUTES, type Route } from "@/core/routing/routes";
-import { buildUrl, type SearchParams } from "@/core/routing";
+import { type SearchParams, mergeSearchParams } from "@/core/routing";
 
 export interface NavigationService {
   // Page navigation
-  navigateToHome: (params?: Partial<SearchParams>) => void;
-  navigateToWorkflows: () => void;
+  navigateToHome: (options?: { threadId?: string }) => void;
+  navigateToWorkflows: (params?: Partial<SearchParams>) => void;
   navigateToWorkflow: (workflowId: string) => void;
 
   // Route checking
@@ -23,17 +23,38 @@ export interface NavigationService {
 export function createNavigationService(
   router: AppRouterInstance,
 ): NavigationService {
-  const navigateToHome = (params?: Partial<SearchParams>) => {
-    const url = buildUrl(ROUTES.HOME, params);
+  const buildPreservedUrl = (
+    route: Route,
+    params?: Partial<SearchParams>,
+  ): string => {
+    const current =
+      typeof window !== "undefined"
+        ? new URLSearchParams(window.location.search)
+        : new URLSearchParams();
+
+    const merged = mergeSearchParams(current, params ?? {});
+    const queryString = merged.toString();
+    return queryString ? `${route}?${queryString}` : route;
+  };
+
+  const navigateToHome = (options?: { threadId?: string }) => {
+    // When navigating home, always clear workflow and set threadId if provided
+    // If no threadId provided, clear it (New Chat scenario)
+    const params: Partial<SearchParams> = {
+      threadId: options?.threadId,
+      workflow: undefined,
+    };
+    const url = buildPreservedUrl(ROUTES.HOME, params);
     router.push(url);
   };
 
-  const navigateToWorkflows = () => {
-    router.push(ROUTES.WORKFLOWS);
+  const navigateToWorkflows = (params?: Partial<SearchParams>) => {
+    const url = buildPreservedUrl(ROUTES.WORKFLOWS, params);
+    router.push(url);
   };
 
   const navigateToWorkflow = (workflowId: string) => {
-    const url = buildUrl(ROUTES.HOME, { workflow: workflowId });
+    const url = buildPreservedUrl(ROUTES.HOME, { workflow: workflowId });
     router.push(url);
   };
 

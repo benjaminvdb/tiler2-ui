@@ -7,7 +7,7 @@ import { LoadingScreen } from "@/shared/components/loading-spinner";
 import { Button } from "@/shared/components/ui/button";
 import * as LucideIcons from "lucide-react";
 import { fetchWithAuth } from "@/core/services/http-client";
-import { useRuntimeClientConfig } from "@/core/config/use-runtime-config";
+import { getClientConfig } from "@/core/config/client";
 
 interface CategoryResponse {
   id: number;
@@ -90,7 +90,7 @@ const BUILT_IN_WORKFLOWS: WorkflowConfig[] = [];
 
 export default function WorkflowsPage(): React.ReactNode {
   const { navigationService } = useUIContext();
-  const { apiUrl } = useRuntimeClientConfig();
+  const { apiUrl } = getClientConfig();
   const [workflows, setWorkflows] =
     useState<WorkflowConfig[]>(BUILT_IN_WORKFLOWS);
   const [loading, setLoading] = useState(true);
@@ -105,6 +105,10 @@ export default function WorkflowsPage(): React.ReactNode {
     const fetchWorkflows = async () => {
       try {
         setLoading(true);
+
+        if (!apiUrl) {
+          throw new Error("API URL not configured");
+        }
 
         // Call backend API with automatic authentication and 403 handling
         const response = await fetchWithAuth(`${apiUrl}/workflows`, {

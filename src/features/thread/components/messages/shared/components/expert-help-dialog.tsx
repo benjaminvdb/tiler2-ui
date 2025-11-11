@@ -16,7 +16,6 @@ import { Textarea } from "@/shared/components/ui/textarea";
 import { Label } from "@/shared/components/ui/label";
 import { fetchWithRetry, AbortError } from "@/shared/utils/retry";
 import { reportApiError } from "@/core/services/error-reporting";
-import { useRuntimeClientConfig } from "@/core/config/use-runtime-config";
 
 interface ExpertHelpDialogProps {
   open: boolean;
@@ -35,7 +34,7 @@ export const ExpertHelpDialog: React.FC<ExpertHelpDialogProps> = ({
 }) => {
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { apiUrl } = useRuntimeClientConfig();
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
@@ -63,6 +62,10 @@ export const ExpertHelpDialog: React.FC<ExpertHelpDialogProps> = ({
       const { token } = await tokenResponse.json();
 
       // Submit to backend API with retry logic
+      if (!apiUrl) {
+        throw new Error("API URL not configured");
+      }
+
       const response = await fetchWithRetry(
         `${apiUrl}/api/v1/support/expert-help`,
         {

@@ -61,18 +61,6 @@ export const messageValidationSchema = z.object({
   timestamp: z.number().optional(),
 });
 
-// Configuration form validation
-export const configurationFormSchema = z.object({
-  apiUrl: z.string().url("Please enter a valid API URL"),
-  assistantId: z.string().min(1, "Assistant ID is required"),
-});
-
-// Human response validation (for agent inbox)
-export const humanResponseSchema = z.object({
-  type: z.literal("response"),
-  args: z.string().min(1, "Response cannot be empty"),
-});
-
 // Tool call validation
 export const toolCallSchema = z.object({
   id: z.string().min(1, "Tool call ID is required"),
@@ -89,14 +77,6 @@ export const fieldValueSchema = z.union([
   z.array(z.unknown()),
   z.record(z.string(), z.unknown()),
 ]);
-
-// URL parameter validation
-export const urlParamsSchema = z.object({
-  threadId: z.string().uuid().optional(),
-  chatHistoryOpen: z.boolean().optional(),
-  hideToolCalls: z.boolean().optional(),
-  apiUrl: z.string().url().optional(),
-});
 
 /**
  * Validation helper functions

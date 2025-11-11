@@ -1,3 +1,4 @@
+import type React from "react";
 import { type Message } from "@langchain/langgraph-sdk";
 import {
   type UIMessage,
@@ -40,10 +41,4 @@ export interface StreamSessionProps {
   children: React.ReactNode;
   apiUrl: string;
   assistantId: string;
-}
-
-export interface ConfigurationFormProps {
-  apiUrl: string;
-  assistantId: string;
-  onSubmit: (data: { apiUrl: string; assistantId: string }) => void;
 }

@@ -1,6 +1,14 @@
 import { useStreamContext } from "@/core/providers/stream";
-import { isAgentInboxInterruptSchema } from "@/features/thread/services/agent-inbox-interrupt";
 import { ChatInterrupt } from "../chat-interrupt";
+import type { HumanInterrupt } from "@langchain/langgraph/prebuilt";
+
+const isHumanInterrupt = (value: unknown): value is HumanInterrupt => {
+  if (!value || typeof value !== "object") return false;
+  return (
+    "action_request" in (value as Record<string, unknown>) &&
+    "config" in (value as Record<string, unknown>)
+  );
+};
 
 interface InterruptHandlerProps {
   interruptValue?: unknown;
@@ -37,18 +45,20 @@ export const InterruptHandler: React.FC<InterruptHandlerProps> = ({
     });
   };
 
-  // For agent inbox interrupts, render as chat message
+  const normalizedInterrupt = Array.isArray(interruptValue)
+    ? interruptValue.find(isHumanInterrupt)
+    : isHumanInterrupt(interruptValue)
+      ? (interruptValue as HumanInterrupt)
+      : null;
+
+  // For recognized interrupts, render as chat message
   if (
-    isAgentInboxInterruptSchema(interruptValue) &&
+    normalizedInterrupt &&
     (isLastMessage || hasNoAIOrToolMessages)
   ) {
-    const interrupt = Array.isArray(interruptValue)
-      ? interruptValue[0]
-      : interruptValue;
-
     return (
       <ChatInterrupt
-        interrupt={interrupt}
+        interrupt={normalizedInterrupt}
         onAccept={() => handleInterruptAction("accept")}
         onIgnore={() => handleInterruptAction("ignore")}
         onRespond={() => handleInterruptAction("respond")}
@@ -57,11 +67,7 @@ export const InterruptHandler: React.FC<InterruptHandlerProps> = ({
     );
   }
   // For generic interrupts, also render as chat message if possible
-  if (
-    interruptValue &&
-    !isAgentInboxInterruptSchema(interruptValue) &&
-    isLastMessage
-  ) {
+  if (interruptValue && isLastMessage) {
     // Try to convert generic interrupt to chat format
     const genericInterrupt = {
       action_request: {

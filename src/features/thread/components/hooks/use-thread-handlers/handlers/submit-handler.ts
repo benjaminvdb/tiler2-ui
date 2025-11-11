@@ -16,7 +16,6 @@ export const createSubmitHandler = (
   isLoading: boolean,
   addOptimisticThread: (thread: Thread) => void,
   userEmail: string,
-  assistantId: string,
 ) => {
   const {
     input,
@@ -94,7 +93,7 @@ export const createSubmitHandler = (
     };
 
     // If this is the first message, create optimistic thread
-    if (isFirstMessage && userEmail && assistantId) {
+    if (isFirstMessage && userEmail) {
       // Generate pre-determined thread ID
       const optimisticThreadId = crypto.randomUUID();
 
@@ -108,7 +107,6 @@ export const createSubmitHandler = (
       const optimisticThread = buildOptimisticThread({
         threadId: optimisticThreadId,
         threadName,
-        assistantId,
         userEmail,
         firstMessage: newHumanMessage,
       });

@@ -10,8 +10,6 @@ export const SearchParamsSchema = z.object({
   chatHistoryOpen: z.coerce.boolean().optional(),
   hideToolCalls: z.coerce.boolean().optional(),
   workflow: z.string().optional(),
-  apiUrl: z.string().optional(),
-  assistantId: z.string().optional(),
 });
 
 export type SearchParams = z.infer<typeof SearchParamsSchema>;

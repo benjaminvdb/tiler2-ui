@@ -11,7 +11,6 @@ import {
 import Image from "next/image";
 import { Thread } from "@langchain/langgraph-sdk";
 import { useSearchParamState } from "@/core/routing/hooks";
-import { useRouter } from "next/navigation";
 
 import {
   Sidebar,
@@ -47,7 +46,6 @@ export const NewSidebar = (): React.JSX.Element => {
   const { deleteThread, renameThread } = useThreads();
   const { state, toggleSidebar } = useSidebar();
   const isCollapsed = state === "collapsed";
-  const router = useRouter();
 
   // Navigation labels - single source of truth for button text and tooltips
   const LABEL_NEW_CHAT = "New Chat";
@@ -56,8 +54,7 @@ export const NewSidebar = (): React.JSX.Element => {
 
   const handleThreadClick = (clickedThreadId: string) => {
     if (clickedThreadId === threadId) return;
-    // Use router.replace to create a clean URL with only threadId, removing any workflow parameter
-    router.replace(`/?threadId=${clickedThreadId}`);
+    navigationService.navigateToHome({ threadId: clickedThreadId });
   };
 
   const handleNavigate = (section: "workflows" | "wiki") => {
@@ -92,7 +89,7 @@ export const NewSidebar = (): React.JSX.Element => {
 
       // If we deleted the currently active thread, navigate to home
       if (targetThreadId === threadId) {
-        router.replace("/");
+        navigationService.navigateToHome();
       }
     } catch (error) {
       toast.error(
