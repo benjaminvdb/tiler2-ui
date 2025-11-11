@@ -32,8 +32,22 @@ export const useAccessToken = (
 
   const getToken = useCallback(async (): Promise<string | null> => {
     try {
-      const tokenResult = await getAccessToken();
-      return tokenResult;
+      const response = await getAccessToken();
+
+      if (typeof response === "string") {
+        return response;
+      }
+
+      if (
+        response &&
+        typeof response === "object" &&
+        "accessToken" in response
+      ) {
+        const tokenObj = response as { accessToken?: string | null };
+        return tokenObj.accessToken ?? null;
+      }
+
+      return null;
     } catch (error) {
       if (handleTokenError(error, { component, operation })) {
         return null;

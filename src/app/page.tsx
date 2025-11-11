@@ -11,6 +11,7 @@ import { useUser } from "@auth0/nextjs-auth0/client";
 import { fetchWithAuth } from "@/core/services/http-client";
 import { generateThreadName } from "@/features/thread/utils/generate-thread-name";
 import { buildOptimisticThread } from "@/features/thread/utils/build-optimistic-thread";
+import { useRuntimeClientConfig } from "@/core/config/use-runtime-config";
 
 interface WorkflowData {
   id: number;
@@ -32,9 +33,8 @@ function ThreadWithWorkflowHandler(): React.ReactNode {
   // Use ref to track if workflow has been submitted for this component instance
   const submittedWorkflowRef = useRef<string | null>(null);
 
-  // Get environment variables
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-  const assistantId = process.env.NEXT_PUBLIC_ASSISTANT_ID || "";
+  // Get runtime configuration (URL overrides env defaults)
+  const { apiUrl, assistantId } = useRuntimeClientConfig();
 
   useEffect(() => {
     const submitWorkflow = async () => {

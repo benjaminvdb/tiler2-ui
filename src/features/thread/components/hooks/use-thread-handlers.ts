@@ -5,6 +5,7 @@ import { UseThreadHandlersProps } from "./use-thread-handlers/types";
 import { createSubmitHandler } from "./use-thread-handlers/handlers/submit-handler";
 import { createRegenerateHandler } from "./use-thread-handlers/handlers/regenerate-handler";
 import { createActionHandler } from "./use-thread-handlers/handlers/action-handler";
+import { useRuntimeClientConfig } from "@/core/config/use-runtime-config";
 
 export function useThreadHandlers(props: UseThreadHandlersProps): {
   handleSubmit: (e: React.FormEvent) => void;
@@ -15,9 +16,7 @@ export function useThreadHandlers(props: UseThreadHandlersProps): {
   const isLoading = stream.isLoading;
   const { addOptimisticThread } = useThreads();
   const { user } = useUser();
-
-  // Get environment variables
-  const assistantId = process.env.NEXT_PUBLIC_ASSISTANT_ID || "";
+  const { assistantId } = useRuntimeClientConfig();
 
   const handleSubmit = createSubmitHandler(
     props,

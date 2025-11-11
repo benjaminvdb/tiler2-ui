@@ -3,11 +3,11 @@
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import { motion } from "framer-motion";
 import { useUIContext } from "@/features/chat/providers/ui-provider";
-import { getClientConfig } from "@/core/config/client";
 import { LoadingScreen } from "@/shared/components/loading-spinner";
 import { Button } from "@/shared/components/ui/button";
 import * as LucideIcons from "lucide-react";
 import { fetchWithAuth } from "@/core/services/http-client";
+import { useRuntimeClientConfig } from "@/core/config/use-runtime-config";
 
 interface CategoryResponse {
   id: number;
@@ -90,6 +90,7 @@ const BUILT_IN_WORKFLOWS: WorkflowConfig[] = [];
 
 export default function WorkflowsPage(): React.ReactNode {
   const { navigationService } = useUIContext();
+  const { apiUrl } = useRuntimeClientConfig();
   const [workflows, setWorkflows] =
     useState<WorkflowConfig[]>(BUILT_IN_WORKFLOWS);
   const [loading, setLoading] = useState(true);
@@ -104,9 +105,6 @@ export default function WorkflowsPage(): React.ReactNode {
     const fetchWorkflows = async () => {
       try {
         setLoading(true);
-
-        // Get backend URL from config
-        const { apiUrl } = getClientConfig();
 
         // Call backend API with automatic authentication and 403 handling
         const response = await fetchWithAuth(`${apiUrl}/workflows`, {
@@ -164,7 +162,7 @@ export default function WorkflowsPage(): React.ReactNode {
     };
 
     fetchWorkflows();
-  }, []);
+  }, [apiUrl]);
 
   // Filter workflows based on search query
   const filteredWorkflows = useMemo(() => {

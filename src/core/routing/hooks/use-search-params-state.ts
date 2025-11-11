@@ -7,8 +7,8 @@
 
 "use client";
 
-import { useSearchParams } from "next/navigation";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { SearchParamKey, SearchParams } from "../search-params";
 import { mergeSearchParams } from "../utils";
 
@@ -27,8 +27,18 @@ export function useSearchParamState<K extends SearchParamKey>(
   (value: Exclude<SearchParams[K], undefined> | null) => void,
 ] {
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
 
   const value = searchParams.get(key);
+
+  const buildUrl = useCallback(
+    (params: URLSearchParams) => {
+      const queryString = params.toString();
+      return queryString ? `${pathname}?${queryString}` : pathname;
+    },
+    [pathname],
+  );
 
   const setValue = useCallback(
     (newValue: SearchParams[K] | null) => {
@@ -40,15 +50,9 @@ export function useSearchParamState<K extends SearchParamKey>(
         current.set(key, String(newValue));
       }
 
-      const newUrl = current.toString()
-        ? `?${current.toString()}`
-        : window.location.pathname;
-
-      // Use native window.history.pushState for shallow routing
-      // This integrates with Next.js router without causing a re-render
-      window.history.pushState(null, "", newUrl);
+      router.replace(buildUrl(current));
     },
-    [key, searchParams],
+    [buildUrl, key, router, searchParams],
   );
 
   // Parse value based on key type
@@ -78,18 +82,22 @@ export function useSearchParamsUpdate(): (
   updates: Partial<SearchParams>,
 ) => void {
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const baseParams = useMemo(
+    () => new URLSearchParams(searchParams.toString()),
+    [searchParams],
+  );
 
   return useCallback(
     (updates: Partial<SearchParams>) => {
-      const merged = mergeSearchParams(searchParams, updates);
-
-      const newUrl = merged.toString()
-        ? `?${merged.toString()}`
-        : window.location.pathname;
-
-      window.history.pushState(null, "", newUrl);
+      const merged = mergeSearchParams(baseParams, updates);
+      const queryString = merged.toString();
+      const target = queryString ? `${pathname}?${queryString}` : pathname;
+      router.replace(target);
     },
-    [searchParams],
+    [baseParams, pathname, router],
   );
 }
 
