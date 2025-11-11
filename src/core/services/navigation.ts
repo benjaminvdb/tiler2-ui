@@ -5,7 +5,7 @@
  * Provides a clean API for all navigation operations in the application.
  */
 
-import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+import { NavigateFunction } from "react-router-dom";
 import { ROUTES, type Route } from "@/core/routing/routes";
 import { type SearchParams, mergeSearchParams } from "@/core/routing";
 
@@ -21,7 +21,7 @@ export interface NavigationService {
 }
 
 export function createNavigationService(
-  router: AppRouterInstance,
+  router: NavigateFunction,
 ): NavigationService {
   const buildPreservedUrl = (
     route: Route,
@@ -45,17 +45,17 @@ export function createNavigationService(
       workflow: undefined,
     };
     const url = buildPreservedUrl(ROUTES.HOME, params);
-    router.push(url);
+    router(url);
   };
 
   const navigateToWorkflows = (params?: Partial<SearchParams>) => {
     const url = buildPreservedUrl(ROUTES.WORKFLOWS, params);
-    router.push(url);
+    router(url);
   };
 
   const navigateToWorkflow = (workflowId: string) => {
     const url = buildPreservedUrl(ROUTES.HOME, { workflow: workflowId });
-    router.push(url);
+    router(url);
   };
 
   const isHomePage = (pathname: string): boolean => {

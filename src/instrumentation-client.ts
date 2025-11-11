@@ -2,7 +2,7 @@
 // The added config here will be used whenever a users loads a page in their browser.
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/
 
-import * as Sentry from "@sentry/nextjs";
+import * as Sentry from "@sentry/react";
 
 const isDevelopment = process.env.NODE_ENV === "development";
 const dsn = process.env.NEXT_PUBLIC_SENTRY_DSN;
@@ -36,9 +36,6 @@ if (!isDevelopment && dsn) {
     // Development: 100% for complete visibility
     // Production: 20% to reduce data volume
     tracesSampleRate: isDevelopment ? 1.0 : 0.2,
-
-    // Enable logs to be sent to Sentry
-    enableLogs: true,
 
     // Session Replay sampling
     // Development: 100% for complete visibility
@@ -91,6 +88,4 @@ if (!isDevelopment && dsn) {
   });
 }
 
-// Only export router transition tracking if Sentry was initialized
-export const onRouterTransitionStart =
-  !isDevelopment && dsn ? Sentry.captureRouterTransitionStart : undefined;
+// Note: Router transition tracking is handled by @sentry/react's browserTracingIntegration

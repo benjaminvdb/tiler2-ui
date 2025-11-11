@@ -1,8 +1,11 @@
 {
   "compilerOptions": {
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
     "skipLibCheck": true,
+    "allowJs": true,
     "strict": true,
     "noImplicitAny": true,
     "noImplicitReturns": true,
@@ -12,33 +15,20 @@
     "exactOptionalPropertyTypes": true,
     "noEmit": true,
     "esModuleInterop": true,
-    "module": "esnext",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve",
+    "jsx": "react-jsx",
     "incremental": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
     "paths": {
       "@/*": ["./src/*"],
       "@/features/*": ["./src/features/*"],
       "@/shared/*": ["./src/shared/*"],
       "@/core/*": ["./src/core/*"],
       "@/infrastructure/*": ["./src/infrastructure/*"]
-    },
-    "target": "ES2017"
+    }
   },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    ".next/types/**/*.ts",
-    "src/hooks/use-threads",
-    "src/app/thread/[threadId]"
-  ],
-  "exclude": ["node_modules", "new_design"]
+  "include": ["src"],
+  "exclude": ["node_modules", "new_design", "dist"],
+  "references": [{ "path": "./tsconfig.node.json" }]
 }

@@ -1,5 +1,4 @@
 import React from "react";
-import Image from "next/image";
 import { cn } from "@/shared/utils/utils";
 import { PreviewComponentProps } from "../types";
 import { getImageSizeConfig } from "../utils/size-config";
@@ -17,12 +16,11 @@ export const ImagePreview: React.FC<PreviewComponentProps> = ({
 
   return (
     <div className={cn("relative inline-block", className)}>
-      <Image
+      <img
         src={url}
         alt={String(block.metadata?.name || "uploaded image")}
         className={sizeConfig.className}
-        width={sizeConfig.width}
-        height={sizeConfig.height}
+        style={{ width: sizeConfig.width, height: sizeConfig.height }}
       />
       {removable && (
         <RemoveButton

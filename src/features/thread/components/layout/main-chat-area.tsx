@@ -7,7 +7,7 @@ import { useChatContext } from "@/features/chat/providers/chat-provider";
 import { useStreamContext } from "@/core/providers/stream";
 import { EmptyState } from "@/features/chat/components/empty-state";
 import { LoadingSpinner } from "@/shared/components/loading-spinner";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/core/routing/compat/next-navigation";
 
 const MainChatAreaComponent: React.FC = () => {
   const { firstTokenReceived, handleRegenerate } = useChatContext();

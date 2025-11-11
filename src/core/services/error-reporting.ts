@@ -4,7 +4,7 @@
  * Integrates with Sentry for production error monitoring
  */
 
-import * as Sentry from "@sentry/nextjs";
+import * as Sentry from "@sentry/react";
 
 // Error severity levels
 export type ErrorSeverity = "low" | "medium" | "high" | "critical";

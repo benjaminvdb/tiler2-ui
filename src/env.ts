@@ -1,64 +1,47 @@
 /**
  * Environment variable validation with runtime checks and type safety.
- * Server variables are never exposed to the browser.
+ * Client variables are prefixed with VITE_ to be exposed to the browser.
  */
 
-import { createEnv } from "@t3-oss/env-nextjs";
 import { z } from "zod";
 
-export const env = createEnv({
-  /**
-   * Server-side only - never exposed to browser
-   */
-  server: {
-    AUTH0_SECRET: z
-      .string()
-      .min(32, "AUTH0_SECRET must be at least 32 characters"),
-    AUTH0_DOMAIN: z.string().min(1),
-    AUTH0_CLIENT_ID: z.string().min(1),
-    AUTH0_CLIENT_SECRET: z.string().min(1),
-    AUTH0_AUDIENCE: z.url().optional(),
-    APP_BASE_URL: z.url(),
-    LANGSMITH_API_KEY: z.string().optional(),
-    SENTRY_DSN: z.url().optional(),
-    SENTRY_AUTH_TOKEN: z.string().optional(),
-    SENTRY_ENVIRONMENT: z
-      .enum(["development", "test", "production"])
-      .optional(),
-    LOG_LEVEL: z.enum(["debug", "info", "warn", "error", "fatal"]).optional(),
-    LOG_PRETTY: z.string().optional(),
-  },
+const createEnv = () => {
+  // Client-side environment variables (exposed to browser via VITE_ prefix)
+  const clientSchema = z.object({
+    VITE_AUTH0_DOMAIN: z.string().min(1),
+    VITE_AUTH0_CLIENT_ID: z.string().min(1),
+    VITE_AUTH0_AUDIENCE: z.url().optional(),
+    VITE_API_URL: z.string().optional(),
+    VITE_ASSISTANT_ID: z.string().optional(),
+    VITE_SENTRY_DSN: z.url().optional(),
+    VITE_APP_BASE_URL: z.url(),
+  });
 
-  /**
-   * Client-side - exposed to browser via NEXT_PUBLIC_ prefix
-   */
-  client: {
-    NEXT_PUBLIC_API_URL: z.string().optional(),
-    NEXT_PUBLIC_ASSISTANT_ID: z.string().optional(),
-    NEXT_PUBLIC_SENTRY_DSN: z.url().optional(),
-  },
+  const skipValidation = import.meta.env.VITE_SKIP_ENV_VALIDATION === "true";
 
-  /**
-   * Explicitly destructure all env vars for Next.js bundling.
-   */
-  runtimeEnv: {
-    AUTH0_SECRET: process.env.AUTH0_SECRET,
-    AUTH0_DOMAIN: process.env.AUTH0_DOMAIN,
-    AUTH0_CLIENT_ID: process.env.AUTH0_CLIENT_ID,
-    AUTH0_CLIENT_SECRET: process.env.AUTH0_CLIENT_SECRET,
-    AUTH0_AUDIENCE: process.env.AUTH0_AUDIENCE,
-    APP_BASE_URL: process.env.APP_BASE_URL,
-    LANGSMITH_API_KEY: process.env.LANGSMITH_API_KEY,
-    SENTRY_DSN: process.env.SENTRY_DSN,
-    SENTRY_AUTH_TOKEN: process.env.SENTRY_AUTH_TOKEN,
-    SENTRY_ENVIRONMENT: process.env.SENTRY_ENVIRONMENT,
-    LOG_LEVEL: process.env.LOG_LEVEL,
-    LOG_PRETTY: process.env.LOG_PRETTY,
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
-    NEXT_PUBLIC_ASSISTANT_ID: process.env.NEXT_PUBLIC_ASSISTANT_ID,
-    NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
-  },
+  // Validate client-side variables (always available in browser)
+  const clientEnv = skipValidation
+    ? (import.meta.env as any)
+    : clientSchema.parse({
+        VITE_AUTH0_DOMAIN: import.meta.env.VITE_AUTH0_DOMAIN,
+        VITE_AUTH0_CLIENT_ID: import.meta.env.VITE_AUTH0_CLIENT_ID,
+        VITE_AUTH0_AUDIENCE: import.meta.env.VITE_AUTH0_AUDIENCE,
+        VITE_API_URL: import.meta.env.VITE_API_URL,
+        VITE_ASSISTANT_ID: import.meta.env.VITE_ASSISTANT_ID,
+        VITE_SENTRY_DSN: import.meta.env.VITE_SENTRY_DSN,
+        VITE_APP_BASE_URL: import.meta.env.VITE_APP_BASE_URL,
+      });
 
-  skipValidation: !!process.env.SKIP_ENV_VALIDATION,
-  emptyStringAsUndefined: true,
-});
+  return {
+    // Client-side variables (available in browser)
+    AUTH0_DOMAIN: clientEnv.VITE_AUTH0_DOMAIN,
+    AUTH0_CLIENT_ID: clientEnv.VITE_AUTH0_CLIENT_ID,
+    AUTH0_AUDIENCE: clientEnv.VITE_AUTH0_AUDIENCE,
+    API_URL: clientEnv.VITE_API_URL,
+    ASSISTANT_ID: clientEnv.VITE_ASSISTANT_ID,
+    SENTRY_DSN: clientEnv.VITE_SENTRY_DSN,
+    APP_BASE_URL: clientEnv.VITE_APP_BASE_URL,
+  };
+};
+
+export const env = createEnv();

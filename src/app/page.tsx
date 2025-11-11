@@ -3,17 +3,18 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Thread } from "@/features/thread/components";
 import { ArtifactProvider } from "@/features/artifacts/components";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams } from "@/core/routing/compat/next-navigation";
 import { useStreamContext } from "@/core/providers/stream";
 import {
   useSearchParamState,
   useSearchParamsUpdate,
 } from "@/core/routing/hooks";
 import { useThreads } from "@/features/thread/providers/thread-provider";
-import { useUser } from "@auth0/nextjs-auth0/client";
+import { useAuth0 } from "@auth0/auth0-react";
 import { fetchWithAuth } from "@/core/services/http-client";
 import { generateThreadName } from "@/features/thread/utils/generate-thread-name";
 import { buildOptimisticThread } from "@/features/thread/utils/build-optimistic-thread";
+import { getClientConfig } from "@/core/config/client";
 
 interface WorkflowData {
   id: number;
@@ -29,14 +30,14 @@ function ThreadWithWorkflowHandler(): React.ReactNode {
   const [threadId, setThreadId] = useSearchParamState("threadId");
   const updateSearchParams = useSearchParamsUpdate();
   const { addOptimisticThread } = useThreads();
-  const { user } = useUser();
+  const { user } = useAuth0();
   const [isSubmittingWorkflow, setIsSubmittingWorkflow] = useState(false);
 
   // Use ref to track if workflow has been submitted for this component instance
   const submittedWorkflowRef = useRef<string | null>(null);
 
   // Get environment variables
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  const apiUrl = getClientConfig().apiUrl;
 
   useEffect(() => {
     const submitWorkflow = async () => {

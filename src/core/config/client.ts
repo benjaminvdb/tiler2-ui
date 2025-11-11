@@ -1,7 +1,9 @@
 /**
  * Client-side configuration
- * Only contains NEXT_PUBLIC_ environment variables that are safe to expose to the browser
+ * Uses Vite environment variables that are safe to expose to the browser
  */
+
+import { env } from "@/env";
 
 export interface ClientConfig {
   apiUrl: string;
@@ -14,8 +16,8 @@ export interface ClientConfig {
  */
 export function getClientConfig(): ClientConfig {
   return {
-    apiUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:2024",
-    assistantId: process.env.NEXT_PUBLIC_ASSISTANT_ID || "agent",
+    apiUrl: env.API_URL || "http://localhost:2024",
+    assistantId: env.ASSISTANT_ID || "agent",
   };
 }
 

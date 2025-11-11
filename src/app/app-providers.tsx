@@ -6,19 +6,19 @@ import { ThreadProvider } from "@/features/thread/providers/thread-provider";
 import { HotkeysProvider } from "@/features/hotkeys";
 import { useMediaQuery } from "@/shared/hooks/use-media-query";
 import { useSearchParamState } from "@/core/routing/hooks";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "react-router-dom";
 import { Toaster } from "@/shared";
 import { createNavigationService } from "@/core/services/navigation";
 import { StreamProvider } from "@/core/providers/stream";
 import { LoggerProvider } from "@/core/services/logging";
-import * as Sentry from "@sentry/nextjs";
+import * as Sentry from "@sentry/react";
 
 interface AppProvidersProps {
   children: React.ReactNode;
 }
 
 export function AppProviders({ children }: AppProvidersProps): React.ReactNode {
-  const router = useRouter();
+  const navigate = useNavigate();
 
   // UI state management
   const [chatHistoryOpen, setChatHistoryOpen] =
@@ -62,8 +62,8 @@ export function AppProviders({ children }: AppProvidersProps): React.ReactNode {
   }, [chatHistoryOpen, setChatHistoryOpen]);
 
   const navigationService = useMemo(
-    () => createNavigationService(router),
-    [router],
+    () => createNavigationService(navigate),
+    [navigate],
   );
 
   // Simplified new thread handler - just clear thread ID and go to home

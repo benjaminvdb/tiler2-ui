@@ -13,7 +13,6 @@ import {
   Sparkles,
   BookOpen,
 } from "lucide-react";
-import Image from "next/image";
 import earthImage from "@/../public/images/earth-satellite.webp";
 import { useUIContext } from "@/features/chat/providers/ui-provider";
 
@@ -79,13 +78,10 @@ export const EmptyState = ({
                 "0 8px 32px rgba(11, 61, 46, 0.15), 0 2px 8px rgba(0, 0, 0, 0.08)",
             }}
           >
-            <Image
+            <img
               src={earthImage}
               alt="Earth from space"
-              sizes="(max-width: 640px) 224px, (max-width: 768px) 256px, (max-width: 1024px) 288px, 320px"
-              className="object-cover"
-              priority
-              placeholder="blur"
+              className="object-cover w-full h-full"
             />
 
             {/* Subtle overlay for depth */}

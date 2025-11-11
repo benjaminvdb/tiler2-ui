@@ -12,7 +12,7 @@ import {
   BookOpen,
   type LucideIcon,
 } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/core/routing/compat/next-navigation";
 import { useUIContext } from "@/features/chat/providers/ui-provider";
 import { NavigationButton } from "@/features/side-panel/components/navigation-button";
 import { navigateExternal } from "@/core/services/navigation";

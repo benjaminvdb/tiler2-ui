@@ -8,7 +8,6 @@ import {
   PanelLeftOpen,
   PanelLeftClose,
 } from "lucide-react";
-import Image from "next/image";
 import { Thread } from "@langchain/langgraph-sdk";
 import { useSearchParamState } from "@/core/routing/hooks";
 
@@ -111,14 +110,11 @@ export const NewSidebar = (): React.JSX.Element => {
             className="flex flex-1 cursor-pointer items-center gap-2 transition-opacity group-data-[collapsible=icon]:hidden hover:opacity-80"
             aria-label="Go to Home"
           >
-            <Image
+            <img
               src="/link.svg"
               alt="Link"
-              width={25}
-              height={8}
               className="object-contain"
-              style={{ filter: "brightness(0)" }}
-              priority
+              style={{ filter: "brightness(0)", width: 25, height: 8 }}
             />
           </button>
 

@@ -6,7 +6,7 @@ import React, {
   useState,
 } from "react";
 import { useSearchParamState } from "@/core/routing/hooks";
-import { useUser } from "@auth0/nextjs-auth0";
+import { useAuth0 } from "@auth0/auth0-react";
 import {
   uiMessageReducer,
   isUIMessage,
@@ -19,7 +19,7 @@ import { useTypedStream, StreamSessionProps, GraphState } from "./types";
 import { sleep, checkGraphStatus } from "./utils";
 import { LoadingScreen } from "@/shared/components/loading-spinner";
 import { useLogger } from "@/core/services/logging";
-import * as Sentry from "@sentry/nextjs";
+import * as Sentry from "@sentry/react";
 import { fetchWithRetry } from "@/shared/utils/retry";
 import {
   reportAuthError,
@@ -34,7 +34,7 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
   const [threadId, setThreadId] = useSearchParamState("threadId");
   const { getThreads, setThreads, removeOptimisticThread } = useThreads();
   const threadFetchControllerRef = useRef<AbortController | null>(null);
-  const { user, isLoading: isUserLoading } = useUser();
+  const { user, isLoading: isUserLoading } = useAuth0();
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [tokenError, setTokenError] = useState<Error | null>(null);
   const [currentRunId, setCurrentRunId] = useState<string | null>(null);

@@ -6,6 +6,7 @@
  */
 
 import { Thread, Message } from "@langchain/langgraph-sdk";
+import { getClientConfig } from "@/core/config/client";
 
 interface OptimisticThreadOptions {
   /**
@@ -42,7 +43,7 @@ export function buildOptimisticThread(
   options: OptimisticThreadOptions,
 ): Thread {
   const now = new Date().toISOString();
-  const assistantId = process.env.NEXT_PUBLIC_ASSISTANT_ID;
+  const assistantId = getClientConfig().assistantId;
 
   const thread: Thread = {
     thread_id: options.threadId,

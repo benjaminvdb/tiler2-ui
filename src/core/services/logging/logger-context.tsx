@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useMemo, ReactNode } from "react";
-import { useUser } from "@auth0/nextjs-auth0";
+import { useAuth0 } from "@auth0/auth0-react";
 import { useSearchParamState } from "@/core/routing/hooks";
 import { createLogger } from "./logger";
 import { ILogger, LogContext } from "./types";
@@ -26,7 +26,7 @@ export function LoggerProvider({
   children,
   additionalContext = {},
 }: LoggerProviderProps): React.JSX.Element {
-  const { user } = useUser();
+  const { user } = useAuth0();
   const [threadId] = useSearchParamState("threadId");
 
   const logger = useMemo(() => {

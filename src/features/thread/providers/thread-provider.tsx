@@ -11,6 +11,7 @@ import {
 } from "react";
 import { reportThreadError } from "@/core/services/error-reporting";
 import { fetchWithAuth } from "@/core/services/http-client";
+import { getClientConfig } from "@/core/config/client";
 
 interface ThreadContextType {
   getThreads: () => Promise<Thread[]>;
@@ -39,8 +40,9 @@ const getThreadSearchMetadata = (
 export const ThreadProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-  const assistantId = process.env.NEXT_PUBLIC_ASSISTANT_ID;
+  const config = getClientConfig();
+  const apiUrl = config.apiUrl;
+  const assistantId = config.assistantId;
   const [threads, setThreads] = useState<Thread[]>([]);
   const [threadsLoading, setThreadsLoading] = useState(false);
 

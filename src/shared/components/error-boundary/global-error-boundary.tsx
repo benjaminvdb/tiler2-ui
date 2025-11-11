@@ -2,7 +2,7 @@
 
 import React, { Component, ReactNode } from "react";
 import { displayCriticalError } from "@/core/services/error-display";
-import * as Sentry from "@sentry/nextjs";
+import * as Sentry from "@sentry/react";
 
 interface Props {
   children: ReactNode;

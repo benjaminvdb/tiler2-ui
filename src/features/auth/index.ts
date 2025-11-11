@@ -7,14 +7,7 @@
 export { AuthButtons } from "./components";
 
 // Services (re-export main functions)
-export {
-  getAuth0,
-  validateAuth0Config,
-  isAuth0Configured,
-  auth0Middleware,
-  getAuth0Session,
-  getAuth0Client,
-} from "./services/auth0";
+export { getAuth0, isAuth0Configured, getAuth0Config } from "./services/auth0";
 export { AUTH0_CONFIG } from "./services/auth0-config";
 
 // Configuration

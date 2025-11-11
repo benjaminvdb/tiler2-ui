@@ -1,5 +1,5 @@
 import React, { forwardRef } from "react";
-import { useUser } from "@auth0/nextjs-auth0";
+import { useAuth0 } from "@auth0/auth0-react";
 import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -62,7 +62,7 @@ const GuestDropdown = (): React.JSX.Element => {
 };
 
 export const AuthButtons = (): React.JSX.Element => {
-  const { user, isLoading } = useUser();
+  const { user, isLoading } = useAuth0();
 
   if (isLoading) {
     return <LoadingAvatar />;

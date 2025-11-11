@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import { memo } from "react";
 import { Checkpoint, Message } from "@langchain/langgraph-sdk";
 import { PlaceholderMessage } from "./ai/placeholder-message";
 import { MessageContent } from "./ai/message-content";
