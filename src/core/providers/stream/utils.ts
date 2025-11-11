@@ -1,5 +1,5 @@
 import { DEFAULT_CLIENT_CONFIG } from "@/core/config/client";
-import { reportNetworkError } from "@/core/services/error-reporting";
+import { reportStreamError } from "@/core/services/error-reporting";
 import { fetchWithRetry } from "@/shared/utils/retry";
 
 export async function sleep(ms = 4000, signal?: AbortSignal) {
@@ -58,10 +58,15 @@ export async function checkGraphStatus(
       return false;
     }
 
-    reportNetworkError(e as Error, {
+    // Log to Sentry but don't notify user - this is a non-critical health check
+    reportStreamError(e as Error, {
       operation: "checkGraphStatus",
-      component: "stream utilities",
-      url: `${apiUrl}/info`,
+      component: "stream-utils",
+      skipNotification: true,
+      additionalData: {
+        url: `${apiUrl}/info`,
+        hasApiKey: !!apiKey,
+      },
     });
     return false;
   } finally {

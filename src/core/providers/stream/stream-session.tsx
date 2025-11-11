@@ -1,4 +1,10 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useSearchParamState } from "@/core/routing/hooks";
 import { useUser } from "@auth0/nextjs-auth0";
 import {
@@ -9,13 +15,16 @@ import {
 import { toast } from "sonner";
 import { useThreads } from "@/features/thread/providers/thread-provider";
 import { StreamContext } from "./stream-context";
-import { useTypedStream, StreamSessionProps } from "./types";
+import { useTypedStream, StreamSessionProps, GraphState } from "./types";
 import { sleep, checkGraphStatus } from "./utils";
 import { LoadingScreen } from "@/shared/components/loading-spinner";
 import { useLogger } from "@/core/services/logging";
 import * as Sentry from "@sentry/nextjs";
 import { fetchWithRetry } from "@/shared/utils/retry";
-import { reportAuthError } from "@/core/services/error-reporting";
+import {
+  reportAuthError,
+  reportStreamError,
+} from "@/core/services/error-reporting";
 
 export const StreamSession: React.FC<StreamSessionProps> = ({
   children,
@@ -29,6 +38,7 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [tokenError, setTokenError] = useState<Error | null>(null);
   const [currentRunId, setCurrentRunId] = useState<string | null>(null);
+  const [streamError, setStreamError] = useState<Error | null>(null);
 
   const baseLogger = useLogger();
   const logger = useMemo(
@@ -134,36 +144,89 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, isUserLoading, accessToken]); // Removed logger to prevent unnecessary re-runs
 
-  const streamConfig = {
-    apiUrl,
-    apiKey: undefined,
-    assistantId,
-    threadId: threadId ?? null,
-    timeoutMs: 15000, // 15 second timeout for all SDK operations
-    defaultHeaders: accessToken
-      ? {
-          Authorization: `Bearer ${accessToken}`,
-        }
-      : undefined,
-  };
+  /**
+   * Create stream configuration only when token is available.
+   * This prevents SDK from being initialized without authentication headers,
+   * which was causing LINK-AI-FRONTEND-13 (403 "no authentication token provided").
+   */
+  const streamConfig = useMemo(() => {
+    if (!accessToken) return null;
 
+    return {
+      apiUrl,
+      apiKey: undefined,
+      assistantId,
+      threadId: threadId ?? null,
+      timeoutMs: 15000, // 15 second timeout for all SDK operations
+      defaultHeaders: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    };
+  }, [accessToken, apiUrl, assistantId, threadId]);
+
+  /**
+   * Initialize SDK only when token is available.
+   * If no token yet, use a minimal config to prevent errors.
+   */
   const streamValue = useTypedStream({
-    ...streamConfig,
-    fetchStateHistory: true,
-    onMetadataEvent: (data) => {
+    ...(streamConfig ?? {
+      apiUrl,
+      apiKey: undefined,
+      assistantId,
+      threadId: null,
+      timeoutMs: 15000,
+    }),
+    fetchStateHistory: streamConfig !== null, // Only fetch history when authenticated
+    onMetadataEvent: (data: { run_id?: string }) => {
       if (data.run_id) {
         setCurrentRunId(data.run_id);
       }
     },
-    onCustomEvent: (event, options) => {
+    onCustomEvent: (event: unknown, options: { mutate: (fn: (prev: GraphState) => GraphState) => void }) => {
+      // Handle UI messages
       if (isUIMessage(event) || isRemoveUIMessage(event)) {
-        options.mutate((prev) => {
+        options.mutate((prev: GraphState) => {
           const ui = uiMessageReducer(prev.ui ?? [], event);
           return { ...prev, ui };
         });
       }
+
+      // Handle error events from stream
+      if (event && typeof event === "object" && "type" in event) {
+        if (event.type === "error") {
+          const errorMessage =
+            "message" in event && typeof event.message === "string"
+              ? event.message
+              : "Stream error occurred";
+
+          reportStreamError(new Error(errorMessage), {
+            operation: "stream_event",
+            component: "StreamSession",
+            skipNotification: true, // Error boundary will handle notification
+            additionalData: {
+              eventType: event.type,
+              assistantId,
+              threadId,
+              runId: currentRunId,
+            },
+          });
+        }
+      }
     },
-    onThreadId: (id) => {
+    onError: (error: unknown) => {
+      // Report general SDK errors to Sentry
+      const err = error instanceof Error ? error : new Error(String(error));
+      reportStreamError(err, {
+        operation: "stream_general",
+        component: "StreamSession",
+        additionalData: {
+          assistantId,
+          threadId,
+          currentRunId,
+        },
+      });
+    },
+    onThreadId: (id: string) => {
       setThreadId(id);
 
       if (threadFetchControllerRef.current) {
@@ -241,11 +304,35 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
     };
   }, [apiUrl, logger]);
 
-  const extendedStreamValue = {
-    ...streamValue,
-    currentRunId,
-    threadId,
-  };
+  /**
+   * Clear stream error state
+   */
+  const clearError = useCallback(() => {
+    setStreamError(null);
+  }, []);
+
+  /**
+   * Retry stream by refreshing token and clearing error state
+   */
+  const retryStream = useCallback(async () => {
+    setStreamError(null);
+    // Re-fetch token to ensure it's fresh
+    setAccessToken(null);
+    // Token fetch will trigger automatically via useEffect
+  }, []);
+
+  const extendedStreamValue = useMemo(() => {
+    // Avoid spreading streamValue because it exposes getters (e.g. history)
+    // that throw when fetchStateHistory is false.
+    const base = Object.create(streamValue);
+    return Object.assign(base, {
+      currentRunId,
+      threadId,
+      error: streamError,
+      clearError,
+      retryStream,
+    });
+  }, [streamValue, currentRunId, threadId, streamError, clearError, retryStream]);
 
   if (isUserLoading || (!accessToken && !tokenError && user)) {
     return (
@@ -258,8 +345,8 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
   if (tokenError) {
     return (
       <StreamContext.Provider value={extendedStreamValue}>
-        <LoadingScreen>
-          <div className="flex flex-col items-center gap-4">
+        <div className="bg-background flex h-screen w-full items-center justify-center">
+          <div className="flex flex-col items-center gap-4 text-center">
             <p className="text-destructive">
               Authentication error: {tokenError.message}
             </p>
@@ -273,7 +360,7 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
               Log In
             </button>
           </div>
-        </LoadingScreen>
+        </div>
       </StreamContext.Provider>
     );
   }

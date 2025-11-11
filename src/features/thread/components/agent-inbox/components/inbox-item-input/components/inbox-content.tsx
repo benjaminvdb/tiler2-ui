@@ -33,9 +33,8 @@ const StatusIndicator: React.FC<StatusIndicatorProps> = ({
 }) => {
   if (streaming) {
     return (
-      <div className="flex items-center gap-2">
+      <div className="flex items-center justify-center">
         <LoadingSpinner size="sm" />
-        <span className="text-sm text-gray-600">Running</span>
       </div>
     );
   }

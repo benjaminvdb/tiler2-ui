@@ -3,6 +3,7 @@ import { useSearchParamState } from "@/core/routing/hooks";
 import { getClientConfig } from "@/core/config/client";
 import { ConfigurationForm } from "./stream/configuration-form";
 import { StreamSession } from "./stream/stream-session";
+import { StreamErrorBoundary } from "@/shared/components/error-boundary/stream-error-boundary";
 
 export { useStreamContext } from "./stream/stream-context";
 export type { StreamContextType, GraphState } from "./stream/types";
@@ -38,11 +39,16 @@ export const StreamProvider: React.FC<{ children: ReactNode }> = ({
   }
 
   return (
-    <StreamSession
-      apiUrl={finalApiUrl}
+    <StreamErrorBoundary
       assistantId={finalAssistantId}
+      threadId={null}
     >
-      {children}
-    </StreamSession>
+      <StreamSession
+        apiUrl={finalApiUrl}
+        assistantId={finalAssistantId}
+      >
+        {children}
+      </StreamSession>
+    </StreamErrorBoundary>
   );
 };

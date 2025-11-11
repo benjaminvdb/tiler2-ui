@@ -19,6 +19,12 @@ export {
   ComponentErrorFallback,
 } from "./component-error-boundary";
 export {
+  StreamErrorBoundary,
+  StreamErrorFallback,
+  type StreamErrorBoundaryProps,
+  type StreamErrorFallbackProps,
+} from "./stream-error-boundary";
+export {
   displayError,
   displayCriticalError,
   displayAsyncError,

@@ -31,6 +31,9 @@ export const useTypedStream = useStream<
 export type StreamContextType = ReturnType<typeof useTypedStream> & {
   currentRunId: string | null;
   threadId: string | null;
+  error: Error | null;
+  clearError: () => void;
+  retryStream: () => Promise<void>;
 };
 
 export interface StreamSessionProps {
