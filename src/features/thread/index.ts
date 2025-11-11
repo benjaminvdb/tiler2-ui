@@ -9,6 +9,11 @@ export { Thread } from "./components";
 // Provider
 export { ThreadProvider, useThreads } from "./providers/thread-provider";
 
+// Hooks
+export { useThreadTitle } from "./hooks/use-thread-title";
+export { useAutoTitleGeneration } from "./hooks/use-auto-title-generation";
+export { useSse } from "./hooks/use-sse";
+
 // Types
 export type {
   ThreadState,

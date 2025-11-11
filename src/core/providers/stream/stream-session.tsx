@@ -136,6 +136,45 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
     onThreadId: (id) => {
       setThreadId(id);
 
+      // Optimistic UI: Immediately add thread to sidebar with first message as title
+      const firstHumanMessage = streamValue.messages.find(
+        (m) => m.type === "human",
+      );
+
+      if (firstHumanMessage) {
+        // Extract text content from message (handle both string and complex content)
+        let messageText = "";
+        if (typeof firstHumanMessage.content === "string") {
+          messageText = firstHumanMessage.content;
+        } else if (Array.isArray(firstHumanMessage.content)) {
+          // Extract text from content array
+          const textParts = firstHumanMessage.content
+            .filter((c): c is { type: "text"; text: string } => c.type === "text")
+            .map((c) => c.text);
+          messageText = textParts.join(" ");
+        }
+
+        // Create temporary title (truncate to 80 chars, remove newlines)
+        const tempTitle =
+          messageText.replace(/\n/g, " ").slice(0, 80).trim() || "New chat";
+
+        // Create optimistic thread object (conforms to Thread type from LangGraph SDK)
+        const optimisticThread = {
+          thread_id: id,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          metadata: {
+            name: tempTitle,
+          },
+          values: {},
+          status: "idle" as const,
+          interrupts: {},
+        };
+
+        // Immediately add to beginning of thread list
+        setThreads((prev) => [optimisticThread, ...prev]);
+      }
+
       if (threadFetchControllerRef.current) {
         threadFetchControllerRef.current.abort();
       }
@@ -144,6 +183,7 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
 
       /**
        * Delay thread list refresh to allow backend to persist the new thread.
+       * This will replace the optimistic thread with real backend data.
        */
       const fetchThreadsWithDelay = async () => {
         try {

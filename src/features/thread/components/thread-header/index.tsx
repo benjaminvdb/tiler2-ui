@@ -4,6 +4,8 @@ import { AuthButtons } from "@/features/auth/components";
 import { TooltipIconButton } from "../tooltip-icon-button";
 import { useUIContext } from "@/features/chat/providers/ui-provider";
 import { useChatContext } from "@/features/chat/providers/chat-provider";
+import { useThreadTitle } from "../../hooks/use-thread-title";
+import { AnimatedTitle } from "./animated-title";
 
 const HistoryToggleButton: React.FC = () => {
   const { chatHistoryOpen, isLargeScreen, onToggleChatHistory } =
@@ -46,10 +48,19 @@ const HeaderActions: React.FC = () => {
 };
 
 const MainHeader: React.FC = () => {
+  const { title, isGenerating } = useThreadTitle();
+
   return (
     <div className="relative z-10 flex items-center justify-between gap-3 p-2">
       <div className="relative flex items-center justify-start gap-2">
         <HistoryToggleButton />
+        {title && (
+          <AnimatedTitle
+            title={title}
+            isGenerating={isGenerating}
+            className="ml-2 max-w-md truncate"
+          />
+        )}
       </div>
       <HeaderActions />
       <div className="from-background to-background/0 absolute inset-x-0 top-full h-5 bg-gradient-to-b" />

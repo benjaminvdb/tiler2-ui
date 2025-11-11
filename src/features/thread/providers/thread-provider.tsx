@@ -124,7 +124,11 @@ export const ThreadProvider: React.FC<{ children: ReactNode }> = ({
             t.thread_id === threadId
               ? {
                   ...t,
-                  metadata: { ...t.metadata, name: trimmedName },
+                  metadata: {
+                    ...t.metadata,
+                    name: trimmedName,
+                    title_manually_set: true,
+                  },
                 }
               : t,
           ),
@@ -138,6 +142,7 @@ export const ThreadProvider: React.FC<{ children: ReactNode }> = ({
           body: JSON.stringify({
             metadata: {
               name: trimmedName,
+              title_manually_set: true,
             },
           }),
         });
