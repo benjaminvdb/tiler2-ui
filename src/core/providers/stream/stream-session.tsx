@@ -32,7 +32,7 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
   assistantId,
 }) => {
   const [threadId, setThreadId] = useSearchParamState("threadId");
-  const { getThreads, setThreads } = useThreads();
+  const { getThreads, setThreads, removeOptimisticThread } = useThreads();
   const threadFetchControllerRef = useRef<AbortController | null>(null);
   const { user, isLoading: isUserLoading } = useUser();
   const [accessToken, setAccessToken] = useState<string | null>(null);
@@ -229,38 +229,51 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
     onThreadId: (id: string) => {
       setThreadId(id);
 
-      if (threadFetchControllerRef.current) {
-        threadFetchControllerRef.current.abort();
-      }
-      const controller = new AbortController();
-      threadFetchControllerRef.current = controller;
-
       /**
-       * Delay thread list refresh to allow backend to persist the new thread.
+       * Thread already added to sidebar via optimistic update.
+       * No need to fetch entire thread list - thread should already be visible.
+       * If we wanted to sync with server, we could optionally fetch this specific thread.
+       *
+       * Note: We removed the 4-second delay that was causing poor UX.
+       * The optimistic thread creation provides instant feedback.
        */
-      const fetchThreadsWithDelay = async () => {
+
+      // Optional: Verify thread was created successfully on server
+      // This is a background operation and doesn't block the UI
+      const verifyThreadCreation = async () => {
         try {
-          await sleep(4000, controller.signal);
+          // Brief delay to let the backend process the request
+          await sleep(500);
 
-          if (controller.signal.aborted) {
-            throw new DOMException("Aborted", "AbortError");
-          }
+          // Fetch updated threads to sync with server
           const threads = await getThreads();
+          setThreads(threads);
 
-          if (!controller.signal.aborted) {
-            setThreads(threads);
-          }
+          // Log successful thread creation
+          logger.info("Thread created successfully", {
+            operation: "thread_creation_confirmed",
+            threadId: id,
+          });
         } catch (error: unknown) {
-          if (error instanceof Error && error.name !== "AbortError") {
+          // If verification fails, remove the optimistic thread and show error
+          if (error instanceof Error) {
             logger.error(error, {
-              operation: "fetch_threads",
+              operation: "thread_creation_failed",
               threadId: id,
+            });
+
+            // Remove the optimistic thread from sidebar
+            removeOptimisticThread(id);
+
+            // Show error toast to user
+            toast.error("Failed to create conversation", {
+              description: "Please try sending your message again.",
             });
           }
         }
       };
 
-      fetchThreadsWithDelay();
+      verifyThreadCreation();
     },
   });
 

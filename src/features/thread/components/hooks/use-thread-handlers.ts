@@ -1,4 +1,6 @@
 import { useStreamContext } from "@/core/providers/stream";
+import { useThreads } from "@/features/thread/providers/thread-provider";
+import { useUser } from "@auth0/nextjs-auth0/client";
 import { UseThreadHandlersProps } from "./use-thread-handlers/types";
 import { createSubmitHandler } from "./use-thread-handlers/handlers/submit-handler";
 import { createRegenerateHandler } from "./use-thread-handlers/handlers/regenerate-handler";
@@ -11,8 +13,20 @@ export function useThreadHandlers(props: UseThreadHandlersProps): {
 } {
   const stream = useStreamContext();
   const isLoading = stream.isLoading;
+  const { addOptimisticThread } = useThreads();
+  const { user } = useUser();
 
-  const handleSubmit = createSubmitHandler(props, stream, isLoading);
+  // Get environment variables
+  const assistantId = process.env.NEXT_PUBLIC_ASSISTANT_ID || "";
+
+  const handleSubmit = createSubmitHandler(
+    props,
+    stream,
+    isLoading,
+    addOptimisticThread,
+    user?.email || "",
+    assistantId,
+  );
   const handleRegenerate = createRegenerateHandler(
     stream,
     props.setFirstTokenReceived,

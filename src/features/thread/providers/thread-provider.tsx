@@ -20,6 +20,9 @@ interface ThreadContextType {
   setThreadsLoading: Dispatch<SetStateAction<boolean>>;
   deleteThread: (threadId: string) => Promise<void>;
   renameThread: (threadId: string, newName: string) => Promise<void>;
+  addOptimisticThread: (thread: Thread) => void;
+  removeOptimisticThread: (threadId: string) => void;
+  updateThreadInList: (threadId: string, updates: Partial<Thread>) => void;
 }
 const ThreadContext = createContext<ThreadContextType | undefined>(undefined);
 
@@ -169,6 +172,42 @@ export const ThreadProvider: React.FC<{ children: ReactNode }> = ({
     [apiUrl, threads],
   );
 
+  /**
+   * Add a thread optimistically to the thread list.
+   * Used for immediate UI feedback when creating new threads.
+   *
+   * @param thread - Complete thread object to add to the list
+   */
+  const addOptimisticThread = useCallback((thread: Thread): void => {
+    setThreads((prev) => [thread, ...prev]); // Add to beginning of list
+  }, []);
+
+  /**
+   * Remove a thread from the thread list.
+   * Used to clean up failed optimistic thread creations.
+   *
+   * @param threadId - ID of the thread to remove
+   */
+  const removeOptimisticThread = useCallback((threadId: string): void => {
+    setThreads((prev) => prev.filter((t) => t.thread_id !== threadId));
+  }, []);
+
+  /**
+   * Update a thread in the thread list with partial updates.
+   * Used to sync optimistic threads with server-confirmed data.
+   *
+   * @param threadId - ID of the thread to update
+   * @param updates - Partial thread object with fields to update
+   */
+  const updateThreadInList = useCallback(
+    (threadId: string, updates: Partial<Thread>): void => {
+      setThreads((prev) =>
+        prev.map((t) => (t.thread_id === threadId ? { ...t, ...updates } : t)),
+      );
+    },
+    [],
+  );
+
   const value = {
     getThreads,
     threads,
@@ -177,6 +216,9 @@ export const ThreadProvider: React.FC<{ children: ReactNode }> = ({
     setThreadsLoading,
     deleteThread,
     renameThread,
+    addOptimisticThread,
+    removeOptimisticThread,
+    updateThreadInList,
   };
 
   return (

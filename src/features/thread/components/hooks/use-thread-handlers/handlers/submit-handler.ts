@@ -1,4 +1,5 @@
 import { FormEvent } from "react";
+import { Thread } from "@langchain/langgraph-sdk";
 import { ensureToolCallsHaveResponses } from "@/features/thread/services/ensure-tool-responses";
 import {
   buildHumanMessage,
@@ -6,11 +7,16 @@ import {
 } from "../utils/message-builder";
 import { UseThreadHandlersProps } from "../types";
 import type { StreamContextType } from "@/core/providers/stream/types";
+import { generateThreadName } from "@/features/thread/utils/generate-thread-name";
+import { buildOptimisticThread } from "@/features/thread/utils/build-optimistic-thread";
 
 export const createSubmitHandler = (
   props: UseThreadHandlersProps,
   stream: StreamContextType,
   isLoading: boolean,
+  addOptimisticThread: (thread: Thread) => void,
+  userEmail: string,
+  assistantId: string,
 ) => {
   const {
     input,
@@ -70,7 +76,10 @@ export const createSubmitHandler = (
       submitData.context = context;
     }
 
-    const submitOptions: any = {
+    // Check if this is the first message (no existing thread)
+    const isFirstMessage = !stream.threadId;
+
+    let submitOptions: any = {
       streamMode: ["values"],
       streamSubgraphs: true,
       optimisticValues: (prev: any) => ({
@@ -83,6 +92,39 @@ export const createSubmitHandler = (
         ],
       }),
     };
+
+    // If this is the first message, create optimistic thread
+    if (isFirstMessage && userEmail && assistantId) {
+      // Generate pre-determined thread ID
+      const optimisticThreadId = crypto.randomUUID();
+
+      // Generate thread name from first message
+      // TODO: Support workflow titles when workflow context is available
+      const threadName = generateThreadName({
+        firstMessage: input,
+      });
+
+      // Build optimistic thread object
+      const optimisticThread = buildOptimisticThread({
+        threadId: optimisticThreadId,
+        threadName,
+        assistantId,
+        userEmail,
+        firstMessage: newHumanMessage,
+      });
+
+      // Add to sidebar immediately
+      addOptimisticThread(optimisticThread);
+
+      // Include threadId and metadata in submit options
+      submitOptions = {
+        ...submitOptions,
+        threadId: optimisticThreadId,
+        metadata: {
+          name: threadName,
+        },
+      };
+    }
 
     stream.submit(submitData, submitOptions);
 
