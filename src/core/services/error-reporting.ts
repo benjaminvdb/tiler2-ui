@@ -403,6 +403,102 @@ export const reportNetworkError = (
   context?: ErrorContext,
 ): StructuredError => reportError(error, "medium", "network", context);
 
+/**
+ * Report when all retry attempts have been exhausted.
+ * Shows user notification with retry action and sends to Sentry with special tags.
+ */
+export const reportRetryExhausted = (
+  error: Error | string,
+  context: ErrorContext & {
+    attempts: number;
+    url?: string;
+  },
+): StructuredError => {
+  const structuredError: StructuredError = {
+    id: generateErrorId(),
+    message: error instanceof Error ? error.message : String(error),
+    severity: "high", // Retry exhaustion is high severity
+    category: "network",
+    context: {
+      ...getEnvironmentContext(),
+      ...context,
+      additionalData: {
+        ...context.additionalData,
+        retryExhausted: true,
+      },
+    },
+    ...(error instanceof Error && error.stack ? { stack: error.stack } : {}),
+    ...(error instanceof Error ? { originalError: error } : {}),
+    timestamp: Date.now(),
+    environment: process.env.NODE_ENV || "unknown",
+  };
+
+  // Store in history
+  errorHistory.push(structuredError);
+
+  // Console logging
+  if (config.enableConsoleLogging) {
+    console.error(formatErrorForConsole(structuredError));
+  }
+
+  // Send to Sentry with special tags for retry exhaustion (client-side only)
+  if (typeof window !== "undefined") {
+    const errorToSend =
+      error instanceof Error ? error : new Error(String(error));
+
+    Sentry.captureException(errorToSend, {
+      level: "error",
+      tags: {
+        category: "network",
+        severity: "high",
+        retry_exhausted: "true",
+        attempts: context.attempts.toString(),
+        errorId: structuredError.id,
+        ...(context.operation && { operation: context.operation }),
+        ...(context.component && { component: context.component }),
+      },
+      contexts: {
+        error: {
+          id: structuredError.id,
+          timestamp: structuredError.timestamp,
+          environment: structuredError.environment,
+        },
+        retry: {
+          attempts: context.attempts,
+          url: context.url,
+        },
+      },
+      extra: {
+        ...context.additionalData,
+        url: context.url,
+        userAgent: context.userAgent,
+      },
+    });
+  }
+
+  // User notification with retry action (unless explicitly skipped)
+  if (!context.skipNotification && typeof window !== "undefined") {
+    import("sonner")
+      .then(({ toast }) => {
+        toast.error(
+          `Operation failed after ${context.attempts} attempts. Please try again.`,
+          {
+            duration: 8000,
+            action: {
+              label: "Retry",
+              onClick: () => window.location.reload(),
+            },
+          },
+        );
+      })
+      .catch(() => {
+        console.warn("User notification failed - sonner not available");
+      });
+  }
+
+  return structuredError;
+};
+
 export const reportCriticalError = (
   error: Error | string,
   context?: ErrorContext,

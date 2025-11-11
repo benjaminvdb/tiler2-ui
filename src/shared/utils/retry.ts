@@ -1,9 +1,15 @@
 /**
- * Retry utilities with exponential backoff and jitter.
- * Implements best practices for handling transient network failures.
+ * Retry utilities using p-retry with exponential backoff and jitter.
+ * Wraps the battle-tested p-retry library to add HTTP status code handling,
+ * AbortSignal integration, and error reporting.
  */
 
+import pRetry, { AbortError as PRetryAbortError } from "p-retry";
+import * as Sentry from "@sentry/nextjs";
 import { reportNetworkError } from "@/core/services/error-reporting";
+
+// Re-export AbortError for consumers
+export { AbortError } from "p-retry";
 
 export interface RetryConfig {
   /** Maximum number of retry attempts (default: 4) */
@@ -12,8 +18,10 @@ export interface RetryConfig {
   baseDelay?: number;
   /** Maximum delay in milliseconds to cap exponential backoff (default: 16000ms) */
   maxDelay?: number;
-  /** Whether to add jitter to prevent thundering herd (default: true) */
-  useJitter?: boolean;
+  /** Maximum total time for all retry attempts in milliseconds */
+  maxRetryTime?: number;
+  /** Optional AbortSignal to cancel retry attempts */
+  signal?: AbortSignal;
   /** Optional callback called before each retry */
   onRetry?: (attempt: number, error: Error) => void;
 }
@@ -33,7 +41,7 @@ export interface RetryableError extends Error {
  * - 503: Service Unavailable
  * - 504: Gateway Timeout
  */
-const RETRYABLE_STATUS_CODES = [408, 429, 500, 502, 503, 504];
+export const RETRYABLE_STATUS_CODES = [408, 429, 500, 502, 503, 504];
 
 /**
  * Determines if an HTTP response should trigger a retry.
@@ -50,13 +58,16 @@ export function isRetryableError(error: unknown): boolean {
 
   // AbortError from user cancellation should not be retried
   if (error.name === "AbortError") return false;
+  if (error instanceof PRetryAbortError) return false;
 
   // Network errors are retryable
+  const message = error.message.toLowerCase();
   if (
-    error.message.includes("fetch failed") ||
-    error.message.includes("Failed to fetch") ||
-    error.message.includes("NetworkError") ||
-    error.message.includes("network")
+    message.includes("fetch failed") ||
+    message.includes("failed to fetch") ||
+    message.includes("networkerror") ||
+    message.includes("network request failed") ||
+    message.includes("the internet connection appears to be offline")
   ) {
     return true;
   }
@@ -70,55 +81,24 @@ export function isRetryableError(error: unknown): boolean {
 }
 
 /**
- * Calculates delay for next retry using exponential backoff with optional jitter.
- *
- * @param attempt - Current attempt number (0-indexed)
- * @param config - Retry configuration
- * @returns Delay in milliseconds
+ * Helper to create combined abort signal from multiple sources.
  */
-function calculateDelay(
-  attempt: number,
-  config: {
-    baseDelay: number;
-    maxDelay: number;
-    useJitter: boolean;
-  },
-): number {
-  const { baseDelay, maxDelay, useJitter } = config;
+function createCombinedSignal(
+  externalSignal?: AbortSignal,
+  timeoutMs?: number,
+): AbortSignal | undefined {
+  const signals: AbortSignal[] = [];
 
-  // Exponential backoff: baseDelay × 2^attempt
-  const exponentialDelay = baseDelay * Math.pow(2, attempt);
-  const cappedDelay = Math.min(exponentialDelay, maxDelay);
+  if (externalSignal) signals.push(externalSignal);
+  if (timeoutMs) signals.push(AbortSignal.timeout(timeoutMs));
 
-  // Apply full jitter to prevent thundering herd
-  if (useJitter) {
-    return Math.random() * cappedDelay;
-  }
-
-  return cappedDelay;
+  if (signals.length === 0) return undefined;
+  if (signals.length === 1) return signals[0];
+  return AbortSignal.any(signals);
 }
 
 /**
- * Sleeps for specified duration with optional abort signal.
- */
-async function sleep(ms: number, signal?: AbortSignal): Promise<void> {
-  return new Promise((resolve, reject) => {
-    if (signal?.aborted) {
-      reject(new DOMException("Aborted", "AbortError"));
-      return;
-    }
-
-    const timeout = setTimeout(resolve, ms);
-
-    signal?.addEventListener("abort", () => {
-      clearTimeout(timeout);
-      reject(new DOMException("Aborted", "AbortError"));
-    });
-  });
-}
-
-/**
- * Wraps a fetch call with retry logic using exponential backoff and jitter.
+ * Wraps a fetch call with retry logic using p-retry.
  *
  * @example
  * ```typescript
@@ -135,103 +115,139 @@ async function sleep(ms: number, signal?: AbortSignal): Promise<void> {
  * ```
  *
  * @param url - Request URL
- * @param options - Fetch options (including signal for cancellation)
+ * @param options - Fetch options (including optional timeoutMs)
  * @param config - Retry configuration
  * @returns Promise resolving to Response
  * @throws Error if all retries exhausted or non-retryable error occurs
  */
 export async function fetchWithRetry(
   url: string,
-  options: RequestInit = {},
+  options: RequestInit & { timeoutMs?: number } = {},
   config: RetryConfig = {},
 ): Promise<Response> {
-  const maxRetries = config.maxRetries ?? 4;
-  const baseDelay = config.baseDelay ?? 1000;
-  const maxDelay = config.maxDelay ?? 16000;
-  const useJitter = config.useJitter ?? true;
-  const onRetry = config.onRetry;
+  const {
+    maxRetries = 4,
+    baseDelay = 1000,
+    maxDelay = 16000,
+    maxRetryTime,
+    signal,
+    onRetry,
+  } = config;
 
-  let lastError: Error | undefined;
+  const { timeoutMs, ...fetchOptions } = options;
 
-  for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    try {
-      // Create fresh AbortController for each attempt (never reuse)
+  return await pRetry(
+    async () => {
+      // Create fresh AbortController for this attempt
       const attemptController = new AbortController();
 
-      // Combine external abort signal with attempt-specific controller
-      const combinedSignal = options.signal
-        ? AbortSignal.any([options.signal, attemptController.signal])
-        : attemptController.signal;
+      // Combine: external signal + timeout + attempt controller
+      const combinedSignal = createCombinedSignal(signal, timeoutMs);
 
-      const response = await fetch(url, {
-        ...options,
-        signal: combinedSignal,
-      });
+      // Link combined signal to attempt controller
+      if (combinedSignal) {
+        combinedSignal.addEventListener(
+          "abort",
+          () => {
+            // Propagate abort reason to provide clear error messages
+            const reason =
+              combinedSignal.reason ||
+              new DOMException(
+                timeoutMs
+                  ? `Request timeout after ${timeoutMs}ms`
+                  : "Request aborted",
+                "AbortError",
+              );
+            attemptController.abort(reason);
+          },
+          { once: true },
+        );
+      }
 
-      // Check if response status is retryable
-      if (isRetryableResponse(response)) {
-        const error = new Error(
-          `Retryable status code: ${response.status}`,
-        ) as RetryableError;
-        error.isRetryable = true;
-        error.statusCode = response.status;
+      try {
+        const response = await fetch(url, {
+          ...fetchOptions,
+          signal: attemptController.signal,
+        });
+
+        // CRITICAL: Check HTTP status codes (p-retry doesn't do this automatically)
+        if (isRetryableResponse(response)) {
+          // Throw regular Error to trigger p-retry retry
+          const error = new Error(
+            `HTTP ${response.status}: ${response.statusText}`,
+          ) as RetryableError;
+          error.isRetryable = true;
+          error.statusCode = response.status;
+          throw error;
+        }
+
+        // Non-retryable client errors - abort immediately
+        if (response.status >= 400 && response.status < 500) {
+          throw new PRetryAbortError(
+            `HTTP ${response.status}: ${response.statusText}`,
+          );
+        }
+
+        return response;
+      } catch (error) {
+        // Check if abort was requested by user
+        if (signal?.aborted) {
+          throw new PRetryAbortError("Request aborted by user");
+        }
+
+        // Check if this is a network error (p-retry handles these automatically)
+        if (isRetryableError(error)) {
+          throw error; // p-retry will retry
+        }
+
+        // Unknown error - throw as-is and let p-retry decide
         throw error;
       }
+    },
+    {
+      retries: maxRetries,
+      factor: 2, // Exponential backoff factor
+      minTimeout: baseDelay,
+      maxTimeout: maxDelay,
+      randomize: true, // Adds jitter to prevent thundering herd
+      ...(maxRetryTime !== undefined && { maxRetryTime }), // Only include if defined
+      onFailedAttempt: (error) => {
+        // Call user's retry callback if provided
+        if (onRetry) {
+          onRetry(error.attemptNumber, error);
+        }
 
-      // Success or non-retryable error
-      return response;
-    } catch (error) {
-      const err = error instanceof Error ? error : new Error(String(error));
-
-      // Don't retry if user aborted
-      if (err.name === "AbortError") {
-        throw err;
-      }
-
-      // Don't retry if it's the last attempt
-      if (attempt === maxRetries) {
-        reportNetworkError(err, {
-          operation: "fetchWithRetry",
-          component: "retry utilities",
-          url,
-          additionalData: {
-            attempts: attempt + 1,
-            exhaustedRetries: true,
-          },
-        });
-        throw err;
-      }
-
-      // Don't retry if error is not retryable
-      if (!isRetryableError(err)) {
-        throw err;
-      }
-
-      lastError = err;
-
-      // Call retry callback if provided
-      if (onRetry) {
-        onRetry(attempt + 1, err);
-      }
-
-      // Calculate delay with exponential backoff and jitter
-      const delay = calculateDelay(attempt, {
-        baseDelay,
-        maxDelay,
-        useJitter,
-      });
-
-      // Wait before next retry (respects abort signal)
-      await sleep(delay, options.signal ?? undefined);
-    }
-  }
-
-  // Should never reach here due to throw in last attempt
-  throw lastError || new Error("Retry logic failed unexpectedly");
+        // Integrate with error reporting
+        // Silent retries - only report final failure
+        if (error.retriesLeft === 0) {
+          reportNetworkError(error, {
+            operation: "fetchWithRetry",
+            component: "retry utilities",
+            url,
+            additionalData: {
+              attempts: error.attemptNumber,
+              exhaustedRetries: true,
+            },
+          });
+        } else {
+          // Add Sentry breadcrumb for each retry (don't capture exception)
+          Sentry.addBreadcrumb({
+            category: "retry",
+            message: `Retry attempt ${error.attemptNumber} for ${url}`,
+            level: "info",
+            data: {
+              retriesLeft: error.retriesLeft,
+              error: error.message,
+            },
+          });
+        }
+      },
+    },
+  );
 }
 
 /**
- * Wraps an async function with retry logic.
+ * Wraps an async function with retry logic using p-retry.
  *
  * @example
  * ```typescript
@@ -247,59 +263,55 @@ export async function fetchWithRetry(
  * const data = await getData(abortSignal);
  * ```
  */
-export function withRetry<T>(
-  fn: (signal?: AbortSignal) => Promise<T>,
+export function withRetry<T extends (...args: any[]) => Promise<any>>(
+  fn: T,
   config: RetryConfig = {},
-): (signal?: AbortSignal) => Promise<T> {
-  return async (signal?: AbortSignal) => {
-    const maxRetries = config.maxRetries ?? 4;
-    const baseDelay = config.baseDelay ?? 1000;
-    const maxDelay = config.maxDelay ?? 16000;
-    const useJitter = config.useJitter ?? true;
-    const onRetry = config.onRetry;
+): T {
+  return (async (...args: Parameters<T>) => {
+    const {
+      maxRetries = 4,
+      baseDelay = 1000,
+      maxDelay = 16000,
+      maxRetryTime,
+      signal,
+      onRetry,
+    } = config;
 
-    let lastError: Error | undefined;
+    return await pRetry(
+      async () => {
+        try {
+          return await fn(...args);
+        } catch (error) {
+          // Check if user requested abort
+          if (signal?.aborted) {
+            throw new PRetryAbortError("Operation aborted by user");
+          }
 
-    for (let attempt = 0; attempt <= maxRetries; attempt++) {
-      try {
-        return await fn(signal);
-      } catch (error) {
-        const err = error instanceof Error ? error : new Error(String(error));
+          // Check if error is retryable
+          if (!isRetryableError(error)) {
+            // Non-retryable error - abort p-retry
+            if (error instanceof Error) {
+              throw new PRetryAbortError(error.message);
+            }
+            throw new PRetryAbortError(String(error));
+          }
 
-        // Don't retry if user aborted
-        if (err.name === "AbortError") {
-          throw err;
+          throw error; // Let p-retry decide
         }
-
-        // Don't retry if it's the last attempt
-        if (attempt === maxRetries) {
-          throw err;
-        }
-
-        // Don't retry if error is not retryable
-        if (!isRetryableError(err)) {
-          throw err;
-        }
-
-        lastError = err;
-
-        // Call retry callback if provided
-        if (onRetry) {
-          onRetry(attempt + 1, err);
-        }
-
-        // Calculate delay with exponential backoff and jitter
-        const delay = calculateDelay(attempt, {
-          baseDelay,
-          maxDelay,
-          useJitter,
-        });
-
-        // Wait before next retry (respects abort signal)
-        await sleep(delay, signal);
-      }
-    }
-
-    throw lastError || new Error("Retry logic failed unexpectedly");
-  };
+      },
+      {
+        retries: maxRetries,
+        factor: 2,
+        minTimeout: baseDelay,
+        maxTimeout: maxDelay,
+        randomize: true,
+        ...(maxRetryTime !== undefined && { maxRetryTime }), // Only include if defined
+        onFailedAttempt: (error) => {
+          if (onRetry) {
+            onRetry(error.attemptNumber, error);
+          }
+        },
+      },
+    );
+  }) as T;
 }

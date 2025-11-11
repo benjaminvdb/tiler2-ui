@@ -8,6 +8,7 @@ import { Auth0Provider } from "@auth0/nextjs-auth0";
 import { MotionConfigProvider } from "@/core/providers/motion-config-provider";
 import { GlobalErrorBoundary } from "@/shared/components/error-boundary/global-error-boundary";
 import { AsyncErrorBoundary } from "@/shared/components/error-boundary/async-error-boundary";
+import { NetworkStatusProvider } from "@/core/providers/network-status-provider";
 import { AppLayout } from "./app-layout";
 import { getAuth0 } from "@/features/auth/services/auth0";
 import { SentryUserContext } from "@/core/providers/sentry-user-context";
@@ -53,10 +54,12 @@ export default async function RootLayout({
         <MotionConfigProvider>
           <GlobalErrorBoundary>
             <AsyncErrorBoundary>
-              <Auth0Provider {...auth0ProviderProps}>
-                <SentryUserContext user={session?.user || null} />
-                <AppLayout>{children}</AppLayout>
-              </Auth0Provider>
+              <NetworkStatusProvider>
+                <Auth0Provider {...auth0ProviderProps}>
+                  <SentryUserContext user={session?.user || null} />
+                  <AppLayout>{children}</AppLayout>
+                </Auth0Provider>
+              </NetworkStatusProvider>
             </AsyncErrorBoundary>
           </GlobalErrorBoundary>
         </MotionConfigProvider>

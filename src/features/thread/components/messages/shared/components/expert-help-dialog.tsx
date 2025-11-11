@@ -14,6 +14,8 @@ import {
 import { Button } from "@/shared/components/ui/button";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { Label } from "@/shared/components/ui/label";
+import { fetchWithRetry, AbortError } from "@/shared/utils/retry";
+import { reportApiError } from "@/core/services/error-reporting";
 
 interface ExpertHelpDialogProps {
   open: boolean;
@@ -58,8 +60,8 @@ export const ExpertHelpDialog: React.FC<ExpertHelpDialogProps> = ({
       }
       const { token } = await tokenResponse.json();
 
-      // Submit to backend API
-      const response = await fetch(
+      // Submit to backend API with retry logic
+      const response = await fetchWithRetry(
         `${process.env.NEXT_PUBLIC_API_URL}/api/v1/support/expert-help`,
         {
           method: "POST",
@@ -73,6 +75,22 @@ export const ExpertHelpDialog: React.FC<ExpertHelpDialogProps> = ({
             message: trimmedMessage,
             ai_message_content: aiMessageContent,
           }),
+          timeoutMs: 10000, // 10 second timeout
+        },
+        {
+          maxRetries: 3,
+          baseDelay: 1000,
+          maxDelay: 8000,
+          onRetry: (attempt, error) => {
+            reportApiError(error, {
+              operation: "submitExpertHelp",
+              component: "ExpertHelpDialog",
+              skipNotification: true, // Silent retry
+              additionalData: {
+                attempt,
+              },
+            });
+          },
         },
       );
 
@@ -92,13 +110,27 @@ export const ExpertHelpDialog: React.FC<ExpertHelpDialogProps> = ({
       setMessage("");
       onOpenChange(false);
     } catch (error) {
-      console.error("Failed to submit expert help request:", error);
-      toast.error("Failed to send your request", {
-        description:
-          error instanceof Error
-            ? error.message
-            : "Please try again or contact support directly.",
-      });
+      // Log error to Sentry
+      if (error instanceof AbortError) {
+        reportApiError(error as Error, {
+          operation: "submitExpertHelp",
+          component: "ExpertHelpDialog",
+        });
+        toast.error("Request failed after multiple attempts", {
+          description: "Please try again or contact support directly.",
+        });
+      } else {
+        reportApiError(error as Error, {
+          operation: "submitExpertHelp",
+          component: "ExpertHelpDialog",
+        });
+        toast.error("Failed to send your request", {
+          description:
+            error instanceof Error
+              ? error.message
+              : "Please try again or contact support directly.",
+        });
+      }
     } finally {
       setIsSubmitting(false);
     }

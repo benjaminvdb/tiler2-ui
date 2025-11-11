@@ -21,6 +21,8 @@ export function useThreadHistory() {
         const fetchedThreads = await getThreads();
         setThreads(fetchedThreads);
       } catch (error) {
+        // fetchWithAuth now has retry logic built-in via fetchAccessToken
+        // Only report if all retries exhausted
         reportThreadError(error as Error, {
           operation: "fetchThreads",
           component: "useThreadHistory",
@@ -30,7 +32,12 @@ export function useThreadHistory() {
       }
     };
 
-    fetchThreads();
+    // CRITICAL FIX: Defer initial fetch by 200ms
+    // Allows Auth0 middleware to initialize session and prevents race condition
+    // that was causing LINK-AI-FRONTEND-1R (TypeError: Failed to fetch at /api/auth/token)
+    const timeoutId = setTimeout(fetchThreads, 200);
+
+    return () => clearTimeout(timeoutId);
   }, [getThreads, setThreads, setThreadsLoading]);
 
   return {

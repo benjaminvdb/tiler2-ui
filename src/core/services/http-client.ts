@@ -36,36 +36,76 @@ export function isForbiddenError(error: unknown): error is ForbiddenError {
   return error instanceof Error && error.name === "ForbiddenError";
 }
 
+/**
+ * Request deduplication: Prevent duplicate concurrent token requests.
+ * This fixes race conditions when multiple components mount simultaneously.
+ */
+let pendingTokenRequest: Promise<string> | null = null;
+
 async function fetchAccessToken(): Promise<string> {
-  try {
-    const response = await fetch("/api/auth/token");
-
-    if (!response.ok) {
-      if (response.status === 401) {
-        window.location.href = "/api/auth/login";
-        throw new Error("Session expired, redirecting to login");
-      }
-
-      if (response.status === 403) {
-        window.location.href = "/api/auth/logout";
-        throw new Error("Access denied, logging out");
-      }
-
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(
-        errorData.error || `Token fetch failed: ${response.status}`,
-      );
-    }
-
-    const data: TokenResponse = await response.json();
-    return data.token;
-  } catch (error) {
-    reportAuthError(error as Error, {
-      operation: "fetchAccessToken",
-      component: "http-client",
-    });
-    throw error;
+  // Return existing request if already in flight
+  if (pendingTokenRequest) {
+    return pendingTokenRequest;
   }
+
+  // Create new request with retry logic
+  pendingTokenRequest = (async () => {
+    try {
+      const response = await fetchWithRetry(
+        "/api/auth/token",
+        {
+          headers: { "Content-Type": "application/json" },
+          timeoutMs: 10000, // 10 second timeout for auth token reliability
+        },
+        {
+          maxRetries: 3,
+          baseDelay: 500, // Fast retry for auth (500ms)
+          maxDelay: 2000,
+          onRetry: (attempt, error) => {
+            reportAuthError(error, {
+              operation: "fetchAccessToken",
+              component: "http-client",
+              skipNotification: true, // Silent retry
+              additionalData: {
+                attempt,
+              },
+            });
+          },
+        },
+      );
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          window.location.href = "/api/auth/login";
+          throw new Error("Session expired, redirecting to login");
+        }
+
+        if (response.status === 403) {
+          window.location.href = "/api/auth/logout";
+          throw new Error("Access denied, logging out");
+        }
+
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.error || `Token fetch failed: ${response.status}`,
+        );
+      }
+
+      const data: TokenResponse = await response.json();
+      return data.token;
+    } catch (error) {
+      reportAuthError(error as Error, {
+        operation: "fetchAccessToken",
+        component: "http-client",
+      });
+      throw error;
+    } finally {
+      // Clear pending request after completion (success or error)
+      pendingTokenRequest = null;
+    }
+  })();
+
+  return pendingTokenRequest;
 }
 
 function triggerSilentLogout(reason: string): void {

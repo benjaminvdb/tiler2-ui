@@ -14,6 +14,8 @@ import { sleep, checkGraphStatus } from "./utils";
 import { LoadingScreen } from "@/shared/components/loading-spinner";
 import { useLogger } from "@/core/services/logging";
 import * as Sentry from "@sentry/nextjs";
+import { fetchWithRetry } from "@/shared/utils/retry";
+import { reportAuthError } from "@/core/services/error-reporting";
 
 export const StreamSession: React.FC<StreamSessionProps> = ({
   children,
@@ -52,13 +54,35 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
   /**
    * Fetch access token on mount. Token is reused until cleared or invalidated.
    * Auth0 handles server-side refresh automatically when expired.
+   * Uses retry logic to handle transient network errors.
    */
   useEffect(() => {
     if (!user || isUserLoading || accessToken) return;
 
     const fetchToken = async () => {
       try {
-        const response = await fetch("/api/auth/token");
+        const response = await fetchWithRetry(
+          "/api/auth/token",
+          {
+            headers: { "Content-Type": "application/json" },
+            timeoutMs: 10000, // Increased to 10s for auth endpoint reliability
+          },
+          {
+            maxRetries: 3,
+            baseDelay: 500, // Fast retry for auth
+            maxDelay: 2000,
+            onRetry: (attempt, error) => {
+              reportAuthError(error, {
+                operation: "fetchAccessToken",
+                component: "StreamSession",
+                skipNotification: true, // Silent retry
+                additionalData: {
+                  attempt,
+                },
+              });
+            },
+          },
+        );
 
         if (response.status === 403) {
           logger.error(new Error("403 Forbidden from token endpoint"), {
@@ -97,13 +121,18 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
         logger.error(err, {
           operation: "token_fetch",
         });
+        reportAuthError(err, {
+          operation: "fetchAccessToken",
+          component: "StreamSession",
+        });
         setTokenError(err);
         setAccessToken(null);
       }
     };
 
     fetchToken();
-  }, [user, isUserLoading, accessToken, logger]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, isUserLoading, accessToken]); // Removed logger to prevent unnecessary re-runs
 
   const streamConfig = {
     apiUrl,
