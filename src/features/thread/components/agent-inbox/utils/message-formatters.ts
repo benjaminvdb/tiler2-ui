@@ -10,11 +10,8 @@ export const baseMessageObject = (item: unknown): string => {
     if ("tool_calls" in item) {
       toolCallText = JSON.stringify(item.tool_calls, null);
     }
-    if ("type" in item) {
-      return `${item.type}:${contentText ? ` ${contentText}` : ""}${toolCallText ? ` - Tool calls: ${toolCallText}` : ""}`;
-    } else if ("_getType" in item) {
-      return `${item._getType()}:${contentText ? ` ${contentText}` : ""}${toolCallText ? ` - Tool calls: ${toolCallText}` : ""}`;
-    }
+    // BaseMessage always has .type property
+    return `${item.type}:${contentText ? ` ${contentText}` : ""}${toolCallText ? ` - Tool calls: ${toolCallText}` : ""}`;
   } else if (
     typeof item === "object" &&
     item &&

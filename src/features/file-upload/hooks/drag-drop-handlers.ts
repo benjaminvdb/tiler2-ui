@@ -1,10 +1,10 @@
 import { useRef, useEffect, RefObject, useCallback } from "react";
-import type { Base64ContentBlock } from "@langchain/core/messages";
+import type { MultimodalContentBlock } from "@/shared/types";
 import { processFiles } from "./file-processor";
 
 interface UseDragDropHandlersProps {
-  contentBlocks: Base64ContentBlock[];
-  setContentBlocks: React.Dispatch<React.SetStateAction<Base64ContentBlock[]>>;
+  contentBlocks: MultimodalContentBlock[];
+  setContentBlocks: React.Dispatch<React.SetStateAction<MultimodalContentBlock[]>>;
   setDragOver: React.Dispatch<React.SetStateAction<boolean>>;
   containerRef: RefObject<HTMLElement | null>;
 }

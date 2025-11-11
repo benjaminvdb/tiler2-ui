@@ -1,16 +1,16 @@
-import type { Base64ContentBlock } from "@langchain/core/messages";
+import type { MultimodalContentBlock } from "@/shared/types";
 import { SUPPORTED_FILE_TYPES } from "./constants";
 import { fileUploadSchema, validateInput } from "@/shared/utils/validation";
 
 export const isDuplicate = (
   file: File,
-  blocks: Base64ContentBlock[],
+  blocks: MultimodalContentBlock[],
 ): boolean => {
   if (file.type === "application/pdf") {
     return blocks.some(
       (b) =>
         b.type === "file" &&
-        b.mime_type === "application/pdf" &&
+        b.mimeType === "application/pdf" &&
         b.metadata?.filename === file.name,
     );
   }
@@ -19,7 +19,7 @@ export const isDuplicate = (
       (b) =>
         b.type === "image" &&
         b.metadata?.name === file.name &&
-        b.mime_type === file.type,
+        b.mimeType === file.type,
     );
   }
   return false;
@@ -27,7 +27,7 @@ export const isDuplicate = (
 
 export const validateFiles = (
   files: File[],
-  contentBlocks: Base64ContentBlock[],
+  contentBlocks: MultimodalContentBlock[],
 ) => {
   // First validate each file using Zod schema
   const schemaValidFiles: File[] = [];

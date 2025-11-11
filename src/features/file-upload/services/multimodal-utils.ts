@@ -1,10 +1,10 @@
-import type { Base64ContentBlock } from "@langchain/core/messages";
+import type { MultimodalContentBlock } from "@/shared/types";
 import { toast } from "sonner";
 
 // Returns a Promise of a typed multimodal block for images or PDFs
 export const fileToContentBlock = async (
   file: File,
-): Promise<Base64ContentBlock> => {
+): Promise<MultimodalContentBlock> => {
   const supportedImageTypes = [
     "image/jpeg",
     "image/png",
@@ -25,21 +25,19 @@ export const fileToContentBlock = async (
   if (supportedImageTypes.includes(file.type)) {
     return {
       type: "image",
-      source_type: "base64",
-      mime_type: file.type,
+      mimeType: file.type,
       data,
       metadata: { name: file.name },
-    };
+    } as const;
   }
 
   // PDF
   return {
     type: "file",
-    source_type: "base64",
-    mime_type: "application/pdf",
+    mimeType: "application/pdf",
     data,
     metadata: { filename: file.name },
-  };
+  } as const;
 };
 
 // Helper to convert File to base64 string
@@ -56,34 +54,36 @@ export const fileToBase64 = async (file: File): Promise<string> => {
   });
 };
 
-// Type guard for Base64ContentBlock
+// Type guard for MultimodalContentBlock
 export const isBase64ContentBlock = (
   block: unknown,
-): block is Base64ContentBlock => {
+): block is MultimodalContentBlock => {
   if (typeof block !== "object" || block === null || !("type" in block))
     return false;
-  // file type (legacy)
+
+  const typedBlock = block as { type: unknown; mimeType?: unknown; data?: unknown };
+
+  // Check for image type
   if (
-    (block as { type: unknown }).type === "file" &&
-    "source_type" in block &&
-    (block as { source_type: unknown }).source_type === "base64" &&
-    "mime_type" in block &&
-    typeof (block as { mime_type?: unknown }).mime_type === "string" &&
-    ((block as { mime_type: string }).mime_type.startsWith("image/") ||
-      (block as { mime_type: string }).mime_type === "application/pdf")
+    typedBlock.type === "image" &&
+    "mimeType" in block &&
+    typeof typedBlock.mimeType === "string" &&
+    typedBlock.mimeType.startsWith("image/") &&
+    "data" in block
   ) {
     return true;
   }
-  // image type (new)
+
+  // Check for file type (PDF)
   if (
-    (block as { type: unknown }).type === "image" &&
-    "source_type" in block &&
-    (block as { source_type: unknown }).source_type === "base64" &&
-    "mime_type" in block &&
-    typeof (block as { mime_type?: unknown }).mime_type === "string" &&
-    (block as { mime_type: string }).mime_type.startsWith("image/")
+    typedBlock.type === "file" &&
+    "mimeType" in block &&
+    typeof typedBlock.mimeType === "string" &&
+    typedBlock.mimeType === "application/pdf" &&
+    "data" in block
   ) {
     return true;
   }
+
   return false;
 };

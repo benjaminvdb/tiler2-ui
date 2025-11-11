@@ -2,10 +2,10 @@
  * File Upload feature types
  */
 
-import type { Base64ContentBlock } from "@langchain/core/messages";
+import type { MultimodalContentBlock } from "@/shared/types";
 
 export interface FileUploadState {
-  contentBlocks: Base64ContentBlock[];
+  contentBlocks: MultimodalContentBlock[];
   isLoading: boolean;
   dragOver: boolean;
   error: string | null;
@@ -19,7 +19,7 @@ export interface ContentBlock {
 export type ContentBlocks = ContentBlock[];
 
 export interface FileUploadOptions {
-  initialBlocks?: Base64ContentBlock[];
+  initialBlocks?: MultimodalContentBlock[];
   maxFiles?: number;
   maxFileSize?: number;
   allowedTypes?: string[];

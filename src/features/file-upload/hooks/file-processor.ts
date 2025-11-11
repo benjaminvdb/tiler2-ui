@@ -1,5 +1,5 @@
 import { toast } from "sonner";
-import type { Base64ContentBlock } from "@langchain/core/messages";
+import type { MultimodalContentBlock } from "@/shared/types";
 import { fileToContentBlock } from "@/features/file-upload/services/multimodal-utils";
 import { validateFiles } from "./validation";
 import { ERROR_MESSAGES } from "./constants";
@@ -21,8 +21,8 @@ export interface FileProcessingOptions {
  */
 async function processFilesInternal(
   files: File[],
-  contentBlocks: Base64ContentBlock[],
-  setContentBlocks: React.Dispatch<React.SetStateAction<Base64ContentBlock[]>>,
+  contentBlocks: MultimodalContentBlock[],
+  setContentBlocks: React.Dispatch<React.SetStateAction<MultimodalContentBlock[]>>,
   options: FileProcessingOptions = {},
 ): Promise<void> {
   const { showDuplicateError = true, showInvalidTypeError = true } = options;

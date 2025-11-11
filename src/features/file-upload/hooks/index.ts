@@ -1,17 +1,17 @@
 import { useState, useRef } from "react";
-import type { Base64ContentBlock } from "@langchain/core/messages";
+import type { MultimodalContentBlock } from "@/shared/types";
 import { useDragDropHandlers } from "./drag-drop-handlers";
 import { useFileHandlers } from "./file-handlers";
 
 interface UseFileUploadOptions {
-  initialBlocks?: Base64ContentBlock[];
+  initialBlocks?: MultimodalContentBlock[];
 }
 
 export function useFileUpload({
   initialBlocks = [],
 }: UseFileUploadOptions = {}) {
   const [contentBlocks, setContentBlocks] =
-    useState<Base64ContentBlock[]>(initialBlocks);
+    useState<MultimodalContentBlock[]>(initialBlocks);
   const dropRef = useRef<HTMLDivElement>(null);
   const [dragOver, setDragOver] = useState(false);
 

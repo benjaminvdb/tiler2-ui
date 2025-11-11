@@ -1,12 +1,12 @@
 import { ChangeEvent } from "react";
 import { toast } from "sonner";
-import type { Base64ContentBlock } from "@langchain/core/messages";
+import type { MultimodalContentBlock } from "@/shared/types";
 import { processFiles, extractFilesFromSource } from "./file-processor";
 import { ERROR_MESSAGES, SUPPORTED_FILE_TYPES } from "./constants";
 
 interface UseFileHandlersProps {
-  contentBlocks: Base64ContentBlock[];
-  setContentBlocks: React.Dispatch<React.SetStateAction<Base64ContentBlock[]>>;
+  contentBlocks: MultimodalContentBlock[];
+  setContentBlocks: React.Dispatch<React.SetStateAction<MultimodalContentBlock[]>>;
 }
 
 export function useFileHandlers({

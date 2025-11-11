@@ -2,11 +2,16 @@
  * Central type definitions for the application
  */
 
-import type { Base64ContentBlock } from "@langchain/core/messages";
+import type { ContentBlock as LangChainContentBlock } from "@langchain/core/messages";
 import type { Message } from "@langchain/langgraph-sdk";
 
 // File upload and content block types
-export type ContentBlock = Base64ContentBlock;
+// Using the new multimodal content block types from @langchain/core
+export type MultimodalContentBlock =
+  | LangChainContentBlock.Multimodal.Image
+  | LangChainContentBlock.Multimodal.File;
+
+export type ContentBlock = MultimodalContentBlock;
 export type ContentBlocks = ContentBlock[];
 
 // Interrupt and action types
