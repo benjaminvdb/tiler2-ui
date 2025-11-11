@@ -47,6 +47,7 @@ export const ThreadProvider: React.FC<{ children: ReactNode }> = ({
     try {
       const response = await fetchWithAuth(`${apiUrl}/threads/search`, {
         method: "POST",
+        timeoutMs: 10000, // 10 second timeout for thread list query
         headers: {
           "Content-Type": "application/json",
         },
@@ -82,6 +83,7 @@ export const ThreadProvider: React.FC<{ children: ReactNode }> = ({
       try {
         const response = await fetchWithAuth(`${apiUrl}/threads/${threadId}`, {
           method: "DELETE",
+          timeoutMs: 5000, // 5 second timeout for delete operation
         });
 
         if (!response.ok) {

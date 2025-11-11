@@ -110,6 +110,7 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
     apiKey: undefined,
     assistantId,
     threadId: threadId ?? null,
+    timeoutMs: 15000, // 15 second timeout for all SDK operations
     defaultHeaders: accessToken
       ? {
           Authorization: `Bearer ${accessToken}`,

@@ -5,6 +5,7 @@
  */
 
 import { reportApiError, reportAuthError } from "./error-reporting";
+import { fetchWithRetry } from "@/shared/utils/retry";
 
 interface FetchWithAuthOptions extends Omit<RequestInit, "headers"> {
   headers?: Record<string, string>;
@@ -12,6 +13,8 @@ interface FetchWithAuthOptions extends Omit<RequestInit, "headers"> {
   skipAuth?: boolean;
   /** Skip automatic 403 retry for special cases */
   skip403Retry?: boolean;
+  /** Timeout in milliseconds (default: 10000ms = 10 seconds) */
+  timeoutMs?: number;
 }
 
 interface TokenResponse {
@@ -94,6 +97,7 @@ export async function fetchWithAuth(
   const {
     skipAuth = false,
     skip403Retry = false,
+    timeoutMs = 10000,
     headers = {},
     ...fetchOptions
   } = options;
@@ -105,11 +109,30 @@ export async function fetchWithAuth(
     requestHeaders.Authorization = `Bearer ${token}`;
   }
 
+  // Create timeout controller
+  const timeoutController = new AbortController();
+  const timeoutId = setTimeout(() => timeoutController.abort(), timeoutMs);
+
   try {
-    const response = await fetch(url, {
-      ...fetchOptions,
-      headers: requestHeaders,
-    });
+    // Combine timeout signal with any existing signal
+    const combinedSignal = fetchOptions.signal
+      ? AbortSignal.any([fetchOptions.signal, timeoutController.signal])
+      : timeoutController.signal;
+
+    // Use retry logic for network resilience (3 retries with 1s base delay)
+    const response = await fetchWithRetry(
+      url,
+      {
+        ...fetchOptions,
+        headers: requestHeaders,
+        signal: combinedSignal,
+      },
+      {
+        maxRetries: 3,
+        baseDelay: 1000,
+        maxDelay: 8000,
+      },
+    );
 
     if (response.status === 403 && !skip403Retry) {
       /**
@@ -135,10 +158,36 @@ export async function fetchWithAuth(
         const newToken = await fetchAccessToken();
         requestHeaders.Authorization = `Bearer ${newToken}`;
 
-        const retryResponse = await fetch(url, {
-          ...fetchOptions,
-          headers: requestHeaders,
-        });
+        // Create new timeout controller for retry attempt
+        const retryTimeoutController = new AbortController();
+        const retryTimeoutId = setTimeout(
+          () => retryTimeoutController.abort(),
+          timeoutMs,
+        );
+
+        try {
+          // Combine timeout signal with any existing signal for retry
+          const retryCombinedSignal = fetchOptions.signal
+            ? AbortSignal.any([
+                fetchOptions.signal,
+                retryTimeoutController.signal,
+              ])
+            : retryTimeoutController.signal;
+
+          // Use retry logic for the 403 retry attempt as well
+          const retryResponse = await fetchWithRetry(
+            url,
+            {
+              ...fetchOptions,
+              headers: requestHeaders,
+              signal: retryCombinedSignal,
+            },
+            {
+              maxRetries: 3,
+              baseDelay: 1000,
+              maxDelay: 8000,
+            },
+          );
 
         if (retryResponse.status === 403) {
           /**
@@ -171,6 +220,9 @@ export async function fetchWithAuth(
         );
 
         return retryResponse;
+        } finally {
+          clearTimeout(retryTimeoutId);
+        }
       } catch (error) {
         if (error instanceof ForbiddenError) {
           throw error;
@@ -200,6 +252,8 @@ export async function fetchWithAuth(
     });
 
     throw error;
+  } finally {
+    clearTimeout(timeoutId);
   }
 }
 
