@@ -1,11 +1,12 @@
 // This file configures the initialization of Sentry on the client.
 // The added config here will be used whenever a users loads a page in their browser.
-// https://docs.sentry.io/platforms/javascript/guides/nextjs/
+// https://docs.sentry.io/platforms/javascript/guides/react/
 
 import * as Sentry from "@sentry/react";
+import { env } from "@/env";
 
-const isDevelopment = process.env.NODE_ENV === "development";
-const dsn = process.env.NEXT_PUBLIC_SENTRY_DSN;
+const isDevelopment = import.meta.env.MODE === "development";
+const dsn = env.SENTRY_DSN;
 
 // Only initialize Sentry in production when DSN is explicitly configured
 // This prevents development data from polluting production Sentry logs
@@ -15,7 +16,9 @@ if (!isDevelopment && dsn) {
 
     // Environment configuration
     environment:
-      process.env.SENTRY_ENVIRONMENT || process.env.NODE_ENV || "development",
+      import.meta.env.VITE_SENTRY_ENVIRONMENT ||
+      import.meta.env.MODE ||
+      "development",
 
     // Add optional integrations for additional features
     integrations: [

@@ -1,6 +1,9 @@
 import React from "react";
 import { ChatInterruptProps } from "./chat-interrupt/types";
-import { getQuestionText, hasActionArgs } from "./chat-interrupt/utils/interrupt-helpers";
+import {
+  getQuestionText,
+  hasActionArgs,
+} from "./chat-interrupt/utils/interrupt-helpers";
 import { InterruptHeader } from "./chat-interrupt/components/interrupt-header";
 import { ActionDetails } from "./chat-interrupt/components/action-details";
 import { ActionButtons } from "./chat-interrupt/components/action-buttons";
@@ -19,14 +22,20 @@ export const ChatInterrupt: React.FC<ChatInterruptProps> = ({
   return (
     <div className="flex flex-col gap-3 rounded-lg border border-blue-200 bg-blue-50/50 p-4">
       <InterruptHeader questionText={questionText} />
-      <ActionDetails actionRequest={interrupt.action_request} hasArgs={hasArgs} />
+      <ActionDetails
+        actionRequest={interrupt.action_request}
+        hasArgs={hasArgs}
+      />
       <ActionButtons
         config={interrupt.config}
         {...(_onAccept && { onAccept: _onAccept })}
         {...(_onEdit && { onEdit: _onEdit })}
         {...(_onIgnore && { onIgnore: _onIgnore })}
       />
-      <InstructionText config={interrupt.config} hasArgs={hasArgs} />
+      <InstructionText
+        config={interrupt.config}
+        hasArgs={hasArgs}
+      />
     </div>
   );
 };

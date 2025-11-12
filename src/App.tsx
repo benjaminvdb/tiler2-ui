@@ -86,7 +86,19 @@ export function App() {
                   </ProtectedRoute>
                 }
               />
-              <Route path="*" element={<Navigate to="/" replace />} />
+              <Route
+                path="/auth/callback"
+                element={<LoadingScreen />}
+              />
+              <Route
+                path="*"
+                element={
+                  <Navigate
+                    to="/"
+                    replace
+                  />
+                }
+              />
             </Routes>
           </NetworkStatusProvider>
         </AsyncErrorBoundary>

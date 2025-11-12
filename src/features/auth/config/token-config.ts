@@ -43,7 +43,9 @@ export interface TokenTimings {
  *
  * @example
  * ```typescript
- * const { expiresAt } = await fetch('/api/auth/token').then(r => r.json());
+ * const { getToken } = useAccessToken();
+ * const token = await getToken();
+ * // Parse token expiration from JWT if needed, or use Auth0 SDK's token management
  * const timings = calculateTokenTimings(expiresAt);
  *
  * // Schedule refresh at 2/3 of token lifetime

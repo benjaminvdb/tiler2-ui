@@ -7,7 +7,7 @@ import { redactSensitiveData } from "./filters";
  * Maintains same interface as server-side for consistency
  */
 
-const isDevelopment = process.env.NODE_ENV === "development";
+const isDevelopment = import.meta.env.MODE === "development";
 
 /**
  * Map log level to Sentry severity level

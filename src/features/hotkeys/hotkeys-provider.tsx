@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useUIContext } from "@/features/chat/providers/ui-provider";

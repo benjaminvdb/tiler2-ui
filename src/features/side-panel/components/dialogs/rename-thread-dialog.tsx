@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, FormEvent } from "react";
 import {
   Dialog,
@@ -62,9 +60,7 @@ export const RenameThreadDialog = ({
       onOpenChange(false);
       setTitle(trimmedTitle);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to rename thread",
-      );
+      setError(err instanceof Error ? err.message : "Failed to rename thread");
     } finally {
       setLoading(false);
     }
@@ -80,7 +76,10 @@ export const RenameThreadDialog = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={handleOpenChange}
+    >
       <DialogContent className="w-[95vw] sm:w-[90vw] md:max-w-lg lg:max-w-xl xl:max-w-2xl">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
@@ -103,9 +102,7 @@ export const RenameThreadDialog = ({
                 disabled={loading}
                 autoFocus
               />
-              {error && (
-                <p className="text-destructive text-sm">{error}</p>
-              )}
+              {error && <p className="text-destructive text-sm">{error}</p>}
             </div>
           </div>
 
@@ -118,7 +115,10 @@ export const RenameThreadDialog = ({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={loading}>
+            <Button
+              type="submit"
+              disabled={loading}
+            >
               {loading ? "Saving..." : "Save"}
             </Button>
           </DialogFooter>

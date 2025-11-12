@@ -6,7 +6,7 @@ export const ToolCallsToggle: React.FC<ToolCallsToggleProps> = ({
   hideToolCalls,
   onHideToolCallsChange,
 }) => {
-  if (process.env.NEXT_PUBLIC_HIDE_TOOL_CALLS !== "false") return null;
+  if (import.meta.env.VITE_HIDE_TOOL_CALLS !== "false") return null;
 
   return (
     <div>

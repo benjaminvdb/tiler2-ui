@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useState, useEffect, ReactNode } from "react";
 import { displayAsyncError } from "@/core/services/error-display";
 import { useLogger } from "@/core/services/logging";

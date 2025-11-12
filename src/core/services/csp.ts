@@ -12,7 +12,7 @@ export function generateNonce(): string {
  */
 export function generateCSP(): string {
   // Determine the appropriate domains based on environment
-  const isProduction = process.env.NODE_ENV === "production";
+  const isProduction = import.meta.env.MODE === "production";
   const apiUrl = env.API_URL || "";
 
   // Extract domain from URLs for connect-src

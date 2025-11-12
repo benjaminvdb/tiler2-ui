@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import { useTextOverflow } from "@/shared/hooks/use-text-overflow";
 import { cn } from "@/shared/utils/utils";

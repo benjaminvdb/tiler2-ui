@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import { Button } from "@/shared/components/ui/button";
 import { WifiOff, RefreshCw, AlertTriangle } from "lucide-react";
@@ -64,11 +62,7 @@ function categorizeStreamError(error: Error): {
   }
 
   // Server errors (500-504)
-  if (
-    statusCode &&
-    statusCode >= 500 &&
-    statusCode < 600
-  ) {
+  if (statusCode && statusCode >= 500 && statusCode < 600) {
     return { type: "server", statusCode };
   }
 

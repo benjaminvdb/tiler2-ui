@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import {
   Plus,
@@ -10,6 +8,7 @@ import {
 } from "lucide-react";
 import { Thread } from "@langchain/langgraph-sdk";
 import { useSearchParamState } from "@/core/routing/hooks";
+import { LinkLogoSVG } from "@/shared/components/icons/link";
 
 import {
   Sidebar,
@@ -110,11 +109,10 @@ export const NewSidebar = (): React.JSX.Element => {
             className="flex flex-1 cursor-pointer items-center gap-2 transition-opacity group-data-[collapsible=icon]:hidden hover:opacity-80"
             aria-label="Go to Home"
           >
-            <img
-              src="/link.svg"
-              alt="Link"
-              className="object-contain"
-              style={{ filter: "brightness(0)", width: 25, height: 8 }}
+            <LinkLogoSVG
+              width={32}
+              height={32}
+              className="shrink-0"
             />
           </button>
 

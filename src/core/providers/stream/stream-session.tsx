@@ -20,11 +20,8 @@ import { sleep, checkGraphStatus } from "./utils";
 import { LoadingScreen } from "@/shared/components/loading-spinner";
 import { useLogger } from "@/core/services/logging";
 import * as Sentry from "@sentry/react";
-import { fetchWithRetry } from "@/shared/utils/retry";
-import {
-  reportAuthError,
-  reportStreamError,
-} from "@/core/services/error-reporting";
+import { reportStreamError } from "@/core/services/error-reporting";
+import { useAccessToken } from "@/features/auth/hooks/use-access-token";
 
 export const StreamSession: React.FC<StreamSessionProps> = ({
   children,
@@ -51,6 +48,11 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
     [baseLogger, assistantId, apiUrl],
   );
 
+  const { getToken } = useAccessToken({
+    component: "StreamSession",
+    operation: "fetchAccessToken",
+  });
+
   useEffect(() => {
     if (assistantId) {
       Sentry.setContext("assistant", {
@@ -62,78 +64,32 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
   }, [assistantId, apiUrl]);
 
   /**
-   * Fetch access token on mount. Token is reused until cleared or invalidated.
-   * Auth0 handles server-side refresh automatically when expired.
-   * Uses retry logic to handle transient network errors.
+   * Fetch access token on mount using Auth0 SDK.
+   * Token is managed by Auth0 SDK with automatic refresh.
    */
   useEffect(() => {
     if (!user || isUserLoading || accessToken) return;
 
     const fetchToken = async () => {
       try {
-        const response = await fetchWithRetry(
-          "/api/auth/token",
-          {
-            headers: { "Content-Type": "application/json" },
-            timeoutMs: 10000, // Increased to 10s for auth endpoint reliability
-          },
-          {
-            maxRetries: 3,
-            baseDelay: 500, // Fast retry for auth
-            maxDelay: 2000,
-            onRetry: (attempt, error) => {
-              reportAuthError(error, {
-                operation: "fetchAccessToken",
-                component: "StreamSession",
-                skipNotification: true, // Silent retry
-                additionalData: {
-                  attempt,
-                },
-              });
-            },
-          },
-        );
+        const token = await getToken();
 
-        if (response.status === 403) {
-          logger.error(new Error("403 Forbidden from token endpoint"), {
+        if (token) {
+          setAccessToken(token);
+          setTokenError(null);
+          logger.debug("Token fetched successfully", {
             operation: "token_fetch",
-            statusCode: 403,
           });
-          window.location.href = "/api/auth/logout";
-          return;
+        } else {
+          // getToken returns null when token error occurs (user redirected to login)
+          const err = new Error("Failed to get access token");
+          setTokenError(err);
+          setAccessToken(null);
         }
-
-        if (response.status === 401) {
-          logger.error(new Error("401 Unauthorized - session expired"), {
-            operation: "token_fetch",
-            statusCode: 401,
-          });
-          window.location.href = "/api/auth/login";
-          return;
-        }
-
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          throw new Error(
-            errorData.error || `Token fetch failed: ${response.status}`,
-          );
-        }
-
-        const data: { token: string } = await response.json();
-        setAccessToken(data.token);
-        setTokenError(null);
-
-        logger.debug("Token fetched successfully", {
-          operation: "token_fetch",
-        });
       } catch (error) {
         const err = error instanceof Error ? error : new Error(String(error));
         logger.error(err, {
           operation: "token_fetch",
-        });
-        reportAuthError(err, {
-          operation: "fetchAccessToken",
-          component: "StreamSession",
         });
         setTokenError(err);
         setAccessToken(null);
@@ -182,7 +138,10 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
         setCurrentRunId(data.run_id);
       }
     },
-    onCustomEvent: (event: unknown, options: { mutate: (fn: (prev: GraphState) => GraphState) => void }) => {
+    onCustomEvent: (
+      event: unknown,
+      options: { mutate: (fn: (prev: GraphState) => GraphState) => void },
+    ) => {
       // Handle UI messages
       if (isUIMessage(event) || isRemoveUIMessage(event)) {
         options.mutate((prev: GraphState) => {
@@ -345,7 +304,14 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
       clearError,
       retryStream,
     });
-  }, [streamValue, currentRunId, threadId, streamError, clearError, retryStream]);
+  }, [
+    streamValue,
+    currentRunId,
+    threadId,
+    streamError,
+    clearError,
+    retryStream,
+  ]);
 
   if (isUserLoading || (!accessToken && !tokenError && user)) {
     return (

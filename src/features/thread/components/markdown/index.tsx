@@ -1,5 +1,3 @@
-"use client";
-
 import "../markdown-styles.css";
 import "katex/dist/katex.min.css";
 

@@ -17,10 +17,10 @@ export function isAuth0ConfiguredClient(): boolean {
   const hasPublicVars =
     (typeof window !== "undefined" &&
       window.location.hostname !== "localhost") ||
-    process.env.NODE_ENV === "production";
+    import.meta.env.MODE === "production";
 
   // In development, we might not have Auth0 configured
-  if (process.env.NODE_ENV === "development" && !hasPublicVars) {
+  if (import.meta.env.MODE === "development" && !hasPublicVars) {
     return false;
   }
   return true;
@@ -29,7 +29,7 @@ export function isAuth0ConfiguredClient(): boolean {
  * Show a development warning for missing Auth0 configuration
  */
 export function warnAuth0NotConfigured(): void {
-  if (process.env.NODE_ENV === "development") {
+  if (import.meta.env.MODE === "development") {
     logger.warn(
       "Auth0 not configured - running in development mode without authentication",
       {
@@ -49,7 +49,7 @@ export function warnAuth0NotConfigured(): void {
  * Development component to show Auth0 status
  */
 export function Auth0DevStatus(): React.JSX.Element | null {
-  if (process.env.NODE_ENV !== "development") {
+  if (import.meta.env.MODE !== "development") {
     return null;
   }
   const isConfigured = isAuth0ConfiguredClient();

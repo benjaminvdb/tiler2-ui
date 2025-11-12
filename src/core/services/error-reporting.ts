@@ -72,20 +72,21 @@ const defaultConfig: ErrorReportingConfig = {
 
 // Environment-specific configuration
 const getConfig = (): ErrorReportingConfig => {
-  const isDevelopment = process.env.NODE_ENV === "development";
-  const isProduction = process.env.NODE_ENV === "production";
+  const isDevelopment = import.meta.env.MODE === "development";
+  const isProduction = import.meta.env.MODE === "production";
 
   return {
     ...defaultConfig,
     enableConsoleLogging:
-      isDevelopment || Boolean(process.env.ENABLE_ERROR_CONSOLE_LOGGING),
+      isDevelopment ||
+      Boolean(import.meta.env.VITE_ENABLE_ERROR_CONSOLE_LOGGING),
     enableRemoteLogging:
-      isProduction && Boolean(process.env.ERROR_REPORTING_ENDPOINT),
-    ...(process.env.ERROR_REPORTING_ENDPOINT
-      ? { remoteEndpoint: process.env.ERROR_REPORTING_ENDPOINT }
+      isProduction && Boolean(import.meta.env.VITE_ERROR_REPORTING_ENDPOINT),
+    ...(import.meta.env.VITE_ERROR_REPORTING_ENDPOINT
+      ? { remoteEndpoint: import.meta.env.VITE_ERROR_REPORTING_ENDPOINT }
       : {}),
-    ...(process.env.ERROR_REPORTING_API_KEY
-      ? { apiKey: process.env.ERROR_REPORTING_API_KEY }
+    ...(import.meta.env.VITE_ERROR_REPORTING_API_KEY
+      ? { apiKey: import.meta.env.VITE_ERROR_REPORTING_API_KEY }
       : {}),
   };
 };
@@ -221,7 +222,7 @@ const sendToRemoteService = async (
       },
       body: JSON.stringify({
         error: structuredError,
-        environment: process.env.NODE_ENV,
+        environment: import.meta.env.MODE,
         app: "agent-chat-ui",
       }),
     });
@@ -299,7 +300,7 @@ export const reportError = (
       category: "system",
       context: {},
       timestamp: Date.now(),
-      environment: process.env.NODE_ENV || "unknown",
+      environment: import.meta.env.MODE || "unknown",
     };
   }
 
@@ -318,7 +319,7 @@ export const reportError = (
     ...(error instanceof Error && error.stack ? { stack: error.stack } : {}),
     ...(error instanceof Error ? { originalError: error } : {}),
     timestamp: Date.now(),
-    environment: process.env.NODE_ENV || "unknown",
+    environment: import.meta.env.MODE || "unknown",
   };
 
   // Store in history
@@ -430,7 +431,7 @@ export const reportRetryExhausted = (
     ...(error instanceof Error && error.stack ? { stack: error.stack } : {}),
     ...(error instanceof Error ? { originalError: error } : {}),
     timestamp: Date.now(),
-    environment: process.env.NODE_ENV || "unknown",
+    environment: import.meta.env.MODE || "unknown",
   };
 
   // Store in history

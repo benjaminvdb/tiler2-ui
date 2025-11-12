@@ -1,11 +1,14 @@
 /**
  * HTTP client with automatic authentication and 403 error handling.
- * Fetches auth tokens automatically, retries on 403 with token refresh,
+ * Uses Auth0 SDK for token management, retries on 403 with token refresh,
  * and triggers logout when authentication fails.
  */
 
 import { reportApiError, reportAuthError } from "./error-reporting";
 import { fetchWithRetry } from "@/shared/utils/retry";
+import { useAuth0 } from "@auth0/auth0-react";
+import { useCallback } from "react";
+import { env } from "@/env";
 
 interface FetchWithAuthOptions extends Omit<RequestInit, "headers"> {
   headers?: Record<string, string>;
@@ -17,10 +20,7 @@ interface FetchWithAuthOptions extends Omit<RequestInit, "headers"> {
   timeoutMs?: number;
 }
 
-interface TokenResponse {
-  token: string;
-  expiresAt?: number;
-}
+type TokenGetter = () => Promise<string>;
 
 export class ForbiddenError extends Error {
   constructor(
@@ -34,78 +34,6 @@ export class ForbiddenError extends Error {
 
 export function isForbiddenError(error: unknown): error is ForbiddenError {
   return error instanceof Error && error.name === "ForbiddenError";
-}
-
-/**
- * Request deduplication: Prevent duplicate concurrent token requests.
- * This fixes race conditions when multiple components mount simultaneously.
- */
-let pendingTokenRequest: Promise<string> | null = null;
-
-async function fetchAccessToken(): Promise<string> {
-  // Return existing request if already in flight
-  if (pendingTokenRequest) {
-    return pendingTokenRequest;
-  }
-
-  // Create new request with retry logic
-  pendingTokenRequest = (async () => {
-    try {
-      const response = await fetchWithRetry(
-        "/api/auth/token",
-        {
-          headers: { "Content-Type": "application/json" },
-          timeoutMs: 10000, // 10 second timeout for auth token reliability
-        },
-        {
-          maxRetries: 3,
-          baseDelay: 500, // Fast retry for auth (500ms)
-          maxDelay: 2000,
-          onRetry: (attempt, error) => {
-            reportAuthError(error, {
-              operation: "fetchAccessToken",
-              component: "http-client",
-              skipNotification: true, // Silent retry
-              additionalData: {
-                attempt,
-              },
-            });
-          },
-        },
-      );
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          window.location.href = "/api/auth/login";
-          throw new Error("Session expired, redirecting to login");
-        }
-
-        if (response.status === 403) {
-          window.location.href = "/api/auth/logout";
-          throw new Error("Access denied, logging out");
-        }
-
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(
-          errorData.error || `Token fetch failed: ${response.status}`,
-        );
-      }
-
-      const data: TokenResponse = await response.json();
-      return data.token;
-    } catch (error) {
-      reportAuthError(error as Error, {
-        operation: "fetchAccessToken",
-        component: "http-client",
-      });
-      throw error;
-    } finally {
-      // Clear pending request after completion (success or error)
-      pendingTokenRequest = null;
-    }
-  })();
-
-  return pendingTokenRequest;
 }
 
 function triggerSilentLogout(reason: string): void {
@@ -125,12 +53,14 @@ function triggerSilentLogout(reason: string): void {
  * Fetch wrapper with automatic authentication and 403 error handling.
  * Automatically includes auth tokens and retries once on 403 with token refresh.
  *
+ * @param getToken - Function to retrieve access token
  * @throws {ForbiddenError} When 403 persists after token refresh
  * @example
- * const response = await fetchWithAuth('/api/data');
+ * const response = await fetchWithAuth(getToken, '/api/data');
  * const data = await response.json();
  */
 export async function fetchWithAuth(
+  getToken: TokenGetter,
   url: string,
   options: FetchWithAuthOptions = {},
 ): Promise<Response> {
@@ -145,8 +75,16 @@ export async function fetchWithAuth(
   const requestHeaders: Record<string, string> = { ...headers };
 
   if (!skipAuth) {
-    const token = await fetchAccessToken();
-    requestHeaders.Authorization = `Bearer ${token}`;
+    try {
+      const token = await getToken();
+      requestHeaders.Authorization = `Bearer ${token}`;
+    } catch (error) {
+      reportAuthError(error as Error, {
+        operation: "getToken",
+        component: "http-client",
+      });
+      throw error;
+    }
   }
 
   // Create timeout controller
@@ -195,7 +133,7 @@ export async function fetchWithAuth(
       );
 
       try {
-        const newToken = await fetchAccessToken();
+        const newToken = await getToken();
         requestHeaders.Authorization = `Bearer ${newToken}`;
 
         // Create new timeout controller for retry attempt
@@ -229,37 +167,39 @@ export async function fetchWithAuth(
             },
           );
 
-        if (retryResponse.status === 403) {
+          if (retryResponse.status === 403) {
+            /**
+             * Token refresh succeeded but still got 403 - user truly lacks permission.
+             * Show error toast and logout via triggerSilentLogout.
+             */
+            triggerSilentLogout("403 Forbidden persisted after token refresh");
+            throw new ForbiddenError(
+              "Access denied after token refresh",
+              retryResponse,
+            );
+          }
+
           /**
-           * Token refresh succeeded but still got 403 - user truly lacks permission.
-           * Show error toast and logout via triggerSilentLogout.
+           * Retry succeeded - log success to Sentry for monitoring.
+           * No user notification needed since operation completed successfully.
            */
-          triggerSilentLogout("403 Forbidden persisted after token refresh");
-          throw new ForbiddenError(
-            "Access denied after token refresh",
-            retryResponse,
-          );
-        }
-
-        /**
-         * Retry succeeded - log success to Sentry for monitoring.
-         * No user notification needed since operation completed successfully.
-         */
-        reportApiError(
-          new Error(`403 Forbidden from ${url} - recovered via token refresh`),
-          {
-            operation: "fetchWithAuth",
-            component: "http-client",
-            url,
-            additionalData: {
-              statusCode: 403,
-              retryAttempt: "succeeded",
+          reportApiError(
+            new Error(
+              `403 Forbidden from ${url} - recovered via token refresh`,
+            ),
+            {
+              operation: "fetchWithAuth",
+              component: "http-client",
+              url,
+              additionalData: {
+                statusCode: 403,
+                retryAttempt: "succeeded",
+              },
+              skipNotification: true,
             },
-            skipNotification: true,
-          },
-        );
+          );
 
-        return retryResponse;
+          return retryResponse;
         } finally {
           clearTimeout(retryTimeoutId);
         }
@@ -298,11 +238,35 @@ export async function fetchWithAuth(
 }
 
 /**
- * React hook that returns the authenticated fetch function.
+ * React hook that returns the authenticated fetch function with automatic token management.
+ * Uses Auth0 SDK to fetch access tokens automatically.
  * @example
  * const fetch = useAuthenticatedFetch();
  * const response = await fetch('/api/data');
  */
 export function useAuthenticatedFetch() {
-  return fetchWithAuth;
+  const { getAccessTokenSilently } = useAuth0();
+
+  const getToken = useCallback(async (): Promise<string> => {
+    try {
+      const token = await getAccessTokenSilently({
+        authorizationParams: {
+          audience: env.AUTH0_AUDIENCE,
+        },
+      });
+      return token;
+    } catch (error) {
+      reportAuthError(error as Error, {
+        operation: "getAccessTokenSilently",
+        component: "useAuthenticatedFetch",
+      });
+      throw error;
+    }
+  }, [getAccessTokenSilently]);
+
+  return useCallback(
+    (url: string, options?: FetchWithAuthOptions) =>
+      fetchWithAuth(getToken, url, options),
+    [getToken],
+  );
 }

@@ -22,7 +22,9 @@ export interface FileProcessingOptions {
 async function processFilesInternal(
   files: File[],
   contentBlocks: MultimodalContentBlock[],
-  setContentBlocks: React.Dispatch<React.SetStateAction<MultimodalContentBlock[]>>,
+  setContentBlocks: React.Dispatch<
+    React.SetStateAction<MultimodalContentBlock[]>
+  >,
   options: FileProcessingOptions = {},
 ): Promise<void> {
   const { showDuplicateError = true, showInvalidTypeError = true } = options;

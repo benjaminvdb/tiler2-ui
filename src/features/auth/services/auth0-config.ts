@@ -8,7 +8,7 @@ export const AUTH0_CONFIG = {
     rollingDuration: 24 * 60 * 60, // 24 hours
     absoluteDuration: 7 * 24 * 60 * 60, // 7 days
     cookie: {
-      secure: process.env.NODE_ENV === "production",
+      secure: import.meta.env.MODE === "production",
       sameSite: "lax" as const,
       httpOnly: true,
     },

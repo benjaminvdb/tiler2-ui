@@ -52,10 +52,7 @@ export const InterruptHandler: React.FC<InterruptHandlerProps> = ({
       : null;
 
   // For recognized interrupts, render as chat message
-  if (
-    normalizedInterrupt &&
-    (isLastMessage || hasNoAIOrToolMessages)
-  ) {
+  if (normalizedInterrupt && (isLastMessage || hasNoAIOrToolMessages)) {
     return (
       <ChatInterrupt
         interrupt={normalizedInterrupt}

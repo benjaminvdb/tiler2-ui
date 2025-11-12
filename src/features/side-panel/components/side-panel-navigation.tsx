@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import { useUIContext } from "@/features/chat/providers/ui-provider";
 import { Navigation } from "@/core/components/navigation";

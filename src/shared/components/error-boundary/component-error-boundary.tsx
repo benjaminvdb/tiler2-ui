@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import { Button } from "@/shared/components/ui/button";
 import { displayComponentError } from "@/core/services/error-display";

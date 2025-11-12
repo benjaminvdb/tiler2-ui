@@ -1,5 +1,3 @@
-"use client";
-
 import React, { createContext, useContext, useMemo, ReactNode } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useSearchParamState } from "@/core/routing/hooks";
@@ -58,7 +56,7 @@ export function useLogger(): ILogger {
   if (!logger) {
     // Fallback to global logger if not in provider
     // This shouldn't happen in normal usage but provides safety
-    if (process.env.NODE_ENV === "development") {
+    if (import.meta.env.MODE === "development") {
       console.warn(
         "useLogger() called outside LoggerProvider. Using global logger as fallback.",
       );

@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import { MoreHorizontal, Edit2, Trash2 } from "lucide-react";
 import {
@@ -31,7 +29,10 @@ export const ThreadActionsMenu = ({
   return (
     <>
       <DropdownMenu>
-        <SidebarMenuAction showOnHover asChild>
+        <SidebarMenuAction
+          showOnHover
+          asChild
+        >
           <DropdownMenuTrigger asChild>
             <button
               onClick={(e) => {

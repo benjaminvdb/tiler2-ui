@@ -10,7 +10,7 @@ import {
   SetStateAction,
 } from "react";
 import { reportThreadError } from "@/core/services/error-reporting";
-import { fetchWithAuth } from "@/core/services/http-client";
+import { useAuthenticatedFetch } from "@/core/services/http-client";
 import { getClientConfig } from "@/core/config/client";
 
 interface ThreadContextType {
@@ -45,6 +45,7 @@ export const ThreadProvider: React.FC<{ children: ReactNode }> = ({
   const assistantId = config.assistantId;
   const [threads, setThreads] = useState<Thread[]>([]);
   const [threadsLoading, setThreadsLoading] = useState(false);
+  const fetchWithAuth = useAuthenticatedFetch();
 
   const getThreads = useCallback(async (): Promise<Thread[]> => {
     if (!apiUrl || !assistantId) return [];
@@ -77,7 +78,7 @@ export const ThreadProvider: React.FC<{ children: ReactNode }> = ({
       });
       return [];
     }
-  }, [apiUrl, assistantId]);
+  }, [apiUrl, assistantId, fetchWithAuth]);
 
   const deleteThread = useCallback(
     async (threadId: string): Promise<void> => {
@@ -107,7 +108,7 @@ export const ThreadProvider: React.FC<{ children: ReactNode }> = ({
         throw error; // Re-throw for UI handling
       }
     },
-    [apiUrl],
+    [apiUrl, fetchWithAuth],
   );
 
   const renameThread = useCallback(
@@ -171,7 +172,7 @@ export const ThreadProvider: React.FC<{ children: ReactNode }> = ({
         throw error; // Re-throw for UI handling
       }
     },
-    [apiUrl, threads],
+    [apiUrl, threads, fetchWithAuth],
   );
 
   /**

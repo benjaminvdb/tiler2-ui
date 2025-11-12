@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useCallback, useMemo, useState, useEffect } from "react";
 import { UIProvider } from "@/features/chat/providers/ui-provider";
 import { ThreadProvider } from "@/features/thread/providers/thread-provider";

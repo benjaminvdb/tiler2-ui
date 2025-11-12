@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import { motion } from "framer-motion";
 import {
@@ -13,8 +11,10 @@ import {
   Sparkles,
   BookOpen,
 } from "lucide-react";
-import earthImage from "@/../public/images/earth-satellite.webp";
 import { useUIContext } from "@/features/chat/providers/ui-provider";
+
+// Public assets are referenced by their URL path, not imported
+const earthImage = "/images/earth-satellite.webp";
 
 interface EmptyStateProps {
   onSuggestionClick?: (text: string) => void;
@@ -81,7 +81,7 @@ export const EmptyState = ({
             <img
               src={earthImage}
               alt="Earth from space"
-              className="object-cover w-full h-full"
+              className="h-full w-full object-cover"
             />
 
             {/* Subtle overlay for depth */}

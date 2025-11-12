@@ -4,7 +4,9 @@ import { processFiles } from "./file-processor";
 
 interface UseDragDropHandlersProps {
   contentBlocks: MultimodalContentBlock[];
-  setContentBlocks: React.Dispatch<React.SetStateAction<MultimodalContentBlock[]>>;
+  setContentBlocks: React.Dispatch<
+    React.SetStateAction<MultimodalContentBlock[]>
+  >;
   setDragOver: React.Dispatch<React.SetStateAction<boolean>>;
   containerRef: RefObject<HTMLElement | null>;
 }

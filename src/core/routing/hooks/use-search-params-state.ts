@@ -5,10 +5,12 @@
  * Uses native Next.js APIs for optimal performance and compatibility.
  */
 
-"use client";
-
 import { useCallback, useMemo } from "react";
-import { usePathname, useRouter, useSearchParams } from "@/core/routing/compat/next-navigation";
+import {
+  usePathname,
+  useRouter,
+  useSearchParams,
+} from "@/core/routing/compat/next-navigation";
 import type { SearchParamKey, SearchParams } from "../search-params";
 import { mergeSearchParams } from "../utils";
 

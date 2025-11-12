@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useState } from "react";
 import { toast } from "sonner";
 import { UserCircle } from "lucide-react";
@@ -17,6 +15,7 @@ import { Label } from "@/shared/components/ui/label";
 import { fetchWithRetry, AbortError } from "@/shared/utils/retry";
 import { reportApiError } from "@/core/services/error-reporting";
 import { getClientConfig } from "@/core/config/client";
+import { useAccessToken } from "@/features/auth/hooks/use-access-token";
 
 interface ExpertHelpDialogProps {
   open: boolean;
@@ -36,6 +35,10 @@ export const ExpertHelpDialog: React.FC<ExpertHelpDialogProps> = ({
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const apiUrl = getClientConfig().apiUrl;
+  const { getToken } = useAccessToken({
+    component: "ExpertHelpDialog",
+    operation: "submitExpertHelp",
+  });
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
@@ -55,12 +58,11 @@ export const ExpertHelpDialog: React.FC<ExpertHelpDialogProps> = ({
     setIsSubmitting(true);
 
     try {
-      // Get Auth0 token from session
-      const tokenResponse = await fetch("/api/auth/token");
-      if (!tokenResponse.ok) {
+      // Get Auth0 token using SDK
+      const token = await getToken();
+      if (!token) {
         throw new Error("Failed to get authentication token");
       }
-      const { token } = await tokenResponse.json();
 
       // Submit to backend API with retry logic
       if (!apiUrl) {

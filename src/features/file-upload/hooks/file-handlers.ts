@@ -6,7 +6,9 @@ import { ERROR_MESSAGES, SUPPORTED_FILE_TYPES } from "./constants";
 
 interface UseFileHandlersProps {
   contentBlocks: MultimodalContentBlock[];
-  setContentBlocks: React.Dispatch<React.SetStateAction<MultimodalContentBlock[]>>;
+  setContentBlocks: React.Dispatch<
+    React.SetStateAction<MultimodalContentBlock[]>
+  >;
 }
 
 export function useFileHandlers({

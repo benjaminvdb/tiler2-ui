@@ -1,5 +1,3 @@
-"use client";
-
 import { FC, Suspense, lazy } from "react";
 
 // Lazy load the SyntaxHighlighter component with a loading fallback

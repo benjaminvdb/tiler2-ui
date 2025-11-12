@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import { PanelRightOpen, PanelRightClose } from "lucide-react";
 import { LinkLogoSVG } from "@/shared/components/icons/link";

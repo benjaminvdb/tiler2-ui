@@ -1,5 +1,3 @@
-"use client";
-
 import React, { Component, ReactNode } from "react";
 import { displayCriticalError } from "@/core/services/error-display";
 import * as Sentry from "@sentry/react";
@@ -97,7 +95,7 @@ const DefaultErrorFallback: React.FC<{
           <p className="mb-6 text-gray-600">
             We encountered an unexpected error. Please try again.
           </p>
-          {process.env.NODE_ENV === "development" && (
+          {import.meta.env.MODE === "development" && (
             <details className="mb-6 text-left">
               <summary className="cursor-pointer text-sm font-medium text-gray-700">
                 Error Details (Development Only)

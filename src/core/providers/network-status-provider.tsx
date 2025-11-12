@@ -1,5 +1,3 @@
-"use client";
-
 /**
  * Network status monitoring provider.
  * Detects online/offline status and notifies user of connectivity changes.

@@ -3,6 +3,8 @@
  * Configure production error monitoring services here
  */
 
+import { env } from "@/env";
+
 export interface ErrorReportingServiceConfig {
   name: string;
   enabled: boolean;
@@ -15,52 +17,42 @@ export interface ErrorReportingServiceConfig {
 // Sentry configuration
 export const sentryConfig: ErrorReportingServiceConfig = {
   name: "Sentry",
-  enabled: Boolean(process.env.SENTRY_DSN),
-  ...(process.env.SENTRY_DSN ? { endpoint: process.env.SENTRY_DSN } : {}),
-  ...(process.env.NODE_ENV ? { environment: process.env.NODE_ENV } : {}),
+  enabled: Boolean(env.SENTRY_DSN),
+  ...(env.SENTRY_DSN ? { endpoint: env.SENTRY_DSN } : {}),
+  ...(import.meta.env.MODE ? { environment: import.meta.env.MODE } : {}),
 };
 
 // DataDog configuration
 export const datadogConfig: ErrorReportingServiceConfig = {
   name: "DataDog",
-  enabled: Boolean(process.env.DATADOG_API_KEY),
-  ...(process.env.DATADOG_API_KEY
-    ? { apiKey: process.env.DATADOG_API_KEY }
-    : {}),
-  ...(process.env.NODE_ENV ? { environment: process.env.NODE_ENV } : {}),
+  enabled: Boolean(env.DATADOG_API_KEY),
+  ...(env.DATADOG_API_KEY ? { apiKey: env.DATADOG_API_KEY } : {}),
+  ...(import.meta.env.MODE ? { environment: import.meta.env.MODE } : {}),
 };
 
 // LogRocket configuration
 export const logRocketConfig: ErrorReportingServiceConfig = {
   name: "LogRocket",
-  enabled: Boolean(process.env.LOGROCKET_APP_ID),
-  ...(process.env.LOGROCKET_APP_ID
-    ? { apiKey: process.env.LOGROCKET_APP_ID }
-    : {}),
-  ...(process.env.NODE_ENV ? { environment: process.env.NODE_ENV } : {}),
+  enabled: Boolean(env.LOGROCKET_APP_ID),
+  ...(env.LOGROCKET_APP_ID ? { apiKey: env.LOGROCKET_APP_ID } : {}),
+  ...(import.meta.env.MODE ? { environment: import.meta.env.MODE } : {}),
 };
 
 // Bugsnag configuration
 export const bugsnagConfig: ErrorReportingServiceConfig = {
   name: "Bugsnag",
-  enabled: Boolean(process.env.BUGSNAG_API_KEY),
-  ...(process.env.BUGSNAG_API_KEY
-    ? { apiKey: process.env.BUGSNAG_API_KEY }
-    : {}),
-  ...(process.env.NODE_ENV ? { environment: process.env.NODE_ENV } : {}),
+  enabled: Boolean(env.BUGSNAG_API_KEY),
+  ...(env.BUGSNAG_API_KEY ? { apiKey: env.BUGSNAG_API_KEY } : {}),
+  ...(import.meta.env.MODE ? { environment: import.meta.env.MODE } : {}),
 };
 
 // Custom webhook configuration
 export const customWebhookConfig: ErrorReportingServiceConfig = {
   name: "Custom Webhook",
-  enabled: Boolean(process.env.ERROR_WEBHOOK_URL),
-  ...(process.env.ERROR_WEBHOOK_URL
-    ? { endpoint: process.env.ERROR_WEBHOOK_URL }
-    : {}),
-  ...(process.env.ERROR_WEBHOOK_API_KEY
-    ? { apiKey: process.env.ERROR_WEBHOOK_API_KEY }
-    : {}),
-  ...(process.env.NODE_ENV ? { environment: process.env.NODE_ENV } : {}),
+  enabled: Boolean(env.ERROR_WEBHOOK_URL),
+  ...(env.ERROR_WEBHOOK_URL ? { endpoint: env.ERROR_WEBHOOK_URL } : {}),
+  ...(env.ERROR_WEBHOOK_API_KEY ? { apiKey: env.ERROR_WEBHOOK_API_KEY } : {}),
+  ...(import.meta.env.MODE ? { environment: import.meta.env.MODE } : {}),
 };
 
 // Get all enabled services
@@ -76,12 +68,12 @@ export const getEnabledServices = (): ErrorReportingServiceConfig[] => {
 
 // Production error reporting configuration
 export const productionConfig = {
-  enableConsoleLogging: Boolean(process.env.ENABLE_CONSOLE_LOGGING),
+  enableConsoleLogging: Boolean(env.ENABLE_CONSOLE_LOGGING),
   enableUserNotification: true,
   enableRemoteLogging: getEnabledServices().length > 0,
-  enablePerformanceTracking: Boolean(process.env.ENABLE_PERFORMANCE_TRACKING),
-  maxErrorsPerSession: Number(process.env.MAX_ERRORS_PER_SESSION) || 100,
-  enableErrorDevPanel: process.env.NODE_ENV === "development",
+  enablePerformanceTracking: Boolean(env.ENABLE_PERFORMANCE_TRACKING),
+  maxErrorsPerSession: Number(env.MAX_ERRORS_PER_SESSION) || 100,
+  enableErrorDevPanel: import.meta.env.MODE === "development",
 };
 
 // Example environment variables for .env file
@@ -122,7 +114,7 @@ export const validateErrorReportingConfig = (): {
   const warnings: string[] = [];
   const enabledServices = getEnabledServices();
 
-  if (process.env.NODE_ENV === "production" && enabledServices.length === 0) {
+  if (import.meta.env.MODE === "production" && enabledServices.length === 0) {
     warnings.push("No error reporting services configured for production");
   }
 

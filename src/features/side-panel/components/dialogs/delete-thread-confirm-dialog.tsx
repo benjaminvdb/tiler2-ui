@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import {
   Dialog,
@@ -37,9 +35,7 @@ export const DeleteThreadConfirmDialog = ({
       await onConfirm(threadId);
       onOpenChange(false);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to delete thread",
-      );
+      setError(err instanceof Error ? err.message : "Failed to delete thread");
     } finally {
       setLoading(false);
     }
@@ -54,7 +50,10 @@ export const DeleteThreadConfirmDialog = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={handleOpenChange}
+    >
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Delete Thread</DialogTitle>
@@ -68,9 +67,7 @@ export const DeleteThreadConfirmDialog = ({
             This action cannot be undone. This will permanently delete this
             conversation and all its messages.
           </p>
-          {error && (
-            <p className="text-destructive mt-4 text-sm">{error}</p>
-          )}
+          {error && <p className="text-destructive mt-4 text-sm">{error}</p>}
         </div>
 
         <DialogFooter>

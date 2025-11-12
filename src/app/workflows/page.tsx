@@ -1,12 +1,10 @@
-"use client";
-
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import { motion } from "framer-motion";
 import { useUIContext } from "@/features/chat/providers/ui-provider";
 import { LoadingScreen } from "@/shared/components/loading-spinner";
 import { Button } from "@/shared/components/ui/button";
 import * as LucideIcons from "lucide-react";
-import { fetchWithAuth } from "@/core/services/http-client";
+import { useAuthenticatedFetch } from "@/core/services/http-client";
 import { getClientConfig } from "@/core/config/client";
 
 interface CategoryResponse {
@@ -96,6 +94,7 @@ export default function WorkflowsPage(): React.ReactNode {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const fetchWithAuth = useAuthenticatedFetch();
 
   // Refs for category sections (for smooth scrolling)
   const categoryRefs = useRef<Record<string, HTMLElement | null>>({});
@@ -166,7 +165,7 @@ export default function WorkflowsPage(): React.ReactNode {
     };
 
     fetchWorkflows();
-  }, [apiUrl]);
+  }, [apiUrl, fetchWithAuth]);
 
   // Filter workflows based on search query
   const filteredWorkflows = useMemo(() => {

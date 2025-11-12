@@ -154,7 +154,7 @@ export const displayError = (
   }
 
   // Log error for debugging
-  if (process.env.NODE_ENV === "development") {
+  if (import.meta.env.MODE === "development") {
     logger.error(error, {
       operation: "display_error",
       severity,

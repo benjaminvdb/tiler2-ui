@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useState } from "react";
 import { Menu } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";

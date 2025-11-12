@@ -42,7 +42,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         domain={env.AUTH0_DOMAIN}
         clientId={env.AUTH0_CLIENT_ID}
         authorizationParams={{
-          redirect_uri: window.location.origin,
+          redirect_uri: `${window.location.origin}/auth/callback`,
           audience: env.AUTH0_AUDIENCE,
         }}
         onRedirectCallback={onRedirectCallback}

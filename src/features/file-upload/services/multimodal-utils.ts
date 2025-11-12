@@ -61,7 +61,11 @@ export const isBase64ContentBlock = (
   if (typeof block !== "object" || block === null || !("type" in block))
     return false;
 
-  const typedBlock = block as { type: unknown; mimeType?: unknown; data?: unknown };
+  const typedBlock = block as {
+    type: unknown;
+    mimeType?: unknown;
+    data?: unknown;
+  };
 
   // Check for image type
   if (

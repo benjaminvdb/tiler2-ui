@@ -47,7 +47,7 @@ export function useThreadState(): {
   const prevMessageLength = useRef(0);
 
   // Fail-safe: Hide tool calls by default unless explicitly set to false
-  const envDefaultHide = process.env.NEXT_PUBLIC_HIDE_TOOL_CALLS !== "false";
+  const envDefaultHide = import.meta.env.VITE_HIDE_TOOL_CALLS !== "false";
 
   return {
     // Artifact state

@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useEffect, useRef, useState } from "react";
 import { Thread } from "@/features/thread/components";
 import { ArtifactProvider } from "@/features/artifacts/components";
@@ -11,7 +9,7 @@ import {
 } from "@/core/routing/hooks";
 import { useThreads } from "@/features/thread/providers/thread-provider";
 import { useAuth0 } from "@auth0/auth0-react";
-import { fetchWithAuth } from "@/core/services/http-client";
+import { useAuthenticatedFetch } from "@/core/services/http-client";
 import { generateThreadName } from "@/features/thread/utils/generate-thread-name";
 import { buildOptimisticThread } from "@/features/thread/utils/build-optimistic-thread";
 import { getClientConfig } from "@/core/config/client";
@@ -32,6 +30,7 @@ function ThreadWithWorkflowHandler(): React.ReactNode {
   const { addOptimisticThread } = useThreads();
   const { user } = useAuth0();
   const [isSubmittingWorkflow, setIsSubmittingWorkflow] = useState(false);
+  const fetchWithAuth = useAuthenticatedFetch();
 
   // Use ref to track if workflow has been submitted for this component instance
   const submittedWorkflowRef = useRef<string | null>(null);
@@ -127,7 +126,9 @@ function ThreadWithWorkflowHandler(): React.ReactNode {
             }
           } else {
             // Fallback: Submit without workflow data if fetch fails
-            console.error("Failed to fetch workflows, submitting without title");
+            console.error(
+              "Failed to fetch workflows, submitting without title",
+            );
             stream.submit(
               { messages: [] },
               {
@@ -168,6 +169,7 @@ function ThreadWithWorkflowHandler(): React.ReactNode {
     user,
     addOptimisticThread,
     isSubmittingWorkflow,
+    fetchWithAuth,
   ]);
 
   // Clear workflow param once we have a threadId (workflow has started)

@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import { ErrorBoundary } from "@/shared/components/error-boundary";
 import { AppProviders } from "./app-providers";
