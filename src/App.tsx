@@ -11,7 +11,12 @@ import { LoadingScreen } from "@/shared/components/loading-spinner";
 import ThreadsPage from "@/app/page";
 import WorkflowsPage from "@/app/workflows/page";
 
-// Protected Route wrapper
+/**
+ * Route wrapper that requires authentication via Auth0.
+ * Redirects to login if not authenticated, shows loading screen during auth check.
+ * @param children - Components to render when user is authenticated
+ * @returns Protected route content or loading screen
+ */
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading, loginWithRedirect } = useAuth0();
 
@@ -34,7 +39,11 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-// Sentry User Context Component
+/**
+ * Syncs Auth0 user information with Sentry for error context and user identification.
+ * Updates Sentry user context whenever Auth0 user changes (login/logout).
+ * @returns null (context-only component)
+ */
 function SentryUserContext() {
   const { user } = useAuth0();
 
@@ -58,6 +67,12 @@ function SentryUserContext() {
   return null;
 }
 
+/**
+ * Root application component.
+ * Configures global providers: error boundaries, auth protection, observability, network monitoring.
+ * Sets up React Router with protected routes.
+ * @returns Application with all providers and routing
+ */
 export function App() {
   return (
     <MotionConfigProvider>

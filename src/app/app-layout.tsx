@@ -10,6 +10,12 @@ interface AppLayoutContentProps {
   children: React.ReactNode;
 }
 
+/**
+ * Internal layout content component with sidebar and main content area.
+ * Manages responsive sidebar behavior (collapsible on mobile, default open on desktop).
+ * @param children - Main page content to display in the sidebar inset area
+ * @returns Layout with sidebar and content area
+ */
 function AppLayoutContent({
   children,
 }: AppLayoutContentProps): React.ReactNode {
@@ -30,6 +36,12 @@ interface AppLayoutProps {
   children: React.ReactNode;
 }
 
+/**
+ * Main application layout wrapper.
+ * Provides error boundary protection, suspense fallback, and feature-specific context/hooks (Thread, Stream, Chat, etc).
+ * @param children - Page content to render within the layout
+ * @returns Full layout with providers and sidebar structure
+ */
 export function AppLayout({ children }: AppLayoutProps): React.ReactNode {
   return (
     <ErrorBoundary>

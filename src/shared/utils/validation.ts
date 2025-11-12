@@ -79,9 +79,18 @@ export const fieldValueSchema = z.union([
 ]);
 
 /**
- * Validation helper functions
+ * Validates input against a Zod schema and returns detailed error information.
+ * @param schema - Zod schema to validate against
+ * @param data - Data to validate
+ * @returns Object with success flag, validated data (if successful), and error list (if failed)
+ * @example
+ * const result = validateInput(chatInputSchema, userInput);
+ * if (result.success) {
+ *   console.log("Valid:", result.data);
+ * } else {
+ *   console.error("Errors:", result.errors);
+ * }
  */
-
 export function validateInput<T>(
   schema: z.ZodSchema<T>,
   data: unknown,
@@ -109,6 +118,16 @@ export function validateInput<T>(
   }
 }
 
+/**
+ * Silent validation that returns null on failure instead of throwing.
+ * Useful for optional validation in components where you don't need error details.
+ * @param schema - Zod schema to validate against
+ * @param data - Data to validate
+ * @returns Validated data or null if validation failed
+ * @example
+ * const validData = validateInputSafe(threadIdSchema, userId);
+ * if (validData) { /* process valid data */ }
+ */
 export function validateInputSafe<T>(
   schema: z.ZodSchema<T>,
   data: unknown,
@@ -121,22 +140,36 @@ export function validateInputSafe<T>(
 }
 
 /**
- * Sanitization functions
+ * Removes potentially dangerous HTML/JavaScript from user input.
+ * Strips script tags, event handlers, and javascript: protocol.
+ * @param input - HTML string to sanitize
+ * @returns Sanitized HTML string safe for display
+ * @security This provides basic sanitization. For complex HTML, consider using a library like DOMPurify.
  */
-
 export function sanitizeHtml(input: string): string {
-  // Basic HTML sanitization - remove script tags and dangerous attributes
+  // Remove script tags and dangerous attributes
   return input
     .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
     .replace(/javascript:/gi, "")
     .replace(/on\w+\s*=/gi, "");
 }
 
+/**
+ * Enforces maximum length for user input.
+ * Does not trim whitespace - for controlled input in forms.
+ * @param input - User input string
+ * @returns Truncated string (max 10,000 characters)
+ */
 export function sanitizeUserInput(input: string): string {
-  // Only limit length, don't trim during input
   return input.slice(0, 10000);
 }
 
+/**
+ * Validates and sanitizes user input in a single operation.
+ * Checks length constraints and applies sanitization.
+ * @param input - User input string
+ * @returns Object with validation status, sanitized string, and validation errors (if any)
+ */
 export function validateAndSanitizeInput(input: string): {
   isValid: boolean;
   sanitized: string;

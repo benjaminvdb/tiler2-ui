@@ -21,6 +21,11 @@ interface WorkflowData {
   description: string;
 }
 
+/**
+ * Handles workflow initialization and creates threads with workflow-specific metadata.
+ * Watches for workflow query parameter and automatically submits to create a new thread.
+ * @returns Thread component with artifact provider
+ */
 function ThreadWithWorkflowHandler(): React.ReactNode {
   const [searchParams] = useSearchParams();
   const stream = useStreamContext();
@@ -32,10 +37,9 @@ function ThreadWithWorkflowHandler(): React.ReactNode {
   const [isSubmittingWorkflow, setIsSubmittingWorkflow] = useState(false);
   const fetchWithAuth = useAuthenticatedFetch();
 
-  // Use ref to track if workflow has been submitted for this component instance
+  // Track if workflow has been submitted to prevent duplicate submissions on re-renders
   const submittedWorkflowRef = useRef<string | null>(null);
 
-  // Get environment variables
   const apiUrl = getClientConfig().apiUrl;
 
   useEffect(() => {
@@ -183,6 +187,11 @@ function ThreadWithWorkflowHandler(): React.ReactNode {
   return <Thread />;
 }
 
+/**
+ * Main threads page component.
+ * Wraps thread handler with artifact provider to enable side-panel artifact display.
+ * @returns Root threads page with artifact support
+ */
 export default function ThreadsPage(): React.ReactNode {
   return (
     <ArtifactProvider>
