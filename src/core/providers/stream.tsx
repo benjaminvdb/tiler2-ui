@@ -23,9 +23,9 @@ export const StreamProvider: React.FC<{ children: ReactNode }> = ({
         <div className="space-y-4">
           <h2 className="text-2xl font-semibold">Configuration required</h2>
           <p className="text-muted-foreground">
-            Please set <code>NEXT_PUBLIC_API_URL</code> and{" "}
-            <code>NEXT_PUBLIC_ASSISTANT_ID</code> in your environment before
-            running the app.
+            Please set <code>VITE_API_URL</code> and{" "}
+            <code>VITE_ASSISTANT_ID</code> in your environment before running
+            the app.
           </p>
         </div>
       </div>

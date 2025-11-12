@@ -54,7 +54,11 @@ export function createNavigationService(
   };
 
   const navigateToWorkflow = (workflowId: string) => {
-    const url = buildPreservedUrl(ROUTES.HOME, { workflow: workflowId });
+    // Clear threadId when starting a workflow (mutually exclusive states)
+    const url = buildPreservedUrl(ROUTES.HOME, {
+      workflow: workflowId,
+      threadId: undefined, // Explicit clear to prevent conflicting params
+    });
     router(url);
   };
 

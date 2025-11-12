@@ -1,5 +1,5 @@
 import { cn } from "@/shared/utils/utils";
-import { SyntaxHighlighter } from "../../syntax-highlighter-lazy";
+import { SyntaxHighlighter } from "../../syntax-highlighter";
 import { CodeHeader } from "../code-header";
 import { CodeComponentProps } from "./markdown-elements";
 

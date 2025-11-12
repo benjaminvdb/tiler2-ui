@@ -9,7 +9,7 @@ import {
   Dispatch,
   SetStateAction,
 } from "react";
-import { reportThreadError } from "@/core/services/error-reporting";
+import { reportThreadError } from "@/core/services/observability";
 import { useAuthenticatedFetch } from "@/core/services/http-client";
 import { getClientConfig } from "@/core/config/client";
 

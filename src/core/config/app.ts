@@ -12,7 +12,7 @@ export const AUTH_CONFIG = {
 export const APP_CONFIG = {
   name: "Link Chat",
   description:
-    "A Next.js application that provides a chat interface for interacting with LangGraph servers",
+    "A modern React application with real-time streaming chat interface for AI-powered sustainability analysis and environmental impact assessment via LangGraph multi-agent systems",
 } as const;
 
 // Environment detection

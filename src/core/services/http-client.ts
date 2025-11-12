@@ -4,7 +4,7 @@
  * and triggers logout when authentication fails.
  */
 
-import { reportApiError, reportAuthError } from "./error-reporting";
+import { reportApiError, reportAuthError } from "./observability";
 import { fetchWithRetry } from "@/shared/utils/retry";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useCallback } from "react";

@@ -12,7 +12,7 @@ import {
   BookOpen,
   type LucideIcon,
 } from "lucide-react";
-import { usePathname } from "@/core/routing/compat/next-navigation";
+import { useLocation } from "react-router-dom";
 import { useUIContext } from "@/features/chat/providers/ui-provider";
 import { NavigationButton } from "@/features/side-panel/components/navigation-button";
 import { navigateExternal } from "@/core/services/navigation";
@@ -36,7 +36,7 @@ export const Navigation: React.FC<NavigationProps> = ({
   onItemClick,
 }) => {
   const { navigationService } = useUIContext();
-  const pathname = usePathname();
+  const { pathname } = useLocation();
 
   // Define navigation menu items
   const menuItems: NavigationMenuItem[] = [

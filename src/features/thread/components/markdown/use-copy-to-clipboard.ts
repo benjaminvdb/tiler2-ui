@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { reportUiError } from "@/core/services/error-reporting";
+import { reportUiError } from "@/core/services/observability";
 
 interface UseCopyToClipboardOptions {
   copiedDuration?: number;

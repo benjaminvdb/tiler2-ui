@@ -1,15 +1,9 @@
 import { PrismAsyncLight as SyntaxHighlighterPrism } from "react-syntax-highlighter";
-import tsx from "react-syntax-highlighter/dist/esm/languages/prism/tsx";
-import python from "react-syntax-highlighter/dist/esm/languages/prism/python";
 import { coldarkDark } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import { FC } from "react";
 
-// Register languages you want to support
-SyntaxHighlighterPrism.registerLanguage("js", tsx);
-SyntaxHighlighterPrism.registerLanguage("jsx", tsx);
-SyntaxHighlighterPrism.registerLanguage("ts", tsx);
-SyntaxHighlighterPrism.registerLanguage("tsx", tsx);
-SyntaxHighlighterPrism.registerLanguage("python", python);
+// PrismAsyncLight automatically loads languages on-demand
+// No need to manually register languages - it will dynamically import them when needed
 
 interface SyntaxHighlighterProps {
   children: string;

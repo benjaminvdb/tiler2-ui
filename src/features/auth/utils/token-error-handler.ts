@@ -3,7 +3,7 @@
  * Provides consistent handling for AccessTokenError across the application
  */
 
-import { reportAuthError } from "@/core/services/error-reporting";
+import { reportAuthError } from "@/core/services/observability";
 
 export interface TokenErrorContext {
   operation?: string;

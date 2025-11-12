@@ -13,7 +13,7 @@ import { Button } from "@/shared/components/ui/button";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { Label } from "@/shared/components/ui/label";
 import { fetchWithRetry, AbortError } from "@/shared/utils/retry";
-import { reportApiError } from "@/core/services/error-reporting";
+import { reportApiError } from "@/core/services/observability";
 import { getClientConfig } from "@/core/config/client";
 import { useAccessToken } from "@/features/auth/hooks/use-access-token";
 

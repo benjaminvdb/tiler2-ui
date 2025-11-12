@@ -7,12 +7,12 @@ import { useChatContext } from "@/features/chat/providers/chat-provider";
 import { useStreamContext } from "@/core/providers/stream";
 import { EmptyState } from "@/features/chat/components/empty-state";
 import { LoadingSpinner } from "@/shared/components/loading-spinner";
-import { useRouter } from "@/core/routing/compat/next-navigation";
+import { useUIContext } from "@/features/chat/providers/ui-provider";
 
 const MainChatAreaComponent: React.FC = () => {
   const { firstTokenReceived, handleRegenerate } = useChatContext();
   const stream = useStreamContext();
-  const router = useRouter();
+  const { navigationService } = useUIContext();
 
   const messages = stream.messages;
   const hasMessages = messages && messages.length > 0;
@@ -25,9 +25,9 @@ const MainChatAreaComponent: React.FC = () => {
   };
 
   const handleWorkflowCategoryClick = (_category: string) => {
-    // Navigate to workflows page filtered by category
-    // For now, just navigate to workflows page
-    router.push("/workflows");
+    // Navigate to workflows page using centralized navigation service
+    // This ensures consistent URL parameter handling across the app
+    navigationService.navigateToWorkflows();
   };
 
   // Determine what to show in the main chat area

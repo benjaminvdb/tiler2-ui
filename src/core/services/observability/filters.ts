@@ -1,7 +1,6 @@
 /**
- * Sensitive data filtering for logs
- * Applied on client-side before sending to Sentry
- * Server-side uses Pino's built-in redaction
+ * Sensitive data filtering for observability events
+ * Applied before sending to Sentry to prevent exposure of sensitive data
  */
 
 // Keys that indicate sensitive data

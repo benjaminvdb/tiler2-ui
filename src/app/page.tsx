@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Thread } from "@/features/thread/components";
 import { ArtifactProvider } from "@/features/artifacts/components";
-import { useSearchParams } from "@/core/routing/compat/next-navigation";
+import { useSearchParams } from "react-router-dom";
 import { useStreamContext } from "@/core/providers/stream";
 import {
   useSearchParamState,
@@ -22,7 +22,7 @@ interface WorkflowData {
 }
 
 function ThreadWithWorkflowHandler(): React.ReactNode {
-  const searchParams = useSearchParams();
+  const [searchParams] = useSearchParams();
   const stream = useStreamContext();
   const workflowId = searchParams.get("workflow");
   const [threadId, setThreadId] = useSearchParamState("threadId");

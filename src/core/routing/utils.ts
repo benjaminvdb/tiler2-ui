@@ -56,3 +56,21 @@ export function removeSearchParams(
 
   return updated;
 }
+
+/**
+ * Replace search params (clears all existing params first)
+ * Useful when navigating to completely new sections where previous params should not persist
+ */
+export function replaceSearchParams(
+  updates: Partial<SearchParams>,
+): URLSearchParams {
+  const params = new URLSearchParams();
+
+  for (const [key, value] of Object.entries(updates)) {
+    if (value !== undefined && value !== null) {
+      params.set(key, String(value));
+    }
+  }
+
+  return params;
+}

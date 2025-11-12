@@ -6,7 +6,7 @@
 
 import pRetry, { AbortError as PRetryAbortError } from "p-retry";
 import * as Sentry from "@sentry/react";
-import { reportNetworkError } from "@/core/services/error-reporting";
+import { reportNetworkError } from "@/core/services/observability";
 
 // Re-export AbortError for consumers
 export { AbortError } from "p-retry";

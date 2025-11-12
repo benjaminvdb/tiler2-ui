@@ -1,5 +1,5 @@
 import { DEFAULT_CLIENT_CONFIG } from "@/core/config/client";
-import { reportStreamError } from "@/core/services/error-reporting";
+import { reportStreamError } from "@/core/services/observability";
 import { fetchWithRetry } from "@/shared/utils/retry";
 
 export async function sleep(ms = 4000, signal?: AbortSignal) {

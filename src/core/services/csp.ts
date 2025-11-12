@@ -97,6 +97,6 @@ export const CSP_CONFIG = {
   },
   // Optional domains for monitoring services
   OPTIONAL_DOMAINS: {
-    monitoring: ["*.sentry.io", "*.ingest.sentry.io", "*.datadoghq.com"],
+    monitoring: ["*.sentry.io", "*.ingest.sentry.io"],
   },
 } as const;

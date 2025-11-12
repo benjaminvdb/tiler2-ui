@@ -17,7 +17,7 @@ export interface ClientConfig {
 export function getClientConfig(): ClientConfig {
   return {
     apiUrl: env.API_URL || "http://localhost:2024",
-    assistantId: env.ASSISTANT_ID || "agent",
+    assistantId: env.ASSISTANT_ID || "assistant",
   };
 }
 
@@ -27,5 +27,5 @@ export function getClientConfig(): ClientConfig {
  */
 export const DEFAULT_CLIENT_CONFIG = {
   apiUrl: "http://localhost:2024",
-  assistantId: "agent",
+  assistantId: "assistant",
 } as const;

@@ -4,9 +4,9 @@ import { fileToContentBlock } from "@/features/file-upload/services/multimodal-u
 import { validateFiles } from "./validation";
 import { ERROR_MESSAGES } from "./constants";
 import { debounce } from "./debounce";
-import { getLogger } from "@/core/services/logging";
+import { observability } from "@/core/services/observability";
 
-const logger = getLogger().child({
+const logger = observability.child({
   component: "file-processor",
 });
 
@@ -54,7 +54,7 @@ async function processFilesInternal(
     } catch (error) {
       logger.error(error instanceof Error ? error : new Error(String(error)), {
         operation: "process_files",
-        fileCount: uniqueFiles.length,
+        additionalData: { fileCount: uniqueFiles.length },
       });
       toast.error("Failed to process one or more files. Please try again.");
     }

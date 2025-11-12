@@ -8,7 +8,6 @@ import { useNavigate } from "react-router-dom";
 import { Toaster } from "@/shared";
 import { createNavigationService } from "@/core/services/navigation";
 import { StreamProvider } from "@/core/providers/stream";
-import { LoggerProvider } from "@/core/services/logging";
 import * as Sentry from "@sentry/react";
 
 interface AppProvidersProps {
@@ -101,15 +100,13 @@ export function AppProviders({ children }: AppProvidersProps): React.ReactNode {
   return (
     <>
       <Toaster />
-      <LoggerProvider>
-        <UIProvider value={uiContextValue}>
-          <HotkeysProvider>
-            <ThreadProvider>
-              <StreamProvider>{children}</StreamProvider>
-            </ThreadProvider>
-          </HotkeysProvider>
-        </UIProvider>
-      </LoggerProvider>
+      <UIProvider value={uiContextValue}>
+        <HotkeysProvider>
+          <ThreadProvider>
+            <StreamProvider>{children}</StreamProvider>
+          </ThreadProvider>
+        </HotkeysProvider>
+      </UIProvider>
     </>
   );
 }

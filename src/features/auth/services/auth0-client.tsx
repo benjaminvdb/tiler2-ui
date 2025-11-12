@@ -2,9 +2,9 @@
  * Client-side Auth0 utilities for graceful degradation
  */
 import React from "react";
-import { getLogger } from "@/core/services/logging";
+import { observability } from "@/core/services/observability";
 
-const logger = getLogger().child({
+const logger = observability.child({
   component: "auth0-client",
 });
 
@@ -34,13 +34,15 @@ export function warnAuth0NotConfigured(): void {
       "Auth0 not configured - running in development mode without authentication",
       {
         operation: "auth0_config_check",
-        requiredVars: [
-          "AUTH0_DOMAIN",
-          "AUTH0_CLIENT_ID",
-          "AUTH0_CLIENT_SECRET",
-          "AUTH0_SECRET",
-          "APP_BASE_URL",
-        ],
+        additionalData: {
+          requiredVars: [
+            "AUTH0_DOMAIN",
+            "AUTH0_CLIENT_ID",
+            "AUTH0_CLIENT_SECRET",
+            "AUTH0_SECRET",
+            "APP_BASE_URL",
+          ],
+        },
       },
     );
   }

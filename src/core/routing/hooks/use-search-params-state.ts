@@ -2,15 +2,11 @@
  * Type-Safe Search Params State Hook
  *
  * Provides a useState-like interface for managing URL search parameters.
- * Uses native Next.js APIs for optimal performance and compatibility.
+ * Uses React Router v7 native APIs for optimal performance and compatibility.
  */
 
 import { useCallback, useMemo } from "react";
-import {
-  usePathname,
-  useRouter,
-  useSearchParams,
-} from "@/core/routing/compat/next-navigation";
+import { useSearchParams } from "react-router-dom";
 import type { SearchParamKey, SearchParams } from "../search-params";
 import { mergeSearchParams } from "../utils";
 
@@ -28,33 +24,28 @@ export function useSearchParamState<K extends SearchParamKey>(
   Exclude<SearchParams[K], undefined> | null,
   (value: Exclude<SearchParams[K], undefined> | null) => void,
 ] {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const pathname = usePathname();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const value = searchParams.get(key);
 
-  const buildUrl = useCallback(
-    (params: URLSearchParams) => {
-      const queryString = params.toString();
-      return queryString ? `${pathname}?${queryString}` : pathname;
-    },
-    [pathname],
-  );
-
   const setValue = useCallback(
     (newValue: SearchParams[K] | null) => {
-      const current = new URLSearchParams(searchParams.toString());
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
 
-      if (newValue === null || newValue === undefined) {
-        current.delete(key);
-      } else {
-        current.set(key, String(newValue));
-      }
+          if (newValue === null || newValue === undefined) {
+            next.delete(key);
+          } else {
+            next.set(key, String(newValue));
+          }
 
-      router.replace(buildUrl(current));
+          return next;
+        },
+        { replace: true },
+      );
     },
-    [buildUrl, key, router, searchParams],
+    [key, setSearchParams],
   );
 
   // Parse value based on key type
@@ -83,9 +74,7 @@ export function useSearchParamState<K extends SearchParamKey>(
 export function useSearchParamsUpdate(): (
   updates: Partial<SearchParams>,
 ) => void {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const pathname = usePathname();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const baseParams = useMemo(
     () => new URLSearchParams(searchParams.toString()),
@@ -94,12 +83,15 @@ export function useSearchParamsUpdate(): (
 
   return useCallback(
     (updates: Partial<SearchParams>) => {
-      const merged = mergeSearchParams(baseParams, updates);
-      const queryString = merged.toString();
-      const target = queryString ? `${pathname}?${queryString}` : pathname;
-      router.replace(target);
+      setSearchParams(
+        () => {
+          const merged = mergeSearchParams(baseParams, updates);
+          return merged;
+        },
+        { replace: true },
+      );
     },
-    [baseParams, pathname, router],
+    [baseParams, setSearchParams],
   );
 }
 
@@ -107,7 +99,7 @@ export function useSearchParamsUpdate(): (
  * Hook to get all current search params as a typed object
  */
 export function useSearchParamsObject(): Partial<SearchParams> {
-  const searchParams = useSearchParams();
+  const [searchParams] = useSearchParams();
   const params: Partial<SearchParams> = {};
 
   // Convert to typed object

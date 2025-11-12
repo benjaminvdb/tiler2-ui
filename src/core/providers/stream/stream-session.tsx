@@ -18,9 +18,9 @@ import { StreamContext } from "./stream-context";
 import { useTypedStream, StreamSessionProps, GraphState } from "./types";
 import { sleep, checkGraphStatus } from "./utils";
 import { LoadingScreen } from "@/shared/components/loading-spinner";
-import { useLogger } from "@/core/services/logging";
+import { useObservability } from "@/core/services/observability";
 import * as Sentry from "@sentry/react";
-import { reportStreamError } from "@/core/services/error-reporting";
+import { reportStreamError } from "@/core/services/observability";
 import { useAccessToken } from "@/features/auth/hooks/use-access-token";
 
 export const StreamSession: React.FC<StreamSessionProps> = ({
@@ -37,13 +37,15 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
   const [currentRunId, setCurrentRunId] = useState<string | null>(null);
   const [streamError, setStreamError] = useState<Error | null>(null);
 
-  const baseLogger = useLogger();
+  const baseLogger = useObservability();
   const logger = useMemo(
     () =>
       baseLogger.child({
-        assistantId,
-        apiUrl,
         component: "StreamSession",
+        additionalData: {
+          assistantId,
+          apiUrl,
+        },
       }),
     [baseLogger, assistantId, apiUrl],
   );
@@ -260,7 +262,7 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
         if (error instanceof Error && error.name !== "AbortError") {
           logger.error(error, {
             operation: "check_graph_status",
-            apiUrl,
+            additionalData: { apiUrl },
           });
         }
       }

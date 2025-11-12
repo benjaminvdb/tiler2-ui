@@ -1,6 +1,6 @@
 import React, { useState, useEffect, ReactNode } from "react";
 import { displayAsyncError } from "@/core/services/error-display";
-import { useLogger } from "@/core/services/logging";
+import { useObservability } from "@/core/services/observability";
 import * as Sentry from "@sentry/react";
 
 interface AsyncErrorBoundaryProps {
@@ -15,7 +15,7 @@ export const AsyncErrorBoundary: React.FC<AsyncErrorBoundaryProps> = ({
   fallback: Fallback,
 }) => {
   const [error, setError] = useState<Error | null>(null);
-  const logger = useLogger();
+  const logger = useObservability();
 
   // Listen for unhandled promise rejections
   useEffect(() => {
@@ -29,7 +29,7 @@ export const AsyncErrorBoundary: React.FC<AsyncErrorBoundaryProps> = ({
       logger.error(error, {
         operation: "unhandled_rejection",
         component: "AsyncErrorBoundary",
-        reason: String(event.reason),
+        additionalData: { reason: String(event.reason) },
       });
 
       setError(error);

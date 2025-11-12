@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "@/shared/components/ui/button";
 import { WifiOff, RefreshCw, AlertTriangle } from "lucide-react";
-import { reportStreamError } from "@/core/services/error-reporting";
+import { reportStreamError } from "@/core/services/observability";
 import { useNetworkStatus } from "@/core/providers/network-status-provider";
 
 interface StreamErrorBoundaryState {

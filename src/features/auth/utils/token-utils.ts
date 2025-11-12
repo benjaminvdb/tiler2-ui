@@ -3,9 +3,9 @@
  */
 
 import { DEFAULT_LATENCY_BUFFER_SECONDS } from "../config/token-config";
-import { getLogger } from "@/core/services/logging";
+import { observability } from "@/core/services/observability";
 
-const logger = getLogger().child({
+const logger = observability.child({
   component: "token-utils",
 });
 

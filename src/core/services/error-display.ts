@@ -1,8 +1,7 @@
 import { toast } from "sonner";
-import { reportErrorBoundary } from "./error-reporting";
-import { getLogger } from "./logging";
+import { reportErrorBoundary, observability } from "./observability";
 
-const logger = getLogger().child({
+const logger = observability.child({
   component: "error-display",
 });
 
@@ -157,9 +156,11 @@ export const displayError = (
   if (import.meta.env.MODE === "development") {
     logger.error(error, {
       operation: "display_error",
-      severity,
-      context,
-      ...(componentStack && { componentStack }),
+      additionalData: {
+        severity,
+        context,
+        ...(componentStack && { componentStack }),
+      },
     });
   }
 
