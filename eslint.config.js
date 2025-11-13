@@ -28,6 +28,18 @@ export default tseslint.config(
         "warn",
         { allowConstantExport: true },
       ],
+      // Code complexity rules
+      "complexity": ["warn", { "max": 10 }],
+      "max-depth": ["warn", 4],
+      "max-lines-per-function": [
+        "warn",
+        {
+          "max": 100,
+          "skipBlankLines": true,
+          "skipComments": true,
+        },
+      ],
+      "max-nested-callbacks": ["warn", 3],
       // Naming conventions (temporarily disabled to focus on types)
       // "@typescript-eslint/naming-convention": [
       //   "error",
