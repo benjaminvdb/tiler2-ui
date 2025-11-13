@@ -14,6 +14,7 @@ const createEnv = () => {
     VITE_ASSISTANT_ID: z.string().optional(),
     VITE_SENTRY_DSN: z.url().optional(),
     VITE_APP_BASE_URL: z.url(),
+    VITE_APP_VERSION: z.string().optional(),
   });
 
   const skipValidation = import.meta.env.VITE_SKIP_ENV_VALIDATION === "true";
@@ -28,6 +29,7 @@ const createEnv = () => {
         VITE_ASSISTANT_ID: import.meta.env.VITE_ASSISTANT_ID,
         VITE_SENTRY_DSN: import.meta.env.VITE_SENTRY_DSN,
         VITE_APP_BASE_URL: import.meta.env.VITE_APP_BASE_URL,
+        VITE_APP_VERSION: import.meta.env.VITE_APP_VERSION,
       });
 
   return {
@@ -38,6 +40,7 @@ const createEnv = () => {
     ASSISTANT_ID: clientEnv.VITE_ASSISTANT_ID,
     SENTRY_DSN: clientEnv.VITE_SENTRY_DSN,
     APP_BASE_URL: clientEnv.VITE_APP_BASE_URL,
+    APP_VERSION: clientEnv.VITE_APP_VERSION,
   };
 };
 

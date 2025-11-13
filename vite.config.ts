@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 import { visualizer } from "rollup-plugin-visualizer";
+import { sentryVitePlugin } from "@sentry/vite-plugin";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -13,6 +14,17 @@ export default defineConfig({
       open: false,
       gzipSize: true,
       brotliSize: true,
+    }),
+    // Sentry plugin for source map upload (must be last)
+    sentryVitePlugin({
+      org: process.env.SENTRY_ORG,
+      project: process.env.SENTRY_PROJECT,
+      authToken: process.env.SENTRY_AUTH_TOKEN,
+      sourcemaps: {
+        assets: "./dist/**",
+        filesToDeleteAfterUpload: ["**/*.js.map"], // Delete source maps after upload for security
+      },
+      telemetry: false,
     }),
   ],
   resolve: {
@@ -36,6 +48,8 @@ export default defineConfig({
     },
   },
   build: {
+    // Enable source map generation for Sentry
+    sourcemap: true,
     // Increase chunk size warning limit (similar to Next.js)
     chunkSizeWarningLimit: 1000,
     rollupOptions: {

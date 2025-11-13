@@ -13,6 +13,9 @@ if (env.SENTRY_DSN) {
   Sentry.init({
     dsn: env.SENTRY_DSN,
     environment: import.meta.env.MODE,
+    ...(env.APP_VERSION && {
+      release: `agent-chat-ui@${env.APP_VERSION}`,
+    }),
     integrations: [
       Sentry.browserTracingIntegration(),
       Sentry.replayIntegration({
