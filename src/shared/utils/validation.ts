@@ -131,34 +131,14 @@ export function validateInputSafe<T>(
 }
 
 /**
- * Removes potentially dangerous HTML/JavaScript from user input.
- * Strips script tags, event handlers, and javascript: protocol.
- * @param input - HTML string to sanitize
- * @returns Sanitized HTML string safe for display
- * @security This provides basic sanitization. For complex HTML, consider using a library like DOMPurify.
- */
-export function sanitizeHtml(input: string): string {
-  return input
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
-    .replace(/javascript:/gi, "")
-    .replace(/on\w+\s*=/gi, "");
-}
-
-/**
- * Enforces maximum length for user input.
- * Does not trim whitespace - for controlled input in forms.
+ * Validates and truncates user input.
+ * Checks length constraints and truncates to maximum allowed length.
  * @param input - User input string
- * @returns Truncated string (max 10,000 characters)
- */
-export function sanitizeUserInput(input: string): string {
-  return input.slice(0, 10000);
-}
-
-/**
- * Validates and sanitizes user input in a single operation.
- * Checks length constraints and applies sanitization.
- * @param input - User input string
- * @returns Object with validation status, sanitized string, and validation errors (if any)
+ * @returns Object with validation status, truncated string, and validation errors (if any)
+ *
+ * Note: No HTML sanitization is performed. React automatically escapes
+ * all text content when rendering, and markdown content is sanitized by
+ * react-markdown with rehype-sanitize plugin.
  */
 export function validateAndSanitizeInput(input: string): {
   isValid: boolean;
@@ -177,6 +157,6 @@ export function validateAndSanitizeInput(input: string): {
 
   return {
     isValid: true,
-    sanitized: sanitizeUserInput(input),
+    sanitized: input.slice(0, 10000),
   };
 }
