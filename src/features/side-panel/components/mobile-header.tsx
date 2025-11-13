@@ -63,7 +63,7 @@ export const MobileHeader: React.FC = () => {
             <div className="mt-6">
               <Navigation
                 isCollapsed={false}
-                onItemClick={handleMenuClose}
+                onNavigate={handleMenuClose}
               />
             </div>
 

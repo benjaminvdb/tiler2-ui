@@ -42,9 +42,9 @@ const renderCitationBadge = ({
   props,
 }: {
   children: ReactNode;
-  className?: string;
+  className: string | undefined;
   title: string;
-  props: Partial<CitationLinkProps>;
+  props: Partial<CitationLinkProps> & React.HTMLAttributes<HTMLSpanElement>;
 }) => (
   <span
     className={cn(CITATION_CLASSES, className)}

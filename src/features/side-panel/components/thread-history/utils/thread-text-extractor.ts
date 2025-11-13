@@ -1,4 +1,4 @@
-import { Thread } from "@langchain/langgraph-sdk";
+import { Thread, type Message } from "@langchain/langgraph-sdk";
 import { getContentString } from "@/features/thread/components/utils";
 
 const extractMetadataName = (thread: Thread): string | null => {
@@ -19,7 +19,7 @@ const extractFirstMessageText = (thread: Thread): string | null => {
     return null;
   }
 
-  const messages = (thread.values as { messages?: Array<{ content: unknown }> })
+  const messages = (thread.values as { messages?: Array<Message> })
     .messages;
 
   if (!Array.isArray(messages) || messages.length === 0) {

@@ -228,9 +228,11 @@ export const EmptyState = ({
         <SatelliteGraphic />
         <OnboardingQuickActions
           navigationService={navigationService}
-          onSuggestionClick={onSuggestionClick}
+          {...(onSuggestionClick ? { onSuggestionClick } : {})}
         />
-        <WorkflowCategoryButtons onCategoryClick={onWorkflowCategoryClick} />
+        <WorkflowCategoryButtons
+          {...(onWorkflowCategoryClick ? { onCategoryClick: onWorkflowCategoryClick } : {})}
+        />
       </div>
     </div>
   );

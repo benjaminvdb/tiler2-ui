@@ -146,7 +146,7 @@ export async function fetchWithAuth(
   };
 
   try {
-    const response = await executeRequest(fetchOptions.signal);
+    const response = await executeRequest(fetchOptions.signal ?? undefined);
 
     if (response.status === 403 && !skip403Retry) {
       logForbiddenRetry(url, "pending");
@@ -155,7 +155,7 @@ export async function fetchWithAuth(
         const newToken = await getToken();
         requestHeaders.Authorization = `Bearer ${newToken}`;
 
-        const retryResponse = await executeRequest(fetchOptions.signal);
+        const retryResponse = await executeRequest(fetchOptions.signal ?? undefined);
 
         if (retryResponse.status === 403) {
           triggerSilentLogout("403 Forbidden persisted after token refresh");

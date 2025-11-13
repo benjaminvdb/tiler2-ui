@@ -1,5 +1,5 @@
 import { FormEvent } from "react";
-import { Thread } from "@langchain/langgraph-sdk";
+import { Thread, type Message } from "@langchain/langgraph-sdk";
 import { ensureToolCallsHaveResponses } from "@/features/thread/services/ensure-tool-responses";
 import {
   buildHumanMessage,
@@ -45,19 +45,22 @@ export const createSubmitHandler = (
     context: Record<string, unknown> | undefined,
     toolMessages: Message[],
     newHumanMessage: Message,
-  ) => ({
-    streamMode: ["values"],
-    streamSubgraphs: true,
-    optimisticValues: (prev: any) => ({
-      ...prev,
-      context,
-      messages: [
-        ...(Array.isArray(prev.messages) ? prev.messages : []),
-        ...toolMessages,
-        newHumanMessage,
-      ],
-    }),
-  });
+  ) => {
+    const streamMode = ["values"] as ("values" | "messages" | "updates" | "debug" | "custom")[];
+    return {
+      streamMode,
+      streamSubgraphs: true,
+      optimisticValues: (prev: any) => ({
+        ...prev,
+        context,
+        messages: [
+          ...(Array.isArray(prev.messages) ? prev.messages : []),
+          ...toolMessages,
+          newHumanMessage,
+        ],
+      }),
+    };
+  };
 
   const createOptimisticThread = (threadName: string, message: Message) => {
     const optimisticThreadId = crypto.randomUUID();
