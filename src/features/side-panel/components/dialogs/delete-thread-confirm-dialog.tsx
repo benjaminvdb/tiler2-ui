@@ -41,7 +41,6 @@ export const DeleteThreadConfirmDialog = ({
     }
   };
 
-  // Reset error when dialog opens
   const handleOpenChange = (newOpen: boolean) => {
     if (newOpen) {
       setError(null);

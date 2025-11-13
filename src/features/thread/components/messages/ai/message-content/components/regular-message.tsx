@@ -37,13 +37,10 @@ export const RegularMessage: React.FC<RegularMessageProps> = ({
   parentCheckpoint,
   handleRegenerate,
 }) => {
-  // Create ref to capture rendered HTML for copy functionality
   const htmlContainerRef = useRef<HTMLDivElement>(null);
 
-  // Get sources from thread state
   const sources = thread.values?.sources || [];
 
-  // Renumber citations from unique backend IDs to sequential [1], [2], [3]
   const { renumberedSources, renumberedContent } = renumberCitations(
     contentString,
     sources,

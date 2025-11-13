@@ -7,8 +7,11 @@ interface MobileHistorySheetProps {
   threads: Thread[];
 }
 
+/**
+ * Placeholder for the legacy mobile history sheet.
+ * The dedicated sheet was removed in favor of the mobile header, but the
+ * component remains so callers do not break while the redesign is completed.
+ */
 export const MobileHistorySheet: React.FC<MobileHistorySheetProps> = () => {
-  // Mobile history is now integrated into the main mobile header panel
-  // This separate sheet is disabled to avoid conflicts
   return null;
 };

@@ -1,63 +1,53 @@
-// This file configures the initialization of Sentry on the client.
-// The added config here will be used whenever a users loads a page in their browser.
-// https://docs.sentry.io/platforms/javascript/guides/react/
-
+/**
+ * Configures browser-side Sentry instrumentation.
+ * https://docs.sentry.io/platforms/javascript/guides/react/
+ */
 import * as Sentry from "@sentry/react";
 import { env } from "@/env";
 
 const isDevelopment = import.meta.env.MODE === "development";
+const environment =
+  import.meta.env.VITE_SENTRY_ENVIRONMENT ??
+  import.meta.env.MODE ??
+  "development";
 const dsn = env.SENTRY_DSN;
+const shouldInitializeSentry = !isDevelopment && Boolean(dsn);
 
-// Only initialize Sentry in production when DSN is explicitly configured
-// This prevents development data from polluting production Sentry logs
-if (!isDevelopment && dsn) {
+const replayOptions = {
+  maskAllText: false,
+  blockAllMedia: false,
+};
+
+const feedbackOptions = {
+  colorScheme: "system" as const,
+  isNameRequired: false,
+  isEmailRequired: false,
+};
+
+const ignoredErrors = [
+  "top.GLOBALS",
+  "chrome-extension://",
+  "moz-extension://",
+  "NetworkError",
+  "Network request failed",
+  "AccessTokenError",
+];
+
+if (shouldInitializeSentry && dsn) {
   Sentry.init({
     dsn,
-
-    // Environment configuration
-    environment:
-      import.meta.env.VITE_SENTRY_ENVIRONMENT ||
-      import.meta.env.MODE ||
-      "development",
-
-    // Add optional integrations for additional features
+    environment,
     integrations: [
-      Sentry.replayIntegration({
-        // Mask all text and block all media for privacy
-        maskAllText: false, // Set to true if you want to mask all text
-        blockAllMedia: false, // Set to true if you want to block all media
-      }),
-      // User feedback widget (optional)
-      Sentry.feedbackIntegration({
-        colorScheme: "system",
-        isNameRequired: false,
-        isEmailRequired: false,
-      }),
+      Sentry.replayIntegration(replayOptions),
+      Sentry.feedbackIntegration(feedbackOptions),
     ],
-
-    // Performance monitoring - different rates for dev vs production
-    // Development: 100% for complete visibility
-    // Production: 20% to reduce data volume
     tracesSampleRate: isDevelopment ? 1.0 : 0.2,
-
-    // Session Replay sampling
-    // Development: 100% for complete visibility
-    // Production: 10% to reduce data volume
     replaysSessionSampleRate: isDevelopment ? 1.0 : 0.1,
-
-    // Always capture replays when errors occur
     replaysOnErrorSampleRate: 1.0,
-
-    // Privacy: Disable sendDefaultPii to avoid sending sensitive user data
-    // If you need user IPs, enable this in production
     sendDefaultPii: false,
-
-    // Data sanitization hook
     beforeSend(event) {
-      // Remove sensitive data from breadcrumbs
       if (event.breadcrumbs) {
         event.breadcrumbs = event.breadcrumbs.map((breadcrumb) => {
-          // Remove authorization headers
           if (breadcrumb.data?.request?.headers) {
             const headers = { ...breadcrumb.data.request.headers };
             delete headers.authorization;
@@ -68,27 +58,12 @@ if (!isDevelopment && dsn) {
         });
       }
 
-      // In development, log all events to console
       if (isDevelopment) {
         console.log("[Sentry Event]", event);
       }
 
       return event;
     },
-
-    // Ignore specific errors
-    ignoreErrors: [
-      // Browser extension errors
-      "top.GLOBALS",
-      "chrome-extension://",
-      "moz-extension://",
-      // Random network errors
-      "NetworkError",
-      "Network request failed",
-      // Auth0 handled errors
-      "AccessTokenError",
-    ],
+    ignoreErrors: ignoredErrors,
   });
 }
-
-// Note: Router transition tracking is handled by @sentry/react's browserTracingIntegration

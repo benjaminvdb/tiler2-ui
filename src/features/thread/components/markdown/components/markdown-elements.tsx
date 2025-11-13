@@ -8,7 +8,6 @@ export interface BaseComponentProps {
 export interface CodeComponentProps extends BaseComponentProps {
   children?: ReactNode;
 }
-// Headings
 export const h1 = ({ className, ...props }: BaseComponentProps) => (
   <h1
     className={cn("my-6 text-3xl font-bold first:mt-0 last:mb-0", className)}
@@ -51,7 +50,6 @@ export const h6 = ({ className, ...props }: BaseComponentProps) => (
   />
 );
 
-// Text Elements
 export const p = ({ className, ...props }: BaseComponentProps) => (
   <p
     className={cn("mt-5 mb-5 leading-7 first:mt-0 last:mb-0", className)}
@@ -76,7 +74,6 @@ export const blockquote = ({ className, ...props }: BaseComponentProps) => (
   />
 );
 
-// Lists
 export const ul = ({ className, ...props }: BaseComponentProps) => (
   <ul
     className={cn("my-5 ml-6 list-disc [&>li]:mt-2", className)}
@@ -91,7 +88,6 @@ export const ol = ({ className, ...props }: BaseComponentProps) => (
   />
 );
 
-// Layout
 export const hr = ({ className, ...props }: BaseComponentProps) => (
   <hr
     className={cn("my-5 border-b", className)}

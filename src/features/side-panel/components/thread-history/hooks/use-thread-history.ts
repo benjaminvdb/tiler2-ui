@@ -4,6 +4,11 @@ import { useThreads } from "@/features/thread/providers/thread-provider";
 import { useMediaQuery } from "@/shared/hooks/use-media-query";
 import { reportThreadError } from "@/core/services/observability";
 
+/**
+ * Allows the Auth0 SDK to hydrate tokens before fetching private data.
+ */
+const AUTH_BOOTSTRAP_DELAY_MS = 200;
+
 export function useThreadHistory() {
   const isLargeScreen = useMediaQuery("(min-width: 1024px)");
   const [chatHistoryOpen, setChatHistoryOpen] =
@@ -21,8 +26,6 @@ export function useThreadHistory() {
         const fetchedThreads = await getThreads();
         setThreads(fetchedThreads);
       } catch (error) {
-        // fetchWithAuth has built-in retry logic with Auth0 token management
-        // Only report if all retries exhausted
         reportThreadError(error as Error, {
           operation: "fetchThreads",
           component: "useThreadHistory",
@@ -32,9 +35,7 @@ export function useThreadHistory() {
       }
     };
 
-    // CRITICAL FIX: Defer initial fetch by 200ms
-    // Allows Auth0 SDK to initialize and prevents race condition during initial load
-    const timeoutId = setTimeout(fetchThreads, 200);
+    const timeoutId = setTimeout(fetchThreads, AUTH_BOOTSTRAP_DELAY_MS);
 
     return () => clearTimeout(timeoutId);
   }, [getThreads, setThreads, setThreadsLoading]);

@@ -45,7 +45,6 @@ const SidePanelLayoutComponent: React.FC<SidePanelLayoutProps> = ({
     setIsResizing(false);
   }, []);
 
-  // Add global mouse event listeners when resizing
   React.useEffect(() => {
     if (isResizing) {
       document.addEventListener("mousemove", handleMouseMove);
@@ -63,7 +62,6 @@ const SidePanelLayoutComponent: React.FC<SidePanelLayoutProps> = ({
     return undefined;
   }, [isResizing, handleMouseMove, handleMouseUp]);
 
-  // When collapsed, show a narrow sidebar with just icons
   const currentWidth = isOpen ? sidePanelWidth : SIDE_PANEL_COLLAPSED_WIDTH;
 
   return (
@@ -84,7 +82,6 @@ const SidePanelLayoutComponent: React.FC<SidePanelLayoutProps> = ({
           style={{ width: currentWidth }}
         >
           {children}
-          {/* Resize handle */}
           {isOpen && (
             <div
               className="absolute top-0 right-0 h-full w-1 cursor-col-resize bg-transparent transition-colors duration-200 hover:bg-gray-300"

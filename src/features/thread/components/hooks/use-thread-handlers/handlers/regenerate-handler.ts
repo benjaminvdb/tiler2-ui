@@ -7,7 +7,6 @@ export const createRegenerateHandler = (
   prevMessageLength: React.MutableRefObject<number>,
 ) => {
   return (parentCheckpoint: Checkpoint | null | undefined) => {
-    // Do this so the loading state is correct
     prevMessageLength.current = prevMessageLength.current - 1;
     setFirstTokenReceived(false);
     stream.submit(null, {

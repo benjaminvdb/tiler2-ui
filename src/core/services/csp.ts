@@ -11,11 +11,9 @@ export function generateNonce(): string {
  * Generate Content Security Policy header based on environment
  */
 export function generateCSP(): string {
-  // Determine the appropriate domains based on environment
   const isProduction = import.meta.env.MODE === "production";
   const apiUrl = env.API_URL || "";
 
-  // Extract domain from URLs for connect-src
   const getOrigin = (url: string) => {
     try {
       return new URL(url).origin;
@@ -24,7 +22,6 @@ export function generateCSP(): string {
     }
   };
 
-  // Build connect-src based on actual configuration
   const connectSources = [
     "'self'",
     "smith.langchain.com",
@@ -32,48 +29,36 @@ export function generateCSP(): string {
     "*.langgraph.app",
   ];
 
-  // Build script-src with external domains
   const scriptSources = ["'self'", "'unsafe-inline'"];
 
-  // Add Vercel Live for feedback/analytics if deployed on Vercel
   if (isProduction) {
     scriptSources.push("https://vercel.live");
   }
 
-  // Add development sources
   if (!isProduction) {
     connectSources.push("localhost:*", "127.0.0.1:*", "ws://localhost:*");
     scriptSources.push("'unsafe-eval'");
   }
 
-  // Add production API domain if configured
   if (apiUrl) {
     const origin = getOrigin(apiUrl);
     if (origin) {
       connectSources.push(origin);
-      // Add WebSocket variant for LangGraph streaming
       connectSources.push(origin.replace("https://", "wss://"));
     }
   }
 
-  // Add Sentry domains to connect-src
   connectSources.push("*.ingest.sentry.io", "*.sentry.io");
 
-  // Build the CSP header with fallbacks for Next.js compatibility
   const cspDirectives = [
     `default-src 'self'`,
-    // Use script sources with external domains
     `script-src ${scriptSources.join(" ")}`,
-    // Remove nonce from styles to allow unsafe-inline to work
     `style-src 'self' 'unsafe-inline' fonts.googleapis.com`,
     `font-src 'self' fonts.gstatic.com`,
-    // Add image sources for Auth0 profile images
     `img-src 'self' data: blob: *.auth0.com https://s.gravatar.com https://cdn.auth0.com https://i2.wp.com`,
     `connect-src ${connectSources.join(" ")}`,
     `frame-src 'self' *.auth0.com https://vercel.live`,
-    // Allow workers for Session Replay (Sentry)
     `worker-src 'self' blob:`,
-    // Safari <= 15.4 fallback for worker-src
     `child-src 'self' blob:`,
     `object-src 'none'`,
     `base-uri 'self'`,
@@ -89,13 +74,11 @@ export function generateCSP(): string {
  * CSP configuration for different environments
  */
 export const CSP_CONFIG = {
-  // Required domains that must always be allowed
   REQUIRED_DOMAINS: {
     fonts: ["fonts.googleapis.com", "fonts.gstatic.com"],
     auth: ["*.auth0.com"],
     langgraph: ["smith.langchain.com", "*.langgraph.app"],
   },
-  // Optional domains for monitoring services
   OPTIONAL_DOMAINS: {
     monitoring: ["*.sentry.io", "*.ingest.sentry.io"],
   },

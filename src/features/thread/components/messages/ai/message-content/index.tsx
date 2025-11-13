@@ -30,8 +30,6 @@ export const MessageContent: React.FC<MessageContentProps> = ({
     return null;
   }
 
-  // Don't render empty messages during streaming
-  // This prevents empty bubbles when agent is making tool calls
   if (
     !isToolResult &&
     contentString.trim().length === 0 &&

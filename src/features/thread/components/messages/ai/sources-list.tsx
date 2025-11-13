@@ -15,7 +15,6 @@ export const SourcesList: FC<SourcesListProps> = ({ sources }) => {
     return null;
   }
 
-  // Sources are already filtered and renumbered by renumberCitations()
   const { library, web } = groupSourcesByType(sources);
 
   return (
@@ -26,7 +25,6 @@ export const SourcesList: FC<SourcesListProps> = ({ sources }) => {
       <h3 className="mb-4 text-sm font-semibold text-gray-900">Sources</h3>
 
       <div className="space-y-4">
-        {/* Library sources (knowledge_base, methods_base, csrd_reports) */}
         {library.length > 0 && (
           <div>
             <div className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-700">
@@ -49,7 +47,6 @@ export const SourcesList: FC<SourcesListProps> = ({ sources }) => {
           </div>
         )}
 
-        {/* Web sources */}
         {web.length > 0 && (
           <div>
             <div className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-700">

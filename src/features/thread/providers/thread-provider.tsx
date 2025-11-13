@@ -13,6 +13,9 @@ import { reportThreadError } from "@/core/services/observability";
 import { useAuthenticatedFetch } from "@/core/services/http-client";
 import { getClientConfig } from "@/core/config/client";
 
+const THREAD_LIST_TIMEOUT_MS = 10000;
+const THREAD_DELETE_TIMEOUT_MS = 5000;
+
 interface ThreadContextType {
   getThreads: () => Promise<Thread[]>;
   threads: Thread[];
@@ -53,7 +56,7 @@ export const ThreadProvider: React.FC<{ children: ReactNode }> = ({
     try {
       const response = await fetchWithAuth(`${apiUrl}/threads/search`, {
         method: "POST",
-        timeoutMs: 10000, // 10 second timeout for thread list query
+        timeoutMs: THREAD_LIST_TIMEOUT_MS,
         headers: {
           "Content-Type": "application/json",
         },
@@ -89,14 +92,13 @@ export const ThreadProvider: React.FC<{ children: ReactNode }> = ({
       try {
         const response = await fetchWithAuth(`${apiUrl}/threads/${threadId}`, {
           method: "DELETE",
-          timeoutMs: 5000, // 5 second timeout for delete operation
+          timeoutMs: THREAD_DELETE_TIMEOUT_MS,
         });
 
         if (!response.ok) {
           throw new Error(`Failed to delete thread: ${response.status}`);
         }
 
-        // Optimistically update local state
         setThreads((prev) => prev.filter((t) => t.thread_id !== threadId));
       } catch (error) {
         reportThreadError(error as Error, {
@@ -105,7 +107,7 @@ export const ThreadProvider: React.FC<{ children: ReactNode }> = ({
           url: apiUrl,
           threadId,
         });
-        throw error; // Re-throw for UI handling
+        throw error;
       }
     },
     [apiUrl, fetchWithAuth],
@@ -122,11 +124,9 @@ export const ThreadProvider: React.FC<{ children: ReactNode }> = ({
         throw new Error("Thread name cannot be empty");
       }
 
-      // Store previous state for rollback
       const previousThreads = threads;
 
       try {
-        // Optimistically update local state
         setThreads((prev) =>
           prev.map((t) =>
             t.thread_id === threadId
@@ -154,13 +154,11 @@ export const ThreadProvider: React.FC<{ children: ReactNode }> = ({
           throw new Error(`Failed to rename thread: ${response.status}`);
         }
 
-        // Update with server response to ensure sync
         const updatedThread: Thread = await response.json();
         setThreads((prev) =>
           prev.map((t) => (t.thread_id === threadId ? updatedThread : t)),
         );
       } catch (error) {
-        // Rollback optimistic update on error
         setThreads(previousThreads);
 
         reportThreadError(error as Error, {
@@ -169,39 +167,20 @@ export const ThreadProvider: React.FC<{ children: ReactNode }> = ({
           url: apiUrl,
           threadId,
         });
-        throw error; // Re-throw for UI handling
+        throw error;
       }
     },
     [apiUrl, threads, fetchWithAuth],
   );
 
-  /**
-   * Add a thread optimistically to the thread list.
-   * Used for immediate UI feedback when creating new threads.
-   *
-   * @param thread - Complete thread object to add to the list
-   */
   const addOptimisticThread = useCallback((thread: Thread): void => {
-    setThreads((prev) => [thread, ...prev]); // Add to beginning of list
+    setThreads((prev) => [thread, ...prev]);
   }, []);
 
-  /**
-   * Remove a thread from the thread list.
-   * Used to clean up failed optimistic thread creations.
-   *
-   * @param threadId - ID of the thread to remove
-   */
   const removeOptimisticThread = useCallback((threadId: string): void => {
     setThreads((prev) => prev.filter((t) => t.thread_id !== threadId));
   }, []);
 
-  /**
-   * Update a thread in the thread list with partial updates.
-   * Used to sync optimistic threads with server-confirmed data.
-   *
-   * @param threadId - ID of the thread to update
-   * @param updates - Partial thread object with fields to update
-   */
   const updateThreadInList = useCallback(
     (threadId: string, updates: Partial<Thread>): void => {
       setThreads((prev) =>

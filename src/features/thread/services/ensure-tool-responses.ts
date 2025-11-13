@@ -10,17 +10,14 @@ export const ensureToolCallsHaveResponses = (
 
   messages.forEach((message, index) => {
     if (message.type !== "ai" || message.tool_calls?.length === 0) {
-      // If it's not an AI message, or it doesn't have tool calls, we can ignore.
-      return;
-    }
-    // If it has tool calls, ensure the message which follows this is a tool message
-    const followingMessage = messages[index + 1];
-    if (followingMessage && followingMessage.type === "tool") {
-      // Following message is a tool message, so we can ignore.
       return;
     }
 
-    // Since the following message is not a tool message, we must create a new tool message
+    const followingMessage = messages[index + 1];
+    if (followingMessage && followingMessage.type === "tool") {
+      return;
+    }
+
     newMessages.push(
       ...(message.tool_calls?.map((tc) => ({
         type: "tool" as const,

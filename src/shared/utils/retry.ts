@@ -8,7 +8,6 @@ import pRetry, { AbortError as PRetryAbortError } from "p-retry";
 import * as Sentry from "@sentry/react";
 import { reportNetworkError } from "@/core/services/observability";
 
-// Re-export AbortError for consumers
 export { AbortError } from "p-retry";
 
 export interface RetryConfig {
@@ -31,24 +30,13 @@ export interface RetryableError extends Error {
   statusCode?: number;
 }
 
-/**
- * HTTP status codes that should trigger a retry attempt.
- * Based on industry best practices:
- * - 408: Request Timeout
- * - 429: Too Many Requests (rate limiting)
- * - 500: Internal Server Error
- * - 502: Bad Gateway
- * - 503: Service Unavailable
- * - 504: Gateway Timeout
- */
 export const RETRYABLE_STATUS_CODES = [408, 429, 500, 502, 503, 504];
 
 /**
  * Determines if an HTTP response should trigger a retry.
  */
-export function isRetryableResponse(response: Response): boolean {
-  return RETRYABLE_STATUS_CODES.includes(response.status);
-}
+export const isRetryableResponse = (response: Response): boolean =>
+  RETRYABLE_STATUS_CODES.includes(response.status);
 
 /**
  * Determines if an error is retryable (network errors, timeouts, etc).
@@ -56,11 +44,9 @@ export function isRetryableResponse(response: Response): boolean {
 export function isRetryableError(error: unknown): boolean {
   if (!(error instanceof Error)) return false;
 
-  // AbortError from user cancellation should not be retried
   if (error.name === "AbortError") return false;
   if (error instanceof PRetryAbortError) return false;
 
-  // Network errors are retryable
   const message = error.message.toLowerCase();
   if (
     message.includes("fetch failed") ||
@@ -72,7 +58,6 @@ export function isRetryableError(error: unknown): boolean {
     return true;
   }
 
-  // Check if it's a RetryableError with explicit flag
   if ("isRetryable" in error && typeof error.isRetryable === "boolean") {
     return error.isRetryable;
   }
@@ -80,9 +65,6 @@ export function isRetryableError(error: unknown): boolean {
   return false;
 }
 
-/**
- * Helper to create combined abort signal from multiple sources.
- */
 function createCombinedSignal(
   externalSignal?: AbortSignal,
   timeoutMs?: number,
@@ -97,29 +79,6 @@ function createCombinedSignal(
   return AbortSignal.any(signals);
 }
 
-/**
- * Wraps a fetch call with retry logic using p-retry.
- *
- * @example
- * ```typescript
- * const response = await fetchWithRetry('https://api.example.com/data', {
- *   method: 'GET',
- *   headers: { 'Authorization': 'Bearer token' }
- * }, {
- *   maxRetries: 3,
- *   baseDelay: 1000,
- *   onRetry: (attempt, error) => {
- *     console.log(`Retry attempt ${attempt}: ${error.message}`);
- *   }
- * });
- * ```
- *
- * @param url - Request URL
- * @param options - Fetch options (including optional timeoutMs)
- * @param config - Retry configuration
- * @returns Promise resolving to Response
- * @throws Error if all retries exhausted or non-retryable error occurs
- */
 export async function fetchWithRetry(
   url: string,
   options: RequestInit & { timeoutMs?: number } = {},
@@ -138,18 +97,14 @@ export async function fetchWithRetry(
 
   return await pRetry(
     async () => {
-      // Create fresh AbortController for this attempt
       const attemptController = new AbortController();
 
-      // Combine: external signal + timeout + attempt controller
       const combinedSignal = createCombinedSignal(signal, timeoutMs);
 
-      // Link combined signal to attempt controller
       if (combinedSignal) {
         combinedSignal.addEventListener(
           "abort",
           () => {
-            // Propagate abort reason to provide clear error messages
             const reason =
               combinedSignal.reason ||
               new DOMException(
@@ -170,9 +125,7 @@ export async function fetchWithRetry(
           signal: attemptController.signal,
         });
 
-        // CRITICAL: Check HTTP status codes (p-retry doesn't do this automatically)
         if (isRetryableResponse(response)) {
-          // Throw regular Error to trigger p-retry retry
           const error = new Error(
             `HTTP ${response.status}: ${response.statusText}`,
           ) as RetryableError;
@@ -181,7 +134,6 @@ export async function fetchWithRetry(
           throw error;
         }
 
-        // Non-retryable client errors - abort immediately
         if (response.status >= 400 && response.status < 500) {
           throw new PRetryAbortError(
             `HTTP ${response.status}: ${response.statusText}`,
@@ -190,35 +142,29 @@ export async function fetchWithRetry(
 
         return response;
       } catch (error) {
-        // Check if abort was requested by user
         if (signal?.aborted) {
           throw new PRetryAbortError("Request aborted by user");
         }
 
-        // Check if this is a network error (p-retry handles these automatically)
         if (isRetryableError(error)) {
-          throw error; // p-retry will retry
+          throw error;
         }
 
-        // Unknown error - throw as-is and let p-retry decide
         throw error;
       }
     },
     {
       retries: maxRetries,
-      factor: 2, // Exponential backoff factor
+      factor: 2,
       minTimeout: baseDelay,
       maxTimeout: maxDelay,
-      randomize: true, // Adds jitter to prevent thundering herd
-      ...(maxRetryTime !== undefined && { maxRetryTime }), // Only include if defined
+      randomize: true,
+      ...(maxRetryTime !== undefined && { maxRetryTime }),
       onFailedAttempt: (error) => {
-        // Call user's retry callback if provided
         if (onRetry) {
           onRetry(error.attemptNumber, error);
         }
 
-        // Integrate with error reporting
-        // Silent retries - only report final failure
         if (error.retriesLeft === 0) {
           reportNetworkError(error, {
             operation: "fetchWithRetry",
@@ -230,7 +176,6 @@ export async function fetchWithRetry(
             },
           });
         } else {
-          // Add Sentry breadcrumb for each retry (don't capture exception)
           Sentry.addBreadcrumb({
             category: "retry",
             message: `Retry attempt ${error.attemptNumber} for ${url}`,
@@ -246,23 +191,6 @@ export async function fetchWithRetry(
   );
 }
 
-/**
- * Wraps an async function with retry logic using p-retry.
- *
- * @example
- * ```typescript
- * const getData = withRetry(
- *   async (signal) => {
- *     const response = await fetch('/api/data', { signal });
- *     if (!response.ok) throw new Error('Failed');
- *     return response.json();
- *   },
- *   { maxRetries: 3 }
- * );
- *
- * const data = await getData(abortSignal);
- * ```
- */
 export function withRetry<T extends (...args: any[]) => Promise<any>>(
   fn: T,
   config: RetryConfig = {},
@@ -282,21 +210,18 @@ export function withRetry<T extends (...args: any[]) => Promise<any>>(
         try {
           return await fn(...args);
         } catch (error) {
-          // Check if user requested abort
           if (signal?.aborted) {
             throw new PRetryAbortError("Operation aborted by user");
           }
 
-          // Check if error is retryable
           if (!isRetryableError(error)) {
-            // Non-retryable error - abort p-retry
             if (error instanceof Error) {
               throw new PRetryAbortError(error.message);
             }
             throw new PRetryAbortError(String(error));
           }
 
-          throw error; // Let p-retry decide
+          throw error;
         }
       },
       {
@@ -305,7 +230,7 @@ export function withRetry<T extends (...args: any[]) => Promise<any>>(
         minTimeout: baseDelay,
         maxTimeout: maxDelay,
         randomize: true,
-        ...(maxRetryTime !== undefined && { maxRetryTime }), // Only include if defined
+        ...(maxRetryTime !== undefined && { maxRetryTime }),
         onFailedAttempt: (error) => {
           if (onRetry) {
             onRetry(error.attemptNumber, error);

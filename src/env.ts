@@ -6,7 +6,6 @@
 import { z } from "zod";
 
 const createEnv = () => {
-  // Client-side environment variables (exposed to browser via VITE_ prefix)
   const clientSchema = z.object({
     VITE_AUTH0_DOMAIN: z.string().min(1),
     VITE_AUTH0_CLIENT_ID: z.string().min(1),
@@ -19,7 +18,6 @@ const createEnv = () => {
 
   const skipValidation = import.meta.env.VITE_SKIP_ENV_VALIDATION === "true";
 
-  // Validate client-side variables (always available in browser)
   const clientEnv = skipValidation
     ? (import.meta.env as any)
     : clientSchema.parse({
@@ -33,7 +31,6 @@ const createEnv = () => {
       });
 
   return {
-    // Client-side variables (available in browser)
     AUTH0_DOMAIN: clientEnv.VITE_AUTH0_DOMAIN,
     AUTH0_CLIENT_ID: clientEnv.VITE_AUTH0_CLIENT_ID,
     AUTH0_AUDIENCE: clientEnv.VITE_AUTH0_AUDIENCE,

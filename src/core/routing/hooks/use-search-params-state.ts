@@ -10,13 +10,38 @@ import { useSearchParams } from "react-router-dom";
 import type { SearchParamKey, SearchParams } from "../search-params";
 import { mergeSearchParams } from "../utils";
 
+const BOOLEAN_PARAMS = new Set<SearchParamKey>([
+  "chatHistoryOpen",
+  "hideToolCalls",
+]);
+
+const parseBooleanParam = (value: string | null): boolean | null => {
+  if (value === "true") return true;
+  if (value === "false") return false;
+  return null;
+};
+
+const parseSearchParamValue = <K extends SearchParamKey>(
+  key: K,
+  rawValue: string | null,
+): Exclude<SearchParams[K], undefined> | null => {
+  if (BOOLEAN_PARAMS.has(key)) {
+    return parseBooleanParam(rawValue) as Exclude<
+      SearchParams[K],
+      undefined
+    > | null;
+  }
+
+  return rawValue as Exclude<SearchParams[K], undefined> | null;
+};
+
 /**
  * Hook for managing a single search parameter with type safety
  *
  * @example
  * const [threadId, setThreadId] = useSearchParamState('threadId')
  * setThreadId('new-thread-id')
- * setThreadId(null) // removes the param
+ * setThreadId(null); // removes the param
  */
 export function useSearchParamState<K extends SearchParamKey>(
   key: K,
@@ -48,20 +73,7 @@ export function useSearchParamState<K extends SearchParamKey>(
     [key, setSearchParams],
   );
 
-  // Parse value based on key type
-  let parsedValue: Exclude<SearchParams[K], undefined> | null = null;
-
-  // Handle boolean params
-  if (key === "chatHistoryOpen" || key === "hideToolCalls") {
-    parsedValue = (
-      value === "true" ? true : value === "false" ? false : null
-    ) as Exclude<SearchParams[K], undefined> | null;
-  } else if (value !== null) {
-    // For string params, use the value directly (not undefined)
-    parsedValue = value as Exclude<SearchParams[K], undefined>;
-  }
-
-  return [parsedValue, setValue];
+  return [parseSearchParamValue(key, value), setValue];
 }
 
 /**
@@ -102,7 +114,6 @@ export function useSearchParamsObject(): Partial<SearchParams> {
   const [searchParams] = useSearchParams();
   const params: Partial<SearchParams> = {};
 
-  // Convert to typed object
   if (searchParams.has("threadId")) {
     params.threadId = searchParams.get("threadId") || undefined;
   }

@@ -45,37 +45,35 @@ export interface TokenTimings {
  * ```typescript
  * const { getToken } = useAccessToken();
  * const token = await getToken();
- * // Parse token expiration from JWT if needed, or use Auth0 SDK's token management
+ * Parse token expiration from the JWT or use Auth0 SDK's token metadata
  * const timings = calculateTokenTimings(expiresAt);
  *
- * // Schedule refresh at 2/3 of token lifetime
+ * Schedule a refresh timer using the helper output
  * setInterval(() => refreshToken(), timings.refreshIntervalMs);
  * ```
  */
 export function calculateTokenTimings(expiresAt: number): TokenTimings {
-  const now = Math.floor(Date.now() / 1000); // Current time in seconds
-  const lifetimeSeconds = Math.max(0, expiresAt - now); // Remaining lifetime
-
-  // Use Auth0's recommended buffer for short-lived tokens (< 5 minutes)
-  // For longer tokens, use proportional buffer (1/5 of lifetime)
+  const now = Math.floor(Date.now() / 1000);
+  const lifetimeSeconds = Math.max(0, expiresAt - now);
   const expiryBufferSeconds =
-    lifetimeSeconds < 300
+    lifetimeSeconds < SHORT_LIVED_TOKEN_SECONDS
       ? Math.min(DEFAULT_LATENCY_BUFFER_SECONDS, lifetimeSeconds * 0.5)
       : Math.floor(lifetimeSeconds / 5);
+  const refreshIntervalSeconds = Math.floor(lifetimeSeconds * REFRESH_RATIO);
+  const minimalBufferSeconds = Math.min(
+    MAX_MINIMAL_BUFFER_SECONDS,
+    Math.floor(lifetimeSeconds * URGENT_BUFFER_RATIO),
+  );
 
   return {
     lifetimeSeconds,
-
-    // Refresh at 2/3 of remaining lifetime
-    refreshIntervalSeconds: Math.floor(lifetimeSeconds * (2 / 3)),
-
-    // Buffer for considering token "expiring soon"
+    refreshIntervalSeconds,
     expiryBufferSeconds,
-
-    // Minimal buffer for urgent checks (1/15 of lifetime or 10 seconds, whichever is smaller)
-    minimalBufferSeconds: Math.min(10, Math.floor(lifetimeSeconds / 15)),
-
-    // Convert to milliseconds for JavaScript timers
-    refreshIntervalMs: Math.floor(lifetimeSeconds * (2 / 3) * 1000),
+    minimalBufferSeconds,
+    refreshIntervalMs: Math.floor(refreshIntervalSeconds * 1000),
   };
 }
+const REFRESH_RATIO = 2 / 3;
+const URGENT_BUFFER_RATIO = 1 / 15;
+const SHORT_LIVED_TOKEN_SECONDS = 300;
+const MAX_MINIMAL_BUFFER_SECONDS = 10;

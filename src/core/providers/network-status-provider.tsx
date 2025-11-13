@@ -20,6 +20,9 @@ const NetworkStatusContext = createContext<NetworkStatusContextType>({
   isOnline: true,
 });
 
+const NETWORK_STATUS_TOAST_ID = "network-status";
+const ONLINE_TOAST_DURATION_MS = 3000;
+
 export const useNetworkStatus = (): NetworkStatusContextType =>
   useContext(NetworkStatusContext);
 
@@ -34,16 +37,16 @@ export const NetworkStatusProvider: React.FC<{ children: ReactNode }> = ({
     const handleOnline = () => {
       setIsOnline(true);
       toast.success("Connection restored", {
-        duration: 3000,
-        id: "network-status", // Deduplicate toasts
+        duration: ONLINE_TOAST_DURATION_MS,
+        id: NETWORK_STATUS_TOAST_ID,
       });
     };
 
     const handleOffline = () => {
       setIsOnline(false);
       toast.error("You are offline. Some features may not work.", {
-        duration: Infinity, // Keep showing until online
-        id: "network-status",
+        duration: Infinity,
+        id: NETWORK_STATUS_TOAST_ID,
       });
     };
 

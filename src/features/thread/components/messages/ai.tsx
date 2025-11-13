@@ -13,7 +13,6 @@ export const AssistantMessage = memo(function AssistantMessage({
   isLoading,
   handleRegenerate,
 }: AssistantMessageProps) {
-  // If this is the special placeholder AssistantMessage (no real message), mirror the current interrupt
   if (!message) {
     return <PlaceholderMessage />;
   }

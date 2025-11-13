@@ -37,7 +37,6 @@ function ThreadWithWorkflowHandler(): React.ReactNode {
   const [isSubmittingWorkflow, setIsSubmittingWorkflow] = useState(false);
   const fetchWithAuth = useAuthenticatedFetch();
 
-  // Track if workflow has been submitted to prevent duplicate submissions on re-renders
   const submittedWorkflowRef = useRef<string | null>(null);
 
   const apiUrl = getClientConfig().apiUrl;
@@ -53,14 +52,12 @@ function ThreadWithWorkflowHandler(): React.ReactNode {
         console.log("Starting workflow:", workflowId);
         submittedWorkflowRef.current = workflowId;
 
-        // Clear the current thread ID to force creation of a new thread for the workflow
         if (threadId) {
           console.log("Clearing existing thread ID to start fresh workflow");
           setThreadId(null);
         }
 
         try {
-          // Fetch workflow data to get the title
           const response = await fetchWithAuth(`${apiUrl}/workflows`, {
             method: "GET",
             headers: {
@@ -75,25 +72,20 @@ function ThreadWithWorkflowHandler(): React.ReactNode {
             );
 
             if (workflow && user?.email) {
-              // Generate pre-determined thread ID
               const optimisticThreadId = crypto.randomUUID();
 
-              // Generate thread name from workflow title
               const threadName = generateThreadName({
                 workflowTitle: workflow.title,
               });
 
-              // Build optimistic thread object
               const optimisticThread = buildOptimisticThread({
                 threadId: optimisticThreadId,
                 threadName,
                 userEmail: user.email,
               });
 
-              // Add to sidebar immediately
               addOptimisticThread(optimisticThread);
 
-              // Submit workflow with pre-determined thread ID and metadata
               stream.submit(
                 { messages: [] },
                 {
@@ -113,7 +105,6 @@ function ThreadWithWorkflowHandler(): React.ReactNode {
                 `Workflow "${workflow.title}" started with thread: ${optimisticThreadId}`,
               );
             } else {
-              // Fallback: Submit without workflow title if not found
               console.warn(
                 `Workflow ${workflowId} not found in API response, submitting without title`,
               );
@@ -129,7 +120,6 @@ function ThreadWithWorkflowHandler(): React.ReactNode {
               );
             }
           } else {
-            // Fallback: Submit without workflow data if fetch fails
             console.error(
               "Failed to fetch workflows, submitting without title",
             );
@@ -146,7 +136,6 @@ function ThreadWithWorkflowHandler(): React.ReactNode {
           }
         } catch (error) {
           console.error("Error fetching workflow data:", error);
-          // Fallback: Submit workflow even if title fetch fails
           stream.submit(
             { messages: [] },
             {
@@ -176,7 +165,6 @@ function ThreadWithWorkflowHandler(): React.ReactNode {
     fetchWithAuth,
   ]);
 
-  // Clear workflow param once we have a threadId (workflow has started)
   useEffect(() => {
     if (threadId && workflowId) {
       console.log("Workflow started, clearing workflow param from URL");

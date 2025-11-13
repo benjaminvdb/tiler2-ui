@@ -1,17 +1,8 @@
 /**
- * Shared Module Index
- * Re-exports only essential utilities and hooks that are frequently used together
- *
- * Note: Component imports should use direct paths for better performance and tree shaking
- * Example: import { Button } from '@/shared/components/ui/button'
+ * Centralizes the small set of shared exports that almost every feature touches.
+ * Import other shared components directly from their modules for clearer dependency graphs.
  */
-
-// Essential utilities (frequently used together)
 export { cn } from "./utils/utils";
 export * from "./utils/validation";
-
-// Essential hooks
 export { useMediaQuery } from "./hooks/use-media-query";
-
-// Frequently used components that are often imported together
 export { Toaster } from "./components/ui/sonner";

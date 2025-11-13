@@ -39,7 +39,6 @@ class GlobalErrorBoundary extends Component<Props, State> {
       return;
     }
 
-    // Send error to Sentry with context
     Sentry.captureException(error, {
       contexts: {
         react: {

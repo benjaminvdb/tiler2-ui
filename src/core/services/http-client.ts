@@ -49,6 +49,45 @@ function triggerSilentLogout(reason: string): void {
   window.location.href = "/api/auth/logout";
 }
 
+const NETWORK_RETRY_CONFIG = {
+  maxRetries: 3,
+  baseDelay: 1000,
+  maxDelay: 8000,
+};
+
+const createTimedSignal = (
+  timeoutMs: number,
+  externalSignal?: AbortSignal,
+) => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+  return {
+    signal: externalSignal
+      ? AbortSignal.any([externalSignal, controller.signal])
+      : controller.signal,
+    dispose: () => clearTimeout(timeoutId),
+  };
+};
+
+const logForbiddenRetry = (url: string, status: "pending" | "succeeded") => {
+  const message =
+    status === "pending"
+      ? `403 Forbidden from ${url} - attempting token refresh`
+      : `403 Forbidden from ${url} - recovered via token refresh`;
+
+  reportApiError(new Error(message), {
+    operation: "fetchWithAuth",
+    component: "http-client",
+    url,
+    additionalData: {
+      statusCode: 403,
+      retryAttempt: status,
+    },
+    skipNotification: true,
+  });
+};
+
 /**
  * Fetch wrapper with automatic authentication and 403 error handling.
  * Automatically includes auth tokens and retries once on 403 with token refresh.
@@ -87,130 +126,51 @@ export async function fetchWithAuth(
     }
   }
 
-  // Create timeout controller
-  const timeoutController = new AbortController();
-  const timeoutId = setTimeout(() => timeoutController.abort(), timeoutMs);
+  const executeRequest = async (
+    externalSignal?: AbortSignal,
+  ): Promise<Response> => {
+    const { signal, dispose } = createTimedSignal(timeoutMs, externalSignal);
+    try {
+      return await fetchWithRetry(
+        url,
+        {
+          ...fetchOptions,
+          headers: requestHeaders,
+          signal,
+        },
+        NETWORK_RETRY_CONFIG,
+      );
+    } finally {
+      dispose();
+    }
+  };
 
   try {
-    // Combine timeout signal with any existing signal
-    const combinedSignal = fetchOptions.signal
-      ? AbortSignal.any([fetchOptions.signal, timeoutController.signal])
-      : timeoutController.signal;
-
-    // Use retry logic for network resilience (3 retries with 1s base delay)
-    const response = await fetchWithRetry(
-      url,
-      {
-        ...fetchOptions,
-        headers: requestHeaders,
-        signal: combinedSignal,
-      },
-      {
-        maxRetries: 3,
-        baseDelay: 1000,
-        maxDelay: 8000,
-      },
-    );
+    const response = await executeRequest(fetchOptions.signal);
 
     if (response.status === 403 && !skip403Retry) {
-      /**
-       * Log 403 to Sentry for monitoring, but suppress user notification since
-       * we're about to attempt automatic recovery via token refresh.
-       * Toast will only show if retry fails.
-       */
-      reportApiError(
-        new Error(`403 Forbidden from ${url} - attempting token refresh`),
-        {
-          operation: "fetchWithAuth",
-          component: "http-client",
-          url,
-          additionalData: {
-            statusCode: 403,
-            retryAttempt: "pending",
-          },
-          skipNotification: true,
-        },
-      );
+      logForbiddenRetry(url, "pending");
 
       try {
         const newToken = await getToken();
         requestHeaders.Authorization = `Bearer ${newToken}`;
 
-        // Create new timeout controller for retry attempt
-        const retryTimeoutController = new AbortController();
-        const retryTimeoutId = setTimeout(
-          () => retryTimeoutController.abort(),
-          timeoutMs,
-        );
+        const retryResponse = await executeRequest(fetchOptions.signal);
 
-        try {
-          // Combine timeout signal with any existing signal for retry
-          const retryCombinedSignal = fetchOptions.signal
-            ? AbortSignal.any([
-                fetchOptions.signal,
-                retryTimeoutController.signal,
-              ])
-            : retryTimeoutController.signal;
-
-          // Use retry logic for the 403 retry attempt as well
-          const retryResponse = await fetchWithRetry(
-            url,
-            {
-              ...fetchOptions,
-              headers: requestHeaders,
-              signal: retryCombinedSignal,
-            },
-            {
-              maxRetries: 3,
-              baseDelay: 1000,
-              maxDelay: 8000,
-            },
+        if (retryResponse.status === 403) {
+          triggerSilentLogout("403 Forbidden persisted after token refresh");
+          throw new ForbiddenError(
+            "Access denied after token refresh",
+            retryResponse,
           );
-
-          if (retryResponse.status === 403) {
-            /**
-             * Token refresh succeeded but still got 403 - user truly lacks permission.
-             * Show error toast and logout via triggerSilentLogout.
-             */
-            triggerSilentLogout("403 Forbidden persisted after token refresh");
-            throw new ForbiddenError(
-              "Access denied after token refresh",
-              retryResponse,
-            );
-          }
-
-          /**
-           * Retry succeeded - log success to Sentry for monitoring.
-           * No user notification needed since operation completed successfully.
-           */
-          reportApiError(
-            new Error(
-              `403 Forbidden from ${url} - recovered via token refresh`,
-            ),
-            {
-              operation: "fetchWithAuth",
-              component: "http-client",
-              url,
-              additionalData: {
-                statusCode: 403,
-                retryAttempt: "succeeded",
-              },
-              skipNotification: true,
-            },
-          );
-
-          return retryResponse;
-        } finally {
-          clearTimeout(retryTimeoutId);
         }
+
+        logForbiddenRetry(url, "succeeded");
+        return retryResponse;
       } catch (error) {
         if (error instanceof ForbiddenError) {
           throw error;
         }
-        /**
-         * Token refresh itself failed - show error toast and logout.
-         * User needs to know authentication failed.
-         */
         triggerSilentLogout("Token refresh failed on 403 error");
         throw new ForbiddenError(
           "Failed to refresh token after 403 error",
@@ -232,8 +192,6 @@ export async function fetchWithAuth(
     });
 
     throw error;
-  } finally {
-    clearTimeout(timeoutId);
   }
 }
 

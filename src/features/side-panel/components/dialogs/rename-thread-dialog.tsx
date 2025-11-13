@@ -36,7 +36,6 @@ export const RenameThreadDialog = ({
 
     const trimmedTitle = title.trim();
 
-    // Validation
     if (trimmedTitle === "") {
       setError("Thread title cannot be empty");
       return;
@@ -47,7 +46,6 @@ export const RenameThreadDialog = ({
       return;
     }
 
-    // No change
     if (trimmedTitle === currentTitle) {
       onOpenChange(false);
       return;
@@ -66,7 +64,6 @@ export const RenameThreadDialog = ({
     }
   };
 
-  // Reset state when dialog opens
   const handleOpenChange = (newOpen: boolean) => {
     if (newOpen) {
       setTitle(currentTitle);

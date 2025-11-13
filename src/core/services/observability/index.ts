@@ -32,13 +32,10 @@
  *    ```
  */
 
-// Main observability client and factory functions
 export { observability, getObservability, createObservability } from "./client";
 
-// React hook for components
 export { useObservability } from "./hook";
 
-// Error reporting API (backward compatibility)
 export {
   reportError,
   reportAuthError,
@@ -55,7 +52,6 @@ export {
   reportRetryExhausted,
 } from "./client";
 
-// Utility functions
 export {
   trackPerformance,
   withErrorHandling,
@@ -64,7 +60,6 @@ export {
   validateObservabilityConfig,
 } from "./client";
 
-// Type exports
 export type {
   ILogger,
   Severity,
@@ -74,5 +69,4 @@ export type {
   StructuredError,
 } from "./types";
 
-// Sensitive data filtering (for advanced usage)
 export { redactSensitiveData, containsSensitiveData } from "./filters";

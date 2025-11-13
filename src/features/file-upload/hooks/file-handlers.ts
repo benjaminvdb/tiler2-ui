@@ -21,8 +21,6 @@ export function useFileHandlers({
 
     const fileArray = extractFilesFromSource(files);
     await processFiles(fileArray, contentBlocks, setContentBlocks);
-
-    // Reset the input value to allow re-uploading the same file
     e.target.value = "";
   };
 
@@ -37,12 +35,10 @@ export function useFileHandlers({
 
     e.preventDefault();
 
-    // Use custom error message for paste operations
     await processFiles(files, contentBlocks, setContentBlocks, {
-      showInvalidTypeError: false, // Handle custom error message
+      showInvalidTypeError: false,
     });
 
-    // Show custom paste error message if needed
     const invalidFiles = files.filter(
       (file) => !SUPPORTED_FILE_TYPES.includes(file.type),
     );

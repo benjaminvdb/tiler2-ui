@@ -9,7 +9,6 @@ import "./app/globals.css";
 import "@fontsource/comic-mono/400.css";
 import "@fontsource/comic-mono/700.css";
 
-// Initialize Sentry
 if (env.SENTRY_DSN) {
   Sentry.init({
     dsn: env.SENTRY_DSN,

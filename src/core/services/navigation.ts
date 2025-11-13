@@ -10,12 +10,10 @@ import { ROUTES, type Route } from "@/core/routing/routes";
 import { type SearchParams, mergeSearchParams } from "@/core/routing";
 
 export interface NavigationService {
-  // Page navigation
   navigateToHome: (options?: { threadId?: string }) => void;
   navigateToWorkflows: (params?: Partial<SearchParams>) => void;
   navigateToWorkflow: (workflowId: string) => void;
 
-  // Route checking
   isHomePage: (pathname: string) => boolean;
   isWorkflowsPage: (pathname: string) => boolean;
 }
@@ -38,8 +36,6 @@ export function createNavigationService(
   };
 
   const navigateToHome = (options?: { threadId?: string }) => {
-    // When navigating home, always clear workflow and set threadId if provided
-    // If no threadId provided, clear it (New Chat scenario)
     const params: Partial<SearchParams> = {
       threadId: options?.threadId,
       workflow: undefined,
@@ -54,10 +50,9 @@ export function createNavigationService(
   };
 
   const navigateToWorkflow = (workflowId: string) => {
-    // Clear threadId when starting a workflow (mutually exclusive states)
     const url = buildPreservedUrl(ROUTES.HOME, {
       workflow: workflowId,
-      threadId: undefined, // Explicit clear to prevent conflicting params
+      threadId: undefined,
     });
     router(url);
   };
@@ -79,12 +74,8 @@ export function createNavigationService(
   };
 }
 
-/**
- * Open URL in new tab
- */
 export function navigateExternal(url: string): void {
   window.open(url, "_blank", "noopener,noreferrer");
 }
 
-// Re-export for convenience
 export { ROUTES, type Route };

@@ -16,9 +16,6 @@ export interface FileProcessingOptions {
   resetInput?: boolean;
 }
 
-/**
- * Internal non-debounced file processing function
- */
 async function processFilesInternal(
   files: File[],
   contentBlocks: MultimodalContentBlock[],
@@ -36,7 +33,6 @@ async function processFilesInternal(
     contentBlocks,
   );
 
-  // Show error messages
   if (showInvalidTypeError && invalidFiles.length > 0) {
     toast.error(ERROR_MESSAGES.INVALID_FILE_TYPE);
   }
@@ -46,7 +42,6 @@ async function processFilesInternal(
     );
   }
 
-  // Process valid unique files
   if (uniqueFiles.length > 0) {
     try {
       const newBlocks = await Promise.all(uniqueFiles.map(fileToContentBlock));
@@ -61,15 +56,9 @@ async function processFilesInternal(
   }
 }
 
-/**
- * Debounced file processing function to prevent excessive calls
- * Default debounce delay is 300ms
- */
-export const processFiles = debounce(processFilesInternal, 300);
+const FILE_DEBOUNCE_MS = 300;
+export const processFiles = debounce(processFilesInternal, FILE_DEBOUNCE_MS);
 
-/**
- * Helper to extract files from different input sources
- */
 export const extractFilesFromSource = (
   source: File[] | FileList | DataTransferItemList,
 ): File[] => {
@@ -81,7 +70,6 @@ export const extractFilesFromSource = (
     return Array.from(source);
   }
 
-  // DataTransferItemList (from clipboard)
   const files: File[] = [];
   for (let i = 0; i < source.length; i += 1) {
     const item = source[i];

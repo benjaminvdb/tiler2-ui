@@ -36,11 +36,9 @@ function categorizeStreamError(error: Error): {
 } {
   const message = error.message.toLowerCase();
 
-  // Check for HTTP status codes in error message
   const httpMatch = message.match(/http[s]?\s+(\d{3})/i);
   const statusCode = httpMatch ? parseInt(httpMatch[1], 10) : undefined;
 
-  // Auth errors (401, 403)
   if (
     statusCode === 401 ||
     statusCode === 403 ||
@@ -54,19 +52,16 @@ function categorizeStreamError(error: Error): {
       : { type: "auth" };
   }
 
-  // Rate limiting (429)
   if (statusCode === 429 || message.includes("rate limit")) {
     return statusCode !== undefined
       ? { type: "rateLimit", statusCode }
       : { type: "rateLimit" };
   }
 
-  // Server errors (500-504)
   if (statusCode && statusCode >= 500 && statusCode < 600) {
     return { type: "server", statusCode };
   }
 
-  // Timeout errors
   if (
     message.includes("timeout") ||
     message.includes("timed out") ||
@@ -77,7 +72,6 @@ function categorizeStreamError(error: Error): {
       : { type: "timeout" };
   }
 
-  // Network errors
   if (
     message.includes("failed to fetch") ||
     message.includes("network") ||
@@ -112,7 +106,6 @@ class StreamErrorBoundaryClass extends React.Component<
 
     const { type, statusCode } = categorizeStreamError(error);
 
-    // Report to Sentry with stream-specific context
     reportStreamError(error, {
       operation: "stream_error_boundary",
       component: "StreamErrorBoundary",
@@ -125,9 +118,7 @@ class StreamErrorBoundaryClass extends React.Component<
       },
     });
 
-    // Handle auth errors immediately
     if (type === "auth") {
-      // Redirect to login for 401, logout for 403
       if (statusCode === 401) {
         window.location.href = "/api/auth/login";
       } else if (statusCode === 403) {
@@ -135,7 +126,6 @@ class StreamErrorBoundaryClass extends React.Component<
       }
     }
 
-    // Call optional error callback
     this.props.onError?.(error, errorInfo);
   }
 
@@ -144,7 +134,6 @@ class StreamErrorBoundaryClass extends React.Component<
   };
 
   startNewChat = (): void => {
-    // Clear error state and navigate to new chat
     this.setState({ hasError: false, error: null, errorInfo: null });
     window.location.href = "/";
   };
@@ -158,7 +147,7 @@ class StreamErrorBoundaryClass extends React.Component<
             error={this.state.error}
             retry={this.retry}
             startNewChat={this.startNewChat}
-            isOnline={true} // Will be provided by wrapper
+            isOnline={true}
             {...(this.props.assistantId !== undefined && {
               assistantId: this.props.assistantId,
             })}
@@ -212,7 +201,6 @@ const StreamErrorFallback: React.FC<StreamErrorFallbackProps> = ({
 }) => {
   const { type, statusCode } = categorizeStreamError(error);
 
-  // Determine messaging based on error type
   const getErrorMessage = (): {
     title: string;
     description: string;

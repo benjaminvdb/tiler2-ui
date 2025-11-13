@@ -1,30 +1,44 @@
 import { Thread } from "@langchain/langgraph-sdk";
 import { getContentString } from "@/features/thread/components/utils";
 
-export const extractThreadDisplayText = (thread: Thread): string => {
-  // Priority 1: Check for custom name in metadata
+const extractMetadataName = (thread: Thread): string | null => {
   if (
     thread.metadata &&
     typeof thread.metadata === "object" &&
     "name" in thread.metadata &&
-    typeof thread.metadata.name === "string" &&
-    thread.metadata.name.trim() !== ""
+    typeof thread.metadata.name === "string"
   ) {
-    return thread.metadata.name.trim();
+    const trimmed = thread.metadata.name.trim();
+    return trimmed.length > 0 ? trimmed : null;
+  }
+  return null;
+};
+
+const extractFirstMessageText = (thread: Thread): string | null => {
+  if (!thread.values || typeof thread.values !== "object") {
+    return null;
   }
 
-  // Priority 2: Extract from first message
-  if (
-    typeof thread.values === "object" &&
-    thread.values &&
-    "messages" in thread.values &&
-    Array.isArray(thread.values.messages) &&
-    thread.values.messages?.length > 0
-  ) {
-    const firstMessage = thread.values.messages[0];
-    return getContentString(firstMessage.content);
+  const messages = (thread.values as { messages?: Array<{ content: unknown }> })
+    .messages;
+
+  if (!Array.isArray(messages) || messages.length === 0) {
+    return null;
   }
 
-  // Priority 3: Fall back to thread ID
+  return getContentString(messages[0].content);
+};
+
+export const extractThreadDisplayText = (thread: Thread): string => {
+  const metadataName = extractMetadataName(thread);
+  if (metadataName) {
+    return metadataName;
+  }
+
+  const messageText = extractFirstMessageText(thread);
+  if (messageText) {
+    return messageText;
+  }
+
   return thread.thread_id;
 };

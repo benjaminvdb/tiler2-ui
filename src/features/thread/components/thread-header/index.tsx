@@ -8,7 +8,6 @@ import { useChatContext } from "@/features/chat/providers/chat-provider";
 const HistoryToggleButton: React.FC = () => {
   const { chatHistoryOpen, isLargeScreen, onToggleChatHistory } =
     useUIContext();
-  // Only show on large screens (desktop) and when chat history is closed
   const shouldShow = isLargeScreen && !chatHistoryOpen;
 
   if (!shouldShow) {

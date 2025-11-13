@@ -18,6 +18,21 @@ export async function sleep(ms = 4000, signal?: AbortSignal) {
   });
 }
 
+const HEALTH_CHECK_RETRY_CONFIG = {
+  maxRetries: 3,
+  baseDelay: 500,
+  maxDelay: 4000,
+};
+
+const combineSignals = (
+  timeoutSignal: AbortSignal,
+  external?: AbortSignal,
+): AbortSignal =>
+  external ? AbortSignal.any([external, timeoutSignal]) : timeoutSignal;
+
+const isAbortError = (error: unknown): error is Error =>
+  error instanceof Error && error.name === "AbortError";
+
 export async function checkGraphStatus(
   apiUrl: string,
   apiKey: string | null,
@@ -28,12 +43,7 @@ export async function checkGraphStatus(
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    // Combine external signal with timeout signal
-    const combinedSignal = signal
-      ? AbortSignal.any([signal, controller.signal])
-      : controller.signal;
-
-    // Use retry logic for health check (3 retries with 500ms base delay)
+    const combinedSignal = combineSignals(controller.signal, signal);
     const res = await fetchWithRetry(
       `${apiUrl}/info`,
       {
@@ -45,20 +55,16 @@ export async function checkGraphStatus(
         }),
       },
       {
-        maxRetries: 3,
-        baseDelay: 500, // Fast retries for health checks
-        maxDelay: 4000,
+        ...HEALTH_CHECK_RETRY_CONFIG,
       },
     );
 
     return res.ok;
   } catch (e) {
-    // Don't log aborted requests as errors
-    if (e instanceof Error && e.name === "AbortError") {
+    if (isAbortError(e)) {
       return false;
     }
 
-    // Log to Sentry but don't notify user - this is a non-critical health check
     reportStreamError(e as Error, {
       operation: "checkGraphStatus",
       component: "stream-utils",

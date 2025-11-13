@@ -21,7 +21,6 @@ export const ToolResultItem: React.FC<ToolResultItemProps> = ({ message }) => {
       isJsonContent = isComplexValue(parsedContent);
     }
   } catch {
-    // Content is not JSON, use as is
     parsedContent = message.content as any;
   }
   const contentStr = isJsonContent

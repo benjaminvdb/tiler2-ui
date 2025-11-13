@@ -26,65 +26,82 @@ interface WorkflowConfig {
   category: CategoryResponse;
 }
 
-// Dynamic Lucide icon mapping
+const toPascalCase = (value: string): string =>
+  value
+    .replace(/[-_]/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase())
+    .replace(/\s+/g, "");
+
+const lucideIconLibrary = LucideIcons as unknown as Record<
+  string,
+  React.ComponentType<{ className?: string }>
+>;
+
+/**
+ * Resolves the correct Lucide icon for a workflow by name.
+ */
 const getWorkflowIcon = (iconName: string): React.ReactNode => {
-  // Convert icon name to PascalCase for Lucide component names
-  const toPascalCase = (str: string): string => {
-    return str
-      .replace(/[-_]/g, " ") // Replace hyphens and underscores with spaces
-      .replace(/\b\w/g, (char) => char.toUpperCase()) // Capitalize first letter of each word
-      .replace(/\s+/g, ""); // Remove spaces
-  };
-
   const iconComponentName = toPascalCase(iconName);
-  const IconComponent = (
-    LucideIcons as unknown as Record<
-      string,
-      React.ComponentType<{ className?: string }>
-    >
-  )[iconComponentName];
-
-  if (IconComponent) {
-    return <IconComponent className="h-5 w-5" />;
-  }
-
-  // Fallback to HelpCircle if icon not found
-  return <LucideIcons.HelpCircle className="h-5 w-5" />;
+  const IconComponent =
+    lucideIconLibrary[iconComponentName] ?? LucideIcons.HelpCircle;
+  return <IconComponent className="h-5 w-5" />;
 };
 
-// Map category names to reference design colors
+/**
+ * Palette used for workflow category badges/backgrounds.
+ */
+const CATEGORY_COLORS: Record<string, string> = {
+  Onboarding: "#767C91",
+  Strategy: "#82889f",
+  "Policies & Governance": "#7ca2b7",
+  "Impacts & Risk Assessment": "#72a6a6",
+  Interventions: "#a6c887",
+  "Standards & Reporting": "#e39c5a",
+  "Stakeholder Engagement": "#ac876c",
+  "Knowledge & Guidance": "#878879",
+};
+
 const getCategoryColorByName = (categoryName: string): string => {
-  const colorMap: Record<string, string> = {
-    Onboarding: "#767C91", // slate-gray
-    Strategy: "#82889f", // cool-gray
-    "Policies & Governance": "#7ca2b7", // air-superiority-blue
-    "Impacts & Risk Assessment": "#72a6a6", // verdigris
-    Interventions: "#a6c887", // olivine
-    "Standards & Reporting": "#e39c5a", // sandy-brown
-    "Stakeholder Engagement": "#ac876c", // beaver
-    "Knowledge & Guidance": "#878879", // battleship-gray
-  };
-  return colorMap[categoryName] || "#767C91";
+  return CATEGORY_COLORS[categoryName] ?? CATEGORY_COLORS.Onboarding;
 };
 
-// Map category names to illustration images
+/**
+ * Decorative imagery displayed behind each workflow card.
+ */
+const CATEGORY_ILLUSTRATIONS: Record<string, string> = {
+  Onboarding: "/fern.png",
+  Strategy: "/fern.png",
+  "Policies & Governance": "/beetle.png",
+  "Impacts & Risk Assessment": "/leaves.png",
+  Interventions: "/fern.png",
+  "Standards & Reporting": "/leaves.png",
+  "Stakeholder Engagement": "/beetle.png",
+  "Knowledge & Guidance": "/leaves.png",
+};
+
 const getCategoryIllustration = (categoryName: string): string => {
-  const illustrationMap: Record<string, string> = {
-    Onboarding: "/fern.png",
-    Strategy: "/fern.png",
-    "Policies & Governance": "/beetle.png",
-    "Impacts & Risk Assessment": "/leaves.png",
-    Interventions: "/fern.png",
-    "Standards & Reporting": "/leaves.png",
-    "Stakeholder Engagement": "/beetle.png",
-    "Knowledge & Guidance": "/leaves.png",
-  };
-  return illustrationMap[categoryName] || "/leaves.png";
+  return CATEGORY_ILLUSTRATIONS[categoryName] ?? "/leaves.png";
 };
 
-// Hard-coded built-in workflows that are always available
-// Note: These are fallback workflows if backend is unavailable
+/**
+ * Local workflows shown when the backend cannot provide data.
+ */
 const BUILT_IN_WORKFLOWS: WorkflowConfig[] = [];
+
+/**
+ * Deduplicates backend workflows and merges them with local fallbacks.
+ */
+const mergeWithBuiltIns = (
+  dynamicWorkflows: WorkflowConfig[],
+): WorkflowConfig[] => {
+  const existingIds = new Set(BUILT_IN_WORKFLOWS.map((workflow) => workflow.workflow_id));
+  const uniqueDynamicWorkflows = dynamicWorkflows.filter(
+    (workflow) => !existingIds.has(workflow.workflow_id),
+  );
+  return [...BUILT_IN_WORKFLOWS, ...uniqueDynamicWorkflows].sort(
+    (a, b) => a.order_index - b.order_index,
+  );
+};
 
 export default function WorkflowsPage(): React.ReactNode {
   const { navigationService } = useUIContext();
@@ -96,10 +113,8 @@ export default function WorkflowsPage(): React.ReactNode {
   const [searchQuery, setSearchQuery] = useState("");
   const fetchWithAuth = useAuthenticatedFetch();
 
-  // Refs for category sections (for smooth scrolling)
   const categoryRefs = useRef<Record<string, HTMLElement | null>>({});
 
-  // Fetch dynamic workflows from backend API and combine with built-in ones
   useEffect(() => {
     const fetchWorkflows = async () => {
       try {
@@ -109,7 +124,6 @@ export default function WorkflowsPage(): React.ReactNode {
           throw new Error("API URL not configured");
         }
 
-        // Call backend API with automatic authentication and 403 handling
         const response = await fetchWithAuth(`${apiUrl}/workflows`, {
           method: "GET",
           headers: {
@@ -119,32 +133,7 @@ export default function WorkflowsPage(): React.ReactNode {
 
         if (response.ok) {
           const dynamicWorkflows: WorkflowConfig[] = await response.json();
-          console.log(
-            `[Workflows API] Received ${dynamicWorkflows.length} workflows from backend`,
-          );
-
-          // Combine built-in workflows with dynamic ones
-          // Filter out any duplicates based on workflow_id
-          const existingIds = new Set(
-            BUILT_IN_WORKFLOWS.map((w) => w.workflow_id),
-          );
-          const uniqueDynamicWorkflows = dynamicWorkflows.filter(
-            (w) => !existingIds.has(w.workflow_id),
-          );
-          console.log(
-            `[Workflows API] After filtering duplicates: ${uniqueDynamicWorkflows.length} unique dynamic workflows`,
-          );
-
-          // Combine and sort by order_index
-          const combinedWorkflows = [
-            ...BUILT_IN_WORKFLOWS,
-            ...uniqueDynamicWorkflows,
-          ].sort((a, b) => a.order_index - b.order_index);
-          console.log(
-            `[Workflows API] Total workflows to display: ${combinedWorkflows.length}`,
-          );
-
-          setWorkflows(combinedWorkflows);
+          setWorkflows(mergeWithBuiltIns(dynamicWorkflows));
           setError(null);
         } else {
           throw new Error(`Failed to fetch workflows: ${response.statusText}`);
@@ -156,8 +145,6 @@ export default function WorkflowsPage(): React.ReactNode {
             ? err.message
             : "Failed to load dynamic workflows",
         );
-
-        // Keep built-in workflows even if dynamic fetch fails
         setWorkflows(BUILT_IN_WORKFLOWS);
       } finally {
         setLoading(false);
@@ -167,7 +154,6 @@ export default function WorkflowsPage(): React.ReactNode {
     fetchWorkflows();
   }, [apiUrl, fetchWithAuth]);
 
-  // Filter workflows based on search query
   const filteredWorkflows = useMemo(() => {
     if (!searchQuery.trim()) {
       return workflows;
@@ -181,7 +167,6 @@ export default function WorkflowsPage(): React.ReactNode {
     );
   }, [workflows, searchQuery]);
 
-  // Group workflows by category (memoized for performance)
   const workflowsByCategory = useMemo(() => {
     const grouped: Record<string, WorkflowConfig[]> = {};
 
@@ -193,7 +178,6 @@ export default function WorkflowsPage(): React.ReactNode {
       grouped[categoryName].push(workflow);
     });
 
-    // Sort categories by order_index
     const sortedCategories = Object.entries(grouped).sort(
       ([, workflowsA], [, workflowsB]) => {
         return (
@@ -206,8 +190,6 @@ export default function WorkflowsPage(): React.ReactNode {
     return Object.fromEntries(sortedCategories);
   }, [filteredWorkflows]);
 
-  // Extract unique categories for navigation pills (excluding Onboarding)
-  // Derive from workflowsByCategory to ensure pills only show for categories with workflows
   const categories = useMemo(() => {
     const categoriesWithWorkflows = Object.values(workflowsByCategory)
       .map((workflows) => workflows[0].category)
@@ -217,7 +199,6 @@ export default function WorkflowsPage(): React.ReactNode {
     return categoriesWithWorkflows;
   }, [workflowsByCategory]);
 
-  // Scroll to category section
   const scrollToCategory = (categoryName: string) => {
     categoryRefs.current[categoryName]?.scrollIntoView({
       behavior: "smooth",
@@ -235,7 +216,6 @@ export default function WorkflowsPage(): React.ReactNode {
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-12">
-      {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -254,7 +234,6 @@ export default function WorkflowsPage(): React.ReactNode {
           practices.
         </p>
 
-        {/* Search */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -298,7 +277,6 @@ export default function WorkflowsPage(): React.ReactNode {
         </motion.div>
       </motion.div>
 
-      {/* Error Warning */}
       {error && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
@@ -312,7 +290,6 @@ export default function WorkflowsPage(): React.ReactNode {
         </motion.div>
       )}
 
-      {/* Info: Limited workflows available */}
       {!error && !loading && workflows.length === BUILT_IN_WORKFLOWS.length && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
@@ -328,7 +305,6 @@ export default function WorkflowsPage(): React.ReactNode {
         </motion.div>
       )}
 
-      {/* Category Navigation Pills - Only show when not searching */}
       {!searchQuery.trim() && categories.length > 0 && (
         <>
           <motion.div
@@ -370,14 +346,11 @@ export default function WorkflowsPage(): React.ReactNode {
             </div>
           </motion.div>
 
-          {/* Divider */}
           <div className="border-border mb-12 border-t" />
         </>
       )}
 
-      {/* Workflow Display - Conditional: Flat grid when searching, Category sections when not */}
       {searchQuery.trim() ? (
-        // Search Mode: Show flat grid of filtered workflows
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filteredWorkflows.map((workflow, index) => {
             const categoryColor = getCategoryColorByName(
@@ -406,7 +379,6 @@ export default function WorkflowsPage(): React.ReactNode {
                   minHeight: "280px",
                 }}
               >
-                {/* Nature illustration background */}
                 {illustrationSrc && (
                   <img
                     src={illustrationSrc}
@@ -419,7 +391,6 @@ export default function WorkflowsPage(): React.ReactNode {
                   />
                 )}
 
-                {/* Hover shadow enhancement */}
                 <div
                   className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-250 group-hover:opacity-100"
                   style={{
@@ -427,9 +398,7 @@ export default function WorkflowsPage(): React.ReactNode {
                   }}
                 />
 
-                {/* Content */}
                 <div className="relative z-10 flex h-full flex-col px-7 pt-7 pb-8">
-                  {/* Category badge */}
                   <div className="mb-8">
                     <div
                       className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1"
@@ -452,8 +421,6 @@ export default function WorkflowsPage(): React.ReactNode {
                       </span>
                     </div>
                   </div>
-
-                  {/* Title */}
                   <h4
                     className="text-foreground group-hover:text-foreground mb-4 transition-colors duration-250"
                     style={{
@@ -467,8 +434,6 @@ export default function WorkflowsPage(): React.ReactNode {
                   >
                     {workflow.title}
                   </h4>
-
-                  {/* Description */}
                   <p
                     className="text-muted-foreground leading-relaxed"
                     style={{
@@ -486,7 +451,6 @@ export default function WorkflowsPage(): React.ReactNode {
           })}
         </div>
       ) : (
-        // Category Mode: Show grouped sections
         <div className="space-y-12">
           {Object.entries(workflowsByCategory).map(
             ([categoryName, categoryWorkflows], categoryIndex) => {
@@ -496,7 +460,6 @@ export default function WorkflowsPage(): React.ReactNode {
               const totalCategories =
                 Object.entries(workflowsByCategory).length;
               const isLastCategory = categoryIndex === totalCategories - 1;
-              // Find fallback workflow (order_index = 0) for this category
               const fallbackWorkflow = categoryWorkflows.find(
                 (w) => w.order_index === 0,
               );
@@ -524,7 +487,6 @@ export default function WorkflowsPage(): React.ReactNode {
                       : ""
                   }`}
                 >
-                  {/* Category Header */}
                   <div className="mb-6 flex items-center gap-3">
                     <div
                       className={`flex items-center justify-center rounded-lg ${isOnboarding ? "h-12 w-12" : "h-10 w-10"}`}
@@ -552,7 +514,6 @@ export default function WorkflowsPage(): React.ReactNode {
                     </div>
                   </div>
 
-                  {/* Workflows Grid */}
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {categoryWorkflows.map((workflow, workflowIndex) => {
                       const illustrationSrc = getCategoryIllustration(
@@ -581,7 +542,6 @@ export default function WorkflowsPage(): React.ReactNode {
                             minHeight: "280px",
                           }}
                         >
-                          {/* Nature illustration background */}
                           {illustrationSrc && (
                             <img
                               src={illustrationSrc}
@@ -594,7 +554,6 @@ export default function WorkflowsPage(): React.ReactNode {
                             />
                           )}
 
-                          {/* Hover shadow enhancement */}
                           <div
                             className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-250 group-hover:opacity-100"
                             style={{
@@ -602,9 +561,7 @@ export default function WorkflowsPage(): React.ReactNode {
                             }}
                           />
 
-                          {/* Content */}
                           <div className="relative z-10 flex h-full flex-col px-7 pt-7 pb-8">
-                            {/* Category badge */}
                             <div className="mb-8">
                               <div
                                 className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1"
@@ -628,7 +585,6 @@ export default function WorkflowsPage(): React.ReactNode {
                               </div>
                             </div>
 
-                            {/* Title */}
                             <h4
                               className="text-foreground group-hover:text-foreground mb-4 transition-colors duration-250"
                               style={{
@@ -643,7 +599,6 @@ export default function WorkflowsPage(): React.ReactNode {
                               {workflow.title}
                             </h4>
 
-                            {/* Description */}
                             <p
                               className="text-muted-foreground leading-relaxed"
                               style={{
@@ -660,13 +615,10 @@ export default function WorkflowsPage(): React.ReactNode {
                       );
                     })}
                   </div>
-
-                  {/* "My option isn't here" link - only show if fallback workflow exists */}
                   {fallbackWorkflow && (
                     <div className="mt-5 text-center">
                       <button
                         onClick={() => {
-                          // Navigate to fallback workflow
                           navigationService.navigateToWorkflow(
                             fallbackWorkflow.workflow_id,
                           );
@@ -687,8 +639,6 @@ export default function WorkflowsPage(): React.ReactNode {
           )}
         </div>
       )}
-
-      {/* No Results Message */}
       {filteredWorkflows.length === 0 && (
         <motion.div
           initial={{ opacity: 0 }}
@@ -707,8 +657,6 @@ export default function WorkflowsPage(): React.ReactNode {
           </Button>
         </motion.div>
       )}
-
-      {/* Footer note */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

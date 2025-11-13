@@ -3,7 +3,6 @@ import { cn } from "@/shared/utils/utils";
 import { useStreamContext } from "@/core/providers/stream";
 import { useFileUpload } from "@/features/file-upload/hooks/use-file-upload";
 
-// Import our new components and hooks
 import { useThreadState } from "./hooks/use-thread-state";
 import { useThreadHandlers } from "./hooks/use-thread-handlers";
 import { useThreadEffects } from "./hooks/use-thread-effects";
@@ -13,7 +12,6 @@ import { ComponentErrorBoundary } from "@/shared/components/error-boundary";
 import { ChatProvider } from "@/features/chat/providers/chat-provider";
 
 export const Thread = (): React.JSX.Element => {
-  // Use our custom hooks for state management
   const {
     artifactContext,
     artifactOpen,
@@ -46,7 +44,6 @@ export const Thread = (): React.JSX.Element => {
   const stream = useStreamContext();
   const messages = stream.messages;
 
-  // Use our custom hooks for handlers and effects
   const { handleSubmit, handleRegenerate, handleActionClick } =
     useThreadHandlers({
       input,
@@ -72,7 +69,6 @@ export const Thread = (): React.JSX.Element => {
 
   const chatStarted = !!threadId || !!messages.length;
 
-  // Memoized computed values
   const memoizedChatStarted = useMemo(() => chatStarted, [chatStarted]);
 
   const chatContextValue = useMemo(

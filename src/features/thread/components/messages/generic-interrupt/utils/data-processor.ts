@@ -12,7 +12,6 @@ export const processInterruptEntries = (
     const shouldTruncate = shouldTruncateContent(interrupt);
 
     if (!isExpanded && shouldTruncate) {
-      // When collapsed, process each value to potentially truncate it
       return entries.map(([key, value]) => [
         key,
         truncateValue(value, isExpanded),

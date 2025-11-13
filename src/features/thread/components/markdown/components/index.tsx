@@ -23,7 +23,7 @@ export const defaultComponents = {
   h5,
   h6,
   p,
-  a: CitationLink, // Use citation-aware link component
+  a: CitationLink,
   blockquote,
   ul,
   ol,

@@ -32,41 +32,37 @@ export function useTextOverflow(
     const element = elementRef.current;
     if (!element) return;
 
-    const checkOverflow = () => {
+    const clearPendingCheck = () => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
+    };
+
+    const checkOverflow = () => {
+      clearPendingCheck();
 
       timeoutRef.current = setTimeout(() => {
         if (element) {
-          // Check horizontal overflow: scrollWidth > clientWidth means text is truncated
           const hasOverflow = element.scrollWidth > element.clientWidth;
           setIsOverflowing(hasOverflow);
         }
       }, debounceMs);
     };
 
-    // Initial check
     checkOverflow();
 
-    // Observe size changes using ResizeObserver
     if (typeof ResizeObserver !== "undefined") {
       const resizeObserver = new ResizeObserver(checkOverflow);
       resizeObserver.observe(element);
 
       return () => {
-        if (timeoutRef.current) {
-          clearTimeout(timeoutRef.current);
-        }
+        clearPendingCheck();
         resizeObserver.disconnect();
       };
     }
 
-    // Fallback cleanup (ResizeObserver should be available in all modern browsers)
     return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
+      clearPendingCheck();
     };
   }, [debounceMs]);
 

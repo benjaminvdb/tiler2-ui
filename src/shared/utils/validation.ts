@@ -4,14 +4,12 @@
 
 import { z } from "zod";
 
-// Environment variable validation
 export const environmentSchema = z.object({
   apiUrl: z.string().url("API URL must be a valid URL"),
   assistantId: z.string().min(1, "Assistant ID is required"),
   apiKey: z.string().optional(),
 });
 
-// Chat input validation
 export const chatInputSchema = z.object({
   input: z
     .string()
@@ -27,7 +25,6 @@ export const chatInputSchema = z.object({
     .max(10, "Cannot upload more than 10 files at once"),
 });
 
-// File upload validation
 export const fileUploadSchema = z.object({
   file: z.object({
     name: z.string().min(1, "File name is required"),
@@ -39,13 +36,11 @@ export const fileUploadSchema = z.object({
   }),
 });
 
-// Thread ID validation
 export const threadIdSchema = z
   .string()
   .uuid("Invalid thread ID format")
   .optional();
 
-// API response validation
 export const apiResponseSchema = z.object({
   success: z.boolean(),
   data: z.unknown().optional(),
@@ -53,7 +48,6 @@ export const apiResponseSchema = z.object({
   message: z.string().optional(),
 });
 
-// Message validation
 export const messageValidationSchema = z.object({
   id: z.string().min(1, "Message ID is required"),
   content: z.union([z.string(), z.array(z.unknown())]),
@@ -61,7 +55,6 @@ export const messageValidationSchema = z.object({
   timestamp: z.number().optional(),
 });
 
-// Tool call validation
 export const toolCallSchema = z.object({
   id: z.string().min(1, "Tool call ID is required"),
   name: z.string().min(1, "Tool name is required"),
@@ -69,7 +62,6 @@ export const toolCallSchema = z.object({
   result: z.unknown().optional(),
 });
 
-// Generic field value validation
 export const fieldValueSchema = z.union([
   z.string(),
   z.number(),
@@ -126,7 +118,6 @@ export function validateInput<T>(
  * @returns Validated data or null if validation failed
  * @example
  * const validData = validateInputSafe(threadIdSchema, userId);
- * if (validData) { /* process valid data */ }
  */
 export function validateInputSafe<T>(
   schema: z.ZodSchema<T>,
@@ -147,7 +138,6 @@ export function validateInputSafe<T>(
  * @security This provides basic sanitization. For complex HTML, consider using a library like DOMPurify.
  */
 export function sanitizeHtml(input: string): string {
-  // Remove script tags and dangerous attributes
   return input
     .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
     .replace(/javascript:/gi, "")

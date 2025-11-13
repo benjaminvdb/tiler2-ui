@@ -43,7 +43,6 @@ export const ExpertHelpDialog: React.FC<ExpertHelpDialogProps> = ({
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
 
-    // Validate message
     const trimmedMessage = message.trim();
     if (!trimmedMessage) {
       toast.error("Please enter a message describing how we can help");
@@ -58,13 +57,11 @@ export const ExpertHelpDialog: React.FC<ExpertHelpDialogProps> = ({
     setIsSubmitting(true);
 
     try {
-      // Get Auth0 token using SDK
       const token = await getToken();
       if (!token) {
         throw new Error("Failed to get authentication token");
       }
 
-      // Submit to backend API with retry logic
       if (!apiUrl) {
         throw new Error("API URL not configured");
       }
@@ -83,7 +80,7 @@ export const ExpertHelpDialog: React.FC<ExpertHelpDialogProps> = ({
             message: trimmedMessage,
             ai_message_content: aiMessageContent,
           }),
-          timeoutMs: 10000, // 10 second timeout
+          timeoutMs: 10000,
         },
         {
           maxRetries: 3,
@@ -93,7 +90,7 @@ export const ExpertHelpDialog: React.FC<ExpertHelpDialogProps> = ({
             reportApiError(error, {
               operation: "submitExpertHelp",
               component: "ExpertHelpDialog",
-              skipNotification: true, // Silent retry
+              skipNotification: true,
               additionalData: {
                 attempt,
               },
@@ -109,16 +106,13 @@ export const ExpertHelpDialog: React.FC<ExpertHelpDialogProps> = ({
         );
       }
 
-      // Success!
       toast.success("Your request has been sent to our expert team", {
         description: "We'll get back to you as soon as possible.",
       });
 
-      // Close dialog and reset form
       setMessage("");
       onOpenChange(false);
     } catch (error) {
-      // Log error to Sentry
       if (error instanceof AbortError) {
         reportApiError(error as Error, {
           operation: "submitExpertHelp",

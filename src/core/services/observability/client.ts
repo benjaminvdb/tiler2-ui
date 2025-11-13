@@ -15,7 +15,6 @@ import type {
 } from "./types";
 import { redactSensitiveData } from "./filters";
 
-// Default configuration
 const defaultConfig: ObservabilityConfig = {
   enableConsoleLogging: true,
   enableUserNotification: true,
@@ -23,7 +22,6 @@ const defaultConfig: ObservabilityConfig = {
   maxErrorsPerSession: 100,
 };
 
-// Environment-specific configuration
 const getConfig = (): ObservabilityConfig => {
   const isDevelopment = import.meta.env.MODE === "development";
 
@@ -35,17 +33,14 @@ const getConfig = (): ObservabilityConfig => {
   };
 };
 
-// Error tracking state
 let errorCount = 0;
 let errorHistory: StructuredError[] = [];
 const config = getConfig();
 
-// Generate unique error ID
 const generateErrorId = (): string => {
   return `err_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 };
 
-// Get current environment context
 const getEnvironmentContext = (): Partial<ObservabilityContext> => {
   if (typeof window !== "undefined") {
     return {
@@ -59,7 +54,6 @@ const getEnvironmentContext = (): Partial<ObservabilityContext> => {
   };
 };
 
-// Map severity to Sentry level
 const mapSeverityToSentryLevel = (severity: Severity): Sentry.SeverityLevel => {
   switch (severity) {
     case "fatal":
@@ -77,7 +71,6 @@ const mapSeverityToSentryLevel = (severity: Severity): Sentry.SeverityLevel => {
   }
 };
 
-// Format error for console output
 const formatForConsole = (
   severity: Severity,
   message: string,
@@ -97,7 +90,6 @@ const formatForConsole = (
   ].join("\n");
 };
 
-// Show user notification (integrate with toast system)
 const showUserNotification = (
   severity: Severity,
   message: string,
@@ -107,14 +99,13 @@ const showUserNotification = (
     return;
   }
 
-  // Dynamic import to avoid SSR issues
   import("sonner")
     .then(({ toast }) => {
       switch (severity) {
         case "fatal":
           toast.error("Critical Error", {
             description: `${message}${category ? ` (${category})` : ""}`,
-            duration: 0, // Persistent
+            duration: 0,
           });
           break;
         case "error":
@@ -135,7 +126,8 @@ const showUserNotification = (
             duration: 3000,
           });
           break;
-        // debug doesn't show toast
+        default:
+          break;
       }
     })
     .catch(() => {
@@ -173,7 +165,6 @@ class ObservabilityClient implements ILogger {
       unknown
     >;
 
-    // Only log to console in development
     if (config.enableConsoleLogging && import.meta.env.MODE === "development") {
       console.debug(
         formatForConsole(
@@ -184,7 +175,6 @@ class ObservabilityClient implements ILogger {
       );
     }
 
-    // Add breadcrumb to Sentry (client-side only)
     if (typeof window !== "undefined") {
       Sentry.addBreadcrumb({
         category: (sanitizedContext.component as string) || "app",
@@ -215,7 +205,6 @@ class ObservabilityClient implements ILogger {
       );
     }
 
-    // Add breadcrumb to Sentry (client-side only)
     if (typeof window !== "undefined") {
       Sentry.addBreadcrumb({
         category: (sanitizedContext.component as string) || "app",
@@ -246,7 +235,6 @@ class ObservabilityClient implements ILogger {
       );
     }
 
-    // Add breadcrumb to Sentry (client-side only)
     if (typeof window !== "undefined") {
       Sentry.addBreadcrumb({
         category: (sanitizedContext.component as string) || "app",
@@ -285,12 +273,10 @@ class ObservabilityClient implements ILogger {
       }
     }
 
-    // Send to Sentry (client-side only)
     if (typeof window !== "undefined") {
       const errorToSend =
         error instanceof Error ? error : new Error(String(error));
 
-      // Build tags object
       const tags: Record<string, string> = {};
       if (sanitizedContext.operation) {
         tags.operation = sanitizedContext.operation as string;
@@ -338,12 +324,10 @@ class ObservabilityClient implements ILogger {
       }
     }
 
-    // Send to Sentry (client-side only)
     if (typeof window !== "undefined") {
       const errorToSend =
         error instanceof Error ? error : new Error(String(error));
 
-      // Build tags object
       const tags: Record<string, string> = {};
       if (sanitizedContext.operation) {
         tags.operation = sanitizedContext.operation as string;
@@ -364,7 +348,6 @@ class ObservabilityClient implements ILogger {
   }
 }
 
-// Singleton instance
 const globalObservability = new ObservabilityClient();
 
 /**
@@ -381,7 +364,6 @@ export function createObservability(context?: ObservabilityContext): ILogger {
   return new ObservabilityClient(context);
 }
 
-// Export singleton for direct usage
 export const observability = globalObservability;
 
 /**
@@ -393,7 +375,6 @@ export const reportError = (
   category: ErrorCategory = "unknown",
   context: ObservabilityContext = {},
 ): StructuredError => {
-  // Prevent error spam
   if (errorCount >= config.maxErrorsPerSession) {
     return {
       id: "max-errors-exceeded",
@@ -408,7 +389,6 @@ export const reportError = (
 
   errorCount++;
 
-  // Create structured error
   const structuredError: StructuredError = {
     id: generateErrorId(),
     message: error instanceof Error ? error.message : String(error),
@@ -424,10 +404,8 @@ export const reportError = (
     environment: import.meta.env.MODE || "unknown",
   };
 
-  // Store in history
   errorHistory.push(structuredError);
 
-  // Console logging
   if (config.enableConsoleLogging) {
     const consoleMethod =
       severity === "fatal" || severity === "error"
@@ -444,12 +422,10 @@ export const reportError = (
     );
   }
 
-  // User notification (skip if explicitly requested)
   if (!context.skipNotification) {
     showUserNotification(severity, structuredError.message, category);
   }
 
-  // Send to Sentry (client-side only)
   if (typeof window !== "undefined") {
     const errorToSend =
       error instanceof Error ? error : new Error(structuredError.message);
@@ -487,7 +463,6 @@ export const reportError = (
       },
     });
 
-    // Add breadcrumb for the error
     Sentry.addBreadcrumb({
       category,
       message: structuredError.message,
@@ -502,7 +477,6 @@ export const reportError = (
   return structuredError;
 };
 
-// Convenience functions for different error types
 export const reportAuthError = (
   error: Error | string,
   context?: ObservabilityContext,
@@ -578,10 +552,8 @@ export const reportRetryExhausted = (
     environment: import.meta.env.MODE || "unknown",
   };
 
-  // Store in history
   errorHistory.push(structuredError);
 
-  // Console logging
   if (config.enableConsoleLogging) {
     console.error(
       formatForConsole(
@@ -592,7 +564,6 @@ export const reportRetryExhausted = (
     );
   }
 
-  // Send to Sentry with special tags for retry exhaustion (client-side only)
   if (typeof window !== "undefined") {
     const errorToSend =
       error instanceof Error ? error : new Error(String(error));
@@ -627,7 +598,6 @@ export const reportRetryExhausted = (
     });
   }
 
-  // User notification with retry action (unless explicitly skipped)
   if (!context.skipNotification && typeof window !== "undefined") {
     import("sonner")
       .then(({ toast }) => {
@@ -655,7 +625,6 @@ export const reportCriticalError = (
   context?: ObservabilityContext,
 ): StructuredError => reportError(error, "fatal", "unknown", context);
 
-// Error boundary integration
 export const reportErrorBoundary = (
   error: Error,
   errorInfo: { componentStack: string },
@@ -665,7 +634,6 @@ export const reportErrorBoundary = (
     additionalData: { componentStack: errorInfo.componentStack },
   });
 
-// Performance tracking
 export const trackPerformance = (
   operation: string,
   duration: number,
@@ -675,7 +643,6 @@ export const trackPerformance = (
     return;
   }
 
-  // Send performance metrics to Sentry
   if (typeof window !== "undefined") {
     Sentry.addBreadcrumb({
       category: "performance",
@@ -690,7 +657,6 @@ export const trackPerformance = (
   }
 
   if (duration > 5000) {
-    // Log slow operations (>5s)
     reportError(
       `Slow operation detected: ${operation} took ${duration}ms`,
       "info",
@@ -704,7 +670,6 @@ export const trackPerformance = (
   }
 };
 
-// Utility function to wrap async operations with error handling
 export const withErrorHandling = <T extends unknown[], R>(
   fn: (...args: T) => Promise<R>,
   category: ErrorCategory = "unknown",
@@ -720,7 +685,6 @@ export const withErrorHandling = <T extends unknown[], R>(
   };
 };
 
-// Get error statistics
 export const getErrorStats = (): {
   totalErrors: number;
   errorsByCategory: Record<ErrorCategory, number>;
@@ -747,17 +711,15 @@ export const getErrorStats = (): {
     totalErrors: errorCount,
     errorsByCategory,
     errorsBySeverity,
-    recentErrors: errorHistory.slice(-10), // Last 10 errors
+    recentErrors: errorHistory.slice(-10),
   };
 };
 
-// Clear error history (for testing or privacy)
 export const clearErrorHistory = (): void => {
   errorHistory = [];
   errorCount = 0;
 };
 
-// Validate observability configuration
 export const validateObservabilityConfig = (): {
   isValid: boolean;
   errors: string[];

@@ -73,14 +73,12 @@ export function useDragDropHandlers({
     container.addEventListener("dragover", handleDragOver);
 
     return () => {
-      // Clean up event listeners
       container.removeEventListener("dragenter", handleDragEnter);
       container.removeEventListener("dragleave", handleDragLeave);
       container.removeEventListener("drop", handleDrop);
       container.removeEventListener("dragend", handleDragEnd);
       container.removeEventListener("dragover", handleDragOver);
 
-      // Reset drag counter on cleanup to prevent memory leaks
       dragCounter.current = 0;
     };
   }, [handleDrop, setDragOver, containerRef]);

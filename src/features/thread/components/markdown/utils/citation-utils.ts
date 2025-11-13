@@ -12,13 +12,9 @@ import { Source } from "../components/citation-link";
  */
 export function formatMLA(source: Source): string {
   if (source.type === "web") {
-    // Web source: Retrieved from: URL (no quotes)
     return `Retrieved from: ${source.url}`;
   }
 
-  // Library source (knowledge_base, methods_base, csrd_reports):
-  // Just return the filename directly - it's already in MLA format
-  // Fallback to title if filename not available
   return source.filename || source.title;
 }
 
@@ -36,7 +32,6 @@ export function groupSourcesByType(sources: Source[]): {
     if (source.type === "web") {
       web.push(source);
     } else {
-      // knowledge_base, methods_base, csrd_reports go to library
       library.push(source);
     }
   }

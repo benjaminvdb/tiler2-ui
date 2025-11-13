@@ -23,7 +23,6 @@ export const PlaceholderMessage: React.FC = () => {
 
   if (!interruptVal) return null;
 
-  // Helper to send resume commands
   const handleAction = (type: "accept" | "ignore" | "edit", args?: any) => {
     const response = { type, args: args ?? null };
     thread.submit(null, {
@@ -42,7 +41,6 @@ export const PlaceholderMessage: React.FC = () => {
       />
     );
   }
-  // Fallback generic interrupt
   const genericInterrupt = {
     action_request: {
       action: "user_input",

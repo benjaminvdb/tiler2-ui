@@ -45,7 +45,6 @@ export const NewSidebar = (): React.JSX.Element => {
   const { state, toggleSidebar } = useSidebar();
   const isCollapsed = state === "collapsed";
 
-  // Navigation labels - single source of truth for button text and tooltips
   const LABEL_NEW_CHAT = "New Chat";
   const LABEL_WORKFLOWS = "Workflows";
   const LABEL_WIKI = "Wiki";
@@ -85,7 +84,6 @@ export const NewSidebar = (): React.JSX.Element => {
       await deleteThread(targetThreadId);
       toast.success("Thread deleted successfully");
 
-      // If we deleted the currently active thread, navigate to home
       if (targetThreadId === threadId) {
         navigationService.navigateToHome();
       }
@@ -103,7 +101,6 @@ export const NewSidebar = (): React.JSX.Element => {
         <div
           className={`flex items-center gap-2 px-2 py-2 ${isCollapsed ? "justify-center" : "justify-between"}`}
         >
-          {/* Link Logo - Clickable to navigate home */}
           <button
             onClick={() => navigationService.navigateToHome()}
             className="flex flex-1 cursor-pointer items-center gap-2 transition-opacity group-data-[collapsible=icon]:hidden hover:opacity-80"
@@ -116,7 +113,6 @@ export const NewSidebar = (): React.JSX.Element => {
             />
           </button>
 
-          {/* Collapse/Expand Button */}
           <Button
             variant="ghost"
             size="icon"
@@ -134,11 +130,9 @@ export const NewSidebar = (): React.JSX.Element => {
       </SidebarHeader>
 
       <SidebarContent>
-        {/* Fixed Primary Actions - Always visible at top */}
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {/* New Chat Button - Highlighted in Forest Green */}
               <SidebarMenuItem>
                 <SidebarMenuButton
                   onClick={() => navigationService.navigateToHome()}
@@ -166,7 +160,6 @@ export const NewSidebar = (): React.JSX.Element => {
                 </SidebarMenuButton>
               </SidebarMenuItem>
 
-              {/* Workflows Navigation */}
               <SidebarMenuItem>
                 <SidebarMenuButton
                   onClick={() => handleNavigate("workflows")}
@@ -186,7 +179,6 @@ export const NewSidebar = (): React.JSX.Element => {
                 </SidebarMenuButton>
               </SidebarMenuItem>
 
-              {/* Wiki Navigation */}
               <SidebarMenuItem>
                 <SidebarMenuButton
                   onClick={() => handleNavigate("wiki")}
@@ -216,7 +208,6 @@ export const NewSidebar = (): React.JSX.Element => {
           <SidebarSeparator className="mx-0" />
         </div>
 
-        {/* Scrollable Thread History - Only show when expanded */}
         {!isCollapsed && (
           <div className="scrollbar-sidebar flex min-h-0 flex-1 flex-col overflow-y-auto">
             <SidebarGroup>
@@ -224,7 +215,6 @@ export const NewSidebar = (): React.JSX.Element => {
               <SidebarGroupContent>
                 <SidebarMenu>
                   {threadsLoading ? (
-                    // Loading skeleton
                     <>
                       {[...Array(5)].map((_, i) => (
                         <SidebarMenuItem key={i}>
@@ -233,14 +223,12 @@ export const NewSidebar = (): React.JSX.Element => {
                       ))}
                     </>
                   ) : threads.length === 0 ? (
-                    // No threads message
                     <div className="px-2 py-4 text-center">
                       <p className="text-muted-foreground text-xs">
                         No chats yet. Start a new conversation!
                       </p>
                     </div>
                   ) : (
-                    // Thread list
                     threads.map((thread: Thread) => {
                       const displayText = extractThreadDisplayText(thread);
                       const isActive = thread.thread_id === threadId;
@@ -271,15 +259,12 @@ export const NewSidebar = (): React.JSX.Element => {
         )}
       </SidebarContent>
 
-      {/* Divider above profile footer - wrapped for overflow clipping and padding */}
       <div className="overflow-x-hidden px-2">
         <SidebarSeparator className="mx-0" />
       </div>
 
-      {/* User Profile Footer */}
       <SidebarUserProfile />
 
-      {/* Resize Handle */}
       <SidebarRail />
     </Sidebar>
   );

@@ -25,10 +25,59 @@ export const createSubmitHandler = (
     isRespondingToInterrupt,
     setIsRespondingToInterrupt,
     currentInterrupt,
-    setCurrentInterrupt,
-    setFirstTokenReceived,
-    artifactContext,
-  } = props;
+  setCurrentInterrupt,
+  setFirstTokenReceived,
+  artifactContext,
+} = props;
+
+  const submitInterruptResponse = () => {
+    const response = buildInterruptResponse(input);
+    stream.submit(null, {
+      command: { resume: response },
+    });
+    setIsRespondingToInterrupt(false);
+    setCurrentInterrupt(null);
+    setInput("");
+    setContentBlocks([]);
+  };
+
+  const baseSubmitOptions = (
+    context: Record<string, unknown> | undefined,
+    toolMessages: Message[],
+    newHumanMessage: Message,
+  ) => ({
+    streamMode: ["values"],
+    streamSubgraphs: true,
+    optimisticValues: (prev: any) => ({
+      ...prev,
+      context,
+      messages: [
+        ...(Array.isArray(prev.messages) ? prev.messages : []),
+        ...toolMessages,
+        newHumanMessage,
+      ],
+    }),
+  });
+
+  const createOptimisticThread = (threadName: string, message: Message) => {
+    const optimisticThreadId = crypto.randomUUID();
+    const optimisticThread = buildOptimisticThread({
+      threadId: optimisticThreadId,
+      threadName,
+      userEmail,
+      firstMessage: message,
+    });
+
+    addOptimisticThread(optimisticThread);
+
+    return {
+      optimisticThreadId,
+      submitOverrides: {
+        threadId: optimisticThreadId,
+        metadata: { name: threadName },
+      },
+    };
+  };
 
   return (e: FormEvent) => {
     e.preventDefault();
@@ -36,29 +85,11 @@ export const createSubmitHandler = (
       return;
     setFirstTokenReceived(false);
 
-    // Check if we're responding to an interrupt
     if (isRespondingToInterrupt && currentInterrupt) {
-      // Handle interrupt response
-      const response = buildInterruptResponse(input);
-
-      // Resume the stream with the interrupt response
-      const interruptOptions: any = {
-        command: {
-          resume: response,
-        },
-      };
-
-      stream.submit(null, interruptOptions);
-
-      // Clear interrupt state
-      setIsRespondingToInterrupt(false);
-      setCurrentInterrupt(null);
-      setInput("");
-      setContentBlocks([]);
+      submitInterruptResponse();
       return;
     }
 
-    // Normal message submission
     const newHumanMessage = buildHumanMessage(input, contentBlocks);
     const toolMessages = ensureToolCallsHaveResponses(stream.messages);
     const context =
@@ -66,62 +97,22 @@ export const createSubmitHandler = (
         ? (artifactContext as Record<string, unknown>)
         : undefined;
 
-    const submitData: {
-      messages: any[];
-      context?: Record<string, unknown>;
-    } = { messages: [...toolMessages, newHumanMessage] };
-
-    if (context) {
-      submitData.context = context;
-    }
-
-    // Check if this is the first message (no existing thread)
-    const isFirstMessage = !stream.threadId;
-
-    let submitOptions: any = {
-      streamMode: ["values"],
-      streamSubgraphs: true,
-      optimisticValues: (prev: any) => ({
-        ...prev,
-        context,
-        messages: [
-          ...(Array.isArray(prev.messages) ? prev.messages : []),
-          ...toolMessages,
-          newHumanMessage,
-        ],
-      }),
+    const submitData = {
+      messages: [...toolMessages, newHumanMessage],
+      ...(context ? { context } : {}),
     };
 
-    // If this is the first message, create optimistic thread
-    if (isFirstMessage && userEmail) {
-      // Generate pre-determined thread ID
-      const optimisticThreadId = crypto.randomUUID();
+    let submitOptions = baseSubmitOptions(context, toolMessages, newHumanMessage);
 
-      // Generate thread name from first message
-      // TODO: Support workflow titles when workflow context is available
+    if (!stream.threadId && userEmail) {
       const threadName = generateThreadName({
         firstMessage: input,
       });
-
-      // Build optimistic thread object
-      const optimisticThread = buildOptimisticThread({
-        threadId: optimisticThreadId,
+      const { submitOverrides } = createOptimisticThread(
         threadName,
-        userEmail,
-        firstMessage: newHumanMessage,
-      });
-
-      // Add to sidebar immediately
-      addOptimisticThread(optimisticThread);
-
-      // Include threadId and metadata in submit options
-      submitOptions = {
-        ...submitOptions,
-        threadId: optimisticThreadId,
-        metadata: {
-          name: threadName,
-        },
-      };
+        newHumanMessage,
+      );
+      submitOptions = { ...submitOptions, ...submitOverrides };
     }
 
     stream.submit(submitData, submitOptions);

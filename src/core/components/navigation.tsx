@@ -1,10 +1,3 @@
-/**
- * Unified Navigation Component
- *
- * Centralizes navigation logic and eliminates duplication between desktop and mobile.
- * Uses the central navigation service for consistent behavior.
- */
-
 import React from "react";
 import {
   MessageCircle,
@@ -28,17 +21,16 @@ interface NavigationMenuItem {
 
 interface NavigationProps {
   isCollapsed?: boolean;
-  onItemClick?: () => void; // For mobile to close menu after click
+  onNavigate?: () => void;
 }
 
 export const Navigation: React.FC<NavigationProps> = ({
   isCollapsed = false,
-  onItemClick,
+  onNavigate,
 }) => {
   const { navigationService } = useUIContext();
   const { pathname } = useLocation();
 
-  // Define navigation menu items
   const menuItems: NavigationMenuItem[] = [
     {
       id: "new-chat",
@@ -46,7 +38,7 @@ export const Navigation: React.FC<NavigationProps> = ({
       icon: MessageCircle,
       action: () => {
         navigationService.navigateToHome();
-        onItemClick?.();
+        onNavigate?.();
       },
       isActive: navigationService.isHomePage(pathname),
       shortcut: "new-chat",
@@ -57,7 +49,7 @@ export const Navigation: React.FC<NavigationProps> = ({
       icon: Workflow,
       action: () => {
         navigationService.navigateToWorkflows();
-        onItemClick?.();
+        onNavigate?.();
       },
       isActive: navigationService.isWorkflowsPage(pathname),
       shortcut: "workflows",
@@ -70,9 +62,9 @@ export const Navigation: React.FC<NavigationProps> = ({
         navigateExternal(
           "https://impossible-chauffeur-129.notion.site/Link-Chat-Wiki-218b67580800806ea99efb583280d2c8",
         );
-        onItemClick?.();
+        onNavigate?.();
       },
-      isActive: false, // External links are never active
+      isActive: false,
     },
   ];
 

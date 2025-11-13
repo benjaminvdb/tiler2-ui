@@ -9,18 +9,15 @@ import { Toaster } from "@/shared";
 import { createNavigationService } from "@/core/services/navigation";
 import { StreamProvider } from "@/core/providers/stream";
 import * as Sentry from "@sentry/react";
+import {
+  SIDE_PANEL_MAX_WIDTH,
+  SIDE_PANEL_MIN_WIDTH,
+} from "@/features/side-panel/constants";
 
 interface AppProvidersProps {
   children: React.ReactNode;
 }
 
-/**
- * Feature-specific providers for UI state, thread management, hotkeys, and streaming.
- * Manages search param synchronization for thread/UI state, side panel width persistence,
- * and Sentry context tracking.
- * @param children - Child components to wrap with providers
- * @returns Nested providers with all feature contexts
- */
 export function AppProviders({ children }: AppProvidersProps): React.ReactNode {
   const navigate = useNavigate();
 
@@ -29,7 +26,6 @@ export function AppProviders({ children }: AppProvidersProps): React.ReactNode {
 
   const [threadId, setThreadId] = useSearchParamState("threadId");
 
-  // Sync thread ID to Sentry for error context and user tracking
   useEffect(() => {
     if (threadId) {
       Sentry.setContext("thread", {
@@ -44,12 +40,11 @@ export function AppProviders({ children }: AppProvidersProps): React.ReactNode {
 
   const [sidePanelWidth, setSidePanelWidth] = useState(350);
 
-  // Restore side panel width from localStorage on mount
   useEffect(() => {
     const savedWidth = localStorage.getItem("sidePanelWidth");
     if (savedWidth) {
       const width = parseInt(savedWidth, 10);
-      if (width >= 250 && width <= 600) {
+      if (width >= SIDE_PANEL_MIN_WIDTH && width <= SIDE_PANEL_MAX_WIDTH) {
         setSidePanelWidth(width);
       }
     }
@@ -66,15 +61,16 @@ export function AppProviders({ children }: AppProvidersProps): React.ReactNode {
     [navigate],
   );
 
-  // Clear active thread and navigate to home page
   const handleNewThread = useCallback(() => {
     setThreadId(null);
     navigationService.navigateToHome();
   }, [setThreadId, navigationService]);
 
   const handleSidePanelWidthChange = useCallback((width: number) => {
-    // Clamp to valid range: 250px (min sidebar width) to 600px (max practical width)
-    const constrainedWidth = Math.min(Math.max(width, 250), 600);
+    const constrainedWidth = Math.min(
+      Math.max(width, SIDE_PANEL_MIN_WIDTH),
+      SIDE_PANEL_MAX_WIDTH,
+    );
     setSidePanelWidth(constrainedWidth);
     localStorage.setItem("sidePanelWidth", constrainedWidth.toString());
   }, []);

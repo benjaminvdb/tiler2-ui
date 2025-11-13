@@ -14,7 +14,7 @@ export function parseAnthropicStreamedToolCalls(
       try {
         json = parsePartialJson(toolCall.input) ?? {};
       } catch {
-        // Pass
+        json = {};
       }
     }
     return {

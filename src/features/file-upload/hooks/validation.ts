@@ -29,7 +29,6 @@ export const validateFiles = (
   files: File[],
   contentBlocks: MultimodalContentBlock[],
 ) => {
-  // First validate each file using Zod schema
   const schemaValidFiles: File[] = [];
   const schemaInvalidFiles: File[] = [];
 
@@ -42,7 +41,6 @@ export const validateFiles = (
     }
   });
 
-  // Then check for duplicates and type support
   const typeValidFiles = schemaValidFiles.filter((file) =>
     SUPPORTED_FILE_TYPES.includes(file.type),
   );

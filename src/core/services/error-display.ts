@@ -65,21 +65,13 @@ const shouldShowToast = (
   severity: ErrorSeverity,
   context: ErrorContext,
 ): boolean => {
-  // Always show toast for critical and async errors
   if (severity === "critical" || context === "async") return true;
-
-  // Show toast for global errors
   if (context === "global") return true;
-
-  // Don't show toast for component errors (they have fallback UI)
   if (context === "component") return false;
-
-  // Show toast for feature-level errors
   return true;
 };
 
 const shouldShowFallback = (context: ErrorContext): boolean => {
-  // Always show fallback for global and component errors
   return context === "global" || context === "component";
 };
 
@@ -113,14 +105,12 @@ export const displayError = (
     componentStack,
   } = options;
 
-  // Report error for monitoring (only for significant errors)
   if (severity === "critical" || severity === "error") {
     reportErrorBoundary(error, {
       componentStack: componentStack || "Not available",
     });
   }
 
-  // Show toast notification if requested
   if (showToast) {
     const toastOptions = {
       description,
@@ -152,7 +142,6 @@ export const displayError = (
     }
   }
 
-  // Log error for debugging
   if (import.meta.env.MODE === "development") {
     logger.error(error, {
       operation: "display_error",
@@ -170,7 +159,6 @@ export const displayError = (
   };
 };
 
-// Convenience functions for common error types
 export const displayCriticalError = (
   error: Error,
   componentStack?: string,

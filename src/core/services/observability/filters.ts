@@ -3,7 +3,6 @@
  * Applied before sending to Sentry to prevent exposure of sensitive data
  */
 
-// Keys that indicate sensitive data
 const SENSITIVE_KEYS = [
   "password",
   "token",
@@ -22,16 +21,16 @@ const SENSITIVE_KEYS = [
   "client_secret",
 ];
 
-// Patterns that indicate sensitive data in strings
+const EMAIL_PATTERN = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g;
+const BEARER_PATTERN = /\bBearer\s+[A-Za-z0-9\-._~+/]+=*\b/gi;
+const LONG_TOKEN_PATTERN = /\b[A-Za-z0-9]{32,}\b/g;
+const JWT_PATTERN = /\beyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/g;
+
 const SENSITIVE_PATTERNS = [
-  // Email addresses
-  /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g,
-  // Bearer tokens
-  /\bBearer\s+[A-Za-z0-9\-._~+/]+=*\b/gi,
-  // Long alphanumeric tokens (32+ chars)
-  /\b[A-Za-z0-9]{32,}\b/g,
-  // JWT tokens (3 base64 segments)
-  /\beyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/g,
+  EMAIL_PATTERN,
+  BEARER_PATTERN,
+  LONG_TOKEN_PATTERN,
+  JWT_PATTERN,
 ];
 
 /**
@@ -40,11 +39,7 @@ const SENSITIVE_PATTERNS = [
  */
 export function redactSensitiveData(obj: unknown): unknown {
   if (typeof obj !== "object" || obj === null) {
-    // For primitive strings, check patterns
-    if (typeof obj === "string") {
-      return redactSensitiveString(obj);
-    }
-    return obj;
+    return typeof obj === "string" ? redactSensitiveString(obj) : obj;
   }
 
   if (Array.isArray(obj)) {
@@ -55,13 +50,11 @@ export function redactSensitiveData(obj: unknown): unknown {
   for (const [key, value] of Object.entries(obj)) {
     const keyLower = key.toLowerCase();
 
-    // Check if key name indicates sensitive data
     if (SENSITIVE_KEYS.some((sk) => keyLower.includes(sk))) {
       result[key] = "[REDACTED]";
       continue;
     }
 
-    // Recursively process the value
     if (typeof value === "string") {
       result[key] = redactSensitiveString(value);
     } else if (typeof value === "object" && value !== null) {

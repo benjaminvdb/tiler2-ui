@@ -3,10 +3,8 @@
  * Combines logging and error reporting into a single coherent system
  */
 
-// Severity levels for all observability events
 export type Severity = "debug" | "info" | "warn" | "error" | "fatal";
 
-// Error category for better organization and filtering
 export type ErrorCategory =
   | "auth"
   | "api"
@@ -20,7 +18,6 @@ export type ErrorCategory =
   | "system"
   | "unknown";
 
-// Context interface for all observability events
 export interface ObservabilityContext {
   userId?: string;
   threadId?: string;
@@ -34,7 +31,6 @@ export interface ObservabilityContext {
   skipNotification?: boolean;
 }
 
-// Structured error interface
 export interface StructuredError {
   id: string;
   message: string;
@@ -47,7 +43,6 @@ export interface StructuredError {
   environment: string;
 }
 
-// Logger interface for typed logging methods
 export interface ILogger {
   debug(message: string, context?: ObservabilityContext): void;
   info(message: string, context?: ObservabilityContext): void;
@@ -57,7 +52,6 @@ export interface ILogger {
   child(context: ObservabilityContext): ILogger;
 }
 
-// Configuration for observability system
 export interface ObservabilityConfig {
   enableConsoleLogging: boolean;
   enableUserNotification: boolean;

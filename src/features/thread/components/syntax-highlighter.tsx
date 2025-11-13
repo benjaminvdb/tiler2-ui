@@ -2,9 +2,6 @@ import { PrismAsyncLight as SyntaxHighlighterPrism } from "react-syntax-highligh
 import { coldarkDark } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import { FC } from "react";
 
-// PrismAsyncLight automatically loads languages on-demand
-// No need to manually register languages - it will dynamically import them when needed
-
 interface SyntaxHighlighterProps {
   children: string;
   language: string;

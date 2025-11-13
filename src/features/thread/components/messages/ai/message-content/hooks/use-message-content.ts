@@ -9,7 +9,6 @@ export function useMessageContent(message: Message) {
   const contentString = getContentString(content);
   const [hideToolCallsParam] = useSearchParamState("hideToolCalls");
 
-  // Fail-safe: Hide tool calls by default unless explicitly set to false
   const envDefaultHide = import.meta.env.VITE_HIDE_TOOL_CALLS !== "false";
   const hideToolCalls =
     hideToolCallsParam !== null ? hideToolCallsParam === true : envDefaultHide;

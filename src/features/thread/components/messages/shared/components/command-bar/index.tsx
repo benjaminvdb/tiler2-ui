@@ -65,27 +65,30 @@ const MessageActions: React.FC<MessageActionsProps> = ({
 }) => {
   const [copied, setCopied] = useState(false);
 
+  const copyPlainText = async () => {
+    await navigator.clipboard.writeText(content);
+  };
+
+  const copyHtml = async () => {
+    if (!htmlContainerRef?.current) {
+      await copyPlainText();
+      return;
+    }
+
+    const htmlContent = htmlContainerRef.current.innerHTML;
+    const clipboardItem = new ClipboardItem({
+      "text/html": new Blob([htmlContent], { type: "text/html" }),
+      "text/plain": new Blob([content], { type: "text/plain" }),
+    });
+    await navigator.clipboard.write([clipboardItem]);
+  };
+
   const handleCopy = async () => {
     try {
-      // Try to copy as HTML if htmlContainerRef is available
-      if (htmlContainerRef?.current) {
-        const htmlContent = htmlContainerRef.current.innerHTML;
-
-        // Use ClipboardItem API with both HTML and plain text MIME types
-        const clipboardItem = new ClipboardItem({
-          "text/html": new Blob([htmlContent], { type: "text/html" }),
-          "text/plain": new Blob([content], { type: "text/plain" }),
-        });
-
-        await navigator.clipboard.write([clipboardItem]);
-      } else {
-        // Fallback to plain text if ref is not available
-        await navigator.clipboard.writeText(content);
-      }
+      await copyHtml();
     } catch {
-      // Fallback to plain text for Safari/Firefox or if HTML copy fails
       try {
-        await navigator.clipboard.writeText(content);
+        await copyPlainText();
       } catch (fallbackErr) {
         console.error("Failed to copy:", fallbackErr);
       }
@@ -172,8 +175,6 @@ export const CommandBar: React.FC<CommandBarProps> = ({
   isLoading,
   onExpertHelpClick,
 }) => {
-  // Validation logic removed to avoid TypeScript strict optional property issues
-
   const showEdit = shouldShowEditButton(
     isHumanMessage,
     isEditing,

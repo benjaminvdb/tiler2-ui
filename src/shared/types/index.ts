@@ -55,7 +55,7 @@ export interface ArtifactContext {
  */
 export interface ThreadState {
   threadId: string | null;
-  messages: Message[]; // From @langchain/langgraph-sdk
+  messages: Message[];
   isLoading: boolean;
   error: string | null;
 }

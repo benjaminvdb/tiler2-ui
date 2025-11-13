@@ -22,14 +22,11 @@ export const InterruptHandler: React.FC<InterruptHandlerProps> = ({
 }) => {
   const stream = useStreamContext();
 
-  // Handle interrupt actions
   const handleInterruptAction = (
     type: "accept" | "ignore" | "respond" | "edit",
     args?: any,
   ) => {
     if (type === "respond" || type === "edit") {
-      // For respond/edit, we'll let the user type in the chat input
-      // The Thread component will detect the active interrupt and set response mode
       return;
     }
     const response = {
@@ -37,7 +34,6 @@ export const InterruptHandler: React.FC<InterruptHandlerProps> = ({
       args: args || null,
     };
 
-    // Resume the stream with the interrupt response
     stream.submit(null, {
       command: {
         resume: response,
@@ -51,7 +47,6 @@ export const InterruptHandler: React.FC<InterruptHandlerProps> = ({
       ? (interruptValue as HumanInterrupt)
       : null;
 
-  // For recognized interrupts, render as chat message
   if (normalizedInterrupt && (isLastMessage || hasNoAIOrToolMessages)) {
     return (
       <ChatInterrupt
@@ -63,9 +58,7 @@ export const InterruptHandler: React.FC<InterruptHandlerProps> = ({
       />
     );
   }
-  // For generic interrupts, also render as chat message if possible
   if (interruptValue && isLastMessage) {
-    // Try to convert generic interrupt to chat format
     const genericInterrupt = {
       action_request: {
         action: "user_input",

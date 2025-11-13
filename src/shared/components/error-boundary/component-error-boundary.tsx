@@ -25,8 +25,6 @@ class ErrorBoundaryClass extends React.Component<
   }
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     this.setState({ errorInfo });
-
-    // Use centralized error display service
     displayComponentError(error, errorInfo.componentStack || undefined);
 
     this.props.onError?.(error, errorInfo);
@@ -98,7 +96,9 @@ const DefaultErrorFallback: React.FC<ErrorFallbackProps> = ({
   );
 };
 
-// Lightweight error boundary for specific components
+/**
+ * Error boundary for sections of the UI that can fail independently.
+ */
 const ComponentErrorFallback: React.FC<ErrorFallbackProps> = ({ retry }) => {
   return (
     <div className="rounded-md border border-yellow-200 bg-yellow-50 p-4">
@@ -133,7 +133,9 @@ const ComponentErrorFallback: React.FC<ErrorFallbackProps> = ({ retry }) => {
   );
 };
 
-// Main error boundary for the entire app
+/**
+ * Error boundary used at the app shell.
+ */
 export const ErrorBoundary: React.FC<ErrorBoundaryProps> = (props) => {
   return (
     <ErrorBoundaryClass
@@ -143,7 +145,9 @@ export const ErrorBoundary: React.FC<ErrorBoundaryProps> = (props) => {
   );
 };
 
-// Specialized error boundary for individual components
+/**
+ * Error boundary tailored for smaller component trees.
+ */
 export const ComponentErrorBoundary: React.FC<
   Omit<ErrorBoundaryProps, "fallback">
 > = (props) => {
@@ -155,7 +159,9 @@ export const ComponentErrorBoundary: React.FC<
   );
 };
 
-// Higher-order component for wrapping components with error boundaries
+/**
+ * HOC helper for wrapping components with an error boundary.
+ */
 export const withErrorBoundary = <P extends object>(
   Component: React.ComponentType<P>,
   errorBoundaryProps?: Omit<ErrorBoundaryProps, "children">,

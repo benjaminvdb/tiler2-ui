@@ -36,7 +36,7 @@ export const ThreadActionsMenu = ({
           <DropdownMenuTrigger asChild>
             <button
               onClick={(e) => {
-                e.stopPropagation(); // Prevent thread navigation
+                e.stopPropagation();
               }}
               aria-label="Thread actions"
             >
@@ -51,7 +51,7 @@ export const ThreadActionsMenu = ({
         >
           <DropdownMenuItem
             onSelect={(e) => {
-              e.preventDefault(); // Keep dropdown behavior controlled
+              e.preventDefault();
               setRenameDialogOpen(true);
             }}
           >

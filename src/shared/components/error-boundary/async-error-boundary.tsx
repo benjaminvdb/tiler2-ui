@@ -17,10 +17,8 @@ export const AsyncErrorBoundary: React.FC<AsyncErrorBoundaryProps> = ({
   const [error, setError] = useState<Error | null>(null);
   const logger = useObservability();
 
-  // Listen for unhandled promise rejections
   useEffect(() => {
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-      // Convert to Error if it's not already
       const error =
         event.reason instanceof Error
           ? event.reason
@@ -34,7 +32,6 @@ export const AsyncErrorBoundary: React.FC<AsyncErrorBoundaryProps> = ({
 
       setError(error);
 
-      // Send error to Sentry with context
       Sentry.captureException(error, {
         contexts: {
           async: {
@@ -50,13 +47,11 @@ export const AsyncErrorBoundary: React.FC<AsyncErrorBoundaryProps> = ({
         level: "error",
       });
 
-      // Use centralized error display service
       displayAsyncError(
         error,
         "A network request failed. Please check your connection and try again.",
       );
 
-      // Prevent the default browser error handling
       event.preventDefault();
     };
 
@@ -84,7 +79,6 @@ export const AsyncErrorBoundary: React.FC<AsyncErrorBoundaryProps> = ({
   }
   return <>{children}</>;
 };
-// Hook for manually triggering async error boundaries
 export const useAsyncError = () => {
   const [, setError] = useState();
 

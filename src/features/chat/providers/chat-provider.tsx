@@ -3,7 +3,6 @@ import { Checkpoint } from "@langchain/langgraph-sdk";
 import type { ContentBlocks } from "@/shared/types";
 
 interface ChatContextType {
-  // Chat state
   chatStarted: boolean;
   firstTokenReceived: boolean;
   input: string;
@@ -13,7 +12,6 @@ interface ChatContextType {
   dragOver: boolean;
   dropRef: React.RefObject<HTMLDivElement | null>;
 
-  // Actions
   handleRegenerate: (parentCheckpoint: Checkpoint | null | undefined) => void;
   onInputChange: (value: string) => void;
   onSubmit: (e: React.FormEvent) => void;

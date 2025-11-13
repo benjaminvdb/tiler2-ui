@@ -15,7 +15,6 @@ export function useFileUpload({
   const dropRef = useRef<HTMLDivElement>(null);
   const [dragOver, setDragOver] = useState(false);
 
-  // Use modular handlers
   useDragDropHandlers({
     contentBlocks,
     setContentBlocks,

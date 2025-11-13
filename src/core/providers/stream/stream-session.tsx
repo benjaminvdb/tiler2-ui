@@ -23,6 +23,26 @@ import * as Sentry from "@sentry/react";
 import { reportStreamError } from "@/core/services/observability";
 import { useAccessToken } from "@/features/auth/hooks/use-access-token";
 
+const STREAM_TIMEOUT_MS = 15000;
+const THREAD_SYNC_DELAY_MS = 500;
+
+const isStreamErrorEvent = (
+  event: unknown,
+): event is { type: string; message?: string } =>
+  Boolean(event && typeof event === "object" && "type" in event);
+
+const reduceUiMessages = (
+  event: unknown,
+  mutate: (fn: (prev: GraphState) => GraphState) => void,
+) => {
+  if (isUIMessage(event) || isRemoveUIMessage(event)) {
+    mutate((prev: GraphState) => {
+      const ui = uiMessageReducer(prev.ui ?? [], event);
+      return { ...prev, ui };
+    });
+  }
+};
+
 export const StreamSession: React.FC<StreamSessionProps> = ({
   children,
   apiUrl,
@@ -82,12 +102,12 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
           logger.debug("Token fetched successfully", {
             operation: "token_fetch",
           });
-        } else {
-          // getToken returns null when token error occurs (user redirected to login)
-          const err = new Error("Failed to get access token");
-          setTokenError(err);
-          setAccessToken(null);
+          return;
         }
+
+        const err = new Error("Failed to resolve access token");
+        setTokenError(err);
+        setAccessToken(null);
       } catch (error) {
         const err = error instanceof Error ? error : new Error(String(error));
         logger.error(err, {
@@ -99,8 +119,7 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
     };
 
     fetchToken();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, isUserLoading, accessToken]); // Removed logger to prevent unnecessary re-runs
+  }, [user, isUserLoading, accessToken, getToken, logger]);
 
   /**
    * Create stream configuration only when token is available.
@@ -115,7 +134,7 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
       apiKey: undefined,
       assistantId,
       threadId: threadId ?? null,
-      timeoutMs: 15000, // 15 second timeout for all SDK operations
+      timeoutMs: STREAM_TIMEOUT_MS,
       defaultHeaders: {
         Authorization: `Bearer ${accessToken}`,
       },
@@ -126,15 +145,43 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
    * Initialize SDK only when token is available.
    * If no token yet, use a minimal config to prevent errors.
    */
+  const shouldFetchHistory = streamConfig !== null;
+
+  const verifyThreadCreation = useCallback(
+    async (id: string) => {
+      try {
+        await sleep(THREAD_SYNC_DELAY_MS);
+        const threads = await getThreads();
+        setThreads(threads);
+        logger.info("Thread created successfully", {
+          operation: "thread_creation_confirmed",
+          threadId: id,
+        });
+      } catch (error) {
+        if (error instanceof Error) {
+          logger.error(error, {
+            operation: "thread_creation_failed",
+            threadId: id,
+          });
+          removeOptimisticThread(id);
+          toast.error("Failed to create conversation", {
+            description: "Please try sending your message again.",
+          });
+        }
+      }
+    },
+    [getThreads, logger, removeOptimisticThread, setThreads],
+  );
+
   const streamValue = useTypedStream({
     ...(streamConfig ?? {
       apiUrl,
       apiKey: undefined,
       assistantId,
       threadId: null,
-      timeoutMs: 15000,
+      timeoutMs: STREAM_TIMEOUT_MS,
     }),
-    fetchStateHistory: streamConfig !== null, // Only fetch history when authenticated
+    fetchStateHistory: shouldFetchHistory,
     onMetadataEvent: (data: { run_id?: string }) => {
       if (data.run_id) {
         setCurrentRunId(data.run_id);
@@ -144,38 +191,28 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
       event: unknown,
       options: { mutate: (fn: (prev: GraphState) => GraphState) => void },
     ) => {
-      // Handle UI messages
-      if (isUIMessage(event) || isRemoveUIMessage(event)) {
-        options.mutate((prev: GraphState) => {
-          const ui = uiMessageReducer(prev.ui ?? [], event);
-          return { ...prev, ui };
+      reduceUiMessages(event, options.mutate);
+
+      if (isStreamErrorEvent(event) && event.type === "error") {
+        const errorMessage =
+          "message" in event && typeof event.message === "string"
+            ? event.message
+            : "Stream error occurred";
+
+        reportStreamError(new Error(errorMessage), {
+          operation: "stream_event",
+          component: "StreamSession",
+          skipNotification: true,
+          additionalData: {
+            eventType: event.type,
+            assistantId,
+            threadId,
+            runId: currentRunId,
+          },
         });
-      }
-
-      // Handle error events from stream
-      if (event && typeof event === "object" && "type" in event) {
-        if (event.type === "error") {
-          const errorMessage =
-            "message" in event && typeof event.message === "string"
-              ? event.message
-              : "Stream error occurred";
-
-          reportStreamError(new Error(errorMessage), {
-            operation: "stream_event",
-            component: "StreamSession",
-            skipNotification: true, // Error boundary will handle notification
-            additionalData: {
-              eventType: event.type,
-              assistantId,
-              threadId,
-              runId: currentRunId,
-            },
-          });
-        }
       }
     },
     onError: (error: unknown) => {
-      // Report general SDK errors to Sentry
       const err = error instanceof Error ? error : new Error(String(error));
       reportStreamError(err, {
         operation: "stream_general",
@@ -189,52 +226,7 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
     },
     onThreadId: (id: string) => {
       setThreadId(id);
-
-      /**
-       * Thread already added to sidebar via optimistic update.
-       * No need to fetch entire thread list - thread should already be visible.
-       * If we wanted to sync with server, we could optionally fetch this specific thread.
-       *
-       * Note: We removed the 4-second delay that was causing poor UX.
-       * The optimistic thread creation provides instant feedback.
-       */
-
-      // Optional: Verify thread was created successfully on server
-      // This is a background operation and doesn't block the UI
-      const verifyThreadCreation = async () => {
-        try {
-          // Brief delay to let the backend process the request
-          await sleep(500);
-
-          // Fetch updated threads to sync with server
-          const threads = await getThreads();
-          setThreads(threads);
-
-          // Log successful thread creation
-          logger.info("Thread created successfully", {
-            operation: "thread_creation_confirmed",
-            threadId: id,
-          });
-        } catch (error: unknown) {
-          // If verification fails, remove the optimistic thread and show error
-          if (error instanceof Error) {
-            logger.error(error, {
-              operation: "thread_creation_failed",
-              threadId: id,
-            });
-
-            // Remove the optimistic thread from sidebar
-            removeOptimisticThread(id);
-
-            // Show error toast to user
-            toast.error("Failed to create conversation", {
-              description: "Please try sending your message again.",
-            });
-          }
-        }
-      };
-
-      verifyThreadCreation();
+      verifyThreadCreation(id);
     },
   });
 
@@ -290,15 +282,13 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
    */
   const retryStream = useCallback(async () => {
     setStreamError(null);
-    // Re-fetch token to ensure it's fresh
     setAccessToken(null);
-    // Token fetch will trigger automatically via useEffect
   }, []);
 
+  const cloneStreamValue = () => Object.create(streamValue);
+
   const extendedStreamValue = useMemo(() => {
-    // Avoid spreading streamValue because it exposes getters (e.g. history)
-    // that throw when fetchStateHistory is false.
-    const base = Object.create(streamValue);
+    const base = cloneStreamValue();
     return Object.assign(base, {
       currentRunId,
       threadId,

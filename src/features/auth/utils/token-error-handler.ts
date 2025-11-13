@@ -26,23 +26,21 @@ export const isAccessTokenError = (error: unknown): error is Error => {
  */
 export const handleTokenError = (
   error: unknown,
-  context: TokenErrorContext = {},
+  { operation = "unknown", component = "unknown", additionalData }: TokenErrorContext = {},
 ): boolean => {
   if (!isAccessTokenError(error)) {
     return false;
   }
 
-  // Report the token error for monitoring
   reportAuthError(error, {
-    operation: context.operation || "unknown",
-    component: context.component || "unknown",
+    operation,
+    component,
     additionalData: {
       errorType: "AccessTokenError",
-      ...context.additionalData,
+      ...additionalData,
     },
   });
 
-  // Redirect to login for re-authentication
   if (typeof window !== "undefined") {
     window.location.href = "/api/auth/login";
   }
