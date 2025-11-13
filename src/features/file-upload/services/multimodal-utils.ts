@@ -30,17 +30,18 @@ export const fileToContentBlock = async (
     return {
       type: "image",
       mimeType: file.type,
+      mime_type: file.type, // Python backend expects snake_case
       data,
-      metadata: { name: file.name },
-    };
+    } as MultimodalContentBlock;
   }
 
   return {
     type: "file",
     mimeType: "application/pdf",
+    mime_type: "application/pdf", // Python backend expects snake_case
     data,
-    metadata: { filename: file.name },
-  };
+    source_type: "base64", // Tell Python backend we're using v0 format with 'data' field
+  } as MultimodalContentBlock;
 };
 
 export const fileToBase64 = async (file: File): Promise<string> => {
