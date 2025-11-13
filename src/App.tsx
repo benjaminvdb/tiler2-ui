@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import * as Sentry from "@sentry/react";
 import { MotionConfigProvider } from "@/core/providers/motion-config-provider";
@@ -37,6 +37,43 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   }
 
   return <>{children}</>;
+}
+
+/**
+ * Auth0 callback page that handles post-login redirect.
+ * Waits for authentication to complete, then navigates to home page.
+ * This is a backup navigation in case onRedirectCallback doesn't trigger properly.
+ * @returns Loading screen while processing auth callback
+ */
+function CallbackPage(): React.JSX.Element {
+  const { isLoading, isAuthenticated, error } = useAuth0();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isLoading) {
+      if (error) {
+        console.error("Auth0 callback error:", error);
+        // Navigate to home on error - let ProtectedRoute handle re-auth
+        navigate("/", { replace: true });
+      } else if (isAuthenticated) {
+        // Auth complete - navigate to home
+        navigate("/", { replace: true });
+      }
+    }
+  }, [isLoading, isAuthenticated, error, navigate]);
+
+  if (error) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-500">Authentication error occurred</p>
+          <p className="text-sm text-gray-500 mt-2">Redirecting...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return <LoadingScreen />;
 }
 
 /**
@@ -103,7 +140,7 @@ export function App() {
               />
               <Route
                 path="/auth/callback"
-                element={<LoadingScreen />}
+                element={<CallbackPage />}
               />
               <Route
                 path="*"
