@@ -57,6 +57,32 @@ interface MessageActionsProps {
   setIsEditing?: React.Dispatch<React.SetStateAction<boolean>> | undefined;
   onExpertHelpClick?: (() => void) | undefined;
 }
+
+interface ActionButtonProps {
+  onClick: () => void;
+  disabled: boolean;
+  icon: React.ReactNode;
+  label: string;
+}
+
+const ActionButton: React.FC<ActionButtonProps> = ({
+  onClick,
+  disabled,
+  icon,
+  label,
+}) => (
+  <button
+    type="button"
+    onClick={onClick}
+    disabled={disabled}
+    className="border-border bg-card hover:bg-sand flex items-center gap-1.5 rounded-md border px-3 py-1.5 transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-50"
+    style={{ boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)" }}
+  >
+    {icon}
+    <span className="text-foreground text-[13px]">{label}</span>
+  </button>
+);
+
 const MessageActions: React.FC<MessageActionsProps> = ({
   content,
   htmlContainerRef,
@@ -108,68 +134,38 @@ const MessageActions: React.FC<MessageActionsProps> = ({
 
   return (
     <div className="flex items-center gap-2">
-      <button
-        type="button"
+      <ActionButton
         onClick={handleCopy}
         disabled={isLoading}
-        className="border-border bg-card hover:bg-sand flex items-center gap-1.5 rounded-md border px-3 py-1.5 transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-50"
-        style={{ boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)" }}
-      >
-        <Copy
-          className="text-muted-foreground h-3.5 w-3.5"
-          strokeWidth={2}
-        />
-        <span className="text-foreground text-[13px]">
-          {copied ? "Copied!" : "Copy"}
-        </span>
-      </button>
+        icon={<Copy className="text-muted-foreground h-3.5 w-3.5" strokeWidth={2} />}
+        label={copied ? "Copied!" : "Copy"}
+      />
 
       {isAiMessage && !!handleRegenerate && (
-        <button
-          type="button"
+        <ActionButton
           onClick={handleRegenerate}
           disabled={isLoading}
-          className="border-border bg-card hover:bg-sand flex items-center gap-1.5 rounded-md border px-3 py-1.5 transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-50"
-          style={{ boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)" }}
-        >
-          <RefreshCcw
-            className="text-muted-foreground h-3.5 w-3.5"
-            strokeWidth={2}
-          />
-          <span className="text-foreground text-[13px]">Refresh</span>
-        </button>
+          icon={<RefreshCcw className="text-muted-foreground h-3.5 w-3.5" strokeWidth={2} />}
+          label="Refresh"
+        />
       )}
 
       {isAiMessage && !!onExpertHelpClick && (
-        <button
-          type="button"
+        <ActionButton
           onClick={onExpertHelpClick}
           disabled={isLoading}
-          className="border-border bg-card hover:bg-sand flex items-center gap-1.5 rounded-md border px-3 py-1.5 transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-50"
-          style={{ boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)" }}
-        >
-          <UserCircle
-            className="text-muted-foreground h-3.5 w-3.5"
-            strokeWidth={2}
-          />
-          <span className="text-foreground text-[13px]">Ask an Expert</span>
-        </button>
+          icon={<UserCircle className="text-muted-foreground h-3.5 w-3.5" strokeWidth={2} />}
+          label="Ask an Expert"
+        />
       )}
 
       {showEdit && (
-        <button
-          type="button"
+        <ActionButton
           onClick={handleEditClick}
           disabled={isLoading}
-          className="border-border bg-card hover:bg-sand flex items-center gap-1.5 rounded-md border px-3 py-1.5 transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-50"
-          style={{ boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)" }}
-        >
-          <Pencil
-            className="text-muted-foreground h-3.5 w-3.5"
-            strokeWidth={2}
-          />
-          <span className="text-foreground text-[13px]">Edit</span>
-        </button>
+          icon={<Pencil className="text-muted-foreground h-3.5 w-3.5" strokeWidth={2} />}
+          label="Edit"
+        />
       )}
     </div>
   );
