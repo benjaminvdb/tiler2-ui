@@ -64,7 +64,7 @@ export const ThreadList: React.FC<ThreadListProps> = ({
           thread={t}
           currentThreadId={threadId}
           navigationService={navigationService}
-          onThreadClick={onThreadClick}
+          {...(onThreadClick && { onThreadClick })}
         />
       ))}
     </div>

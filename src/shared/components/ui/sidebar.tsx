@@ -351,7 +351,7 @@ const Sidebar = ({
       variant={variant}
       collapsible={collapsible}
       state={state}
-      className={className}
+      {...(className && { className })}
       {...props}
     >
       {children}

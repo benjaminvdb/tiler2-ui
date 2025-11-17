@@ -18,12 +18,13 @@ export const MultimodalContent: React.FC<MultimodalContentProps> = ({
   return (
     <div className="flex flex-wrap items-end justify-end gap-2">
       {mediaBlocks.map((block, idx) => {
-        // Generate stable key from block content
-        const key = block.type === "image_url" && block.image_url?.url
-          ? `img-${block.image_url.url.slice(0, 50)}`
-          : block.type === "text"
-          ? `text-${block.text?.slice(0, 50)}`
-          : `block-${idx}`;
+        // Generate stable key from block content - use source for image/file types
+        const source = block.source;
+        const sourceKey =
+          source && typeof source === "object" && "url" in source
+            ? source.url || ("data" in source && typeof source.data === "string" ? source.data.slice(0, 50) : null) || idx
+            : idx;
+        const key = block.type === "image" ? `img-${sourceKey}` : `file-${sourceKey}`;
 
         return (
           <MultimodalPreview

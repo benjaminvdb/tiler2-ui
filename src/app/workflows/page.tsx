@@ -6,6 +6,7 @@ import React, {
   useCallback,
 } from "react";
 import { motion } from "framer-motion";
+import * as LucideIcons from "lucide-react";
 import { useUIContext } from "@/features/chat/providers/ui-provider";
 import { LoadingScreen } from "@/shared/components/loading-spinner";
 import { Button } from "@/shared/components/ui/button";

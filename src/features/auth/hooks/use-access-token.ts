@@ -35,9 +35,9 @@ export const useAccessToken = (
   const getToken = useCallback(async (): Promise<string | null> => {
     try {
       const token = await getAccessTokenSilently({
-        authorizationParams: {
-          audience: env.AUTH0_AUDIENCE,
-        },
+        authorizationParams: env.AUTH0_AUDIENCE
+          ? { audience: env.AUTH0_AUDIENCE }
+          : {},
       });
       return token;
     } catch (error) {

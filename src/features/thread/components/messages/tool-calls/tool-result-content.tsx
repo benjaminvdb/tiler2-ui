@@ -30,35 +30,52 @@ export const ToolResultContent: React.FC<ToolResultContentProps> = ({
           {isJsonContent ? (
             <table className="min-w-full divide-y divide-gray-200">
               <tbody className="divide-y divide-gray-200">
-                {(Array.isArray(parsedContent)
-                  ? isExpanded
-                    ? parsedContent
-                    : parsedContent.slice(0, 5)
-                  : Object.entries(parsedContent as Record<string, JsonValue>)
-                ).map((item, argIdx) => {
-                  const [key, value] = Array.isArray(parsedContent)
-                    ? [argIdx, item]
-                    : ([item[0], item[1]] as [string, JsonValue]);
-                  const rowKey = Array.isArray(parsedContent)
-                    ? `${argIdx}-${JSON.stringify(value)}`
-                    : item[0];
-                  return (
-                    <tr key={rowKey}>
-                      <td className="px-4 py-2 text-sm font-medium whitespace-nowrap text-gray-900">
-                        {key}
-                      </td>
-                      <td className="px-4 py-2 text-sm text-gray-500">
-                        {isComplexValue(value) ? (
-                          <code className="rounded bg-gray-50 px-2 py-1 font-mono text-sm break-all">
-                            {JSON.stringify(value, null, 2)}
-                          </code>
-                        ) : (
-                          String(value)
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
+                {Array.isArray(parsedContent)
+                  ? (isExpanded ? parsedContent : parsedContent.slice(0, 5)).map(
+                      (item, argIdx) => {
+                        const key = argIdx;
+                        const value = item;
+                        const rowKey = `${argIdx}-${JSON.stringify(value)}`;
+                        return (
+                          <tr key={rowKey}>
+                            <td className="px-4 py-2 text-sm font-medium whitespace-nowrap text-gray-900">
+                              {key}
+                            </td>
+                            <td className="px-4 py-2 text-sm text-gray-500">
+                              {isComplexValue(value) ? (
+                                <code className="rounded bg-gray-50 px-2 py-1 font-mono text-sm break-all">
+                                  {JSON.stringify(value, null, 2)}
+                                </code>
+                              ) : (
+                                String(value)
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      },
+                    )
+                  : Object.entries(
+                      parsedContent as Record<string, JsonValue>,
+                    ).map((entry) => {
+                      const [key, value] = entry;
+                      const rowKey = key;
+                      return (
+                        <tr key={rowKey}>
+                          <td className="px-4 py-2 text-sm font-medium whitespace-nowrap text-gray-900">
+                            {key}
+                          </td>
+                          <td className="px-4 py-2 text-sm text-gray-500">
+                            {isComplexValue(value) ? (
+                              <code className="rounded bg-gray-50 px-2 py-1 font-mono text-sm break-all">
+                                {JSON.stringify(value, null, 2)}
+                              </code>
+                            ) : (
+                              String(value)
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
               </tbody>
             </table>
           ) : (

@@ -86,7 +86,10 @@ async function processFilesInternal(
 }
 
 const FILE_DEBOUNCE_MS = 300;
-export const processFiles = debounce(processFilesInternal, FILE_DEBOUNCE_MS);
+export const processFiles = debounce(
+  processFilesInternal as (...args: unknown[]) => unknown,
+  FILE_DEBOUNCE_MS,
+) as typeof processFilesInternal;
 
 export const extractFilesFromSource = (
   source: File[] | FileList | DataTransferItemList,

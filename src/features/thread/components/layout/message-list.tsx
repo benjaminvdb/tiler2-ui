@@ -10,9 +10,9 @@ interface MessageListProps {
   handleRegenerate: (parentCheckpoint: Checkpoint | null | undefined) => void;
 }
 
-interface MessageWithTags extends Message {
+type MessageWithTags = Message & {
   tags?: string[];
-}
+};
 
 export const MessageList: React.FC<MessageListProps> = ({
   firstTokenReceived,

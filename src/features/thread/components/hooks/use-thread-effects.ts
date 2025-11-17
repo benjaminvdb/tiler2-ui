@@ -57,7 +57,7 @@ export function useThreadEffects({
 
   useEffect(() => {
     if (stream.interrupt && !isRespondingToInterrupt) {
-      setCurrentInterrupt(stream.interrupt);
+      setCurrentInterrupt(stream.interrupt as HumanInterrupt);
       setIsRespondingToInterrupt(true);
     } else if (!stream.interrupt && isRespondingToInterrupt) {
       setIsRespondingToInterrupt(false);

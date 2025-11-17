@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Thread } from "@/features/thread/components";
+import { Thread as ThreadType } from "@langchain/langgraph-sdk";
 import { ArtifactProvider } from "@/features/artifacts/components";
 import { useSearchParams } from "react-router-dom";
 import { useStreamContext } from "@/core/providers/stream";
@@ -48,7 +49,7 @@ const submitWorkflowWithThread = (
   workflowId: string,
   workflow: WorkflowData,
   userEmail: string,
-  addOptimisticThread: (thread: unknown) => void,
+  addOptimisticThread: (thread: ThreadType) => void,
 ) => {
   const optimisticThreadId = crypto.randomUUID();
   const threadName = generateThreadName({ workflowTitle: workflow.title });

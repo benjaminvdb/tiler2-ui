@@ -208,9 +208,9 @@ export function useAuthenticatedFetch() {
   const getToken = useCallback(async (): Promise<string> => {
     try {
       const token = await getAccessTokenSilently({
-        authorizationParams: {
-          audience: env.AUTH0_AUDIENCE,
-        },
+        authorizationParams: env.AUTH0_AUDIENCE
+          ? { audience: env.AUTH0_AUDIENCE }
+          : {},
       });
       return token;
     } catch (error) {

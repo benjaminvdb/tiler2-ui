@@ -7,7 +7,7 @@ import { Checkpoint } from "@langchain/langgraph-sdk";
 import type { StreamContextType } from "@/core/providers/stream/types";
 import type { MessageMetadata } from "@/shared/types";
 
-interface MessageMetadataWithBranch extends MessageMetadata {
+interface MessageMetadataWithBranch extends Partial<MessageMetadata> {
   branch?: string;
   branchOptions?: string[];
 }

@@ -1,5 +1,5 @@
 import { Message } from "@langchain/langgraph-sdk";
-import type { JsonValue } from "@/shared/types";
+import type { MessageContent } from "@langchain/core/messages";
 
 export interface HumanMessageProps {
   message: Message;
@@ -13,7 +13,7 @@ export interface EditableContentProps {
 }
 
 export interface MultimodalContentProps {
-  content: JsonValue;
+  content: MessageContent;
 }
 
 export interface TextContentProps {
