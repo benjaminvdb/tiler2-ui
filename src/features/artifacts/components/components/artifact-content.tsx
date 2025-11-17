@@ -1,7 +1,7 @@
 import { HTMLAttributes, useContext, useLayoutEffect, useRef } from "react";
 import { ArtifactSlotContext } from "../context";
 
-export function ArtifactContent(props: HTMLAttributes<HTMLDivElement>) {
+export const ArtifactContent = (props: HTMLAttributes<HTMLDivElement>) => {
   const context = useContext(ArtifactSlotContext);
 
   const [mounted] = context.mounted;

@@ -1,15 +1,22 @@
 import React, { useEffect } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
-import * as Sentry from "@sentry/react";
 import { MotionConfigProvider } from "@/core/providers/motion-config-provider";
 import { GlobalErrorBoundary } from "@/shared/components/error-boundary/global-error-boundary";
 import { AsyncErrorBoundary } from "@/shared/components/error-boundary/async-error-boundary";
 import { NetworkStatusProvider } from "@/core/providers/network-status-provider";
+import { SentryUserContext } from "@/core/providers/sentry-user-context";
+import {
+  Auth0DevStatus,
+  warnAuth0NotConfigured,
+} from "@/features/auth/services/auth0-client";
 import { AppLayout } from "@/app/app-layout";
 import { LoadingScreen } from "@/shared/components/loading-spinner";
 import ThreadsPage from "@/app/page";
 import WorkflowsPage from "@/app/workflows/page";
+
+// Warn if Auth0 is not configured in development
+warnAuth0NotConfigured();
 
 /**
  * Route wrapper that requires authentication via Auth0.
@@ -17,7 +24,7 @@ import WorkflowsPage from "@/app/workflows/page";
  * @param children - Components to render when user is authenticated
  * @returns Protected route content or loading screen
  */
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, isLoading, loginWithRedirect } = useAuth0();
 
   useEffect(() => {
@@ -45,7 +52,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
  * This is a backup navigation in case onRedirectCallback doesn't trigger properly.
  * @returns Loading screen while processing auth callback
  */
-function CallbackPage(): React.JSX.Element {
+const CallbackPage = (): React.JSX.Element => {
   const { isLoading, isAuthenticated, error } = useAuth0();
   const navigate = useNavigate();
 
@@ -76,33 +83,6 @@ function CallbackPage(): React.JSX.Element {
   return <LoadingScreen />;
 }
 
-/**
- * Syncs Auth0 user information with Sentry for error context and user identification.
- * Updates Sentry user context whenever Auth0 user changes (login/logout).
- * @returns null (context-only component)
- */
-function SentryUserContext() {
-  const { user } = useAuth0();
-
-  useEffect(() => {
-    if (user) {
-      const sentryUser: {
-        id: string;
-        email?: string;
-        username?: string;
-      } = {
-        id: user.sub ?? "",
-      };
-      if (user.email) sentryUser.email = user.email;
-      if (user.name) sentryUser.username = user.name;
-      Sentry.setUser(sentryUser);
-    } else {
-      Sentry.setUser(null);
-    }
-  }, [user]);
-
-  return null;
-}
 
 /**
  * Root application component.
@@ -110,13 +90,16 @@ function SentryUserContext() {
  * Sets up React Router with protected routes.
  * @returns Application with all providers and routing
  */
-export function App() {
+export const App = () => {
+  const { user } = useAuth0();
+
   return (
     <MotionConfigProvider>
       <GlobalErrorBoundary>
         <AsyncErrorBoundary>
           <NetworkStatusProvider>
-            <SentryUserContext />
+            <SentryUserContext user={user ?? null} />
+            <Auth0DevStatus />
             <Routes>
               <Route
                 path="/"

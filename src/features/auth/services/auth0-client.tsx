@@ -34,7 +34,7 @@ export function warnAuth0NotConfigured(): void {
   });
 }
 
-export function Auth0DevStatus(): React.JSX.Element | null {
+export const Auth0DevStatus = (): React.JSX.Element | null => {
   if (!isDevelopment || isAuth0ConfiguredClient()) {
     return null;
   }

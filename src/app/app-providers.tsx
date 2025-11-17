@@ -18,7 +18,7 @@ interface AppProvidersProps {
   children: React.ReactNode;
 }
 
-export function AppProviders({ children }: AppProvidersProps): React.ReactNode {
+export const AppProviders = ({ children }: AppProvidersProps): React.ReactNode => {
   const navigate = useNavigate();
 
   const [chatHistoryOpen, setChatHistoryOpen] =

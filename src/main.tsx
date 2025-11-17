@@ -1,3 +1,4 @@
+import "./instrumentation-client";
 import React, { useCallback } from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, useNavigate } from "react-router-dom";
@@ -9,36 +10,16 @@ import "./app/globals.css";
 import "@fontsource/comic-mono/400.css";
 import "@fontsource/comic-mono/700.css";
 
-if (env.SENTRY_DSN) {
-  Sentry.init({
-    dsn: env.SENTRY_DSN,
-    environment: import.meta.env.MODE,
-    ...(env.APP_VERSION && {
-      release: `agent-chat-ui@${env.APP_VERSION}`,
-    }),
-    integrations: [
-      Sentry.browserTracingIntegration(),
-      Sentry.replayIntegration({
-        maskAllText: false,
-        blockAllMedia: false,
-      }),
-    ],
-    tracesSampleRate: 1.0,
-    replaysSessionSampleRate: 0.1,
-    replaysOnErrorSampleRate: 1.0,
-  });
-}
-
 /**
  * Auth0 provider wrapper that uses React Router's navigate for post-login redirects.
  * This ensures React Router properly handles navigation after Auth0 callback,
  * preventing the infinite loading spinner issue.
  */
-function Auth0ProviderWithNavigate({
+const Auth0ProviderWithNavigate = ({
   children,
 }: {
   children: React.ReactNode;
-}): React.JSX.Element {
+}): React.JSX.Element => {
   const navigate = useNavigate();
 
   const onRedirectCallback = useCallback(

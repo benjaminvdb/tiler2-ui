@@ -6,7 +6,7 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { useSearchParams } from "react-router-dom";
 import { observability } from "./client";
-import type { ILogger, ObservabilityContext } from "./types";
+import type { Logger, ObservabilityContext } from "./types";
 
 /**
  * React hook for observability with auto-injected context
@@ -21,7 +21,7 @@ import type { ILogger, ObservabilityContext } from "./types";
  * logger.info("File uploaded", { fileName: file.name });
  * ```
  */
-export function useObservability(context?: ObservabilityContext): ILogger {
+export function useObservability(context?: ObservabilityContext): Logger {
   const { user } = useAuth0();
   const [searchParams] = useSearchParams();
 

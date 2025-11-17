@@ -2,14 +2,20 @@
   "$schema": "https://unpkg.com/knip@5/schema.json",
 
   "entry": [
-    "src/app/**/{page,layout,loading,error,global-error,not-found}.{ts,tsx}",
-    "src/app/**/route.ts",
-    "src/app/app-layout.tsx",
-    "src/app/app-providers.tsx",
+    "src/main.tsx",
+    "src/App.tsx",
     "src/env.ts"
   ],
 
   "project": ["src/**/*.{ts,tsx}"],
+
+  "paths": {
+    "@/*": ["./src/*"],
+    "@/features/*": ["./src/features/*"],
+    "@/shared/*": ["./src/shared/*"],
+    "@/core/*": ["./src/core/*"],
+    "@/infrastructure/*": ["./src/infrastructure/*"]
+  },
 
   "ignoreExportsUsedInFile": {
     "interface": true,
@@ -17,71 +23,10 @@
   },
 
   "ignoreDependencies": [
-    "@sentry/webpack-plugin",
-    "pino",
-    "pino-pretty",
-    "eslint-config-next",
     "@types/uuid"
   ],
 
   "ignore": [
-    "webpack.config.js",
-    "**/*.test.{ts,tsx}",
-    "**/*.spec.{ts,tsx}",
-    "**/generic-interrupt/**",
-    "src/features/thread/components/messages/generic-interrupt.tsx",
-    "src/features/side-panel/components/side-panel-*.tsx",
-    "src/features/side-panel/components/thread-history/**",
-    "src/features/side-panel/components/index.tsx",
-    "src/features/side-panel/index.ts",
-    "src/features/side-panel/constants.ts",
-    "src/features/thread/components/action-buttons.tsx",
-    "src/features/thread/components/thread-header/**",
-    "src/features/thread/components/chat-input-components/components/**",
-    "src/features/thread/components/messages/ai/interrupt-handler.tsx",
-    "src/features/thread/index.ts",
-    "src/features/thread/types/index.ts",
-    "src/features/auth/index.ts",
-    "src/features/auth/types/index.ts",
-    "src/features/auth/config/**",
-    "src/features/auth/hooks/use-access-token.ts",
-    "src/features/auth/utils/token-*.ts",
-    "src/features/auth/services/**",
-    "src/features/chat/index.ts",
-    "src/features/chat/types/index.ts",
-    "src/features/file-upload/**",
-    "src/features/artifacts/index.ts",
-    "src/core/config/**",
-    "src/core/routing/**",
-    "src/core/services/**",
-    "src/core/providers/stream/utils.ts",
-    "src/shared/components/layout/**",
-    "src/shared/components/error-boundary/**",
-    "src/shared/components/ui/password-input.tsx",
-    "src/shared/components/ui/button.tsx",
-    "src/shared/components/ui/dialog.tsx",
-    "src/shared/components/ui/dropdown-menu.tsx",
-    "src/shared/components/ui/sheet.tsx",
-    "src/shared/components/ui/sidebar.tsx",
-    "src/shared/hooks/use-csp-nonce.ts",
-    "src/shared/index.ts",
-    "src/shared/utils/retry.ts",
-    "src/shared/utils/validation.ts",
-    "src/features/thread/components/markdown/components/markdown-elements.tsx",
-    "src/features/thread/components/messages/ai/message-content/components/index.ts",
-    "src/features/thread/components/messages/shared/components/command-bar/validation.ts",
-    "src/features/thread/components/messages/shared/components/content-copyable.tsx",
-    "src/features/thread/components/messages/shared/index.tsx",
-    "src/features/thread/components/chat-input-components/types.ts",
-    "src/features/thread/components/hooks/use-thread-handlers/types.ts",
-    "src/features/auth/components/**",
-    "src/shared/types/index.ts"
-  ],
-
-  "next": {
-    "entry": [
-      "src/app/**/{page,layout,loading,error,global-error,not-found}.{ts,tsx}",
-      "src/app/**/route.ts"
-    ]
-  }
+    "src/vite-env.d.ts"
+  ]
 }

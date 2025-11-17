@@ -15,12 +15,20 @@
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint . --ext ts,tsx --fix",
+    "lint:diff": "git diff --name-only --diff-filter=ACMR main...HEAD | grep -E '\\.(ts|tsx)$' | xargs -r eslint --report-unused-disable-directives --max-warnings 0",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "format:diff": "git diff --name-only --diff-filter=ACMR main...HEAD | grep -E '\\.(ts|tsx)$' | xargs -r prettier --check",
     "analyze": "vite-bundle-visualizer",
     "check": "tsc --noEmit",
+    "check:watch": "tsc --noEmit --watch",
     "knip": "knip",
-    "knip:production": "knip --production"
+    "knip:production": "knip --production",
+    "knip:export": "knip --reporter json > knip-report.json",
+    "validate": "pnpm run check && pnpm run lint && pnpm run format:check",
+    "validate:quick": "pnpm run check && pnpm run lint:diff && pnpm run format:diff",
+    "clean": "rm -rf dist node_modules/.vite",
+    "clean:full": "rm -rf dist node_modules/.vite node_modules pnpm-lock.yaml && pnpm install"
   },
   "dependencies": {
     "@auth0/auth0-react": "^2.3.1",
@@ -62,7 +70,6 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.32.0",
     "@sentry/vite-plugin": "^4.6.0",
     "@tailwindcss/postcss": "^4.1.11",
@@ -73,6 +80,7 @@
     "@types/uuid": "^10.0.0",
     "@vitejs/plugin-react": "^4.3.4",
     "eslint": "^9.32.0",
+    "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.3.0",

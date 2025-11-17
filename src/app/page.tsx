@@ -26,7 +26,7 @@ interface WorkflowData {
  * Watches for workflow query parameter and automatically submits to create a new thread.
  * @returns Thread component with artifact provider
  */
-function ThreadWithWorkflowHandler(): React.ReactNode {
+const ThreadWithWorkflowHandler = (): React.ReactNode => {
   const [searchParams] = useSearchParams();
   const stream = useStreamContext();
   const workflowId = searchParams.get("workflow");
@@ -180,10 +180,12 @@ function ThreadWithWorkflowHandler(): React.ReactNode {
  * Wraps thread handler with artifact provider to enable side-panel artifact display.
  * @returns Root threads page with artifact support
  */
-export default function ThreadsPage(): React.ReactNode {
+const ThreadsPage = (): React.ReactNode => {
   return (
     <ArtifactProvider>
       <ThreadWithWorkflowHandler />
     </ArtifactProvider>
   );
-}
+};
+
+export default ThreadsPage;

@@ -16,9 +16,9 @@ interface AppLayoutContentProps {
  * @param children - Main page content to display in the sidebar inset area
  * @returns Layout with sidebar and content area
  */
-function AppLayoutContent({
+const AppLayoutContent = ({
   children,
-}: AppLayoutContentProps): React.ReactNode {
+}: AppLayoutContentProps): React.ReactNode => {
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="flex h-screen w-full">
@@ -42,7 +42,7 @@ interface AppLayoutProps {
  * @param children - Page content to render within the layout
  * @returns Full layout with providers and sidebar structure
  */
-export function AppLayout({ children }: AppLayoutProps): React.ReactNode {
+export const AppLayout = ({ children }: AppLayoutProps): React.ReactNode => {
   return (
     <ErrorBoundary>
       <React.Suspense fallback={<LoadingScreen />}>

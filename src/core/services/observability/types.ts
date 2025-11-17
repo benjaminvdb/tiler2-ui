@@ -43,13 +43,13 @@ export interface StructuredError {
   environment: string;
 }
 
-export interface ILogger {
+export interface Logger {
   debug(message: string, context?: ObservabilityContext): void;
   info(message: string, context?: ObservabilityContext): void;
   warn(message: string, context?: ObservabilityContext): void;
   error(error: Error | string, context?: ObservabilityContext): void;
   fatal(error: Error | string, context?: ObservabilityContext): void;
-  child(context: ObservabilityContext): ILogger;
+  child(context: ObservabilityContext): Logger;
 }
 
 export interface ObservabilityConfig {

@@ -61,7 +61,7 @@ export {
 } from "./client";
 
 export type {
-  ILogger,
+  Logger,
   Severity,
   ErrorCategory,
   ObservabilityContext,

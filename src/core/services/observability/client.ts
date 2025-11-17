@@ -7,7 +7,7 @@
 import * as Sentry from "@sentry/react";
 import type {
   ErrorCategory,
-  ILogger,
+  Logger,
   ObservabilityConfig,
   ObservabilityContext,
   Severity,
@@ -138,7 +138,7 @@ const showUserNotification = (
 /**
  * ObservabilityClient - Unified logging and error tracking
  */
-class ObservabilityClient implements ILogger {
+class ObservabilityClient implements Logger {
   private context: ObservabilityContext;
 
   constructor(context: ObservabilityContext = {}) {
@@ -148,7 +148,7 @@ class ObservabilityClient implements ILogger {
   /**
    * Create a child logger with merged context
    */
-  child(context: ObservabilityContext): ILogger {
+  child(context: ObservabilityContext): Logger {
     return new ObservabilityClient({
       ...this.context,
       ...context,
@@ -353,14 +353,14 @@ const globalObservability = new ObservabilityClient();
 /**
  * Get the global observability client
  */
-export function getObservability(): ILogger {
+export function getObservability(): Logger {
   return globalObservability;
 }
 
 /**
  * Create a new observability client with context
  */
-export function createObservability(context?: ObservabilityContext): ILogger {
+export function createObservability(context?: ObservabilityContext): Logger {
   return new ObservabilityClient(context);
 }
 

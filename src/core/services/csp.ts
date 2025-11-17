@@ -1,7 +1,7 @@
 import { env } from "@/env";
 
 /**
- * Generate a cryptographically secure nonce for CSP
+ * Generate a cryptographically secure nonce for 
  */
 export function generateNonce(): string {
   return Buffer.from(crypto.randomUUID()).toString("base64");

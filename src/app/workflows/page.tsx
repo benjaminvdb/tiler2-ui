@@ -103,7 +103,7 @@ const mergeWithBuiltIns = (
   );
 };
 
-export default function WorkflowsPage(): React.ReactNode {
+const WorkflowsPage = (): React.ReactNode => {
   const { navigationService } = useUIContext();
   const { apiUrl } = getClientConfig();
   const [workflows, setWorkflows] =
@@ -670,4 +670,6 @@ export default function WorkflowsPage(): React.ReactNode {
       </motion.div>
     </div>
   );
-}
+};
+
+export default WorkflowsPage;
