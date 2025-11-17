@@ -55,7 +55,7 @@ class GlobalErrorBoundary extends Component<Props, State> {
     });
 
     displayCriticalError(error, errorInfo.componentStack || undefined, [
-      { label: "Retry", onClick: () => this.handleRetry() },
+      { label: "Retry", onClick: this.handleRetry },
     ]);
 
     this.props.onError?.(error, errorInfo);
@@ -85,6 +85,10 @@ const DefaultErrorFallback: React.FC<{
   error: Error;
   retry: () => void;
 }> = ({ error, retry }) => {
+  const handleRefresh = React.useCallback(() => {
+    window.location.reload();
+  }, []);
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50">
       <div className="rounded-lg bg-white p-8 shadow-lg">
@@ -116,7 +120,7 @@ const DefaultErrorFallback: React.FC<{
             </button>
             <button
               type="button"
-              onClick={() => window.location.reload()}
+              onClick={handleRefresh}
               className="rounded bg-gray-600 px-4 py-2 text-white hover:bg-gray-700"
             >
               Refresh Page

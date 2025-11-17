@@ -1,7 +1,7 @@
 import { Copy, CopyCheck } from "lucide-react";
 import { TooltipIconButton } from "../../../tooltip-icon-button";
 import { AnimatePresence, motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { ContentCopyableProps } from "../types";
 
 export const ContentCopyable: React.FC<ContentCopyableProps> = ({
@@ -10,16 +10,19 @@ export const ContentCopyable: React.FC<ContentCopyableProps> = ({
 }) => {
   const [copied, setCopied] = useState(false);
 
-  const handleCopy = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    e.stopPropagation();
-    navigator.clipboard.writeText(content);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
+  const handleCopy = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+      e.stopPropagation();
+      navigator.clipboard.writeText(content);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    },
+    [content],
+  );
 
   return (
     <TooltipIconButton
-      onClick={(e) => handleCopy(e)}
+      onClick={handleCopy}
       variant="ghost"
       tooltip="Copy content"
       disabled={disabled}

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { MessageList } from "./message-list";
 import { ChatFooter } from "./chat-footer";
 import { AnimatedContainer } from "./main-chat-area/components/animated-container";
@@ -18,13 +18,19 @@ const MainChatAreaComponent: React.FC = () => {
   const hasMessages = messages && messages.length > 0;
   const isLoading = stream.isLoading;
 
-  const handleSuggestionClick = (text: string) => {
-    stream.submit({ messages: [{ type: "human", content: text }] });
-  };
+  const handleSuggestionClick = useCallback(
+    (text: string) => {
+      stream.submit({ messages: [{ type: "human", content: text }] });
+    },
+    [stream],
+  );
 
-  const handleWorkflowCategoryClick = (_category: string) => {
-    navigationService.navigateToWorkflows();
-  };
+  const handleWorkflowCategoryClick = useCallback(
+    (_category: string) => {
+      navigationService.navigateToWorkflows();
+    },
+    [navigationService],
+  );
 
   const renderMessageContent = () => {
     if (hasMessages) {

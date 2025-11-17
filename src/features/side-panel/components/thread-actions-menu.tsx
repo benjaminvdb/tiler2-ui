@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { MoreHorizontal, Edit2, Trash2 } from "lucide-react";
 import {
   DropdownMenu,
@@ -26,6 +26,24 @@ export const ThreadActionsMenu = ({
   const [renameDialogOpen, setRenameDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
+  const handleButtonClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+  }, []);
+
+  const handleCloseAutoFocus = useCallback((e: Event) => {
+    e.preventDefault();
+  }, []);
+
+  const handleRenameSelect = useCallback((e: Event) => {
+    e.preventDefault();
+    setRenameDialogOpen(true);
+  }, []);
+
+  const handleDeleteSelect = useCallback((e: Event) => {
+    e.preventDefault();
+    setDeleteDialogOpen(true);
+  }, []);
+
   return (
     <>
       <DropdownMenu>
@@ -36,9 +54,7 @@ export const ThreadActionsMenu = ({
           <DropdownMenuTrigger asChild>
             <button
               type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-              }}
+              onClick={handleButtonClick}
               aria-label="Thread actions"
             >
               <MoreHorizontal className="h-4 w-4" />
@@ -48,22 +64,14 @@ export const ThreadActionsMenu = ({
         <DropdownMenuContent
           align="end"
           className="w-40"
-          onCloseAutoFocus={(e) => e.preventDefault()}
+          onCloseAutoFocus={handleCloseAutoFocus}
         >
-          <DropdownMenuItem
-            onSelect={(e) => {
-              e.preventDefault();
-              setRenameDialogOpen(true);
-            }}
-          >
+          <DropdownMenuItem onSelect={handleRenameSelect}>
             <Edit2 className="mr-2 h-4 w-4" />
             Rename Thread
           </DropdownMenuItem>
           <DropdownMenuItem
-            onSelect={(e) => {
-              e.preventDefault();
-              setDeleteDialogOpen(true);
-            }}
+            onSelect={handleDeleteSelect}
             className="text-destructive focus:text-destructive"
           >
             <Trash2 className="mr-2 h-4 w-4" />

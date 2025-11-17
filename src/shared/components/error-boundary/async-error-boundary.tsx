@@ -65,9 +65,9 @@ export const AsyncErrorBoundary: React.FC<AsyncErrorBoundaryProps> = ({
     };
   }, [logger]);
 
-  const retry = () => {
+  const retry = React.useCallback(() => {
     setError(null);
-  };
+  }, []);
 
   if (error && Fallback) {
     return (

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { Button } from "@/shared/components/ui/button";
 import {
   Tooltip,
@@ -26,10 +26,10 @@ export const NavigationButton: React.FC<NavigationButtonProps> = ({
   isCollapsed = false,
   shortcut,
 }) => {
-  const handleClick = () => {
+  const handleClick = useCallback(() => {
     console.log("NavigationButton clicked:", label);
     onClick();
-  };
+  }, [label, onClick]);
 
   const shortcutText = shortcut ? getShortcutText(shortcut) : null;
 

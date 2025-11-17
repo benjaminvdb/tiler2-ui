@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { BranchSwitcher } from "../../../shared/components/branch-switcher";
 import { CommandBar } from "../../../shared/components/command-bar";
@@ -28,12 +28,35 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
   const [isExpertHelpDialogOpen, setIsExpertHelpDialogOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
+  const handleMouseEnter = useCallback(() => {
+    setIsHovered(true);
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    setIsHovered(false);
+  }, []);
+
+  const handleBranchSelect = useCallback(
+    (branch: string) => {
+      thread.setBranch(branch);
+    },
+    [thread],
+  );
+
+  const handleRegenerateClick = useCallback(() => {
+    handleRegenerate(parentCheckpoint);
+  }, [handleRegenerate, parentCheckpoint]);
+
+  const handleExpertHelpClick = useCallback(() => {
+    setIsExpertHelpDialogOpen(true);
+  }, []);
+
   return (
     <>
       <div
         className="mr-auto"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
         <motion.div
           initial={{ opacity: 0, y: -8 }}
@@ -45,7 +68,7 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
           <BranchSwitcher
             branch={(meta as any)?.branch}
             branchOptions={(meta as any)?.branchOptions}
-            onSelect={(branch) => thread.setBranch(branch)}
+            onSelect={handleBranchSelect}
             isLoading={isLoading}
           />
           <CommandBar
@@ -53,8 +76,8 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
             htmlContainerRef={htmlContainerRef}
             isLoading={isLoading}
             isAiMessage={true}
-            handleRegenerate={() => handleRegenerate(parentCheckpoint)}
-            onExpertHelpClick={() => setIsExpertHelpDialogOpen(true)}
+            handleRegenerate={handleRegenerateClick}
+            onExpertHelpClick={handleExpertHelpClick}
           />
         </motion.div>
       </div>

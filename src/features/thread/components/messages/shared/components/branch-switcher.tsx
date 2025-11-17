@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { BranchSwitcherProps } from "../types";
@@ -8,8 +9,23 @@ export const BranchSwitcher: React.FC<BranchSwitcherProps> = ({
   onSelect,
   isLoading,
 }) => {
+  const index = branchOptions ? branchOptions.indexOf(branch || "") : -1;
+
+  const handlePreviousClick = useCallback(() => {
+    if (!branchOptions) return;
+    const prevBranch = branchOptions[index - 1];
+    if (!prevBranch) return;
+    onSelect(prevBranch);
+  }, [branchOptions, index, onSelect]);
+
+  const handleNextClick = useCallback(() => {
+    if (!branchOptions) return;
+    const nextBranch = branchOptions[index + 1];
+    if (!nextBranch) return;
+    onSelect(nextBranch);
+  }, [branchOptions, index, onSelect]);
+
   if (!branchOptions || !branch) return null;
-  const index = branchOptions.indexOf(branch);
 
   return (
     <div className="flex items-center gap-2">
@@ -17,11 +33,7 @@ export const BranchSwitcher: React.FC<BranchSwitcherProps> = ({
         variant="ghost"
         size="icon"
         className="size-6 p-1"
-        onClick={() => {
-          const prevBranch = branchOptions[index - 1];
-          if (!prevBranch) return;
-          onSelect(prevBranch);
-        }}
+        onClick={handlePreviousClick}
         disabled={isLoading}
       >
         <ChevronLeft />
@@ -33,11 +45,7 @@ export const BranchSwitcher: React.FC<BranchSwitcherProps> = ({
         variant="ghost"
         size="icon"
         className="size-6 p-1"
-        onClick={() => {
-          const nextBranch = branchOptions[index + 1];
-          if (!nextBranch) return;
-          onSelect(nextBranch);
-        }}
+        onClick={handleNextClick}
         disabled={isLoading}
       >
         <ChevronRight />
