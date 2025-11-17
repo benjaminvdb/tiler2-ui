@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { cn } from "@/shared/utils/utils";
 import { useStreamContext } from "@/core/providers/stream";
 import { useFileUpload } from "@/features/file-upload/hooks/use-file-upload";
+import type { MultimodalContentBlock } from "@/shared/types";
 
 import { useThreadState } from "./hooks/use-thread-state";
 import { useThreadHandlers } from "./hooks/use-thread-handlers";
@@ -10,6 +11,67 @@ import { MainChatArea } from "./layout/main-chat-area";
 import { ArtifactPanel } from "./layout/artifact-panel";
 import { ComponentErrorBoundary } from "@/shared/components/error-boundary";
 import { ChatProvider } from "@/features/chat/providers/chat-provider";
+
+/**
+ * Custom hook to create chat context value
+ */
+function useChatContextValue(params: {
+  chatStarted: boolean;
+  firstTokenReceived: boolean;
+  handleRegenerate: () => void;
+  input: string;
+  setInput: (input: string) => void;
+  handleSubmit: () => void;
+  handlePaste: (event: React.ClipboardEvent) => void;
+  handleFileUpload: (files: FileList | File[]) => Promise<void>;
+  contentBlocks: MultimodalContentBlock[];
+  removeBlock: (index: number) => void;
+  isRespondingToInterrupt: boolean;
+  hideToolCalls: boolean;
+  setHideToolCalls: (hide: boolean) => void;
+  dragOver: boolean;
+  dropRef: React.RefObject<HTMLDivElement>;
+  handleActionClick: (action: string) => void;
+}) {
+  return useMemo(
+    () => ({
+      chatStarted: params.chatStarted,
+      firstTokenReceived: params.firstTokenReceived,
+      handleRegenerate: params.handleRegenerate,
+      input: params.input,
+      onInputChange: params.setInput,
+      onSubmit: params.handleSubmit,
+      onPaste: params.handlePaste,
+      onFileUpload: params.handleFileUpload,
+      contentBlocks: params.contentBlocks,
+      onRemoveBlock: params.removeBlock,
+      isRespondingToInterrupt: params.isRespondingToInterrupt,
+      hideToolCalls: params.hideToolCalls,
+      onHideToolCallsChange: params.setHideToolCalls,
+      dragOver: params.dragOver,
+      dropRef: params.dropRef,
+      handleActionClick: params.handleActionClick,
+    }),
+    [
+      params.chatStarted,
+      params.firstTokenReceived,
+      params.handleRegenerate,
+      params.input,
+      params.setInput,
+      params.handleSubmit,
+      params.handlePaste,
+      params.handleFileUpload,
+      params.contentBlocks,
+      params.removeBlock,
+      params.isRespondingToInterrupt,
+      params.hideToolCalls,
+      params.setHideToolCalls,
+      params.dragOver,
+      params.dropRef,
+      params.handleActionClick,
+    ],
+  );
+}
 
 export const Thread = (): React.JSX.Element => {
   const {
@@ -69,46 +131,24 @@ export const Thread = (): React.JSX.Element => {
 
   const chatStarted = !!threadId || !!messages.length;
 
-  const memoizedChatStarted = useMemo(() => chatStarted, [chatStarted]);
-
-  const chatContextValue = useMemo(
-    () => ({
-      chatStarted: memoizedChatStarted,
-      firstTokenReceived,
-      handleRegenerate,
-      input,
-      onInputChange: setInput,
-      onSubmit: handleSubmit,
-      onPaste: handlePaste,
-      onFileUpload: handleFileUpload,
-      contentBlocks,
-      onRemoveBlock: removeBlock,
-      isRespondingToInterrupt,
-      hideToolCalls,
-      onHideToolCallsChange: setHideToolCalls,
-      dragOver,
-      dropRef,
-      handleActionClick,
-    }),
-    [
-      memoizedChatStarted,
-      firstTokenReceived,
-      handleRegenerate,
-      input,
-      setInput,
-      handleSubmit,
-      handlePaste,
-      handleFileUpload,
-      contentBlocks,
-      removeBlock,
-      isRespondingToInterrupt,
-      hideToolCalls,
-      setHideToolCalls,
-      dragOver,
-      dropRef,
-      handleActionClick,
-    ],
-  );
+  const chatContextValue = useChatContextValue({
+    chatStarted,
+    firstTokenReceived,
+    handleRegenerate,
+    input,
+    setInput,
+    handleSubmit,
+    handlePaste,
+    handleFileUpload,
+    contentBlocks,
+    removeBlock,
+    isRespondingToInterrupt,
+    hideToolCalls,
+    setHideToolCalls,
+    dragOver,
+    dropRef,
+    handleActionClick,
+  });
 
   return (
     <ChatProvider value={chatContextValue}>
