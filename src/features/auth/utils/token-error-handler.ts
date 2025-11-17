@@ -41,9 +41,8 @@ export const handleTokenError = (
     },
   });
 
-  if (typeof window !== "undefined") {
-    window.location.href = "/api/auth/login";
-  }
+  // Don't redirect here - let the ProtectedRoute component handle authentication
+  // via loginWithRedirect(). This prevents hard-coded redirects to non-existent routes.
 
   return true;
 };

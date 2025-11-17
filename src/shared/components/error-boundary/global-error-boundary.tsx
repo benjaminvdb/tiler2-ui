@@ -34,8 +34,9 @@ class GlobalErrorBoundary extends Component<Props, State> {
       errorInfo,
     });
 
+    // AccessTokenError handling is delegated to ProtectedRoute component
+    // which calls loginWithRedirect() from Auth0. Don't redirect here.
     if (error.name === "AccessTokenError") {
-      window.location.href = "/api/auth/login";
       return;
     }
 
