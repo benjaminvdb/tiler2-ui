@@ -48,6 +48,9 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
   apiUrl,
   assistantId,
 }) => {
+  const handleLoginRedirect = useCallback(() => {
+    window.location.href = "/auth/login";
+  }, []);
   const [threadId, setThreadId] = useSearchParamState("threadId");
   const { getThreads, setThreads, removeOptimisticThread } = useThreads();
   const threadFetchControllerRef = useRef<AbortController | null>(null);
@@ -325,7 +328,7 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
             </p>
             <button
               type="button"
-              onClick={() => (window.location.href = "/auth/login")}
+              onClick={handleLoginRedirect}
               className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md px-4 py-2 text-sm"
             >
               Log In
