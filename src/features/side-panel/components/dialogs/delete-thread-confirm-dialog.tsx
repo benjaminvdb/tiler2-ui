@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import {
   Dialog,
   DialogContent,
@@ -27,7 +27,7 @@ export const DeleteThreadConfirmDialog = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleConfirm = async () => {
+  const handleConfirm = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -39,14 +39,21 @@ export const DeleteThreadConfirmDialog = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [onConfirm, threadId, onOpenChange]);
 
-  const handleOpenChange = (newOpen: boolean) => {
-    if (newOpen) {
-      setError(null);
-    }
-    onOpenChange(newOpen);
-  };
+  const handleOpenChange = useCallback(
+    (newOpen: boolean) => {
+      if (newOpen) {
+        setError(null);
+      }
+      onOpenChange(newOpen);
+    },
+    [onOpenChange],
+  );
+
+  const handleCancel = useCallback(() => {
+    onOpenChange(false);
+  }, [onOpenChange]);
 
   return (
     <Dialog
@@ -73,7 +80,7 @@ export const DeleteThreadConfirmDialog = ({
           <Button
             type="button"
             variant="outline"
-            onClick={() => onOpenChange(false)}
+            onClick={handleCancel}
             disabled={loading}
           >
             Cancel

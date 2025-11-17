@@ -1,4 +1,4 @@
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, useCallback } from "react";
 import {
   Dialog,
   DialogContent,
@@ -30,47 +30,64 @@ export const RenameThreadDialog = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setError(null);
-
-    const trimmedTitle = title.trim();
-
-    if (trimmedTitle === "") {
-      setError("Thread title cannot be empty");
-      return;
-    }
-
-    if (trimmedTitle.length > 100) {
-      setError("Thread title must be 100 characters or less");
-      return;
-    }
-
-    if (trimmedTitle === currentTitle) {
-      onOpenChange(false);
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      await onRename(threadId, trimmedTitle);
-      onOpenChange(false);
-      setTitle(trimmedTitle);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to rename thread");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleOpenChange = (newOpen: boolean) => {
-    if (newOpen) {
-      setTitle(currentTitle);
+  const handleSubmit = useCallback(
+    async (e: FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
       setError(null);
-    }
-    onOpenChange(newOpen);
-  };
+
+      const trimmedTitle = title.trim();
+
+      if (trimmedTitle === "") {
+        setError("Thread title cannot be empty");
+        return;
+      }
+
+      if (trimmedTitle.length > 100) {
+        setError("Thread title must be 100 characters or less");
+        return;
+      }
+
+      if (trimmedTitle === currentTitle) {
+        onOpenChange(false);
+        return;
+      }
+
+      setLoading(true);
+
+      try {
+        await onRename(threadId, trimmedTitle);
+        onOpenChange(false);
+        setTitle(trimmedTitle);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to rename thread");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [title, currentTitle, onOpenChange, onRename, threadId],
+  );
+
+  const handleOpenChange = useCallback(
+    (newOpen: boolean) => {
+      if (newOpen) {
+        setTitle(currentTitle);
+        setError(null);
+      }
+      onOpenChange(newOpen);
+    },
+    [currentTitle, onOpenChange],
+  );
+
+  const handleTitleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setTitle(e.target.value);
+    },
+    [],
+  );
+
+  const handleCancel = useCallback(() => {
+    onOpenChange(false);
+  }, [onOpenChange]);
 
   return (
     <Dialog
@@ -93,7 +110,7 @@ export const RenameThreadDialog = ({
                 id="thread-title"
                 className="h-12 text-base"
                 value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                onChange={handleTitleChange}
                 placeholder="Enter thread title"
                 maxLength={100}
                 disabled={loading}
@@ -107,7 +124,7 @@ export const RenameThreadDialog = ({
             <Button
               type="button"
               variant="outline"
-              onClick={() => onOpenChange(false)}
+              onClick={handleCancel}
               disabled={loading}
             >
               Cancel
