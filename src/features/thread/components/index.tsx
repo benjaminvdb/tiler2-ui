@@ -18,19 +18,19 @@ import { ChatProvider } from "@/features/chat/providers/chat-provider";
 function useChatContextValue(params: {
   chatStarted: boolean;
   firstTokenReceived: boolean;
-  handleRegenerate: () => void;
+  handleRegenerate: (parentCheckpoint: import("@langchain/langgraph-sdk").Checkpoint | null | undefined) => void;
   input: string;
   setInput: (input: string) => void;
-  handleSubmit: () => void;
-  handlePaste: (event: React.ClipboardEvent) => void;
-  handleFileUpload: (files: FileList | File[]) => Promise<void>;
+  handleSubmit: (e: React.FormEvent) => void;
+  handlePaste: (e: React.ClipboardEvent<HTMLTextAreaElement | HTMLInputElement>) => void;
+  handleFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   contentBlocks: MultimodalContentBlock[];
   removeBlock: (index: number) => void;
   isRespondingToInterrupt: boolean;
   hideToolCalls: boolean;
   setHideToolCalls: (hide: boolean) => void;
   dragOver: boolean;
-  dropRef: React.RefObject<HTMLDivElement>;
+  dropRef: React.RefObject<HTMLDivElement | null>;
   handleActionClick: (action: string) => void;
 }) {
   return useMemo(

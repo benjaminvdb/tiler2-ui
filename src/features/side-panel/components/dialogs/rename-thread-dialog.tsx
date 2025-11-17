@@ -22,7 +22,7 @@ interface RenameThreadDialogProps {
 /**
  * Validate thread title and return error message if invalid
  */
-function validateTitle(title: string, currentTitle: string): string | null {
+function validateTitle(title: string): string | null {
   const trimmed = title.trim();
 
   if (trimmed === "") {
@@ -106,7 +106,7 @@ export const RenameThreadDialog = ({
       e.preventDefault();
       setError(null);
 
-      const validationError = validateTitle(title, currentTitle);
+      const validationError = validateTitle(title);
       if (validationError) {
         setError(validationError);
         return;
