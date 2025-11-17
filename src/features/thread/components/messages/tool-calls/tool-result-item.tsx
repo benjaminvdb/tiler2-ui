@@ -9,6 +9,43 @@ import type { JsonValue } from "@/shared/types";
 interface ToolResultItemProps {
   message: ToolMessage;
 }
+
+/**
+ * Parse message content as JSON if possible
+ */
+const parseMessageContent = (content: unknown): { parsedContent: JsonValue; isJsonContent: boolean } => {
+  let parsedContent: JsonValue = content as JsonValue;
+  let isJsonContent = false;
+
+  try {
+    if (typeof content === "string") {
+      parsedContent = JSON.parse(content);
+      isJsonContent = isComplexValue(parsedContent);
+    }
+  } catch {
+    parsedContent = content as JsonValue;
+  }
+
+  return { parsedContent, isJsonContent };
+};
+
+/**
+ * Truncate content for display
+ */
+const truncateContent = (contentStr: string, isExpanded: boolean): { displayedContent: string; shouldTruncate: boolean } => {
+  const contentLines = contentStr.split("\n");
+  const shouldTruncate = contentLines.length > 4 || contentStr.length > 500;
+
+  const displayedContent =
+    shouldTruncate && !isExpanded
+      ? contentStr.length > 500
+        ? contentStr.slice(0, 500) + "..."
+        : contentLines.slice(0, 4).join("\n") + "\n..."
+      : contentStr;
+
+  return { displayedContent, shouldTruncate };
+};
+
 export const ToolResultItem: React.FC<ToolResultItemProps> = ({ message }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -16,28 +53,13 @@ export const ToolResultItem: React.FC<ToolResultItemProps> = ({ message }) => {
     setIsExpanded((prev) => !prev);
   }, []);
 
-  let parsedContent: JsonValue = message.content as JsonValue;
-  let isJsonContent = false;
+  const { parsedContent, isJsonContent } = parseMessageContent(message.content);
 
-  try {
-    if (typeof message.content === "string") {
-      parsedContent = JSON.parse(message.content);
-      isJsonContent = isComplexValue(parsedContent);
-    }
-  } catch {
-    parsedContent = message.content as JsonValue;
-  }
   const contentStr = isJsonContent
     ? JSON.stringify(parsedContent, null, 2)
     : String(message.content);
-  const contentLines = contentStr.split("\n");
-  const shouldTruncate = contentLines.length > 4 || contentStr.length > 500;
-  const displayedContent =
-    shouldTruncate && !isExpanded
-      ? contentStr.length > 500
-        ? contentStr.slice(0, 500) + "..."
-        : contentLines.slice(0, 4).join("\n") + "\n..."
-      : contentStr;
+
+  const { displayedContent, shouldTruncate } = truncateContent(contentStr, isExpanded);
 
   const shouldShowExpandButton =
     (shouldTruncate && !isJsonContent) ||

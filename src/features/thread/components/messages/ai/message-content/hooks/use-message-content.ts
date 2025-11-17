@@ -4,6 +4,24 @@ import { useStreamContext } from "@/core/providers/stream";
 import { getContentString } from "../../../../utils";
 import { parseAnthropicStreamedToolCalls } from "../../utils";
 
+/**
+ * Check if message has tool calls with content
+ */
+const checkToolCallsStatus = (message: Message) => {
+  const hasToolCalls =
+    "tool_calls" in message &&
+    message.tool_calls &&
+    message.tool_calls.length > 0;
+
+  const toolCallsHaveContents =
+    hasToolCalls &&
+    message.tool_calls?.some(
+      (tc) => tc.args && Object.keys(tc.args).length > 0,
+    );
+
+  return { hasToolCalls, toolCallsHaveContents };
+};
+
 export function useMessageContent(message: Message) {
   const content = message?.content ?? [];
   const contentString = getContentString(content);
@@ -21,15 +39,7 @@ export function useMessageContent(message: Message) {
     ? parseAnthropicStreamedToolCalls(content)
     : undefined;
 
-  const hasToolCalls =
-    "tool_calls" in message &&
-    message.tool_calls &&
-    message.tool_calls.length > 0;
-  const toolCallsHaveContents =
-    hasToolCalls &&
-    message.tool_calls?.some(
-      (tc) => tc.args && Object.keys(tc.args).length > 0,
-    );
+  const { hasToolCalls, toolCallsHaveContents } = checkToolCallsStatus(message);
   const hasAnthropicToolCalls = !!anthropicStreamedToolCalls?.length;
   const isToolResult = message?.type === "tool";
 
