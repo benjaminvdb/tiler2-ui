@@ -343,17 +343,17 @@ const CategorySection = React.memo(function CategorySection({
   );
 });
 
-const WorkflowsPage = (): React.ReactNode => {
-  const { navigationService } = useUIContext();
-  const { apiUrl } = getClientConfig();
+/**
+ * Hook to fetch and manage workflows data
+ */
+function useWorkflowsData(
+  apiUrl: string | undefined,
+  fetchWithAuth: ReturnType<typeof useAuthenticatedFetch>,
+) {
   const [workflows, setWorkflows] =
     useState<WorkflowConfig[]>(BUILT_IN_WORKFLOWS);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const fetchWithAuth = useAuthenticatedFetch();
-
-  const categoryRefs = useRef<Record<string, HTMLElement | null>>({});
 
   useEffect(() => {
     const fetchWorkflows = async () => {
@@ -394,6 +394,16 @@ const WorkflowsPage = (): React.ReactNode => {
     fetchWorkflows();
   }, [apiUrl, fetchWithAuth]);
 
+  return { workflows, loading, error };
+}
+
+/**
+ * Hook to filter and organize workflows by category
+ */
+function useWorkflowFiltering(
+  workflows: WorkflowConfig[],
+  searchQuery: string,
+) {
   const filteredWorkflows = useMemo(() => {
     if (!searchQuery.trim()) {
       return workflows;
@@ -438,6 +448,101 @@ const WorkflowsPage = (): React.ReactNode => {
 
     return categoriesWithWorkflows;
   }, [workflowsByCategory]);
+
+  return { filteredWorkflows, workflowsByCategory, categories };
+}
+
+/**
+ * Renders the main content area with workflows or search results
+ */
+interface WorkflowsContentProps {
+  searchQuery: string;
+  filteredWorkflows: WorkflowConfig[];
+  workflowsByCategory: Record<string, WorkflowConfig[]>;
+  categoryRefs: React.MutableRefObject<Record<string, HTMLElement | null>>;
+  onWorkflowClick: (workflowId: string) => void;
+  onClearSearch: () => void;
+}
+
+const WorkflowsContent: React.FC<WorkflowsContentProps> = ({
+  searchQuery,
+  filteredWorkflows,
+  workflowsByCategory,
+  categoryRefs,
+  onWorkflowClick,
+  onClearSearch,
+}) => (
+  <>
+    {searchQuery.trim() ? (
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {filteredWorkflows.map((workflow, index) => (
+          <WorkflowCard
+            key={workflow.workflow_id}
+            workflow={workflow}
+            index={index}
+            onWorkflowClick={onWorkflowClick}
+          />
+        ))}
+      </div>
+    ) : (
+      <div className="space-y-12">
+        {Object.entries(workflowsByCategory).map(
+          ([categoryName, categoryWorkflows], categoryIndex) => (
+            <CategorySection
+              key={categoryName}
+              categoryName={categoryName}
+              categoryWorkflows={categoryWorkflows}
+              categoryIndex={categoryIndex}
+              totalCategories={Object.entries(workflowsByCategory).length}
+              categoryRefs={categoryRefs}
+              onWorkflowClick={onWorkflowClick}
+            />
+          ),
+        )}
+      </div>
+    )}
+    {filteredWorkflows.length === 0 && (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="text-muted-foreground py-12 text-center"
+      >
+        <p className="text-lg">
+          No workflows found matching &ldquo;{searchQuery}&rdquo;
+        </p>
+        <Button
+          variant="ghost"
+          onClick={onClearSearch}
+          className="mt-4"
+        >
+          Clear search
+        </Button>
+      </motion.div>
+    )}
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5, delay: 0.8 }}
+      className="border-border mt-16 border-t pt-8"
+    >
+      <p className="text-muted-foreground text-center text-sm">
+        Can&apos;t find what you&apos;re looking for? Start a new chat to
+        discuss your specific needs.
+      </p>
+    </motion.div>
+  </>
+);
+
+const WorkflowsPage = (): React.ReactNode => {
+  const { navigationService } = useUIContext();
+  const { apiUrl } = getClientConfig();
+  const [searchQuery, setSearchQuery] = useState("");
+  const fetchWithAuth = useAuthenticatedFetch();
+  const categoryRefs = useRef<Record<string, HTMLElement | null>>({});
+
+  const { workflows, loading, error } = useWorkflowsData(apiUrl, fetchWithAuth);
+  const { filteredWorkflows, workflowsByCategory, categories } =
+    useWorkflowFiltering(workflows, searchQuery);
 
   const scrollToCategory = useCallback((categoryName: string) => {
     categoryRefs.current[categoryName]?.scrollIntoView({
@@ -493,63 +598,14 @@ const WorkflowsPage = (): React.ReactNode => {
         />
       )}
 
-      {searchQuery.trim() ? (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {filteredWorkflows.map((workflow, index) => (
-            <WorkflowCard
-              key={workflow.workflow_id}
-              workflow={workflow}
-              index={index}
-              onWorkflowClick={handleWorkflowClick}
-            />
-          ))}
-        </div>
-      ) : (
-        <div className="space-y-12">
-          {Object.entries(workflowsByCategory).map(
-            ([categoryName, categoryWorkflows], categoryIndex) => (
-              <CategorySection
-                key={categoryName}
-                categoryName={categoryName}
-                categoryWorkflows={categoryWorkflows}
-                categoryIndex={categoryIndex}
-                totalCategories={Object.entries(workflowsByCategory).length}
-                categoryRefs={categoryRefs}
-                onWorkflowClick={handleWorkflowClick}
-              />
-            ),
-          )}
-        </div>
-      )}
-      {filteredWorkflows.length === 0 && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-muted-foreground py-12 text-center"
-        >
-          <p className="text-lg">
-            No workflows found matching &ldquo;{searchQuery}&rdquo;
-          </p>
-          <Button
-            variant="ghost"
-            onClick={handleClearSearch}
-            className="mt-4"
-          >
-            Clear search
-          </Button>
-        </motion.div>
-      )}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.8 }}
-        className="border-border mt-16 border-t pt-8"
-      >
-        <p className="text-muted-foreground text-center text-sm">
-          Can&apos;t find what you&apos;re looking for? Start a new chat to
-          discuss your specific needs.
-        </p>
-      </motion.div>
+      <WorkflowsContent
+        searchQuery={searchQuery}
+        filteredWorkflows={filteredWorkflows}
+        workflowsByCategory={workflowsByCategory}
+        categoryRefs={categoryRefs}
+        onWorkflowClick={handleWorkflowClick}
+        onClearSearch={handleClearSearch}
+      />
     </div>
   );
 };
