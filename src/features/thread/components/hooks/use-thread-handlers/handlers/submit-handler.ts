@@ -6,7 +6,7 @@ import {
   buildInterruptResponse,
 } from "../utils/message-builder";
 import { UseThreadHandlersProps } from "../types";
-import type { StreamContextType } from "@/core/providers/stream/types";
+import type { StreamContextType, GraphState } from "@/core/providers/stream/types";
 import { generateThreadName } from "@/features/thread/utils/generate-thread-name";
 import { buildOptimisticThread } from "@/features/thread/utils/build-optimistic-thread";
 
@@ -50,7 +50,7 @@ export const createSubmitHandler = (
     return {
       streamMode,
       streamSubgraphs: true,
-      optimisticValues: (prev: any) => ({
+      optimisticValues: (prev: GraphState) => ({
         ...prev,
         context,
         messages: [

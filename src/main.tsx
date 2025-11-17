@@ -15,6 +15,7 @@ import "@fontsource/comic-mono/700.css";
  * This ensures React Router properly handles navigation after Auth0 callback,
  * preventing the infinite loading spinner issue.
  */
+// eslint-disable-next-line react-refresh/only-export-components -- Main entry point, not a module with exports
 const Auth0ProviderWithNavigate = ({
   children,
 }: {

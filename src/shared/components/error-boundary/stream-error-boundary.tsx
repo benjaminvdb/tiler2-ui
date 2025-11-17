@@ -28,6 +28,45 @@ export interface StreamErrorFallbackProps {
 }
 
 /**
+ * Helper functions to categorize errors by type
+ */
+const isAuthError = (message: string, statusCode?: number): boolean => {
+  return (
+    statusCode === 401 ||
+    statusCode === 403 ||
+    message.includes("unauthorized") ||
+    message.includes("forbidden") ||
+    message.includes("authentication") ||
+    message.includes("no authentication token")
+  );
+};
+
+const isRateLimitError = (message: string, statusCode?: number): boolean => {
+  return statusCode === 429 || message.includes("rate limit");
+};
+
+const isServerError = (statusCode?: number): boolean => {
+  return !!statusCode && statusCode >= 500 && statusCode < 600;
+};
+
+const isTimeoutError = (message: string): boolean => {
+  return (
+    message.includes("timeout") ||
+    message.includes("timed out") ||
+    message.includes("request timeout")
+  );
+};
+
+const isNetworkError = (message: string): boolean => {
+  return (
+    message.includes("failed to fetch") ||
+    message.includes("network") ||
+    message.includes("fetch failed") ||
+    message.includes("networkerror")
+  );
+};
+
+/**
  * Categorize stream errors for appropriate handling
  */
 function categorizeStreamError(error: Error): {
@@ -35,57 +74,19 @@ function categorizeStreamError(error: Error): {
   statusCode?: number;
 } {
   const message = error.message.toLowerCase();
-
   const httpMatch = message.match(/http[s]?\s+(\d{3})/i);
   const statusCode = httpMatch ? parseInt(httpMatch[1], 10) : undefined;
 
-  if (
-    statusCode === 401 ||
-    statusCode === 403 ||
-    message.includes("unauthorized") ||
-    message.includes("forbidden") ||
-    message.includes("authentication") ||
-    message.includes("no authentication token")
-  ) {
-    return statusCode !== undefined
-      ? { type: "auth", statusCode }
-      : { type: "auth" };
-  }
+  const makeResult = (type: "auth" | "network" | "timeout" | "rateLimit" | "server" | "unknown") =>
+    statusCode !== undefined ? { type, statusCode } : { type };
 
-  if (statusCode === 429 || message.includes("rate limit")) {
-    return statusCode !== undefined
-      ? { type: "rateLimit", statusCode }
-      : { type: "rateLimit" };
-  }
+  if (isAuthError(message, statusCode)) return makeResult("auth");
+  if (isRateLimitError(message, statusCode)) return makeResult("rateLimit");
+  if (isServerError(statusCode)) return { type: "server", statusCode: statusCode! };
+  if (isTimeoutError(message)) return makeResult("timeout");
+  if (isNetworkError(message)) return makeResult("network");
 
-  if (statusCode && statusCode >= 500 && statusCode < 600) {
-    return { type: "server", statusCode };
-  }
-
-  if (
-    message.includes("timeout") ||
-    message.includes("timed out") ||
-    message.includes("request timeout")
-  ) {
-    return statusCode !== undefined
-      ? { type: "timeout", statusCode }
-      : { type: "timeout" };
-  }
-
-  if (
-    message.includes("failed to fetch") ||
-    message.includes("network") ||
-    message.includes("fetch failed") ||
-    message.includes("networkerror")
-  ) {
-    return statusCode !== undefined
-      ? { type: "network", statusCode }
-      : { type: "network" };
-  }
-
-  return statusCode !== undefined
-    ? { type: "unknown", statusCode }
-    : { type: "unknown" };
+  return makeResult("unknown");
 }
 
 class StreamErrorBoundaryClass extends React.Component<

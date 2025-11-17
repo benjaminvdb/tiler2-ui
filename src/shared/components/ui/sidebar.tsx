@@ -808,5 +808,6 @@ export {
   SidebarRail,
   SidebarSeparator,
   SidebarTrigger,
+  // eslint-disable-next-line react-refresh/only-export-components -- Hook exported alongside sidebar components (standard UI library pattern)
   useSidebar,
 };

@@ -1,4 +1,4 @@
-import { Message, Checkpoint } from "@langchain/langgraph-sdk";
+import { Message, Checkpoint, AIMessage } from "@langchain/langgraph-sdk";
 import { useRef } from "react";
 import { CustomComponent } from "../../custom-component";
 import { MessageText } from "./message-text";
@@ -7,7 +7,12 @@ import { MessageActions } from "./message-actions";
 import { SourcesList } from "../../sources-list";
 import { renumberCitations } from "../../../../markdown/utils/citation-renumbering";
 import type { StreamContextType } from "@/core/providers/stream/types";
-import type { MessageMetadata, JsonValue } from "@/shared/types";
+import type { MessageMetadata } from "@/shared/types";
+
+interface MessageMetadataWithBranch extends MessageMetadata {
+  branch?: string;
+  branchOptions?: string[];
+}
 
 interface RegularMessageProps {
   message: Message;
@@ -17,8 +22,8 @@ interface RegularMessageProps {
   hasToolCalls: boolean;
   toolCallsHaveContents: boolean;
   hasAnthropicToolCalls: boolean;
-  anthropicStreamedToolCalls?: JsonValue[];
-  meta: MessageMetadata | null;
+  anthropicStreamedToolCalls?: AIMessage["tool_calls"];
+  meta: MessageMetadataWithBranch | null;
   thread: StreamContextType;
   parentCheckpoint: Checkpoint | null | undefined;
   handleRegenerate: (parentCheckpoint: Checkpoint | null | undefined) => void;
@@ -58,7 +63,7 @@ export const RegularMessage: React.FC<RegularMessageProps> = ({
         hasToolCalls={hasToolCalls}
         toolCallsHaveContents={toolCallsHaveContents}
         hasAnthropicToolCalls={hasAnthropicToolCalls}
-        anthropicStreamedToolCalls={anthropicStreamedToolCalls as any}
+        anthropicStreamedToolCalls={anthropicStreamedToolCalls}
       />
       <CustomComponent
         message={message}

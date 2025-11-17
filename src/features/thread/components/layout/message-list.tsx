@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-import { Checkpoint } from "@langchain/langgraph-sdk";
+import { Checkpoint, type Message } from "@langchain/langgraph-sdk";
 import { DO_NOT_RENDER_ID_PREFIX } from "@/features/thread/services/ensure-tool-responses";
 import { AssistantMessage, AssistantMessageLoading } from "../messages/ai";
 import { HumanMessage } from "../messages/human/index";
@@ -9,6 +9,11 @@ interface MessageListProps {
   firstTokenReceived: boolean;
   handleRegenerate: (parentCheckpoint: Checkpoint | null | undefined) => void;
 }
+
+interface MessageWithTags extends Message {
+  tags?: string[];
+}
+
 export const MessageList: React.FC<MessageListProps> = ({
   firstTokenReceived,
   handleRegenerate,
@@ -23,7 +28,7 @@ export const MessageList: React.FC<MessageListProps> = ({
         .filter((m) => {
           if (m.id?.startsWith(DO_NOT_RENDER_ID_PREFIX)) return false;
           if (m.type === "system") return false;
-          const tags = (m as any).tags;
+          const tags = (m as MessageWithTags).tags;
           if (Array.isArray(tags) && tags.includes("hidden")) return false;
           return true;
         })

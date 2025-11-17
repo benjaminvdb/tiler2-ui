@@ -23,7 +23,7 @@ export const PlaceholderMessage: React.FC = () => {
   const interruptVal = thread.interrupt?.value;
 
   const handleAction = useCallback(
-    (type: "accept" | "ignore" | "edit", args?: any) => {
+    (type: "accept" | "ignore" | "edit", args?: Record<string, unknown>) => {
       const response = { type, args: args ?? null };
       thread.submit(null, {
         command: { resume: response },
@@ -74,7 +74,7 @@ export const PlaceholderMessage: React.FC = () => {
 
   return (
     <ChatInterrupt
-      interrupt={genericInterrupt as any}
+      interrupt={genericInterrupt as HumanInterrupt}
       onIgnore={handleIgnore}
     />
   );

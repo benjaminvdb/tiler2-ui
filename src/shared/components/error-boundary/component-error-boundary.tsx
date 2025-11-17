@@ -162,6 +162,7 @@ export const ComponentErrorBoundary: React.FC<
 /**
  * HOC helper for wrapping components with an error boundary.
  */
+// eslint-disable-next-line react-refresh/only-export-components -- HOC exported alongside error boundary component (standard pattern)
 export const withErrorBoundary = <P extends object>(
   Component: React.ComponentType<P>,
   errorBoundaryProps?: Omit<ErrorBoundaryProps, "children">,

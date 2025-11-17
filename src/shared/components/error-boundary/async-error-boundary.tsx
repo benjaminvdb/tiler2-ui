@@ -79,6 +79,7 @@ export const AsyncErrorBoundary: React.FC<AsyncErrorBoundaryProps> = ({
   }
   return <>{children}</>;
 };
+// eslint-disable-next-line react-refresh/only-export-components -- Hook exported alongside error boundary component (standard pattern)
 export const useAsyncError = () => {
   const [, setError] = useState();
 

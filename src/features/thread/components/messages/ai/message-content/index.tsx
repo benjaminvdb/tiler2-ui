@@ -1,4 +1,4 @@
-import { Message, Checkpoint } from "@langchain/langgraph-sdk";
+import { Message, Checkpoint, ToolMessage } from "@langchain/langgraph-sdk";
 import { ToolResult } from "../../tool-calls";
 import { useMessageContent } from "./hooks/use-message-content";
 import { RegularMessage } from "./components";
@@ -42,7 +42,7 @@ export const MessageContent: React.FC<MessageContentProps> = ({
     <div className="group mr-auto flex items-start gap-2">
       <div className="flex flex-col gap-2">
         {isToolResult ? (
-          <ToolResult message={message as any} />
+          <ToolResult message={message as ToolMessage} />
         ) : (
           <RegularMessage
             message={message}
@@ -52,10 +52,8 @@ export const MessageContent: React.FC<MessageContentProps> = ({
             hasToolCalls={!!hasToolCalls}
             toolCallsHaveContents={!!toolCallsHaveContents}
             hasAnthropicToolCalls={hasAnthropicToolCalls}
-            anthropicStreamedToolCalls={
-              (anthropicStreamedToolCalls || []) as any
-            }
-            meta={(meta || null) as any}
+            anthropicStreamedToolCalls={anthropicStreamedToolCalls}
+            meta={meta || null}
             thread={thread}
             parentCheckpoint={parentCheckpoint}
             handleRegenerate={handleRegenerate}

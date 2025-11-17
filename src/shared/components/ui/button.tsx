@@ -58,4 +58,5 @@ const Button: React.FC<ButtonProps> = ({
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components -- Exporting variants alongside component for reusability
 export { Button, buttonVariants, type ButtonProps };

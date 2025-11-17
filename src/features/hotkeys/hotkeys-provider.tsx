@@ -46,6 +46,7 @@ export const HotkeysProvider: React.FC<{ children: React.ReactNode }> = ({
   return <>{children}</>;
 };
 
+// eslint-disable-next-line react-refresh/only-export-components -- Utility function exported alongside provider component
 export const getShortcutText = (shortcut: "new-chat" | "workflows"): string => {
   const isMac = isMacPlatform();
   if (shortcut === "new-chat") {

@@ -207,6 +207,7 @@ export const ThreadProvider: React.FC<{ children: ReactNode }> = ({
     <ThreadContext.Provider value={value}>{children}</ThreadContext.Provider>
   );
 };
+// eslint-disable-next-line react-refresh/only-export-components -- Hook exported alongside provider component (standard provider pattern)
 export const useThreads = () => {
   const context = useContext(ThreadContext);
   if (context === undefined) {

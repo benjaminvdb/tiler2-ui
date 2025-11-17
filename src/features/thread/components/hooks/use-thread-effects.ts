@@ -2,13 +2,14 @@ import { useEffect } from "react";
 import { toast } from "sonner";
 import { useStreamContext } from "@/core/providers/stream";
 import { getContentString } from "../utils";
+import type { HumanInterrupt } from "@langchain/langgraph/prebuilt";
 
 interface UseThreadEffectsProps {
   lastError: React.MutableRefObject<string | undefined>;
   setFirstTokenReceived: (value: boolean) => void;
   isRespondingToInterrupt: boolean;
   setIsRespondingToInterrupt: (value: boolean) => void;
-  setCurrentInterrupt: (value: any) => void;
+  setCurrentInterrupt: (value: HumanInterrupt | null) => void;
 }
 
 export function useThreadEffects({

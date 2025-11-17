@@ -7,11 +7,16 @@ import { Checkpoint } from "@langchain/langgraph-sdk";
 import type { StreamContextType } from "@/core/providers/stream/types";
 import type { MessageMetadata } from "@/shared/types";
 
+interface MessageMetadataWithBranch extends MessageMetadata {
+  branch?: string;
+  branchOptions?: string[];
+}
+
 interface MessageActionsProps {
   contentString: string;
   htmlContainerRef: React.RefObject<HTMLDivElement | null>;
   isLoading: boolean;
-  meta: MessageMetadata | null;
+  meta: MessageMetadataWithBranch | null;
   thread: StreamContextType;
   parentCheckpoint: Checkpoint | null | undefined;
   handleRegenerate: (parentCheckpoint: Checkpoint | null | undefined) => void;
@@ -66,8 +71,8 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
           style={{ pointerEvents: isHovered ? "auto" : "none" }}
         >
           <BranchSwitcher
-            branch={(meta as any)?.branch}
-            branchOptions={(meta as any)?.branchOptions}
+            branch={meta?.branch}
+            branchOptions={meta?.branchOptions}
             onSelect={handleBranchSelect}
             isLoading={isLoading}
           />

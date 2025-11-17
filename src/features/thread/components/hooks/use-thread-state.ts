@@ -7,8 +7,8 @@ import {
 import type { HumanInterrupt } from "@langchain/langgraph/prebuilt";
 
 interface ThreadStateValue {
-  artifactContext: any;
-  setArtifactContext: (context: any) => void;
+  artifactContext: Record<string, unknown>;
+  setArtifactContext: (context: Record<string, unknown>) => void;
   artifactOpen: boolean;
   closeArtifact: () => void;
   threadId: string | null;
