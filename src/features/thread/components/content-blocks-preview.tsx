@@ -58,15 +58,24 @@ export const ContentBlocksPreview: React.FC<ContentBlocksPreviewProps> = ({
   if (!blocks.length) return null;
   return (
     <div className={cn("flex flex-wrap gap-2 p-3.5 pb-0", className)}>
-      {blocks.map((block, idx) => (
-        <BlockItem
-          key={idx}
-          block={block}
-          index={idx}
-          size={size}
-          onRemove={onRemove}
-        />
-      ))}
+      {blocks.map((block, idx) => {
+        // Generate stable key from block content
+        const key = block.type === "text"
+          ? `text-${block.text?.slice(0, 50) || ""}-${idx}`
+          : block.type === "image"
+          ? `image-${block.source?.url || block.source?.data?.slice(0, 50) || ""}-${idx}`
+          : `block-${idx}`;
+
+        return (
+          <BlockItem
+            key={key}
+            block={block}
+            index={idx}
+            size={size}
+            onRemove={onRemove}
+          />
+        );
+      })}
     </div>
   );
 };

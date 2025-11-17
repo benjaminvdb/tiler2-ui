@@ -8,25 +8,31 @@ export const MultimodalContent: React.FC<MultimodalContentProps> = ({
   if (!Array.isArray(content) || content.length === 0) {
     return null;
   }
-  const mediaBlocks = content.reduce<React.ReactNode[]>((acc, block, idx) => {
-    if (isBase64ContentBlock(block)) {
-      acc.push(
-        <MultimodalPreview
-          key={idx}
-          block={block}
-          size="md"
-        />,
-      );
-    }
-    return acc;
-  }, []);
+
+  const mediaBlocks = content.filter(isBase64ContentBlock);
 
   if (mediaBlocks.length === 0) {
     return null;
   }
+
   return (
     <div className="flex flex-wrap items-end justify-end gap-2">
-      {mediaBlocks}
+      {mediaBlocks.map((block, idx) => {
+        // Generate stable key from block content
+        const key = block.type === "image_url" && block.image_url?.url
+          ? `img-${block.image_url.url.slice(0, 50)}`
+          : block.type === "text"
+          ? `text-${block.text?.slice(0, 50)}`
+          : `block-${idx}`;
+
+        return (
+          <MultimodalPreview
+            key={key}
+            block={block}
+            size="md"
+          />
+        );
+      })}
     </div>
   );
 };

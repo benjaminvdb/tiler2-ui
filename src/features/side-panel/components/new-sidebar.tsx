@@ -37,6 +37,9 @@ import { ThreadActionsMenu } from "./thread-actions-menu";
 import { ThreadTitle } from "./thread-title";
 import { toast } from "sonner";
 
+// Generate stable IDs for loading skeleton items
+const SKELETON_KEYS = Array.from({ length: 5 }, (_, i) => `skeleton-${i}`);
+
 interface ThreadItemProps {
   thread: Thread;
   isActive: boolean;
@@ -278,8 +281,8 @@ export const NewSidebar = (): React.JSX.Element => {
                 <SidebarMenu>
                   {threadsLoading ? (
                     <>
-                      {[...Array(5)].map((_, i) => (
-                        <SidebarMenuItem key={i}>
+                      {SKELETON_KEYS.map((key) => (
+                        <SidebarMenuItem key={key}>
                           <SidebarMenuSkeleton showIcon />
                         </SidebarMenuItem>
                       ))}

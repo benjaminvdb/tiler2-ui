@@ -27,16 +27,16 @@ export const MessageList: React.FC<MessageListProps> = ({
           if (Array.isArray(tags) && tags.includes("hidden")) return false;
           return true;
         })
-        .map((message, index) =>
+        .map((message) =>
           message.type === "human" ? (
             <HumanMessage
-              key={`${message.id || uuidv4()}-${index}`}
+              key={message.id || uuidv4()}
               message={message}
               isLoading={isLoading}
             />
           ) : (
             <AssistantMessage
-              key={`${message.id || uuidv4()}-${index}`}
+              key={message.id || uuidv4()}
               message={message}
               isLoading={isLoading}
               handleRegenerate={handleRegenerate}

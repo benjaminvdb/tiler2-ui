@@ -28,8 +28,8 @@ export const ToolCallItem: React.FC<ToolCallItemProps> = ({ toolCall }) => {
       {hasArgs ? (
         <table className="min-w-full divide-y divide-gray-200">
           <tbody className="divide-y divide-gray-200">
-            {Object.entries(args).map(([key, value], argIdx) => (
-              <tr key={argIdx}>
+            {Object.entries(args).map(([key, value]) => (
+              <tr key={key}>
                 <td className="px-4 py-2 text-sm font-medium whitespace-nowrap text-gray-900">
                   {key}
                 </td>

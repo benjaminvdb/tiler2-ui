@@ -9,9 +9,9 @@ export const ToolCalls: React.FC<{
 
   return (
     <div className="mx-auto grid max-w-3xl grid-rows-[1fr_auto] gap-2">
-      {toolCalls.map((tc, idx) => (
+      {toolCalls.map((tc) => (
         <ToolCallItem
-          key={idx}
+          key={tc.id || tc.name}
           toolCall={tc}
         />
       ))}
