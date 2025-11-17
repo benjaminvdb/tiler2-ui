@@ -37,6 +37,46 @@ import { ThreadActionsMenu } from "./thread-actions-menu";
 import { ThreadTitle } from "./thread-title";
 import { toast } from "sonner";
 
+interface ThreadItemProps {
+  thread: Thread;
+  isActive: boolean;
+  onThreadClick: (threadId: string) => void;
+  onRename: (threadId: string, newTitle: string) => Promise<void>;
+  onDelete: (threadId: string) => Promise<void>;
+}
+
+const ThreadItem = React.memo(function ThreadItem({
+  thread,
+  isActive,
+  onThreadClick,
+  onRename,
+  onDelete,
+}: ThreadItemProps) {
+  const displayText = extractThreadDisplayText(thread);
+
+  const handleClick = React.useCallback(() => {
+    onThreadClick(thread.thread_id);
+  }, [onThreadClick, thread.thread_id]);
+
+  return (
+    <SidebarMenuItem key={thread.thread_id}>
+      <SidebarMenuButton
+        onClick={handleClick}
+        isActive={isActive}
+        tooltip={displayText}
+      >
+        <ThreadTitle text={displayText} />
+      </SidebarMenuButton>
+      <ThreadActionsMenu
+        threadId={thread.thread_id}
+        threadTitle={displayText}
+        onRename={onRename}
+        onDelete={onDelete}
+      />
+    </SidebarMenuItem>
+  );
+});
+
 export const NewSidebar = (): React.JSX.Element => {
   const { navigationService } = useUIContext();
   const [threadId] = useSearchParamState("threadId");
@@ -49,51 +89,72 @@ export const NewSidebar = (): React.JSX.Element => {
   const LABEL_WORKFLOWS = "Workflows";
   const LABEL_WIKI = "Wiki";
 
-  const handleThreadClick = (clickedThreadId: string) => {
-    if (clickedThreadId === threadId) return;
-    navigationService.navigateToHome({ threadId: clickedThreadId });
-  };
+  const handleThreadClick = React.useCallback(
+    (clickedThreadId: string) => {
+      if (clickedThreadId === threadId) return;
+      navigationService.navigateToHome({ threadId: clickedThreadId });
+    },
+    [threadId, navigationService],
+  );
 
-  const handleNavigate = (section: "workflows" | "wiki") => {
-    if (section === "workflows") {
-      navigationService.navigateToWorkflows();
-    } else {
-      navigateExternal(
-        "https://impossible-chauffeur-129.notion.site/Link-Chat-Wiki-218b67580800806ea99efb583280d2c8",
-      );
-    }
-  };
-
-  const handleRename = async (
-    targetThreadId: string,
-    newTitle: string,
-  ): Promise<void> => {
-    try {
-      await renameThread(targetThreadId, newTitle);
-      toast.success("Thread renamed successfully");
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Failed to rename thread",
-      );
-      throw error;
-    }
-  };
-
-  const handleDelete = async (targetThreadId: string): Promise<void> => {
-    try {
-      await deleteThread(targetThreadId);
-      toast.success("Thread deleted successfully");
-
-      if (targetThreadId === threadId) {
-        navigationService.navigateToHome();
+  const handleNavigate = React.useCallback(
+    (section: "workflows" | "wiki") => {
+      if (section === "workflows") {
+        navigationService.navigateToWorkflows();
+      } else {
+        navigateExternal(
+          "https://impossible-chauffeur-129.notion.site/Link-Chat-Wiki-218b67580800806ea99efb583280d2c8",
+        );
       }
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Failed to delete thread",
-      );
-      throw error;
-    }
-  };
+    },
+    [navigationService],
+  );
+
+  const handleRename = React.useCallback(
+    async (targetThreadId: string, newTitle: string): Promise<void> => {
+      try {
+        await renameThread(targetThreadId, newTitle);
+        toast.success("Thread renamed successfully");
+      } catch (error) {
+        toast.error(
+          error instanceof Error ? error.message : "Failed to rename thread",
+        );
+        throw error;
+      }
+    },
+    [renameThread],
+  );
+
+  const handleDelete = React.useCallback(
+    async (targetThreadId: string): Promise<void> => {
+      try {
+        await deleteThread(targetThreadId);
+        toast.success("Thread deleted successfully");
+
+        if (targetThreadId === threadId) {
+          navigationService.navigateToHome();
+        }
+      } catch (error) {
+        toast.error(
+          error instanceof Error ? error.message : "Failed to delete thread",
+        );
+        throw error;
+      }
+    },
+    [deleteThread, threadId, navigationService],
+  );
+
+  const handleNewChatClick = React.useCallback(() => {
+    navigationService.navigateToHome();
+  }, [navigationService]);
+
+  const handleWorkflowsClick = React.useCallback(() => {
+    handleNavigate("workflows");
+  }, [handleNavigate]);
+
+  const handleWikiClick = React.useCallback(() => {
+    handleNavigate("wiki");
+  }, [handleNavigate]);
 
   return (
     <Sidebar collapsible="icon">
@@ -103,7 +164,7 @@ export const NewSidebar = (): React.JSX.Element => {
         >
           <button
             type="button"
-            onClick={() => navigationService.navigateToHome()}
+            onClick={handleNewChatClick}
             className="flex flex-1 cursor-pointer items-center gap-2 transition-opacity group-data-[collapsible=icon]:hidden hover:opacity-80"
             aria-label="Go to Home"
           >
@@ -136,7 +197,7 @@ export const NewSidebar = (): React.JSX.Element => {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton
-                  onClick={() => navigationService.navigateToHome()}
+                  onClick={handleNewChatClick}
                   tooltip={{
                     children: (
                       <div className="text-center">
@@ -163,7 +224,7 @@ export const NewSidebar = (): React.JSX.Element => {
 
               <SidebarMenuItem>
                 <SidebarMenuButton
-                  onClick={() => handleNavigate("workflows")}
+                  onClick={handleWorkflowsClick}
                   tooltip={{
                     children: (
                       <div className="text-center">
@@ -182,7 +243,7 @@ export const NewSidebar = (): React.JSX.Element => {
 
               <SidebarMenuItem>
                 <SidebarMenuButton
-                  onClick={() => handleNavigate("wiki")}
+                  onClick={handleWikiClick}
                   tooltip={{
                     children: (
                       <div className="text-center">
@@ -230,28 +291,16 @@ export const NewSidebar = (): React.JSX.Element => {
                       </p>
                     </div>
                   ) : (
-                    threads.map((thread: Thread) => {
-                      const displayText = extractThreadDisplayText(thread);
-                      const isActive = thread.thread_id === threadId;
-
-                      return (
-                        <SidebarMenuItem key={thread.thread_id}>
-                          <SidebarMenuButton
-                            onClick={() => handleThreadClick(thread.thread_id)}
-                            isActive={isActive}
-                            tooltip={displayText}
-                          >
-                            <ThreadTitle text={displayText} />
-                          </SidebarMenuButton>
-                          <ThreadActionsMenu
-                            threadId={thread.thread_id}
-                            threadTitle={displayText}
-                            onRename={handleRename}
-                            onDelete={handleDelete}
-                          />
-                        </SidebarMenuItem>
-                      );
-                    })
+                    threads.map((thread: Thread) => (
+                      <ThreadItem
+                        key={thread.thread_id}
+                        thread={thread}
+                        isActive={thread.thread_id === threadId}
+                        onThreadClick={handleThreadClick}
+                        onRename={handleRename}
+                        onDelete={handleDelete}
+                      />
+                    ))
                   )}
                 </SidebarMenu>
               </SidebarGroupContent>
