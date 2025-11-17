@@ -40,17 +40,15 @@ const getThreadSearchMetadata = (
   }
 };
 
-export const ThreadProvider: React.FC<{ children: ReactNode }> = ({
-  children,
-}) => {
-  const config = getClientConfig();
-  const apiUrl = config.apiUrl;
-  const assistantId = config.assistantId;
-  const [threads, setThreads] = useState<Thread[]>([]);
-  const [threadsLoading, setThreadsLoading] = useState(false);
-  const fetchWithAuth = useAuthenticatedFetch();
-
-  const getThreads = useCallback(async (): Promise<Thread[]> => {
+/**
+ * Hook to get threads from API
+ */
+function useGetThreads(
+  apiUrl: string | undefined,
+  assistantId: string | undefined,
+  fetchWithAuth: ReturnType<typeof useAuthenticatedFetch>,
+) {
+  return useCallback(async (): Promise<Thread[]> => {
     if (!apiUrl || !assistantId) return [];
 
     try {
@@ -82,8 +80,17 @@ export const ThreadProvider: React.FC<{ children: ReactNode }> = ({
       return [];
     }
   }, [apiUrl, assistantId, fetchWithAuth]);
+}
 
-  const deleteThread = useCallback(
+/**
+ * Hook to delete a thread
+ */
+function useDeleteThread(
+  apiUrl: string | undefined,
+  fetchWithAuth: ReturnType<typeof useAuthenticatedFetch>,
+  setThreads: Dispatch<SetStateAction<Thread[]>>,
+) {
+  return useCallback(
     async (threadId: string): Promise<void> => {
       if (!apiUrl) {
         throw new Error("API URL not configured");
@@ -110,10 +117,20 @@ export const ThreadProvider: React.FC<{ children: ReactNode }> = ({
         throw error;
       }
     },
-    [apiUrl, fetchWithAuth],
+    [apiUrl, fetchWithAuth, setThreads],
   );
+}
 
-  const renameThread = useCallback(
+/**
+ * Hook to rename a thread
+ */
+function useRenameThread(
+  apiUrl: string | undefined,
+  threads: Thread[],
+  fetchWithAuth: ReturnType<typeof useAuthenticatedFetch>,
+  setThreads: Dispatch<SetStateAction<Thread[]>>,
+) {
+  return useCallback(
     async (threadId: string, newName: string): Promise<void> => {
       if (!apiUrl) {
         throw new Error("API URL not configured");
@@ -170,8 +187,23 @@ export const ThreadProvider: React.FC<{ children: ReactNode }> = ({
         throw error;
       }
     },
-    [apiUrl, threads, fetchWithAuth],
+    [apiUrl, threads, fetchWithAuth, setThreads],
   );
+}
+
+export const ThreadProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
+  const config = getClientConfig();
+  const apiUrl = config.apiUrl;
+  const assistantId = config.assistantId;
+  const [threads, setThreads] = useState<Thread[]>([]);
+  const [threadsLoading, setThreadsLoading] = useState(false);
+  const fetchWithAuth = useAuthenticatedFetch();
+
+  const getThreads = useGetThreads(apiUrl, assistantId, fetchWithAuth);
+  const deleteThread = useDeleteThread(apiUrl, fetchWithAuth, setThreads);
+  const renameThread = useRenameThread(apiUrl, threads, fetchWithAuth, setThreads);
 
   const addOptimisticThread = useCallback((thread: Thread): void => {
     setThreads((prev) => [thread, ...prev]);
