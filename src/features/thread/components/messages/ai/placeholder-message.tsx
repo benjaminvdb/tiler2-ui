@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { useStreamContext } from "@/core/providers/stream";
 import { ChatInterrupt } from "../chat-interrupt";
 import type { HumanInterrupt } from "@langchain/langgraph/prebuilt";
@@ -21,23 +22,38 @@ export const PlaceholderMessage: React.FC = () => {
   const thread = useStreamContext();
   const interruptVal = thread.interrupt?.value;
 
-  if (!interruptVal) return null;
+  const handleAction = useCallback(
+    (type: "accept" | "ignore" | "edit", args?: any) => {
+      const response = { type, args: args ?? null };
+      thread.submit(null, {
+        command: { resume: response },
+      });
+    },
+    [thread],
+  );
 
-  const handleAction = (type: "accept" | "ignore" | "edit", args?: any) => {
-    const response = { type, args: args ?? null };
-    thread.submit(null, {
-      command: { resume: response },
-    });
-  };
+  const handleAccept = useCallback(() => {
+    handleAction("accept");
+  }, [handleAction]);
+
+  const handleIgnore = useCallback(() => {
+    handleAction("ignore");
+  }, [handleAction]);
+
+  const handleEdit = useCallback(() => {
+    handleAction("edit");
+  }, [handleAction]);
+
+  if (!interruptVal) return null;
 
   const interrupt = normalizeInterrupt(interruptVal);
   if (interrupt) {
     return (
       <ChatInterrupt
         interrupt={interrupt}
-        onAccept={() => handleAction("accept")}
-        onIgnore={() => handleAction("ignore")}
-        onEdit={() => handleAction("edit")}
+        onAccept={handleAccept}
+        onIgnore={handleIgnore}
+        onEdit={handleEdit}
       />
     );
   }
@@ -59,7 +75,7 @@ export const PlaceholderMessage: React.FC = () => {
   return (
     <ChatInterrupt
       interrupt={genericInterrupt as any}
-      onIgnore={() => handleAction("ignore")}
+      onIgnore={handleIgnore}
     />
   );
 };

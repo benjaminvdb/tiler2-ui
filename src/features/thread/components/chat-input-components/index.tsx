@@ -46,10 +46,10 @@ const ChatInputComponent = ({
     [],
   );
 
-  const handleFileUploadClick = () => {
+  const handleFileUploadClick = useCallback(() => {
     const input = document.getElementById("file-input") as HTMLInputElement;
     input?.click();
-  };
+  }, []);
 
   return (
     <div

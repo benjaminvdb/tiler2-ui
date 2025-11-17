@@ -1,5 +1,5 @@
 import { ToolMessage } from "@langchain/langgraph-sdk";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { isComplexValue } from "./utils";
@@ -11,6 +11,10 @@ interface ToolResultItemProps {
 }
 export const ToolResultItem: React.FC<ToolResultItemProps> = ({ message }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+
+  const toggleExpanded = useCallback(() => {
+    setIsExpanded((prev) => !prev);
+  }, []);
 
   let parsedContent: JsonValue = message.content as JsonValue;
   let isJsonContent = false;
@@ -74,7 +78,7 @@ export const ToolResultItem: React.FC<ToolResultItemProps> = ({ message }) => {
         />
         {shouldShowExpandButton && (
           <motion.button
-            onClick={() => setIsExpanded(!isExpanded)}
+            onClick={toggleExpanded}
             className="flex w-full cursor-pointer items-center justify-center border-t-[1px] border-gray-200 py-2 text-gray-500 transition-all duration-200 ease-in-out hover:bg-gray-50 hover:text-gray-600"
             initial={{ scale: 1 }}
             whileHover={{ scale: 1.02 }}

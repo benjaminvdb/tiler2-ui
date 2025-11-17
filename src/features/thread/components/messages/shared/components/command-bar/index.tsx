@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import {
   XIcon,
   SendHorizontal,
@@ -21,13 +21,17 @@ const EditActions: React.FC<EditActionsProps> = ({
   setIsEditing,
   handleSubmitEdit,
 }) => {
+  const handleCancelEdit = useCallback(() => {
+    setIsEditing(false);
+  }, [setIsEditing]);
+
   return (
     <div className="flex items-center gap-2">
       <TooltipIconButton
         disabled={isLoading}
         tooltip="Cancel edit"
         variant="ghost"
-        onClick={() => setIsEditing(false)}
+        onClick={handleCancelEdit}
       >
         <XIcon />
       </TooltipIconButton>
@@ -65,11 +69,11 @@ const MessageActions: React.FC<MessageActionsProps> = ({
 }) => {
   const [copied, setCopied] = useState(false);
 
-  const copyPlainText = async () => {
+  const copyPlainText = useCallback(async () => {
     await navigator.clipboard.writeText(content);
-  };
+  }, [content]);
 
-  const copyHtml = async () => {
+  const copyHtml = useCallback(async () => {
     if (!htmlContainerRef?.current) {
       await copyPlainText();
       return;
@@ -81,9 +85,9 @@ const MessageActions: React.FC<MessageActionsProps> = ({
       "text/plain": new Blob([content], { type: "text/plain" }),
     });
     await navigator.clipboard.write([clipboardItem]);
-  };
+  }, [htmlContainerRef, content, copyPlainText]);
 
-  const handleCopy = async () => {
+  const handleCopy = useCallback(async () => {
     try {
       await copyHtml();
     } catch {
@@ -96,7 +100,11 @@ const MessageActions: React.FC<MessageActionsProps> = ({
 
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
+  }, [copyHtml, copyPlainText]);
+
+  const handleEditClick = useCallback(() => {
+    setIsEditing?.(true);
+  }, [setIsEditing]);
 
   return (
     <div className="flex items-center gap-2">
@@ -151,7 +159,7 @@ const MessageActions: React.FC<MessageActionsProps> = ({
       {showEdit && (
         <button
           type="button"
-          onClick={() => setIsEditing?.(true)}
+          onClick={handleEditClick}
           disabled={isLoading}
           className="border-border bg-card hover:bg-sand flex items-center gap-1.5 rounded-md border px-3 py-1.5 transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-50"
           style={{ boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)" }}
