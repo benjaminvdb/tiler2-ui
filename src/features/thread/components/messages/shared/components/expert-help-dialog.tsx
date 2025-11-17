@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { toast } from "sonner";
 import { UserCircle } from "lucide-react";
 import {
@@ -40,7 +40,7 @@ export const ExpertHelpDialog: React.FC<ExpertHelpDialogProps> = ({
     operation: "submitExpertHelp",
   });
 
-  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
+  const handleSubmit = useCallback(async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
 
     const trimmedMessage = message.trim();
@@ -136,12 +136,16 @@ export const ExpertHelpDialog: React.FC<ExpertHelpDialogProps> = ({
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, [message, threadId, runId, aiMessageContent, apiUrl, getToken, onOpenChange]);
 
-  const handleCancel = (): void => {
+  const handleCancel = useCallback((): void => {
     setMessage("");
     onOpenChange(false);
-  };
+  }, [onOpenChange]);
+
+  const handleMessageChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setMessage(e.target.value);
+  }, []);
 
   return (
     <Dialog
@@ -189,7 +193,7 @@ export const ExpertHelpDialog: React.FC<ExpertHelpDialogProps> = ({
                 id="message"
                 placeholder="What's missing from the AI's response? What specifically should the expert address?"
                 value={message}
-                onChange={(e) => setMessage(e.target.value)}
+                onChange={handleMessageChange}
                 disabled={isSubmitting}
                 className="min-h-[120px]"
                 maxLength={2000}
