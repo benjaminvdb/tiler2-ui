@@ -82,6 +82,14 @@ export const createSubmitHandler = (
     };
   };
 
+  const buildContext = () => {
+    return artifactContext && Object.keys(artifactContext).length > 0
+      ? (artifactContext as Record<string, unknown>)
+      : undefined;
+  };
+
+  const shouldCreateOptimisticThread = () => !stream.threadId && userEmail;
+
   return (e: FormEvent) => {
     e.preventDefault();
     if ((input.trim().length === 0 && contentBlocks.length === 0) || isLoading)
@@ -95,10 +103,7 @@ export const createSubmitHandler = (
 
     const newHumanMessage = buildHumanMessage(input, contentBlocks);
     const toolMessages = ensureToolCallsHaveResponses(stream.messages);
-    const context =
-      artifactContext && Object.keys(artifactContext).length > 0
-        ? (artifactContext as Record<string, unknown>)
-        : undefined;
+    const context = buildContext();
 
     const submitData = {
       messages: [...toolMessages, newHumanMessage],
@@ -107,19 +112,13 @@ export const createSubmitHandler = (
 
     let submitOptions = baseSubmitOptions(context, toolMessages, newHumanMessage);
 
-    if (!stream.threadId && userEmail) {
-      const threadName = generateThreadName({
-        firstMessage: input,
-      });
-      const { submitOverrides } = createOptimisticThread(
-        threadName,
-        newHumanMessage,
-      );
+    if (shouldCreateOptimisticThread()) {
+      const threadName = generateThreadName({ firstMessage: input });
+      const { submitOverrides } = createOptimisticThread(threadName, newHumanMessage);
       submitOptions = { ...submitOptions, ...submitOverrides };
     }
 
     stream.submit(submitData, submitOptions);
-
     setInput("");
     setContentBlocks([]);
   };
