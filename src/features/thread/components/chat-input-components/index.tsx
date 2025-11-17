@@ -6,6 +6,135 @@ import { ToolCallsToggle } from "./components/tool-calls-toggle";
 import { ChatInputProps } from "./types";
 import { cn } from "@/shared/utils/utils";
 
+/**
+ * File upload button with hidden file input
+ */
+interface FileUploadButtonProps {
+  onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+const FileUploadButton: React.FC<FileUploadButtonProps> = ({ onFileUpload }) => {
+  const handleClick = useCallback(() => {
+    const input = document.getElementById("file-input") as HTMLInputElement;
+    input?.click();
+  }, []);
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={handleClick}
+        className="text-muted-foreground hover:bg-sand hover:text-foreground absolute bottom-2.5 left-2 flex h-8 w-8 items-center justify-center rounded-md transition-all duration-200"
+        aria-label="Attach file"
+      >
+        <Plus className="h-4 w-4" strokeWidth={2} />
+      </button>
+      <input
+        id="file-input"
+        type="file"
+        onChange={onFileUpload}
+        multiple
+        accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
+        className="hidden"
+      />
+    </>
+  );
+};
+
+/**
+ * Auto-resizing textarea for chat input
+ */
+interface ChatTextareaProps {
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  onPaste: (e: React.ClipboardEvent<HTMLTextAreaElement>) => void;
+  isLoading: boolean;
+  isRespondingToInterrupt: boolean;
+}
+
+const ChatTextarea: React.FC<ChatTextareaProps> = ({
+  value,
+  onChange,
+  onPaste,
+  isLoading,
+  isRespondingToInterrupt,
+}) => {
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      if (
+        e.key === "Enter" &&
+        !e.shiftKey &&
+        !e.metaKey &&
+        !e.nativeEvent.isComposing
+      ) {
+        e.preventDefault();
+        const el = e.target as HTMLElement | undefined;
+        const form = el?.closest("form");
+        form?.requestSubmit();
+      }
+    },
+    [],
+  );
+
+  return (
+    <textarea
+      value={value}
+      onChange={onChange}
+      onPaste={onPaste}
+      onKeyDown={handleKeyDown}
+      placeholder={
+        isRespondingToInterrupt
+          ? "Type your response..."
+          : "Ask anything about sustainability, climate action, and regenerative practices"
+      }
+      disabled={isLoading}
+      rows={1}
+      className="placeholder:text-muted-foreground field-sizing-content max-h-[200px] w-full resize-none overflow-y-auto bg-transparent py-3.5 pr-11 pl-11 outline-none placeholder:opacity-40 disabled:cursor-not-allowed disabled:opacity-50"
+      style={{
+        lineHeight: "1.5",
+        fontFamily:
+          "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+        fontSize: "15px",
+      }}
+    />
+  );
+};
+
+/**
+ * Submit/stop button for chat input
+ */
+interface SubmitButtonProps {
+  isLoading: boolean;
+  inputHasText: boolean;
+  onStop?: () => void;
+}
+
+const SubmitButton: React.FC<SubmitButtonProps> = ({
+  isLoading,
+  inputHasText,
+  onStop,
+}) => (
+  <button
+    type={isLoading ? "button" : "submit"}
+    onClick={isLoading ? onStop : undefined}
+    disabled={!inputHasText && !isLoading}
+    className="absolute right-2 bottom-2.5 flex h-8 w-8 items-center justify-center rounded-md text-white transition-all duration-200 hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+    style={{
+      backgroundColor: "var(--forest-green)",
+      boxShadow:
+        inputHasText || isLoading
+          ? "0 2px 8px rgba(11, 61, 46, 0.15)"
+          : "none",
+    }}
+  >
+    {isLoading ? (
+      <Loader2 className="h-3.5 w-3.5 animate-spin" strokeWidth={2} />
+    ) : (
+      <Send className="h-3.5 w-3.5" strokeWidth={2} />
+    )}
+  </button>
+);
+
 const ChatInputComponent = ({
   input,
   onInputChange,
@@ -29,41 +158,10 @@ const ChatInputComponent = ({
     [onInputChange],
   );
 
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-      if (
-        e.key === "Enter" &&
-        !e.shiftKey &&
-        !e.metaKey &&
-        !e.nativeEvent.isComposing
-      ) {
-        e.preventDefault();
-        const el = e.target as HTMLElement | undefined;
-        const form = el?.closest("form");
-        form?.requestSubmit();
-      }
-    },
-    [],
-  );
-
-  const handleFileUploadClick = useCallback(() => {
-    const input = document.getElementById("file-input") as HTMLInputElement;
-    input?.click();
-  }, []);
-
   return (
-    <div
-      ref={dropRef}
-      className="relative mx-auto w-full max-w-3xl"
-    >
-      <form
-        onSubmit={onSubmit}
-        className="w-full"
-      >
-        <ContentBlocksPreview
-          blocks={contentBlocks}
-          onRemove={onRemoveBlock}
-        />
+    <div ref={dropRef} className="relative mx-auto w-full max-w-3xl">
+      <form onSubmit={onSubmit} className="w-full">
+        <ContentBlocksPreview blocks={contentBlocks} onRemove={onRemoveBlock} />
 
         <div
           className={cn(
@@ -72,77 +170,23 @@ const ChatInputComponent = ({
               ? "border-primary border-2 border-dotted"
               : "border-border",
           )}
-          style={{
-            boxShadow: "0 1px 3px rgba(0, 0, 0, 0.04)",
-          }}
+          style={{ boxShadow: "0 1px 3px rgba(0, 0, 0, 0.04)" }}
         >
-          <button
-            type="button"
-            onClick={handleFileUploadClick}
-            className="text-muted-foreground hover:bg-sand hover:text-foreground absolute bottom-2.5 left-2 flex h-8 w-8 items-center justify-center rounded-md transition-all duration-200"
-            aria-label="Attach file"
-          >
-            <Plus
-              className="h-4 w-4"
-              strokeWidth={2}
-            />
-          </button>
+          <FileUploadButton onFileUpload={onFileUpload} />
 
-          <input
-            id="file-input"
-            type="file"
-            onChange={onFileUpload}
-            multiple
-            accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
-            className="hidden"
-          />
-
-          <textarea
+          <ChatTextarea
             value={input}
             onChange={handleChange}
             onPaste={onPaste}
-            onKeyDown={handleKeyDown}
-            placeholder={
-              isRespondingToInterrupt
-                ? "Type your response..."
-                : "Ask anything about sustainability, climate action, and regenerative practices"
-            }
-            disabled={isLoading}
-            rows={1}
-            className="placeholder:text-muted-foreground field-sizing-content max-h-[200px] w-full resize-none overflow-y-auto bg-transparent py-3.5 pr-11 pl-11 outline-none placeholder:opacity-40 disabled:cursor-not-allowed disabled:opacity-50"
-            style={{
-              lineHeight: "1.5",
-              fontFamily:
-                "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-              fontSize: "15px",
-            }}
+            isLoading={isLoading}
+            isRespondingToInterrupt={isRespondingToInterrupt}
           />
 
-          <button
-            type={isLoading ? "button" : "submit"}
-            onClick={isLoading ? onStop : undefined}
-            disabled={!input.trim() && !isLoading}
-            className="absolute right-2 bottom-2.5 flex h-8 w-8 items-center justify-center rounded-md text-white transition-all duration-200 hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
-            style={{
-              backgroundColor: "var(--forest-green)",
-              boxShadow:
-                input.trim() || isLoading
-                  ? "0 2px 8px rgba(11, 61, 46, 0.15)"
-                  : "none",
-            }}
-          >
-            {isLoading ? (
-              <Loader2
-                className="h-3.5 w-3.5 animate-spin"
-                strokeWidth={2}
-              />
-            ) : (
-              <Send
-                className="h-3.5 w-3.5"
-                strokeWidth={2}
-              />
-            )}
-          </button>
+          <SubmitButton
+            isLoading={isLoading}
+            inputHasText={!!input.trim()}
+            onStop={onStop}
+          />
         </div>
 
         <InterruptIndicator isRespondingToInterrupt={isRespondingToInterrupt} />
