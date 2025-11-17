@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { Menu } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -19,9 +19,13 @@ export const MobileHeader: React.FC = () => {
   const { threads, threadsLoading } = useThreadHistory();
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleMenuClose = () => {
+  const handleMenuClose = useCallback(() => {
     setIsOpen(false);
-  };
+  }, []);
+
+  const handleThreadClick = useCallback(() => {
+    setIsOpen(false);
+  }, []);
 
   return (
     <div className="border-b bg-white lg:hidden">
@@ -80,7 +84,7 @@ export const MobileHeader: React.FC = () => {
                 ) : (
                   <ThreadList
                     threads={threads}
-                    onThreadClick={() => setIsOpen(false)}
+                    onThreadClick={handleThreadClick}
                   />
                 )}
               </div>
