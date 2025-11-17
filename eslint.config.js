@@ -15,6 +15,7 @@ export default defineConfig(
       ...tseslint.configs.recommended,
       react.configs.flat.recommended,
       react.configs.flat["jsx-runtime"],
+      reactHooks.configs.flat.recommended,
     ],
     languageOptions: {
       ecmaVersion: 2020,
@@ -36,7 +37,6 @@ export default defineConfig(
       },
     },
     rules: {
-      ...reactHooks.configs.recommended.rules,
       "@typescript-eslint/no-explicit-any": "warn",
       "@typescript-eslint/no-unused-vars": [
         "warn",

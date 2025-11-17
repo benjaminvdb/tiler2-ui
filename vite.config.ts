@@ -7,7 +7,11 @@ import { sentryVitePlugin } from "@sentry/vite-plugin";
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    react(),
+    react({
+      babel: {
+        plugins: ['babel-plugin-react-compiler'],
+      },
+    }),
     // Bundle analyzer (equivalent to @next/bundle-analyzer)
     visualizer({
       filename: "./dist/stats.html",
