@@ -55,22 +55,10 @@ function useSidebar() {
   return context;
 }
 
-const SidebarProvider = ({
-  defaultOpen = true,
-  open: openProp,
-  onOpenChange: setOpenProp,
-  className,
-  style,
-  children,
-  ...props
-}: React.ComponentProps<"div"> & {
-  defaultOpen?: boolean;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
-}) => {
-  const isMobile = useIsMobile();
-  const [openMobile, setOpenMobile] = React.useState(false);
-
+/**
+ * Hook to manage sidebar width with localStorage persistence
+ */
+function useSidebarWidth() {
   const [width, _setWidth] = React.useState(() => {
     if (typeof window === "undefined") return SIDEBAR_WIDTH_DEFAULT;
     const savedWidth = localStorage.getItem("sidebar_width");
@@ -91,6 +79,46 @@ const SidebarProvider = ({
     _setWidth(constrainedWidth);
     localStorage.setItem("sidebar_width", constrainedWidth.toString());
   }, []);
+
+  return { width, setWidth };
+}
+
+/**
+ * Hook to handle sidebar keyboard shortcut
+ */
+function useSidebarKeyboardShortcut(toggleSidebar: () => void) {
+  React.useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (
+        event.key === SIDEBAR_KEYBOARD_SHORTCUT &&
+        (event.metaKey || event.ctrlKey)
+      ) {
+        event.preventDefault();
+        toggleSidebar();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [toggleSidebar]);
+}
+
+const SidebarProvider = ({
+  defaultOpen = true,
+  open: openProp,
+  onOpenChange: setOpenProp,
+  className,
+  style,
+  children,
+  ...props
+}: React.ComponentProps<"div"> & {
+  defaultOpen?: boolean;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}) => {
+  const isMobile = useIsMobile();
+  const [openMobile, setOpenMobile] = React.useState(false);
+  const { width, setWidth } = useSidebarWidth();
 
   /**
    * Internal state for uncontrolled sidebar. When controlled via openProp/setOpenProp,
@@ -116,20 +144,7 @@ const SidebarProvider = ({
     return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open);
   }, [isMobile, setOpen, setOpenMobile]);
 
-  React.useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (
-        event.key === SIDEBAR_KEYBOARD_SHORTCUT &&
-        (event.metaKey || event.ctrlKey)
-      ) {
-        event.preventDefault();
-        toggleSidebar();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [toggleSidebar]);
+  useSidebarKeyboardShortcut(toggleSidebar);
 
   /**
    * Computed state exposed as data-state attribute for Tailwind styling.
