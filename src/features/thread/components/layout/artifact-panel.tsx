@@ -15,6 +15,7 @@ const ArtifactPanelComponent: React.FC<ArtifactPanelProps> = ({ onClose }) => {
         <div className="grid grid-cols-[1fr_auto] border-b p-4">
           <ArtifactTitle className="truncate overflow-hidden" />
           <button
+            type="button"
             onClick={onClose}
             className="cursor-pointer"
           >

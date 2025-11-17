@@ -1,15 +1,16 @@
 import { isComplexValue } from "./utils";
+import type { JsonValue } from "@/shared/types";
 
 interface ToolCallItemProps {
   toolCall: {
     name: string;
     id?: string | undefined;
-    args: Record<string, any>;
+    args: Record<string, JsonValue>;
     type?: string | undefined;
   };
 }
 export const ToolCallItem: React.FC<ToolCallItemProps> = ({ toolCall }) => {
-  const args = toolCall.args as Record<string, any>;
+  const args = toolCall.args as Record<string, JsonValue>;
   const hasArgs = Object.keys(args).length > 0;
 
   return (

@@ -101,6 +101,7 @@ const MessageActions: React.FC<MessageActionsProps> = ({
   return (
     <div className="flex items-center gap-2">
       <button
+        type="button"
         onClick={handleCopy}
         disabled={isLoading}
         className="border-border bg-card hover:bg-sand flex items-center gap-1.5 rounded-md border px-3 py-1.5 transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-50"
@@ -117,6 +118,7 @@ const MessageActions: React.FC<MessageActionsProps> = ({
 
       {isAiMessage && !!handleRegenerate && (
         <button
+          type="button"
           onClick={handleRegenerate}
           disabled={isLoading}
           className="border-border bg-card hover:bg-sand flex items-center gap-1.5 rounded-md border px-3 py-1.5 transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-50"
@@ -132,6 +134,7 @@ const MessageActions: React.FC<MessageActionsProps> = ({
 
       {isAiMessage && !!onExpertHelpClick && (
         <button
+          type="button"
           onClick={onExpertHelpClick}
           disabled={isLoading}
           className="border-border bg-card hover:bg-sand flex items-center gap-1.5 rounded-md border px-3 py-1.5 transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-50"
@@ -147,6 +150,7 @@ const MessageActions: React.FC<MessageActionsProps> = ({
 
       {showEdit && (
         <button
+          type="button"
           onClick={() => setIsEditing?.(true)}
           disabled={isLoading}
           className="border-border bg-card hover:bg-sand flex items-center gap-1.5 rounded-md border px-3 py-1.5 transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-50"

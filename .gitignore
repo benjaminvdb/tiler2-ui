@@ -32,14 +32,8 @@ next-env.d.ts
 # IMPORTANT: Never commit files with real secrets!
 # .env.example is the ONLY env file that should be committed
 .env
-.env*.local
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-.env.development
-.env.production
-.env.test
+.env.*
+!.env.example
 
 # Sentry Config Files
 .env.sentry-build-plugin

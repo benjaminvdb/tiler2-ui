@@ -35,6 +35,7 @@ export const ThreadActionsMenu = ({
         >
           <DropdownMenuTrigger asChild>
             <button
+              type="button"
               onClick={(e) => {
                 e.stopPropagation();
               }}

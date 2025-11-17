@@ -232,6 +232,7 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
 
   useEffect(() => {
     const controller = new AbortController();
+    const currentController = threadFetchControllerRef.current;
 
     const checkStatus = async () => {
       try {
@@ -264,7 +265,6 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
 
     return () => {
       controller.abort();
-      const currentController = threadFetchControllerRef.current;
       if (currentController) {
         currentController.abort();
       }
