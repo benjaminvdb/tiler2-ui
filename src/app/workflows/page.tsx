@@ -258,6 +258,7 @@ const WorkflowsPage = (): React.ReactNode => {
             />
             {searchQuery && (
               <button
+                type="button"
                 onClick={() => setSearchQuery("")}
                 className="hover:bg-sand absolute top-1/2 right-3 -translate-y-1/2 rounded p-1 transition-colors duration-250"
               >
@@ -319,6 +320,7 @@ const WorkflowsPage = (): React.ReactNode => {
 
                 return (
                   <button
+                    type="button"
                     key={category.id}
                     onClick={() => scrollToCategory(category.name)}
                     className="group flex items-center gap-2 rounded-md border-0 px-3 py-1.5 text-white transition-all duration-250 hover:opacity-90"
@@ -618,6 +620,7 @@ const WorkflowsPage = (): React.ReactNode => {
                   {fallbackWorkflow && (
                     <div className="mt-5 text-center">
                       <button
+                        type="button"
                         onClick={() => {
                           navigationService.navigateToWorkflow(
                             fallbackWorkflow.workflow_id,

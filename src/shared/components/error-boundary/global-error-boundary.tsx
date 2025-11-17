@@ -108,12 +108,14 @@ const DefaultErrorFallback: React.FC<{
           )}
           <div className="space-x-4">
             <button
+              type="button"
               onClick={retry}
               className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
             >
               Try Again
             </button>
             <button
+              type="button"
               onClick={() => window.location.reload()}
               className="rounded bg-gray-600 px-4 py-2 text-white hover:bg-gray-700"
             >

@@ -102,6 +102,7 @@ export const NewSidebar = (): React.JSX.Element => {
           className={`flex items-center gap-2 px-2 py-2 ${isCollapsed ? "justify-center" : "justify-between"}`}
         >
           <button
+            type="button"
             onClick={() => navigationService.navigateToHome()}
             className="flex flex-1 cursor-pointer items-center gap-2 transition-opacity group-data-[collapsible=icon]:hidden hover:opacity-80"
             aria-label="Go to Home"

@@ -264,8 +264,9 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
 
     return () => {
       controller.abort();
-      if (threadFetchControllerRef.current) {
-        threadFetchControllerRef.current.abort();
+      const currentController = threadFetchControllerRef.current;
+      if (currentController) {
+        currentController.abort();
       }
     };
   }, [apiUrl, logger]);
@@ -285,10 +286,8 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
     setAccessToken(null);
   }, []);
 
-  const cloneStreamValue = () => Object.create(streamValue);
-
   const extendedStreamValue = useMemo(() => {
-    const base = cloneStreamValue();
+    const base = Object.create(streamValue);
     return Object.assign(base, {
       currentRunId,
       threadId,
@@ -325,6 +324,7 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
               Your session may have expired. Please log in again.
             </p>
             <button
+              type="button"
               onClick={() => (window.location.href = "/auth/login")}
               className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md px-4 py-2 text-sm"
             >
