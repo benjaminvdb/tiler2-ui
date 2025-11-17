@@ -353,7 +353,7 @@ function useSidebarHandlers(
   };
 }
 
-export const NewSidebar = (): React.JSX.Element => {
+export const AppSidebar = (): React.JSX.Element => {
   const { navigationService } = useUIContext();
   const [threadId] = useSearchParamState("threadId");
   const { threads, threadsLoading } = useThreadHistory();

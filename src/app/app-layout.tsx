@@ -3,7 +3,7 @@ import { ErrorBoundary } from "@/shared/components/error-boundary";
 import { AppProviders } from "./app-providers";
 import { LoadingScreen } from "@/shared/components/loading-spinner";
 import { SidebarProvider, SidebarInset } from "@/shared/components/ui/sidebar";
-import { NewSidebar } from "@/features/side-panel/components/new-sidebar";
+import { AppSidebar } from "@/features/side-panel/components/sidebar";
 import { MobileHeader } from "@/features/side-panel/components/mobile-header";
 
 interface AppLayoutContentProps {
@@ -22,7 +22,7 @@ const AppLayoutContent = ({
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="flex h-screen w-full">
-        <NewSidebar />
+        <AppSidebar />
         <SidebarInset className="flex flex-col">
           <MobileHeader />
           <main className="flex-1 overflow-y-auto">{children}</main>
