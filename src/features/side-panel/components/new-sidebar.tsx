@@ -80,18 +80,202 @@ const ThreadItem = React.memo(function ThreadItem({
   );
 });
 
-export const NewSidebar = (): React.JSX.Element => {
-  const { navigationService } = useUIContext();
-  const [threadId] = useSearchParamState("threadId");
-  const { threads, threadsLoading } = useThreadHistory();
-  const { deleteThread, renameThread } = useThreads();
-  const { state, toggleSidebar } = useSidebar();
-  const isCollapsed = state === "collapsed";
+/**
+ * Header section with logo and collapse button
+ */
+interface SidebarHeaderSectionProps {
+  isCollapsed: boolean;
+  onNewChat: () => void;
+  onToggleSidebar: () => void;
+}
 
-  const LABEL_NEW_CHAT = "New Chat";
-  const LABEL_WORKFLOWS = "Workflows";
-  const LABEL_WIKI = "Wiki";
+const SidebarHeaderSection: React.FC<SidebarHeaderSectionProps> = ({
+  isCollapsed,
+  onNewChat,
+  onToggleSidebar,
+}) => (
+  <SidebarHeader>
+    <div
+      className={`flex items-center gap-2 px-2 py-2 ${isCollapsed ? "justify-center" : "justify-between"}`}
+    >
+      <button
+        type="button"
+        onClick={onNewChat}
+        className="flex flex-1 cursor-pointer items-center gap-2 transition-opacity group-data-[collapsible=icon]:hidden hover:opacity-80"
+        aria-label="Go to Home"
+      >
+        <LinkLogoSVG width={32} height={32} className="shrink-0" />
+      </button>
 
+      <Button
+        variant="ghost"
+        size="icon"
+        className="size-7 opacity-80 hover:opacity-100"
+        onClick={onToggleSidebar}
+        aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+      >
+        {isCollapsed ? (
+          <PanelLeftOpen className="h-4 w-4" />
+        ) : (
+          <PanelLeftClose className="h-4 w-4" />
+        )}
+      </Button>
+    </div>
+  </SidebarHeader>
+);
+
+/**
+ * Main navigation menu with New Chat, Workflows, and Wiki
+ */
+interface MainMenuProps {
+  onNewChat: () => void;
+  onWorkflows: () => void;
+  onWiki: () => void;
+}
+
+const MainMenu: React.FC<MainMenuProps> = ({
+  onNewChat,
+  onWorkflows,
+  onWiki,
+}) => (
+  <SidebarGroup>
+    <SidebarGroupContent>
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton
+            onClick={onNewChat}
+            tooltip={{
+              children: (
+                <div className="text-center">
+                  <p className="font-medium">New Chat</p>
+                  <p className="mt-1 text-xs text-white/60">
+                    {getShortcutText("new-chat")}
+                  </p>
+                </div>
+              ),
+            }}
+            style={{
+              backgroundColor: "var(--forest-green)",
+              color: "var(--off-white)",
+            }}
+            className="hover:opacity-90 data-[active=true]:opacity-100"
+          >
+            <Plus className="h-4 w-4" strokeWidth={2} />
+            <span className="font-medium">New Chat</span>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+
+        <SidebarMenuItem>
+          <SidebarMenuButton
+            onClick={onWorkflows}
+            tooltip={{
+              children: (
+                <div className="text-center">
+                  <p className="font-medium">Workflows</p>
+                  <p className="mt-1 text-xs text-white/60">
+                    {getShortcutText("workflows")}
+                  </p>
+                </div>
+              ),
+            }}
+          >
+            <GitBranch className="h-4 w-4" />
+            <span>Workflows</span>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+
+        <SidebarMenuItem>
+          <SidebarMenuButton
+            onClick={onWiki}
+            tooltip={{
+              children: (
+                <div className="text-center">
+                  <p className="font-medium">Wiki</p>
+                  <p
+                    className="invisible mt-1 text-xs text-white/60"
+                    aria-hidden="true"
+                  >
+                    &nbsp;
+                  </p>
+                </div>
+              ),
+            }}
+          >
+            <BookOpen className="h-4 w-4" />
+            <span>Wiki</span>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    </SidebarGroupContent>
+  </SidebarGroup>
+);
+
+/**
+ * Thread list section with loading and empty states
+ */
+interface ThreadListProps {
+  threads: Thread[];
+  threadsLoading: boolean;
+  threadId: string | null;
+  onThreadClick: (threadId: string) => void;
+  onRename: (threadId: string, newTitle: string) => Promise<void>;
+  onDelete: (threadId: string) => Promise<void>;
+}
+
+const ThreadList: React.FC<ThreadListProps> = ({
+  threads,
+  threadsLoading,
+  threadId,
+  onThreadClick,
+  onRename,
+  onDelete,
+}) => (
+  <div className="scrollbar-sidebar flex min-h-0 flex-1 flex-col overflow-y-auto">
+    <SidebarGroup>
+      <SidebarGroupLabel>CHATS</SidebarGroupLabel>
+      <SidebarGroupContent>
+        <SidebarMenu>
+          {threadsLoading ? (
+            <>
+              {SKELETON_KEYS.map((key) => (
+                <SidebarMenuItem key={key}>
+                  <SidebarMenuSkeleton showIcon />
+                </SidebarMenuItem>
+              ))}
+            </>
+          ) : threads.length === 0 ? (
+            <div className="px-2 py-4 text-center">
+              <p className="text-muted-foreground text-xs">
+                No chats yet. Start a new conversation!
+              </p>
+            </div>
+          ) : (
+            threads.map((thread: Thread) => (
+              <ThreadItem
+                key={thread.thread_id}
+                thread={thread}
+                isActive={thread.thread_id === threadId}
+                onThreadClick={onThreadClick}
+                onRename={onRename}
+                onDelete={onDelete}
+              />
+            ))
+          )}
+        </SidebarMenu>
+      </SidebarGroupContent>
+    </SidebarGroup>
+  </div>
+);
+
+/**
+ * Hook for sidebar event handlers
+ */
+function useSidebarHandlers(
+  threadId: string | null,
+  navigationService: ReturnType<typeof useUIContext>["navigationService"],
+  deleteThread: (threadId: string) => Promise<void>,
+  renameThread: (threadId: string, newTitle: string) => Promise<void>,
+) {
   const handleThreadClick = React.useCallback(
     (clickedThreadId: string) => {
       if (clickedThreadId === threadId) return;
@@ -159,156 +343,61 @@ export const NewSidebar = (): React.JSX.Element => {
     handleNavigate("wiki");
   }, [handleNavigate]);
 
+  return {
+    handleThreadClick,
+    handleRename,
+    handleDelete,
+    handleNewChatClick,
+    handleWorkflowsClick,
+    handleWikiClick,
+  };
+}
+
+export const NewSidebar = (): React.JSX.Element => {
+  const { navigationService } = useUIContext();
+  const [threadId] = useSearchParamState("threadId");
+  const { threads, threadsLoading } = useThreadHistory();
+  const { deleteThread, renameThread } = useThreads();
+  const { state, toggleSidebar } = useSidebar();
+  const isCollapsed = state === "collapsed";
+
+  const {
+    handleThreadClick,
+    handleRename,
+    handleDelete,
+    handleNewChatClick,
+    handleWorkflowsClick,
+    handleWikiClick,
+  } = useSidebarHandlers(threadId, navigationService, deleteThread, renameThread);
+
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader>
-        <div
-          className={`flex items-center gap-2 px-2 py-2 ${isCollapsed ? "justify-center" : "justify-between"}`}
-        >
-          <button
-            type="button"
-            onClick={handleNewChatClick}
-            className="flex flex-1 cursor-pointer items-center gap-2 transition-opacity group-data-[collapsible=icon]:hidden hover:opacity-80"
-            aria-label="Go to Home"
-          >
-            <LinkLogoSVG
-              width={32}
-              height={32}
-              className="shrink-0"
-            />
-          </button>
-
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-7 opacity-80 hover:opacity-100"
-            onClick={toggleSidebar}
-            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-          >
-            {isCollapsed ? (
-              <PanelLeftOpen className="h-4 w-4" />
-            ) : (
-              <PanelLeftClose className="h-4 w-4" />
-            )}
-          </Button>
-        </div>
-      </SidebarHeader>
+      <SidebarHeaderSection
+        isCollapsed={isCollapsed}
+        onNewChat={handleNewChatClick}
+        onToggleSidebar={toggleSidebar}
+      />
 
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  onClick={handleNewChatClick}
-                  tooltip={{
-                    children: (
-                      <div className="text-center">
-                        <p className="font-medium">{LABEL_NEW_CHAT}</p>
-                        <p className="mt-1 text-xs text-white/60">
-                          {getShortcutText("new-chat")}
-                        </p>
-                      </div>
-                    ),
-                  }}
-                  style={{
-                    backgroundColor: "var(--forest-green)",
-                    color: "var(--off-white)",
-                  }}
-                  className="hover:opacity-90 data-[active=true]:opacity-100"
-                >
-                  <Plus
-                    className="h-4 w-4"
-                    strokeWidth={2}
-                  />
-                  <span className="font-medium">{LABEL_NEW_CHAT}</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  onClick={handleWorkflowsClick}
-                  tooltip={{
-                    children: (
-                      <div className="text-center">
-                        <p className="font-medium">{LABEL_WORKFLOWS}</p>
-                        <p className="mt-1 text-xs text-white/60">
-                          {getShortcutText("workflows")}
-                        </p>
-                      </div>
-                    ),
-                  }}
-                >
-                  <GitBranch className="h-4 w-4" />
-                  <span>{LABEL_WORKFLOWS}</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  onClick={handleWikiClick}
-                  tooltip={{
-                    children: (
-                      <div className="text-center">
-                        <p className="font-medium">{LABEL_WIKI}</p>
-                        <p
-                          className="invisible mt-1 text-xs text-white/60"
-                          aria-hidden="true"
-                        >
-                          &nbsp;
-                        </p>
-                      </div>
-                    ),
-                  }}
-                >
-                  <BookOpen className="h-4 w-4" />
-                  <span>{LABEL_WIKI}</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <MainMenu
+          onNewChat={handleNewChatClick}
+          onWorkflows={handleWorkflowsClick}
+          onWiki={handleWikiClick}
+        />
 
         <div className="px-2">
           <SidebarSeparator className="mx-0" />
         </div>
 
         {!isCollapsed && (
-          <div className="scrollbar-sidebar flex min-h-0 flex-1 flex-col overflow-y-auto">
-            <SidebarGroup>
-              <SidebarGroupLabel>CHATS</SidebarGroupLabel>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {threadsLoading ? (
-                    <>
-                      {SKELETON_KEYS.map((key) => (
-                        <SidebarMenuItem key={key}>
-                          <SidebarMenuSkeleton showIcon />
-                        </SidebarMenuItem>
-                      ))}
-                    </>
-                  ) : threads.length === 0 ? (
-                    <div className="px-2 py-4 text-center">
-                      <p className="text-muted-foreground text-xs">
-                        No chats yet. Start a new conversation!
-                      </p>
-                    </div>
-                  ) : (
-                    threads.map((thread: Thread) => (
-                      <ThreadItem
-                        key={thread.thread_id}
-                        thread={thread}
-                        isActive={thread.thread_id === threadId}
-                        onThreadClick={handleThreadClick}
-                        onRename={handleRename}
-                        onDelete={handleDelete}
-                      />
-                    ))
-                  )}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-          </div>
+          <ThreadList
+            threads={threads}
+            threadsLoading={threadsLoading}
+            threadId={threadId}
+            onThreadClick={handleThreadClick}
+            onRename={handleRename}
+            onDelete={handleDelete}
+          />
         )}
       </SidebarContent>
 
