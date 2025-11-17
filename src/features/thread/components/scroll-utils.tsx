@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, useCallback } from "react";
 import { Button } from "@/shared/components/ui/button";
 import { ArrowDown } from "lucide-react";
 import { useStickToBottomContext } from "use-stick-to-bottom";
@@ -40,12 +40,16 @@ export const ScrollToBottom: React.FC<ScrollToBottomProps> = ({
 }) => {
   const { isAtBottom, scrollToBottom } = useStickToBottomContext();
 
+  const handleClick = useCallback(() => {
+    scrollToBottom();
+  }, [scrollToBottom]);
+
   if (isAtBottom) return null;
   return (
     <Button
       variant="outline"
       className={className}
-      onClick={() => scrollToBottom()}
+      onClick={handleClick}
     >
       <ArrowDown className="h-4 w-4" />
       <span>Scroll to bottom</span>
