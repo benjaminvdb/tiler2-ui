@@ -4,7 +4,7 @@ import {
   AvatarImage,
 } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
-import { getInitials } from "../utils/get-initials";
+import { getInitials } from "./utils/get-initials";
 import { forwardRef } from "react";
 
 interface UserAvatarProps {

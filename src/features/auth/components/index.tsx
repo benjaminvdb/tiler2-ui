@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
 import { User, LogIn } from "lucide-react";
-import { UserDropdown } from "./components";
+import { UserDropdown } from "./user-dropdown";
 
 const LoadingAvatar = (): React.JSX.Element => {
   return (
