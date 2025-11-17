@@ -3,7 +3,7 @@ import { useRef, useCallback, useEffect } from "react";
 /**
  * Custom hook for debouncing function calls with proper cleanup
  */
-export function useDebounce<T extends (...args: any[]) => any>(
+export function useDebounce<T extends (...args: unknown[]) => unknown>(
   func: T,
   delay: number,
 ): (...args: Parameters<T>) => void {
@@ -36,7 +36,7 @@ export function useDebounce<T extends (...args: any[]) => any>(
 /**
  * Regular debounce function for non-React usage
  */
-export const debounce = <T extends (...args: any[]) => any>(
+export const debounce = <T extends (...args: unknown[]) => unknown>(
   func: T,
   delay: number,
 ): ((...args: Parameters<T>) => void) => {

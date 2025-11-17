@@ -34,13 +34,16 @@ export const ToolResultContent: React.FC<ToolResultContentProps> = ({
                   ? isExpanded
                     ? parsedContent
                     : parsedContent.slice(0, 5)
-                  : Object.entries(parsedContent as any)
+                  : Object.entries(parsedContent as Record<string, JsonValue>)
                 ).map((item, argIdx) => {
                   const [key, value] = Array.isArray(parsedContent)
                     ? [argIdx, item]
-                    : [(item as any)[0], (item as any)[1]];
+                    : ([item[0], item[1]] as [string, JsonValue]);
+                  const rowKey = Array.isArray(parsedContent)
+                    ? `${argIdx}-${JSON.stringify(value)}`
+                    : item[0];
                   return (
-                    <tr key={argIdx}>
+                    <tr key={rowKey}>
                       <td className="px-4 py-2 text-sm font-medium whitespace-nowrap text-gray-900">
                         {key}
                       </td>

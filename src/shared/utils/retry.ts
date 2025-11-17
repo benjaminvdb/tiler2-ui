@@ -191,7 +191,7 @@ export async function fetchWithRetry(
   );
 }
 
-export function withRetry<T extends (...args: any[]) => Promise<any>>(
+export function withRetry<T extends (...args: unknown[]) => Promise<unknown>>(
   fn: T,
   config: RetryConfig = {},
 ): T {

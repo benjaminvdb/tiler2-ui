@@ -4,7 +4,8 @@
   "entry": [
     "src/main.tsx",
     "src/App.tsx",
-    "src/env.ts"
+    "src/env.ts",
+    "src/shared/components/ui/**/*.tsx"
   ],
 
   "project": ["src/**/*.{ts,tsx}"],
@@ -17,10 +18,7 @@
     "@/infrastructure/*": ["./src/infrastructure/*"]
   },
 
-  "ignoreExportsUsedInFile": {
-    "interface": true,
-    "type": true
-  },
+  "ignoreExportsUsedInFile": true,
 
   "ignoreDependencies": [
     "@types/uuid"
@@ -28,5 +26,15 @@
 
   "ignore": [
     "src/vite-env.d.ts"
-  ]
+  ],
+
+  "ignoreBinaries": [
+    "vite-bundle-visualizer"
+  ],
+
+  "ignoreIssues": {
+    "src/shared/components/ui/**": ["exports"],
+    "src/core/services/observability/**": ["exports"],
+    "src/shared/components/error-boundary/**": ["exports"]
+  }
 }

@@ -20,7 +20,7 @@ const createEnv = () => {
   const skipValidation = import.meta.env.VITE_SKIP_ENV_VALIDATION === "true";
 
   const clientEnv = skipValidation
-    ? (import.meta.env as any)
+    ? (import.meta.env as z.infer<typeof clientSchema>)
     : clientSchema.parse({
         VITE_AUTH0_DOMAIN: import.meta.env.VITE_AUTH0_DOMAIN,
         VITE_AUTH0_CLIENT_ID: import.meta.env.VITE_AUTH0_CLIENT_ID,

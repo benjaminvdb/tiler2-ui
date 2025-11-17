@@ -12,7 +12,7 @@ interface ToolResultItemProps {
 export const ToolResultItem: React.FC<ToolResultItemProps> = ({ message }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  let parsedContent: JsonValue = message.content as any;
+  let parsedContent: JsonValue = message.content as JsonValue;
   let isJsonContent = false;
 
   try {
@@ -21,7 +21,7 @@ export const ToolResultItem: React.FC<ToolResultItemProps> = ({ message }) => {
       isJsonContent = isComplexValue(parsedContent);
     }
   } catch {
-    parsedContent = message.content as any;
+    parsedContent = message.content as JsonValue;
   }
   const contentStr = isJsonContent
     ? JSON.stringify(parsedContent, null, 2)
