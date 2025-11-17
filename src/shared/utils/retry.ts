@@ -39,24 +39,29 @@ export const isRetryableResponse = (response: Response): boolean =>
   RETRYABLE_STATUS_CODES.includes(response.status);
 
 /**
- * Determines if an error is retryable (network errors, timeouts, etc).
+ * Check if error message indicates a network error
  */
-export function isRetryableError(error: unknown): boolean {
-  if (!(error instanceof Error)) return false;
-
-  if (error.name === "AbortError") return false;
-  if (error instanceof PRetryAbortError) return false;
-
-  const message = error.message.toLowerCase();
-  if (
+const isNetworkErrorMessage = (message: string): boolean => {
+  return (
     message.includes("fetch failed") ||
     message.includes("failed to fetch") ||
     message.includes("networkerror") ||
     message.includes("network request failed") ||
     message.includes("the internet connection appears to be offline")
-  ) {
-    return true;
+  );
+};
+
+/**
+ * Determines if an error is retryable (network errors, timeouts, etc).
+ */
+export function isRetryableError(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  if (error.name === "AbortError" || error instanceof PRetryAbortError) {
+    return false;
   }
+
+  const message = error.message.toLowerCase();
+  if (isNetworkErrorMessage(message)) return true;
 
   if ("isRetryable" in error && typeof error.isRetryable === "boolean") {
     return error.isRetryable;

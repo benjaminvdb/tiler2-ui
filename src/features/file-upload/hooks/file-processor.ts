@@ -16,6 +16,46 @@ export interface FileProcessingOptions {
   resetInput?: boolean;
 }
 
+/**
+ * Display error toasts for invalid and duplicate files
+ */
+function showFileErrors(
+  invalidFiles: File[],
+  duplicateFiles: File[],
+  showInvalidTypeError: boolean,
+  showDuplicateError: boolean,
+): void {
+  if (showInvalidTypeError && invalidFiles.length > 0) {
+    toast.error(ERROR_MESSAGES.INVALID_FILE_TYPE);
+  }
+  if (showDuplicateError && duplicateFiles.length > 0) {
+    toast.error(
+      ERROR_MESSAGES.DUPLICATE_FILES(duplicateFiles.map((f) => f.name)),
+    );
+  }
+}
+
+/**
+ * Convert files to content blocks and add to state
+ */
+async function addFilesToContentBlocks(
+  files: File[],
+  setContentBlocks: React.Dispatch<
+    React.SetStateAction<MultimodalContentBlock[]>
+  >,
+): Promise<void> {
+  try {
+    const newBlocks = await Promise.all(files.map(fileToContentBlock));
+    setContentBlocks((prev) => [...prev, ...newBlocks]);
+  } catch (error) {
+    logger.error(error instanceof Error ? error : new Error(String(error)), {
+      operation: "process_files",
+      additionalData: { fileCount: files.length },
+    });
+    toast.error("Failed to process one or more files. Please try again.");
+  }
+}
+
 async function processFilesInternal(
   files: File[],
   contentBlocks: MultimodalContentBlock[],
@@ -33,26 +73,15 @@ async function processFilesInternal(
     contentBlocks,
   );
 
-  if (showInvalidTypeError && invalidFiles.length > 0) {
-    toast.error(ERROR_MESSAGES.INVALID_FILE_TYPE);
-  }
-  if (showDuplicateError && duplicateFiles.length > 0) {
-    toast.error(
-      ERROR_MESSAGES.DUPLICATE_FILES(duplicateFiles.map((f) => f.name)),
-    );
-  }
+  showFileErrors(
+    invalidFiles,
+    duplicateFiles,
+    showInvalidTypeError,
+    showDuplicateError,
+  );
 
   if (uniqueFiles.length > 0) {
-    try {
-      const newBlocks = await Promise.all(uniqueFiles.map(fileToContentBlock));
-      setContentBlocks((prev) => [...prev, ...newBlocks]);
-    } catch (error) {
-      logger.error(error instanceof Error ? error : new Error(String(error)), {
-        operation: "process_files",
-        additionalData: { fileCount: uniqueFiles.length },
-      });
-      toast.error("Failed to process one or more files. Please try again.");
-    }
+    await addFilesToContentBlocks(uniqueFiles, setContentBlocks);
   }
 }
 
