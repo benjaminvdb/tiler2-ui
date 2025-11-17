@@ -367,6 +367,109 @@ export function createObservability(context?: ObservabilityContext): Logger {
 export const observability = globalObservability;
 
 /**
+ * Creates a structured error object from error and context
+ */
+function createStructuredError(
+  error: Error | string,
+  severity: Severity,
+  category: ErrorCategory,
+  context: ObservabilityContext,
+): StructuredError {
+  return {
+    id: generateErrorId(),
+    message: error instanceof Error ? error.message : String(error),
+    severity,
+    category,
+    context: {
+      ...getEnvironmentContext(),
+      ...context,
+    },
+    ...(error instanceof Error && error.stack ? { stack: error.stack } : {}),
+    ...(error instanceof Error ? { originalError: error } : {}),
+    timestamp: Date.now(),
+    environment: import.meta.env.MODE || "unknown",
+  };
+}
+
+/**
+ * Logs error to console based on severity
+ */
+function logErrorToConsole(
+  severity: Severity,
+  message: string,
+  context: ObservabilityContext,
+): void {
+  if (!config.enableConsoleLogging) return;
+
+  const consoleMethod =
+    severity === "fatal" || severity === "error"
+      ? "error"
+      : severity === "warn"
+        ? "warn"
+        : "info";
+  console[consoleMethod](formatForConsole(severity, message, context));
+}
+
+/**
+ * Sends error to Sentry with appropriate context
+ */
+function sendErrorToSentry(
+  error: Error | string,
+  structuredError: StructuredError,
+  severity: Severity,
+  category: ErrorCategory,
+  context: ObservabilityContext,
+): void {
+  if (typeof window === "undefined") return;
+
+  const errorToSend =
+    error instanceof Error ? error : new Error(structuredError.message);
+
+  Sentry.captureException(errorToSend, {
+    level: mapSeverityToSentryLevel(severity),
+    tags: {
+      category,
+      severity,
+      errorId: structuredError.id,
+      ...(context.operation && { operation: context.operation }),
+      ...(context.component && { component: context.component }),
+    },
+    contexts: {
+      error: {
+        id: structuredError.id,
+        timestamp: structuredError.timestamp,
+        environment: structuredError.environment,
+      },
+      ...(context.threadId && {
+        thread: {
+          id: context.threadId,
+        },
+      }),
+      ...(context.userId && {
+        user: {
+          id: context.userId,
+        },
+      }),
+    },
+    extra: {
+      ...context.additionalData,
+      url: context.url,
+      userAgent: context.userAgent,
+    },
+  });
+
+  Sentry.addBreadcrumb({
+    category,
+    message: structuredError.message,
+    level: mapSeverityToSentryLevel(severity),
+    data: {
+      errorId: structuredError.id,
+      ...context,
+    },
+  });
+}
+
+/**
  * Main error reporting function (backward compatibility)
  */
 export const reportError = (
@@ -389,90 +492,16 @@ export const reportError = (
 
   errorCount++;
 
-  const structuredError: StructuredError = {
-    id: generateErrorId(),
-    message: error instanceof Error ? error.message : String(error),
-    severity,
-    category,
-    context: {
-      ...getEnvironmentContext(),
-      ...context,
-    },
-    ...(error instanceof Error && error.stack ? { stack: error.stack } : {}),
-    ...(error instanceof Error ? { originalError: error } : {}),
-    timestamp: Date.now(),
-    environment: import.meta.env.MODE || "unknown",
-  };
-
+  const structuredError = createStructuredError(error, severity, category, context);
   errorHistory.push(structuredError);
 
-  if (config.enableConsoleLogging) {
-    const consoleMethod =
-      severity === "fatal" || severity === "error"
-        ? "error"
-        : severity === "warn"
-          ? "warn"
-          : "info";
-    console[consoleMethod](
-      formatForConsole(
-        severity,
-        structuredError.message,
-        structuredError.context,
-      ),
-    );
-  }
+  logErrorToConsole(severity, structuredError.message, structuredError.context);
 
   if (!context.skipNotification) {
     showUserNotification(severity, structuredError.message, category);
   }
 
-  if (typeof window !== "undefined") {
-    const errorToSend =
-      error instanceof Error ? error : new Error(structuredError.message);
-
-    Sentry.captureException(errorToSend, {
-      level: mapSeverityToSentryLevel(severity),
-      tags: {
-        category,
-        severity,
-        errorId: structuredError.id,
-        ...(context.operation && { operation: context.operation }),
-        ...(context.component && { component: context.component }),
-      },
-      contexts: {
-        error: {
-          id: structuredError.id,
-          timestamp: structuredError.timestamp,
-          environment: structuredError.environment,
-        },
-        ...(context.threadId && {
-          thread: {
-            id: context.threadId,
-          },
-        }),
-        ...(context.userId && {
-          user: {
-            id: context.userId,
-          },
-        }),
-      },
-      extra: {
-        ...context.additionalData,
-        url: context.url,
-        userAgent: context.userAgent,
-      },
-    });
-
-    Sentry.addBreadcrumb({
-      category,
-      message: structuredError.message,
-      level: mapSeverityToSentryLevel(severity),
-      data: {
-        errorId: structuredError.id,
-        ...context,
-      },
-    });
-  }
+  sendErrorToSentry(error, structuredError, severity, category, context);
 
   return structuredError;
 };
@@ -523,17 +552,13 @@ export const reportNetworkError = (
 ): StructuredError => reportError(error, "warn", "network", context);
 
 /**
- * Report when all retry attempts have been exhausted.
- * Shows user notification with retry action and sends to Sentry with special tags.
+ * Creates a structured error for retry exhaustion
  */
-export const reportRetryExhausted = (
+function createRetryExhaustedError(
   error: Error | string,
-  context: ObservabilityContext & {
-    attempts: number;
-    url?: string;
-  },
-): StructuredError => {
-  const structuredError: StructuredError = {
+  context: ObservabilityContext & { attempts: number; url?: string },
+): StructuredError {
+  return {
     id: generateErrorId(),
     message: error instanceof Error ? error.message : String(error),
     severity: "error",
@@ -551,71 +576,99 @@ export const reportRetryExhausted = (
     timestamp: Date.now(),
     environment: import.meta.env.MODE || "unknown",
   };
+}
 
+/**
+ * Sends retry exhaustion error to Sentry
+ */
+function sendRetryErrorToSentry(
+  error: Error | string,
+  structuredError: StructuredError,
+  context: ObservabilityContext & { attempts: number; url?: string },
+): void {
+  if (typeof window === "undefined") return;
+
+  const errorToSend =
+    error instanceof Error ? error : new Error(String(error));
+
+  Sentry.captureException(errorToSend, {
+    level: "error",
+    tags: {
+      category: "network",
+      severity: "error",
+      retry_exhausted: "true",
+      attempts: context.attempts.toString(),
+      errorId: structuredError.id,
+      ...(context.operation && { operation: context.operation }),
+      ...(context.component && { component: context.component }),
+    },
+    contexts: {
+      error: {
+        id: structuredError.id,
+        timestamp: structuredError.timestamp,
+        environment: structuredError.environment,
+      },
+      retry: {
+        attempts: context.attempts,
+        url: context.url,
+      },
+    },
+    extra: {
+      ...context.additionalData,
+      url: context.url,
+      userAgent: context.userAgent,
+    },
+  });
+}
+
+/**
+ * Shows retry notification to user
+ */
+function showRetryNotification(
+  context: ObservabilityContext & { attempts: number },
+): void {
+  if (context.skipNotification || typeof window === "undefined") return;
+
+  import("sonner")
+    .then(({ toast }) => {
+      toast.error(
+        `Operation failed after ${context.attempts} attempts. Please try again.`,
+        {
+          duration: 8000,
+          action: {
+            label: "Retry",
+            onClick: () => window.location.reload(),
+          },
+        },
+      );
+    })
+    .catch(() => {
+      console.warn("User notification failed - sonner not available");
+    });
+}
+
+/**
+ * Report when all retry attempts have been exhausted.
+ * Shows user notification with retry action and sends to Sentry with special tags.
+ */
+export const reportRetryExhausted = (
+  error: Error | string,
+  context: ObservabilityContext & {
+    attempts: number;
+    url?: string;
+  },
+): StructuredError => {
+  const structuredError = createRetryExhaustedError(error, context);
   errorHistory.push(structuredError);
 
   if (config.enableConsoleLogging) {
     console.error(
-      formatForConsole(
-        "error",
-        structuredError.message,
-        structuredError.context,
-      ),
+      formatForConsole("error", structuredError.message, structuredError.context),
     );
   }
 
-  if (typeof window !== "undefined") {
-    const errorToSend =
-      error instanceof Error ? error : new Error(String(error));
-
-    Sentry.captureException(errorToSend, {
-      level: "error",
-      tags: {
-        category: "network",
-        severity: "error",
-        retry_exhausted: "true",
-        attempts: context.attempts.toString(),
-        errorId: structuredError.id,
-        ...(context.operation && { operation: context.operation }),
-        ...(context.component && { component: context.component }),
-      },
-      contexts: {
-        error: {
-          id: structuredError.id,
-          timestamp: structuredError.timestamp,
-          environment: structuredError.environment,
-        },
-        retry: {
-          attempts: context.attempts,
-          url: context.url,
-        },
-      },
-      extra: {
-        ...context.additionalData,
-        url: context.url,
-        userAgent: context.userAgent,
-      },
-    });
-  }
-
-  if (!context.skipNotification && typeof window !== "undefined") {
-    import("sonner")
-      .then(({ toast }) => {
-        toast.error(
-          `Operation failed after ${context.attempts} attempts. Please try again.`,
-          {
-            duration: 8000,
-            action: {
-              label: "Retry",
-              onClick: () => window.location.reload(),
-            },
-          },
-        );
-      })
-      .catch(() => {
-        console.warn("User notification failed - sonner not available");
-      });
-  }
+  sendRetryErrorToSentry(error, structuredError, context);
+  showRetryNotification(context);
 
   return structuredError;
 };

@@ -73,21 +73,30 @@ const GuestProfile = ({ isCollapsed }: { isCollapsed: boolean }) => (
   </SidebarFooter>
 );
 
-export const SidebarUserProfile = (): React.JSX.Element => {
-  const { user, isLoading } = useAuth0();
-  const { state } = useSidebar();
-  const isCollapsed = state === "collapsed";
-
-  if (isLoading) {
-    return <LoadingProfile />;
-  }
-
-  if (!user) {
-    return <GuestProfile isCollapsed={isCollapsed} />;
-  }
-
-  const initials = getInitials(user.name || user.email || "User");
+/**
+ * Get user display information
+ */
+function getUserDisplayInfo(user: { name?: string; email?: string; picture?: string }) {
   const displayName = user.name || user.email || "User";
+  const initials = getInitials(displayName);
+  const showSecondaryEmail = Boolean(user.name && user.email && user.name !== user.email);
+
+  return { displayName, initials, showSecondaryEmail };
+}
+
+/**
+ * Authenticated user profile component
+ */
+interface AuthenticatedProfileProps {
+  user: { name?: string; email?: string; picture?: string };
+  isCollapsed: boolean;
+}
+
+const AuthenticatedProfile: React.FC<AuthenticatedProfileProps> = ({
+  user,
+  isCollapsed,
+}) => {
+  const { displayName, initials, showSecondaryEmail } = getUserDisplayInfo(user);
 
   return (
     <SidebarFooter>
@@ -101,10 +110,7 @@ export const SidebarUserProfile = (): React.JSX.Element => {
               >
                 <Avatar className="size-6">
                   {user.picture && (
-                    <AvatarImage
-                      src={user.picture}
-                      alt={displayName}
-                    />
+                    <AvatarImage src={user.picture} alt={displayName} />
                   )}
                   <AvatarFallback className="bg-sage/20 text-sage text-xs font-medium">
                     {initials}
@@ -114,15 +120,11 @@ export const SidebarUserProfile = (): React.JSX.Element => {
                 <ChevronDown className="ml-auto size-4 group-data-[collapsible=icon]:hidden" />
               </SidebarMenuButton>
             </DropdownMenuTrigger>
-            <DropdownMenuContent
-              side="top"
-              align="start"
-              className="min-w-56"
-            >
+            <DropdownMenuContent side="top" align="start" className="min-w-56">
               <DropdownMenuLabel className="truncate">
-                {user.name || user.email || "User"}
+                {displayName}
               </DropdownMenuLabel>
-              {user.name && user.email && user.name !== user.email && (
+              {showSecondaryEmail && (
                 <DropdownMenuLabel className="text-muted-foreground truncate text-xs font-normal">
                   {user.email}
                 </DropdownMenuLabel>
@@ -143,4 +145,20 @@ export const SidebarUserProfile = (): React.JSX.Element => {
       </SidebarMenu>
     </SidebarFooter>
   );
+};
+
+export const SidebarUserProfile = (): React.JSX.Element => {
+  const { user, isLoading } = useAuth0();
+  const { state } = useSidebar();
+  const isCollapsed = state === "collapsed";
+
+  if (isLoading) {
+    return <LoadingProfile />;
+  }
+
+  if (!user) {
+    return <GuestProfile isCollapsed={isCollapsed} />;
+  }
+
+  return <AuthenticatedProfile user={user} isCollapsed={isCollapsed} />;
 };

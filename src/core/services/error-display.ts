@@ -90,6 +90,78 @@ const getFallbackType = (
   }
 };
 
+/**
+ * Reports error to observability system
+ */
+function reportError(
+  error: Error,
+  severity: ErrorSeverity,
+  componentStack?: string,
+): void {
+  const shouldReport = severity === "critical" || severity === "error";
+  if (shouldReport) {
+    reportErrorBoundary(error, {
+      componentStack: componentStack || "Not available",
+    });
+  }
+}
+
+/**
+ * Displays toast notification for error
+ */
+function showToastNotification(
+  severity: ErrorSeverity,
+  description: string,
+  duration: number,
+  actions: Array<{ label: string; onClick: () => void }>,
+): void {
+  const toastOptions = {
+    description,
+    duration,
+    richColors: true,
+    closeButton: true,
+    action:
+      actions.length > 0
+        ? {
+            label: actions[0].label,
+            onClick: actions[0].onClick,
+          }
+        : undefined,
+  };
+
+  const title = TOAST_TITLES[severity];
+  const isErrorSeverity = severity === "critical" || severity === "error";
+
+  if (isErrorSeverity) {
+    toast.error(title, toastOptions);
+  } else if (severity === "warning") {
+    toast.warning(title, toastOptions);
+  } else {
+    toast.info(title, toastOptions);
+  }
+}
+
+/**
+ * Logs error in development mode
+ */
+function logErrorInDev(
+  error: Error,
+  severity: ErrorSeverity,
+  context: ErrorContext,
+  componentStack?: string,
+): void {
+  if (import.meta.env.MODE === "development") {
+    logger.error(error, {
+      operation: "display_error",
+      additionalData: {
+        severity,
+        context,
+        ...(componentStack && { componentStack }),
+      },
+    });
+  }
+}
+
 export const displayError = (
   error: Error,
   options: ErrorDisplayOptions,
@@ -105,53 +177,13 @@ export const displayError = (
     componentStack,
   } = options;
 
-  if (severity === "critical" || severity === "error") {
-    reportErrorBoundary(error, {
-      componentStack: componentStack || "Not available",
-    });
-  }
+  reportError(error, severity, componentStack);
 
   if (showToast) {
-    const toastOptions = {
-      description,
-      duration,
-      richColors: true,
-      closeButton: true,
-      action:
-        actions.length > 0
-          ? {
-              label: actions[0].label,
-              onClick: actions[0].onClick,
-            }
-          : undefined,
-    };
-
-    switch (severity) {
-      case "critical":
-        toast.error(TOAST_TITLES[severity], toastOptions);
-        break;
-      case "error":
-        toast.error(TOAST_TITLES[severity], toastOptions);
-        break;
-      case "warning":
-        toast.warning(TOAST_TITLES[severity], toastOptions);
-        break;
-      case "info":
-        toast.info(TOAST_TITLES[severity], toastOptions);
-        break;
-    }
+    showToastNotification(severity, description, duration, actions);
   }
 
-  if (import.meta.env.MODE === "development") {
-    logger.error(error, {
-      operation: "display_error",
-      additionalData: {
-        severity,
-        context,
-        ...(componentStack && { componentStack }),
-      },
-    });
-  }
+  logErrorInDev(error, severity, context, componentStack);
 
   return {
     shouldShowFallback: showFallback,

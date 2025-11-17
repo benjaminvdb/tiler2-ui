@@ -89,6 +89,134 @@ const logForbiddenRetry = (url: string, status: "pending" | "succeeded") => {
 };
 
 /**
+ * Creates a request executor with timeout
+ */
+function createRequestExecutor(
+  url: string,
+  fetchOptions: Omit<RequestInit, "headers">,
+  requestHeaders: Record<string, string>,
+  timeoutMs: number,
+) {
+  return async (externalSignal?: AbortSignal): Promise<Response> => {
+    const { signal, dispose } = createTimedSignal(timeoutMs, externalSignal);
+    try {
+      return await fetchWithRetry(
+        url,
+        {
+          ...fetchOptions,
+          headers: requestHeaders,
+          signal,
+        },
+        NETWORK_RETRY_CONFIG,
+      );
+    } finally {
+      dispose();
+    }
+  };
+}
+
+/**
+ * Handles errors from fetch requests
+ */
+function handleFetchError(error: unknown, url: string): never {
+  if (error instanceof ForbiddenError) {
+    throw error;
+  }
+
+  reportApiError(error as Error, {
+    operation: "fetchWithAuth",
+    component: "http-client",
+    url,
+  });
+
+  throw error;
+}
+
+/**
+ * Processes response and handles 403 retry if needed
+ */
+async function processResponse(
+  response: Response,
+  skip403Retry: boolean,
+  url: string,
+  getToken: TokenGetter,
+  executeRequest: (signal?: AbortSignal) => Promise<Response>,
+  requestHeaders: Record<string, string>,
+  signal?: AbortSignal,
+): Promise<Response> {
+  if (response.status === 403 && !skip403Retry) {
+    return await handle403Response(
+      url,
+      getToken,
+      executeRequest,
+      requestHeaders,
+      signal,
+    );
+  }
+
+  return response;
+}
+
+/**
+ * Fetches authentication token if not skipping auth
+ */
+async function getAuthToken(
+  getToken: TokenGetter,
+  skipAuth: boolean,
+): Promise<string | null> {
+  if (skipAuth) {
+    return null;
+  }
+
+  try {
+    return await getToken();
+  } catch (error) {
+    reportAuthError(error as Error, {
+      operation: "getToken",
+      component: "http-client",
+    });
+    throw error;
+  }
+}
+
+/**
+ * Handles 403 response by refreshing token and retrying request
+ */
+async function handle403Response(
+  url: string,
+  getToken: TokenGetter,
+  executeRequest: (signal?: AbortSignal) => Promise<Response>,
+  requestHeaders: Record<string, string>,
+  signal?: AbortSignal,
+): Promise<Response> {
+  logForbiddenRetry(url, "pending");
+
+  try {
+    const newToken = await getToken();
+    requestHeaders.Authorization = `Bearer ${newToken}`;
+
+    const retryResponse = await executeRequest(signal);
+
+    if (retryResponse.status === 403) {
+      triggerSilentLogout("403 Forbidden persisted after token refresh");
+      throw new ForbiddenError(
+        "Access denied after token refresh",
+        retryResponse,
+      );
+    }
+
+    logForbiddenRetry(url, "succeeded");
+    return retryResponse;
+  } catch (error) {
+    if (error instanceof ForbiddenError) {
+      throw error;
+    }
+    triggerSilentLogout("Token refresh failed on 403 error");
+    throw new ForbiddenError("Failed to refresh token after 403 error");
+  }
+}
+
+/**
  * Fetch wrapper with automatic authentication and 403 error handling.
  * Automatically includes auth tokens and retries once on 403 with token refresh.
  *
@@ -113,85 +241,27 @@ export async function fetchWithAuth(
 
   const requestHeaders: Record<string, string> = { ...headers };
 
-  if (!skipAuth) {
-    try {
-      const token = await getToken();
-      requestHeaders.Authorization = `Bearer ${token}`;
-    } catch (error) {
-      reportAuthError(error as Error, {
-        operation: "getToken",
-        component: "http-client",
-      });
-      throw error;
-    }
+  const token = await getAuthToken(getToken, skipAuth);
+  if (token) {
+    requestHeaders.Authorization = `Bearer ${token}`;
   }
 
-  const executeRequest = async (
-    externalSignal?: AbortSignal,
-  ): Promise<Response> => {
-    const { signal, dispose } = createTimedSignal(timeoutMs, externalSignal);
-    try {
-      return await fetchWithRetry(
-        url,
-        {
-          ...fetchOptions,
-          headers: requestHeaders,
-          signal,
-        },
-        NETWORK_RETRY_CONFIG,
-      );
-    } finally {
-      dispose();
-    }
-  };
+  const executeRequest = createRequestExecutor(url, fetchOptions, requestHeaders, timeoutMs);
 
   try {
     const response = await executeRequest(fetchOptions.signal ?? undefined);
 
-    if (response.status === 403 && !skip403Retry) {
-      logForbiddenRetry(url, "pending");
-
-      try {
-        const newToken = await getToken();
-        requestHeaders.Authorization = `Bearer ${newToken}`;
-
-        const retryResponse = await executeRequest(fetchOptions.signal ?? undefined);
-
-        if (retryResponse.status === 403) {
-          triggerSilentLogout("403 Forbidden persisted after token refresh");
-          throw new ForbiddenError(
-            "Access denied after token refresh",
-            retryResponse,
-          );
-        }
-
-        logForbiddenRetry(url, "succeeded");
-        return retryResponse;
-      } catch (error) {
-        if (error instanceof ForbiddenError) {
-          throw error;
-        }
-        triggerSilentLogout("Token refresh failed on 403 error");
-        throw new ForbiddenError(
-          "Failed to refresh token after 403 error",
-          response,
-        );
-      }
-    }
-
-    return response;
-  } catch (error) {
-    if (error instanceof ForbiddenError) {
-      throw error;
-    }
-
-    reportApiError(error as Error, {
-      operation: "fetchWithAuth",
-      component: "http-client",
+    return await processResponse(
+      response,
+      skip403Retry,
       url,
-    });
-
-    throw error;
+      getToken,
+      executeRequest,
+      requestHeaders,
+      fetchOptions.signal ?? undefined,
+    );
+  } catch (error) {
+    return handleFetchError(error, url);
   }
 }
 
