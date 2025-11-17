@@ -11,10 +11,12 @@ const logger = observability.child({
 
 const isDevelopment = import.meta.env.MODE === "development";
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function isAuth0ConfiguredClient(): boolean {
   return Boolean(env.AUTH0_DOMAIN && env.AUTH0_CLIENT_ID);
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function warnAuth0NotConfigured(): void {
   if (!isDevelopment || isAuth0ConfiguredClient()) {
     return;

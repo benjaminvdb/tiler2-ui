@@ -23,6 +23,7 @@ const NetworkStatusContext = createContext<NetworkStatusContextType>({
 const NETWORK_STATUS_TOAST_ID = "network-status";
 const ONLINE_TOAST_DURATION_MS = 3000;
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useNetworkStatus = (): NetworkStatusContextType =>
   useContext(NetworkStatusContext);
 

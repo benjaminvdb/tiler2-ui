@@ -22,6 +22,63 @@ interface WorkflowData {
 }
 
 /**
+ * Submits workflow without optimistic thread creation
+ */
+const submitWorkflowFallback = (
+  stream: ReturnType<typeof useStreamContext>,
+  workflowId: string,
+) => {
+  stream.submit(
+    { messages: [] },
+    {
+      config: {
+        configurable: {
+          workflow_id: workflowId,
+        },
+      },
+    },
+  );
+};
+
+/**
+ * Creates and submits workflow with optimistic thread
+ */
+const submitWorkflowWithThread = (
+  stream: ReturnType<typeof useStreamContext>,
+  workflowId: string,
+  workflow: WorkflowData,
+  userEmail: string,
+  addOptimisticThread: (thread: unknown) => void,
+) => {
+  const optimisticThreadId = crypto.randomUUID();
+  const threadName = generateThreadName({ workflowTitle: workflow.title });
+  const optimisticThread = buildOptimisticThread({
+    threadId: optimisticThreadId,
+    threadName,
+    userEmail,
+  });
+
+  addOptimisticThread(optimisticThread);
+
+  stream.submit(
+    { messages: [] },
+    {
+      threadId: optimisticThreadId,
+      metadata: { name: threadName },
+      config: {
+        configurable: {
+          workflow_id: workflowId,
+        },
+      },
+    },
+  );
+
+  console.log(
+    `Workflow "${workflow.title}" started with thread: ${optimisticThreadId}`,
+  );
+};
+
+/**
  * Handles workflow initialization and creates threads with workflow-specific metadata.
  * Watches for workflow query parameter and automatically submits to create a new thread.
  * @returns Thread component with artifact provider
@@ -44,111 +101,55 @@ const ThreadWithWorkflowHandler = (): React.ReactNode => {
   useEffect(() => {
     const submitWorkflow = async () => {
       if (
-        workflowId &&
-        submittedWorkflowRef.current !== workflowId &&
-        !isSubmittingWorkflow
+        !workflowId ||
+        submittedWorkflowRef.current === workflowId ||
+        isSubmittingWorkflow
       ) {
-        setIsSubmittingWorkflow(true);
-        console.log("Starting workflow:", workflowId);
-        submittedWorkflowRef.current = workflowId;
+        return;
+      }
 
-        if (threadId) {
-          console.log("Clearing existing thread ID to start fresh workflow");
-          setThreadId(null);
-        }
+      setIsSubmittingWorkflow(true);
+      console.log("Starting workflow:", workflowId);
+      submittedWorkflowRef.current = workflowId;
 
-        try {
-          const response = await fetchWithAuth(`${apiUrl}/workflows`, {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          });
+      if (threadId) {
+        console.log("Clearing existing thread ID to start fresh workflow");
+        setThreadId(null);
+      }
 
-          if (response.ok) {
-            const workflows: WorkflowData[] = await response.json();
-            const workflow = workflows.find(
-              (w) => w.workflow_id === workflowId,
+      try {
+        const response = await fetchWithAuth(`${apiUrl}/workflows`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        });
+
+        if (response.ok) {
+          const workflows: WorkflowData[] = await response.json();
+          const workflow = workflows.find((w) => w.workflow_id === workflowId);
+
+          if (workflow && user?.email) {
+            submitWorkflowWithThread(
+              stream,
+              workflowId,
+              workflow,
+              user.email,
+              addOptimisticThread,
             );
-
-            if (workflow && user?.email) {
-              const optimisticThreadId = crypto.randomUUID();
-
-              const threadName = generateThreadName({
-                workflowTitle: workflow.title,
-              });
-
-              const optimisticThread = buildOptimisticThread({
-                threadId: optimisticThreadId,
-                threadName,
-                userEmail: user.email,
-              });
-
-              addOptimisticThread(optimisticThread);
-
-              stream.submit(
-                { messages: [] },
-                {
-                  threadId: optimisticThreadId,
-                  metadata: {
-                    name: threadName,
-                  },
-                  config: {
-                    configurable: {
-                      workflow_id: workflowId,
-                    },
-                  },
-                },
-              );
-
-              console.log(
-                `Workflow "${workflow.title}" started with thread: ${optimisticThreadId}`,
-              );
-            } else {
-              console.warn(
-                `Workflow ${workflowId} not found in API response, submitting without title`,
-              );
-              stream.submit(
-                { messages: [] },
-                {
-                  config: {
-                    configurable: {
-                      workflow_id: workflowId,
-                    },
-                  },
-                },
-              );
-            }
           } else {
-            console.error(
-              "Failed to fetch workflows, submitting without title",
+            console.warn(
+              `Workflow ${workflowId} not found in API response, submitting without title`,
             );
-            stream.submit(
-              { messages: [] },
-              {
-                config: {
-                  configurable: {
-                    workflow_id: workflowId,
-                  },
-                },
-              },
-            );
+            submitWorkflowFallback(stream, workflowId);
           }
-        } catch (error) {
-          console.error("Error fetching workflow data:", error);
-          stream.submit(
-            { messages: [] },
-            {
-              config: {
-                configurable: {
-                  workflow_id: workflowId,
-                },
-              },
-            },
-          );
-        } finally {
-          setIsSubmittingWorkflow(false);
+        } else {
+          console.error("Failed to fetch workflows, submitting without title");
+          submitWorkflowFallback(stream, workflowId);
         }
+      } catch (error) {
+        console.error("Error fetching workflow data:", error);
+        submitWorkflowFallback(stream, workflowId);
+      } finally {
+        setIsSubmittingWorkflow(false);
       }
     };
 

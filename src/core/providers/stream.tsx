@@ -3,6 +3,7 @@ import { getClientConfig } from "@/core/config/client";
 import { StreamSession } from "./stream/stream-session";
 import { StreamErrorBoundary } from "@/shared/components/error-boundary/stream-error-boundary";
 
+// eslint-disable-next-line react-refresh/only-export-components -- Re-export hook from child module
 export { useStreamContext } from "./stream/stream-context";
 export type { StreamContextType, GraphState } from "./stream/types";
 

@@ -22,6 +22,7 @@ export const UIProvider: React.FC<UIProviderProps> = ({ children, value }) => {
   return <UIContext.Provider value={value}>{children}</UIContext.Provider>;
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useUIContext = () => {
   const context = useContext(UIContext);
   if (context === undefined) {
