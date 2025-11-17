@@ -22,7 +22,7 @@ interface ThreadStateValue {
   setIsRespondingToInterrupt: (responding: boolean) => void;
   currentInterrupt: HumanInterrupt | null;
   setCurrentInterrupt: (interrupt: HumanInterrupt | null) => void;
-  lastError: React.MutableRefObject<string | undefined>;
+  lastErrorRef: React.MutableRefObject<string | undefined>;
   prevMessageLength: React.MutableRefObject<number>;
 }
 
@@ -40,7 +40,7 @@ export function useThreadState(): ThreadStateValue {
   const [currentInterrupt, setCurrentInterrupt] =
     useState<HumanInterrupt | null>(null);
 
-  const lastError = useRef<string | undefined>(undefined);
+  const lastErrorRef = useRef<string | undefined>(undefined);
   const prevMessageLength = useRef(0);
 
   const shouldHideToolCallsByDefault =
@@ -69,7 +69,7 @@ export function useThreadState(): ThreadStateValue {
     currentInterrupt,
     setCurrentInterrupt,
 
-    lastError,
+    lastErrorRef,
     prevMessageLength,
   };
 }

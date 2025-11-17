@@ -89,7 +89,7 @@ export const Thread = (): React.JSX.Element => {
     setIsRespondingToInterrupt,
     currentInterrupt,
     setCurrentInterrupt,
-    lastError,
+    lastErrorRef,
     prevMessageLength,
   } = useThreadState();
 
@@ -122,7 +122,7 @@ export const Thread = (): React.JSX.Element => {
     });
 
   useThreadEffects({
-    lastError,
+    lastErrorRef,
     setFirstTokenReceived,
     isRespondingToInterrupt,
     setIsRespondingToInterrupt,

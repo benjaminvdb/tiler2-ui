@@ -15,15 +15,15 @@ export const StickyToBottomContent: React.FC<StickyToBottomContentProps> = ({
   className,
   contentClassName,
 }) => {
-  const context = useStickToBottomContext();
+  const { scrollRef, contentRef } = useStickToBottomContext();
   return (
     <div
-      ref={context.scrollRef}
+      ref={scrollRef}
       style={{ width: "100%", height: "100%" }}
       className={className}
     >
       <div
-        ref={context.contentRef}
+        ref={contentRef}
         className={contentClassName}
       >
         {content}

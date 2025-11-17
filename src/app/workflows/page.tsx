@@ -255,7 +255,7 @@ interface CategorySectionProps {
   categoryWorkflows: WorkflowConfig[];
   categoryIndex: number;
   totalCategories: number;
-  categoryRefs: React.MutableRefObject<Record<string, HTMLElement | null>>;
+  setCategoryRef: (categoryName: string, el: HTMLElement | null) => void;
   onWorkflowClick: (workflowId: string) => void;
 }
 
@@ -264,7 +264,7 @@ const CategorySection = React.memo(function CategorySection({
   categoryWorkflows,
   categoryIndex,
   totalCategories,
-  categoryRefs,
+  setCategoryRef,
   onWorkflowClick,
 }: CategorySectionProps) {
   const category = categoryWorkflows[0].category;
@@ -273,13 +273,16 @@ const CategorySection = React.memo(function CategorySection({
   const isLastCategory = categoryIndex === totalCategories - 1;
   const fallbackWorkflow = categoryWorkflows.find((w) => w.order_index === 0);
 
+  const handleRef = useCallback(
+    (el: HTMLElement | null) => {
+      setCategoryRef(categoryName, el);
+    },
+    [categoryName, setCategoryRef],
+  );
+
   return (
     <motion.section
-      ref={(el) => {
-        if (el) {
-          categoryRefs.current[categoryName] = el;
-        }
-      }}
+      ref={handleRef}
       data-category={categoryName}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -459,7 +462,7 @@ interface WorkflowsContentProps {
   searchQuery: string;
   filteredWorkflows: WorkflowConfig[];
   workflowsByCategory: Record<string, WorkflowConfig[]>;
-  categoryRefs: React.MutableRefObject<Record<string, HTMLElement | null>>;
+  setCategoryRef: (categoryName: string, el: HTMLElement | null) => void;
   onWorkflowClick: (workflowId: string) => void;
   onClearSearch: () => void;
 }
@@ -468,7 +471,7 @@ const WorkflowsContent: React.FC<WorkflowsContentProps> = ({
   searchQuery,
   filteredWorkflows,
   workflowsByCategory,
-  categoryRefs,
+  setCategoryRef,
   onWorkflowClick,
   onClearSearch,
 }) => (
@@ -494,7 +497,7 @@ const WorkflowsContent: React.FC<WorkflowsContentProps> = ({
               categoryWorkflows={categoryWorkflows}
               categoryIndex={categoryIndex}
               totalCategories={Object.entries(workflowsByCategory).length}
-              categoryRefs={categoryRefs}
+              setCategoryRef={setCategoryRef}
               onWorkflowClick={onWorkflowClick}
             />
           ),
@@ -538,14 +541,18 @@ const WorkflowsPage = (): React.ReactNode => {
   const { apiUrl } = getClientConfig();
   const [searchQuery, setSearchQuery] = useState("");
   const fetchWithAuth = useAuthenticatedFetch();
-  const categoryRefs = useRef<Record<string, HTMLElement | null>>({});
+  const categoryRefsRef = useRef<Record<string, HTMLElement | null>>({});
 
   const { workflows, loading, error } = useWorkflowsData(apiUrl, fetchWithAuth);
   const { filteredWorkflows, workflowsByCategory, categories } =
     useWorkflowFiltering(workflows, searchQuery);
 
+  const setCategoryRef = useCallback((categoryName: string, el: HTMLElement | null) => {
+    categoryRefsRef.current[categoryName] = el;
+  }, []);
+
   const scrollToCategory = useCallback((categoryName: string) => {
-    categoryRefs.current[categoryName]?.scrollIntoView({
+    categoryRefsRef.current[categoryName]?.scrollIntoView({
       behavior: "smooth",
       block: "start",
     });
@@ -602,7 +609,7 @@ const WorkflowsPage = (): React.ReactNode => {
         searchQuery={searchQuery}
         filteredWorkflows={filteredWorkflows}
         workflowsByCategory={workflowsByCategory}
-        categoryRefs={categoryRefs}
+        setCategoryRef={setCategoryRef}
         onWorkflowClick={handleWorkflowClick}
         onClearSearch={handleClearSearch}
       />

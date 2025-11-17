@@ -15,6 +15,7 @@ export function useStreamingText(incomingText: string): string {
   const previousTextRef = useRef("");
   const bufferRef = useRef("");
   const rafIdRef = useRef<number | null>(null);
+  const pendingResetRef = useRef(false);
 
   const flushBuffer = () => {
     setDisplayedText((prev) => prev + bufferRef.current);
@@ -23,6 +24,29 @@ export function useStreamingText(incomingText: string): string {
 
   useEffect(() => {
     if (incomingText === previousTextRef.current) return;
+
+    // Detect reset condition (incoming text is shorter)
+    const needsReset = incomingText.length < previousTextRef.current.length;
+
+    if (needsReset) {
+      // Cancel any pending animation
+      if (rafIdRef.current !== null) {
+        cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = null;
+      }
+      // Reset refs
+      previousTextRef.current = incomingText;
+      bufferRef.current = "";
+      // Schedule async state update to avoid synchronous setState
+      if (!pendingResetRef.current) {
+        pendingResetRef.current = true;
+        queueMicrotask(() => {
+          pendingResetRef.current = false;
+          setDisplayedText(incomingText);
+        });
+      }
+      return;
+    }
 
     const newContent = incomingText.slice(previousTextRef.current.length);
     previousTextRef.current = incomingText;
@@ -47,14 +71,6 @@ export function useStreamingText(incomingText: string): string {
       }
     };
   }, []);
-
-  useEffect(() => {
-    if (incomingText.length < displayedText.length) {
-      setDisplayedText(incomingText);
-      previousTextRef.current = incomingText;
-      bufferRef.current = "";
-    }
-  }, [incomingText, displayedText.length]);
 
   return displayedText;
 }

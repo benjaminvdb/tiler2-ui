@@ -5,7 +5,7 @@ import { getContentString } from "../utils";
 import type { HumanInterrupt } from "@langchain/langgraph/prebuilt";
 
 interface UseThreadEffectsProps {
-  lastError: React.MutableRefObject<string | undefined>;
+  lastErrorRef: React.MutableRefObject<string | undefined>;
   setFirstTokenReceived: (value: boolean) => void;
   isRespondingToInterrupt: boolean;
   setIsRespondingToInterrupt: (value: boolean) => void;
@@ -13,7 +13,7 @@ interface UseThreadEffectsProps {
 }
 
 export function useThreadEffects({
-  lastError,
+  lastErrorRef,
   setFirstTokenReceived,
   isRespondingToInterrupt,
   setIsRespondingToInterrupt,
@@ -24,24 +24,24 @@ export function useThreadEffects({
 
   useEffect(() => {
     if (!stream.error) {
-      lastError.current = undefined;
+      lastErrorRef.current = undefined;
       return;
     }
     const message =
       (typeof stream.error === "object" && stream.error?.message) ||
       String(stream.error);
 
-    if (!message || lastError.current === message) {
+    if (!message || lastErrorRef.current === message) {
       return;
     }
 
-    lastError.current = message;
+    lastErrorRef.current = message;
     toast.error("An error occurred. Please try again.", {
       description: `Error: ${message}`,
       richColors: true,
       closeButton: true,
     });
-  }, [stream.error, lastError]);
+  }, [stream.error, lastErrorRef]);
 
   useEffect(() => {
     const lastMessage = messages?.[messages.length - 1];

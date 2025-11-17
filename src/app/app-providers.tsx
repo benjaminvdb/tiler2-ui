@@ -38,17 +38,16 @@ export const AppProviders = ({ children }: AppProvidersProps): React.ReactNode =
     }
   }, [threadId]);
 
-  const [sidePanelWidth, setSidePanelWidth] = useState(350);
-
-  useEffect(() => {
+  const [sidePanelWidth, setSidePanelWidth] = useState(() => {
     const savedWidth = localStorage.getItem("sidePanelWidth");
     if (savedWidth) {
       const width = parseInt(savedWidth, 10);
       if (width >= SIDE_PANEL_MIN_WIDTH && width <= SIDE_PANEL_MAX_WIDTH) {
-        setSidePanelWidth(width);
+        return width;
       }
     }
-  }, []);
+    return 350;
+  });
 
   const isLargeScreen = useMediaQuery("(min-width: 1024px)");
 
