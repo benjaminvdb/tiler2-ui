@@ -60,7 +60,12 @@ const createTimedSignal = (
   externalSignal?: AbortSignal,
 ) => {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  const timeoutId = setTimeout(() => {
+    // Provide a clear timeout reason instead of generic "failed to fetch"
+    controller.abort(
+      new DOMException(`Request timeout after ${timeoutMs}ms`, "TimeoutError"),
+    );
+  }, timeoutMs);
 
   return {
     signal: externalSignal
@@ -234,7 +239,7 @@ export async function fetchWithAuth(
   const {
     skipAuth = false,
     skip403Retry = false,
-    timeoutMs = 10000,
+    timeoutMs = 30000,
     headers = {},
     ...fetchOptions
   } = options;
