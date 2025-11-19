@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from "react";
+import { useState } from "react";
 import { useTypedStream, GraphState } from "../types";
 import {
   uiMessageReducer,
@@ -89,26 +89,22 @@ export function useStreamSetup({
   const [currentRunId, setCurrentRunId] = useState<string | null>(null);
   const [streamError, setStreamError] = useState<Error | null>(null);
 
-  const streamConfig = useMemo(() => {
-    if (!accessToken) return null;
-
-    return {
-      apiUrl,
-      apiKey: undefined,
-      assistantId,
-      threadId: threadId ?? null,
-      timeoutMs: STREAM_TIMEOUT_MS,
-      defaultHeaders: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-      callerOptions: {
-        maxRetries: 0, // Disable SDK's internal retries in favor of fetchWithRetry
-        fetch: customFetch,
-      },
-    };
-  }, [accessToken, apiUrl, assistantId, threadId]);
-
-  const shouldFetchHistory = streamConfig !== null;
+  const streamConfig = accessToken
+    ? {
+        apiUrl,
+        apiKey: undefined,
+        assistantId,
+        threadId: threadId ?? null,
+        timeoutMs: STREAM_TIMEOUT_MS,
+        defaultHeaders: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        callerOptions: {
+          maxRetries: 0,
+          fetch: customFetch,
+        },
+      }
+    : null;
 
   const streamValue = useTypedStream({
     ...(streamConfig ?? {
@@ -122,7 +118,7 @@ export function useStreamSetup({
         fetch: customFetch,
       },
     }),
-    fetchStateHistory: shouldFetchHistory,
+    fetchStateHistory: streamConfig !== null,
     onMetadataEvent: (data: { run_id?: string }) => {
       if (data.run_id) {
         setCurrentRunId(data.run_id);
@@ -152,31 +148,20 @@ export function useStreamSetup({
     },
   });
 
-  const clearError = useCallback(() => {
+  const clearError = () => {
     setStreamError(null);
-  }, []);
+  };
 
-  const retryStream = useCallback(async () => {
+  const retryStream = async () => {
     setStreamError(null);
-  }, []);
+  };
 
-  const extendedStreamValue = useMemo(() => {
-    const base = Object.create(streamValue);
-    return Object.assign(base, {
-      currentRunId,
-      threadId,
-      error: streamError,
-      clearError,
-      retryStream,
-    });
-  }, [
-    streamValue,
+  const base = Object.create(streamValue);
+  return Object.assign(base, {
     currentRunId,
     threadId,
-    streamError,
+    error: streamError,
     clearError,
     retryStream,
-  ]);
-
-  return extendedStreamValue;
+  });
 }

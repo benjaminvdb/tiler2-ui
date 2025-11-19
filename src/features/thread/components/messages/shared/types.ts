@@ -1,8 +1,3 @@
-export interface ContentCopyableProps {
-  content: string;
-  disabled: boolean;
-}
-
 export interface BranchSwitcherProps {
   branch: string | undefined;
   branchOptions: string[] | undefined;

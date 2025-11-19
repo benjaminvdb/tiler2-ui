@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useSearchParamState } from "@/core/routing/hooks";
 import { useThreads } from "@/features/thread/providers/thread-provider";
 import { StreamContext } from "./stream-context";
@@ -25,17 +25,13 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
   const { getThreads, setThreads, removeOptimisticThread } = useThreads();
 
   const baseLogger = useObservability();
-  const logger = useMemo(
-    () =>
-      baseLogger.child({
-        component: "StreamSession",
-        additionalData: {
-          assistantId,
-          apiUrl,
-        },
-      }),
-    [baseLogger, assistantId, apiUrl],
-  );
+  const logger = baseLogger.child({
+    component: "StreamSession",
+    additionalData: {
+      assistantId,
+      apiUrl,
+    },
+  });
 
   useEffect(() => {
     if (assistantId) {

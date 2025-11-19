@@ -1,10 +1,4 @@
-import React, {
-  useEffect,
-  useState,
-  useMemo,
-  useRef,
-  useCallback,
-} from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import * as LucideIcons from "lucide-react";
 import { useUIContext } from "@/features/chat/providers/ui-provider";
@@ -409,50 +403,36 @@ function useWorkflowFiltering(
   workflows: WorkflowConfig[],
   searchQuery: string,
 ) {
-  const filteredWorkflows = useMemo(() => {
-    if (!searchQuery.trim()) {
-      return workflows;
-    }
-
-    const query = searchQuery.toLowerCase();
-    return workflows.filter(
-      (w) =>
-        w.title.toLowerCase().includes(query) ||
-        w.description.toLowerCase().includes(query),
-    );
-  }, [workflows, searchQuery]);
-
-  const workflowsByCategory = useMemo(() => {
-    const grouped: Record<string, WorkflowConfig[]> = {};
-
-    filteredWorkflows.forEach((workflow) => {
-      const categoryName = workflow.category.name;
-      if (!grouped[categoryName]) {
-        grouped[categoryName] = [];
-      }
-      grouped[categoryName].push(workflow);
-    });
-
-    const sortedCategories = Object.entries(grouped).sort(
-      ([, workflowsA], [, workflowsB]) => {
+  const filteredWorkflows = !searchQuery.trim()
+    ? workflows
+    : workflows.filter((w) => {
+        const query = searchQuery.toLowerCase();
         return (
-          workflowsA[0].category.order_index -
-          workflowsB[0].category.order_index
+          w.title.toLowerCase().includes(query) ||
+          w.description.toLowerCase().includes(query)
         );
-      },
-    );
+      });
 
-    return Object.fromEntries(sortedCategories);
-  }, [filteredWorkflows]);
+  const grouped: Record<string, WorkflowConfig[]> = {};
+  filteredWorkflows.forEach((workflow) => {
+    const categoryName = workflow.category.name;
+    if (!grouped[categoryName]) {
+      grouped[categoryName] = [];
+    }
+    grouped[categoryName].push(workflow);
+  });
 
-  const categories = useMemo(() => {
-    const categoriesWithWorkflows = Object.values(workflowsByCategory)
-      .map((workflows) => workflows[0].category)
-      .filter((cat) => cat.name !== "Onboarding")
-      .sort((a, b) => a.order_index - b.order_index);
+  const sortedCategories = Object.entries(grouped).sort(
+    ([, workflowsA], [, workflowsB]) =>
+      workflowsA[0].category.order_index - workflowsB[0].category.order_index,
+  );
 
-    return categoriesWithWorkflows;
-  }, [workflowsByCategory]);
+  const workflowsByCategory = Object.fromEntries(sortedCategories);
+
+  const categories = Object.values(workflowsByCategory)
+    .map((workflows) => workflows[0].category)
+    .filter((cat) => cat.name !== "Onboarding")
+    .sort((a, b) => a.order_index - b.order_index);
 
   return { filteredWorkflows, workflowsByCategory, categories };
 }

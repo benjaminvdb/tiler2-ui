@@ -2,9 +2,13 @@ import { Copy, CopyCheck } from "lucide-react";
 import { TooltipIconButton } from "../../../tooltip-icon-button";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState, useCallback } from "react";
-import { ContentCopyableProps } from "../types";
 
-export const ContentCopyable: React.FC<ContentCopyableProps> = ({
+interface ContentCopyableProps {
+  content: string;
+  disabled?: boolean;
+}
+
+const ContentCopyable: React.FC<ContentCopyableProps> = ({
   content,
   disabled,
 }) => {
@@ -56,3 +60,5 @@ export const ContentCopyable: React.FC<ContentCopyableProps> = ({
     </TooltipIconButton>
   );
 };
+
+export default ContentCopyable;

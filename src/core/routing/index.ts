@@ -7,9 +7,7 @@
 export { ROUTES, type Route } from "./routes";
 export {
   SearchParamsSchema,
-  parseSearchParams,
-  serializeSearchParams,
   type SearchParams,
   type SearchParamKey,
 } from "./search-params";
-export { buildUrl, mergeSearchParams, removeSearchParams } from "./utils";
+export { mergeSearchParams } from "./utils";

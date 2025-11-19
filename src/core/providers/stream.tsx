@@ -1,4 +1,4 @@
-import React, { ReactNode, useMemo } from "react";
+import React, { ReactNode } from "react";
 import { getClientConfig } from "@/core/config/client";
 import { StreamSession } from "./stream/stream-session";
 import { StreamErrorBoundary } from "@/shared/components/error-boundary/stream-error-boundary";
@@ -11,12 +11,8 @@ export const StreamProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const clientConfig = getClientConfig();
-
-  const finalApiUrl = useMemo(() => clientConfig.apiUrl, [clientConfig.apiUrl]);
-  const finalAssistantId = useMemo(
-    () => clientConfig.assistantId,
-    [clientConfig.assistantId],
-  );
+  const finalApiUrl = clientConfig.apiUrl;
+  const finalAssistantId = clientConfig.assistantId;
 
   if (!finalApiUrl || !finalAssistantId) {
     return (

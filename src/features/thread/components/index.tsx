@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { cn } from "@/shared/utils/utils";
 import { useStreamContext } from "@/core/providers/stream";
 import { useFileUpload } from "@/features/file-upload/hooks/use-file-upload";
@@ -40,44 +40,24 @@ function useChatContextValue(params: {
   dropRef: React.RefObject<HTMLDivElement | null>;
   handleActionClick: (action: string) => void;
 }) {
-  return useMemo(
-    () => ({
-      chatStarted: params.chatStarted,
-      firstTokenReceived: params.firstTokenReceived,
-      handleRegenerate: params.handleRegenerate,
-      input: params.input,
-      onInputChange: params.setInput,
-      onSubmit: params.handleSubmit,
-      onPaste: params.handlePaste,
-      onFileUpload: params.handleFileUpload,
-      contentBlocks: params.contentBlocks,
-      onRemoveBlock: params.removeBlock,
-      isRespondingToInterrupt: params.isRespondingToInterrupt,
-      hideToolCalls: params.hideToolCalls,
-      onHideToolCallsChange: params.setHideToolCalls,
-      dragOver: params.dragOver,
-      dropRef: params.dropRef,
-      handleActionClick: params.handleActionClick,
-    }),
-    [
-      params.chatStarted,
-      params.firstTokenReceived,
-      params.handleRegenerate,
-      params.input,
-      params.setInput,
-      params.handleSubmit,
-      params.handlePaste,
-      params.handleFileUpload,
-      params.contentBlocks,
-      params.removeBlock,
-      params.isRespondingToInterrupt,
-      params.hideToolCalls,
-      params.setHideToolCalls,
-      params.dragOver,
-      params.dropRef,
-      params.handleActionClick,
-    ],
-  );
+  return {
+    chatStarted: params.chatStarted,
+    firstTokenReceived: params.firstTokenReceived,
+    handleRegenerate: params.handleRegenerate,
+    input: params.input,
+    onInputChange: params.setInput,
+    onSubmit: params.handleSubmit,
+    onPaste: params.handlePaste,
+    onFileUpload: params.handleFileUpload,
+    contentBlocks: params.contentBlocks,
+    onRemoveBlock: params.removeBlock,
+    isRespondingToInterrupt: params.isRespondingToInterrupt,
+    hideToolCalls: params.hideToolCalls,
+    onHideToolCallsChange: params.setHideToolCalls,
+    dragOver: params.dragOver,
+    dropRef: params.dropRef,
+    handleActionClick: params.handleActionClick,
+  };
 }
 
 export const Thread = (): React.JSX.Element => {

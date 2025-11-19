@@ -15,35 +15,3 @@ export const SearchParamsSchema = z.object({
 export type SearchParams = z.infer<typeof SearchParamsSchema>;
 
 export type SearchParamKey = keyof SearchParams;
-
-export function parseSearchParams(searchParams: URLSearchParams): SearchParams {
-  const params: Record<string, string | boolean | undefined> = {};
-
-  for (const [key, value] of searchParams.entries()) {
-    params[key] = value;
-  }
-
-  const result = SearchParamsSchema.safeParse(params);
-
-  if (result.success) {
-    return result.data;
-  }
-
-  console.warn("Invalid search params:", result.error);
-  return {};
-}
-
-/**
- * Serialize search params to URL query string, omitting undefined values.
- */
-export function serializeSearchParams(params: Partial<SearchParams>): string {
-  const urlParams = new URLSearchParams();
-
-  for (const [key, value] of Object.entries(params)) {
-    if (value !== undefined && value !== null) {
-      urlParams.set(key, String(value));
-    }
-  }
-
-  return urlParams.toString();
-}

@@ -5,7 +5,7 @@
  * Uses React Router v7 native APIs for optimal performance and compatibility.
  */
 
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import type { SearchParamKey, SearchParams } from "../search-params";
 import { mergeSearchParams } from "../utils";
@@ -88,44 +88,17 @@ export function useSearchParamsUpdate(): (
 ) => void {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const baseParams = useMemo(
-    () => new URLSearchParams(searchParams.toString()),
-    [searchParams],
-  );
-
   return useCallback(
     (updates: Partial<SearchParams>) => {
       setSearchParams(
         () => {
+          const baseParams = new URLSearchParams(searchParams.toString());
           const merged = mergeSearchParams(baseParams, updates);
           return merged;
         },
         { replace: true },
       );
     },
-    [baseParams, setSearchParams],
+    [searchParams, setSearchParams],
   );
-}
-
-/**
- * Hook to get all current search params as a typed object
- */
-export function useSearchParamsObject(): Partial<SearchParams> {
-  const [searchParams] = useSearchParams();
-  const params: Partial<SearchParams> = {};
-
-  if (searchParams.has("threadId")) {
-    params.threadId = searchParams.get("threadId") || undefined;
-  }
-  if (searchParams.has("chatHistoryOpen")) {
-    params.chatHistoryOpen = searchParams.get("chatHistoryOpen") === "true";
-  }
-  if (searchParams.has("hideToolCalls")) {
-    params.hideToolCalls = searchParams.get("hideToolCalls") === "true";
-  }
-  if (searchParams.has("workflow")) {
-    params.workflow = searchParams.get("workflow") || undefined;
-  }
-
-  return params;
 }

@@ -57,16 +57,6 @@ export const p = ({ className, ...props }: BaseComponentProps) => (
   />
 );
 
-export const a = ({ className, ...props }: BaseComponentProps) => (
-  <a
-    className={cn(
-      "text-primary font-medium underline underline-offset-4",
-      className,
-    )}
-    {...props}
-  />
-);
-
 export const blockquote = ({ className, ...props }: BaseComponentProps) => (
   <blockquote
     className={cn("border-l-2 pl-6 italic", className)}

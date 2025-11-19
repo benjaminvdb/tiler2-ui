@@ -243,24 +243,3 @@ export const displayComponentError = (
 
   return displayError(error, options);
 };
-
-export const displayFeatureError = (
-  error: Error,
-  description?: string,
-  actions?: Array<{ label: string; onClick: () => void }>,
-): ErrorDisplayResult => {
-  const options: ErrorDisplayOptions = {
-    severity: "error",
-    context: "feature",
-  };
-
-  if (description !== undefined) {
-    options.description = description;
-  }
-
-  if (actions !== undefined) {
-    options.actions = actions;
-  }
-
-  return displayError(error, options);
-};

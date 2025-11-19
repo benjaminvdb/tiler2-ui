@@ -1,4 +1,3 @@
-import { DEFAULT_CLIENT_CONFIG } from "@/core/config/client";
 import { reportStreamError } from "@/core/services/observability";
 import { fetchWithRetry } from "@/shared/utils/retry";
 
@@ -79,6 +78,3 @@ export async function checkGraphStatus(
     clearTimeout(timeoutId);
   }
 }
-
-export const DEFAULT_API_URL = DEFAULT_CLIENT_CONFIG.apiUrl;
-export const DEFAULT_ASSISTANT_ID = DEFAULT_CLIENT_CONFIG.assistantId;

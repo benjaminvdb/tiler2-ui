@@ -14,8 +14,3 @@ export interface UseThreadHandlersProps {
   artifactContext: ArtifactContext | null;
   prevMessageLength: React.MutableRefObject<number>;
 }
-
-export interface InterruptResponse {
-  type: "response";
-  args: string;
-}

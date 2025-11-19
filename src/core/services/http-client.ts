@@ -32,10 +32,6 @@ export class ForbiddenError extends Error {
   }
 }
 
-export function isForbiddenError(error: unknown): error is ForbiddenError {
-  return error instanceof Error && error.name === "ForbiddenError";
-}
-
 function triggerSilentLogout(reason: string): void {
   reportAuthError(new Error(`Silent logout triggered: ${reason}`), {
     operation: "silentLogout",

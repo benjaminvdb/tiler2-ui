@@ -29,7 +29,6 @@ export {
   displayCriticalError,
   displayAsyncError,
   displayComponentError,
-  displayFeatureError,
   type ErrorSeverity,
   type ErrorContext,
   type ErrorDisplayOptions,
