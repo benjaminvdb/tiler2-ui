@@ -39,9 +39,9 @@ export const StatusMessages: React.FC<StatusMessagesProps> = ({
           className="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4"
         >
           <div className="text-sm text-blue-800">
-            <strong>Note:</strong> Only showing built-in workflows. The backend may
-            not have returned additional workflows. Check the browser console for
-            details.
+            <strong>Note:</strong> Only showing built-in workflows. The backend
+            may not have returned additional workflows. Check the browser
+            console for details.
           </div>
         </motion.div>
       )}

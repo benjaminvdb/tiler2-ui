@@ -137,7 +137,12 @@ const MessageActions: React.FC<MessageActionsProps> = ({
       <ActionButton
         onClick={handleCopy}
         disabled={isLoading}
-        icon={<Copy className="text-muted-foreground h-3.5 w-3.5" strokeWidth={2} />}
+        icon={
+          <Copy
+            className="text-muted-foreground h-3.5 w-3.5"
+            strokeWidth={2}
+          />
+        }
         label={copied ? "Copied!" : "Copy"}
       />
 
@@ -145,7 +150,12 @@ const MessageActions: React.FC<MessageActionsProps> = ({
         <ActionButton
           onClick={handleRegenerate}
           disabled={isLoading}
-          icon={<RefreshCcw className="text-muted-foreground h-3.5 w-3.5" strokeWidth={2} />}
+          icon={
+            <RefreshCcw
+              className="text-muted-foreground h-3.5 w-3.5"
+              strokeWidth={2}
+            />
+          }
           label="Refresh"
         />
       )}
@@ -154,7 +164,12 @@ const MessageActions: React.FC<MessageActionsProps> = ({
         <ActionButton
           onClick={onExpertHelpClick}
           disabled={isLoading}
-          icon={<UserCircle className="text-muted-foreground h-3.5 w-3.5" strokeWidth={2} />}
+          icon={
+            <UserCircle
+              className="text-muted-foreground h-3.5 w-3.5"
+              strokeWidth={2}
+            />
+          }
           label="Ask an Expert"
         />
       )}
@@ -163,7 +178,12 @@ const MessageActions: React.FC<MessageActionsProps> = ({
         <ActionButton
           onClick={handleEditClick}
           disabled={isLoading}
-          icon={<Pencil className="text-muted-foreground h-3.5 w-3.5" strokeWidth={2} />}
+          icon={
+            <Pencil
+              className="text-muted-foreground h-3.5 w-3.5"
+              strokeWidth={2}
+            />
+          }
           label="Edit"
         />
       )}

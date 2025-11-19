@@ -44,6 +44,7 @@ LANGSMITH_API_KEY=lsv2_...
 ## Architecture
 
 ### Tech Stack
+
 - **Framework**: React 19 with Vite (fast, modern bundling)
 - **Language**: TypeScript (strict mode enabled)
 - **Routing**: React Router v7 with URL-based state management
@@ -90,28 +91,33 @@ src/
 ## Key Features
 
 ### 1. Real-Time Streaming
+
 - Messages stream as they're generated from the AI model
 - Live progress indicators for long-running operations
 - Graceful handling of aborted requests
 
 ### 2. Thread Management
+
 - Persistent conversation history
 - Create, rename, delete threads
 - Branch conversations with message regeneration
 - Search and filter threads
 
 ### 3. Multimodal Support
+
 - Upload images, PDFs, and other files
 - Drag-and-drop file handling
 - File preview in chat
 - Type and size validation
 
 ### 4. Human-in-the-Loop
+
 - Interrupt workflows for user decisions
 - Resume from interrupts without losing context
 - Expert help requests with context inclusion
 
 ### 5. Error Handling & Monitoring
+
 - Comprehensive error boundaries at multiple levels
 - Automatic retry with exponential backoff
 - 403 Forbidden error handling with token refresh
@@ -119,6 +125,7 @@ src/
 - User-friendly error messages with recovery options
 
 ### 6. Authentication
+
 - Auth0 OAuth2 integration
 - Automatic token refresh
 - Silent logout on permission errors
@@ -127,6 +134,7 @@ src/
 ## Development Commands
 
 ### Code Quality
+
 ```bash
 pnpm check       # Fast TypeScript check (recommended over build)
 pnpm lint        # Run ESLint
@@ -136,6 +144,7 @@ pnpm format:check # Check formatting without changes
 ```
 
 ### Development
+
 ```bash
 pnpm dev         # Start dev server with HMR
 pnpm build       # Build for production
@@ -146,6 +155,7 @@ pnpm preview     # Preview production build locally
 ## Environment Configuration
 
 ### Development (.env.development)
+
 ```bash
 NEXT_PUBLIC_API_URL=http://localhost:2024
 NEXT_PUBLIC_ASSISTANT_ID=agent
@@ -154,6 +164,7 @@ VITE_AUTH0_CLIENT_ID=dev-client-id
 ```
 
 ### Production (.env.production)
+
 ```bash
 # LangGraph server (must be HTTPS)
 NEXT_PUBLIC_API_URL=https://my-agent.default.us.langgraph.app
@@ -179,18 +190,21 @@ VITE_SENTRY_ENVIRONMENT=production
 ### State Management
 
 **URL State**: Primary state using React Router search params
+
 ```typescript
 const [threadId, setThreadId] = useSearchParamState("threadId");
 // Automatically syncs with URL: ?threadId=uuid
 ```
 
 **Context Providers**: Global state for features
+
 - `StreamProvider`: LangGraph connection and streaming state
 - `ThreadProvider`: Thread history and operations
 - `UIProvider`: Chat history visibility, side panel width
 - `HotkeysProvider`: Global keyboard shortcuts
 
 ### Message Flow
+
 1. User submits message with optional files
 2. Optimistic update adds message to UI immediately
 3. Request sent to LangGraph server via streaming client
@@ -200,6 +214,7 @@ const [threadId, setThreadId] = useSearchParamState("threadId");
 7. Artifacts rendered in side panel if present
 
 ### Error Handling Strategy
+
 ```typescript
 // Network errors: Automatic retry with exponential backoff
 // 403 Forbidden: Automatic token refresh, then retry
@@ -215,11 +230,13 @@ const [threadId, setThreadId] = useSearchParamState("threadId");
 **Controlling Message Visibility** in LangGraph:
 
 Hide streaming (but show when complete):
+
 ```python
 model = ChatAnthropic().with_config({"tags": ["langsmith:nostream"]})
 ```
 
 Hide permanently:
+
 ```python
 result = model.invoke([messages])
 result.id = f"do-not-render-{result.id}"
@@ -240,7 +257,9 @@ export function CodeBlock({ code, language }: Props) {
     <>
       <button onClick={() => setOpen(true)}>View Code</button>
       <Artifact title="Code Preview">
-        <pre><code className={`language-${language}`}>{code}</code></pre>
+        <pre>
+          <code className={`language-${language}`}>{code}</code>
+        </pre>
       </Artifact>
     </>
   );
@@ -250,6 +269,7 @@ export function CodeBlock({ code, language }: Props) {
 ### File Upload
 
 Supported file types and limits:
+
 - Images: JPEG, PNG, GIF, WebP (max 10 files, 50MB total)
 - Documents: PDF (max 10 files, 50MB total)
 - Validation happens client-side before upload
@@ -259,12 +279,15 @@ Supported file types and limits:
 ### Styling
 
 The app uses Tailwind CSS with shadcn/ui components. Customize via:
+
 - `tailwind.config.js`: Tailwind theme and plugins
 - `src/app/globals.css`: Global styles and CSS variables
 - Component-level: Tailwind utility classes
 
 ### Colors & Themes
+
 Edit CSS variables in `globals.css`:
+
 ```css
 :root {
   --primary: #2563eb;
@@ -274,17 +297,20 @@ Edit CSS variables in `globals.css`:
 ```
 
 ### UI Components
+
 All UI primitives from shadcn/ui are available in `src/shared/components/ui/`.
 
 ## Performance
 
 ### Best Practices
+
 - **Code splitting**: Route-based lazy loading with React.lazy()
 - **Memoization**: useMemo/useCallback for expensive operations
 - **Image optimization**: Lazy loading in message lists
 - **Bundle size**: ~200KB gzipped (main bundle)
 
 ### Monitoring
+
 - **Sentry**: Automatic error tracking in production
 - **Performance metrics**: Available in browser DevTools
 - **Network monitoring**: Request timing in application logs
@@ -292,6 +318,7 @@ All UI primitives from shadcn/ui are available in `src/shared/components/ui/`.
 ## Contributing
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for:
+
 - Code style and organization standards
 - Documentation requirements (JSDoc for all exports)
 - Testing guidelines
@@ -299,6 +326,7 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for:
 - Pre-commit checklist
 
 ### Key Standards
+
 - **TypeScript**: Strict mode, no `any`
 - **Documentation**: JSDoc for all exported items
 - **Comments**: Focus on WHY, not WHAT
@@ -310,18 +338,22 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for:
 ### Common Issues
 
 **"Cannot find Auth0 config"**
+
 - Check `.env` file exists with `VITE_AUTH0_*` variables
 - Restart dev server after changing `.env`
 
 **"LangGraph connection refused"**
+
 - Verify `NEXT_PUBLIC_API_URL` points to running server
 - For local dev: ensure `http://localhost:2024` is accessible
 
 **"403 Forbidden after login"**
+
 - Auth token may be expired; try refreshing page
 - Check Auth0 configuration matches LangGraph setup
 
 **"Slow UI rendering"**
+
 - Check for unnecessary re-renders: `<Profiler>` in React DevTools
 - Verify memoization on expensive components
 - Check Network tab for slow API calls

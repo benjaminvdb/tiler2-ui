@@ -103,7 +103,9 @@ const BUILT_IN_WORKFLOWS: WorkflowConfig[] = [];
 const mergeWithBuiltIns = (
   dynamicWorkflows: WorkflowConfig[],
 ): WorkflowConfig[] => {
-  const existingIds = new Set(BUILT_IN_WORKFLOWS.map((workflow) => workflow.workflow_id));
+  const existingIds = new Set(
+    BUILT_IN_WORKFLOWS.map((workflow) => workflow.workflow_id),
+  );
   const uniqueDynamicWorkflows = dynamicWorkflows.filter(
     (workflow) => !existingIds.has(workflow.workflow_id),
   );
@@ -243,8 +245,8 @@ const FallbackLink = React.memo(function FallbackLink({
           letterSpacing: "-0.003em",
         }}
       >
-        My option isn&apos;t here – discuss another{" "}
-        {categoryName.toLowerCase()} matter
+        My option isn&apos;t here – discuss another {categoryName.toLowerCase()}{" "}
+        matter
       </button>
     </div>
   );
@@ -547,9 +549,12 @@ const WorkflowsPage = (): React.ReactNode => {
   const { filteredWorkflows, workflowsByCategory, categories } =
     useWorkflowFiltering(workflows, searchQuery);
 
-  const setCategoryRef = useCallback((categoryName: string, el: HTMLElement | null) => {
-    categoryRefsRef.current[categoryName] = el;
-  }, []);
+  const setCategoryRef = useCallback(
+    (categoryName: string, el: HTMLElement | null) => {
+      categoryRefsRef.current[categoryName] = el;
+    },
+    [],
+  );
 
   const scrollToCategory = useCallback((categoryName: string) => {
     categoryRefsRef.current[categoryName]?.scrollIntoView({

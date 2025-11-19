@@ -15,4 +15,4 @@ export const ArtifactTitle = (props: HTMLAttributes<HTMLDivElement>) => {
       ref={ref}
     />
   );
-}
+};

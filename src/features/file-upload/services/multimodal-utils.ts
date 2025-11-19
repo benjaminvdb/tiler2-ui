@@ -26,7 +26,9 @@ export const fileToContentBlock = async (
 
   const data = await fileToBase64(file);
 
-  if (IMAGE_MIME_TYPES.includes(file.type as (typeof IMAGE_MIME_TYPES)[number])) {
+  if (
+    IMAGE_MIME_TYPES.includes(file.type as (typeof IMAGE_MIME_TYPES)[number])
+  ) {
     return {
       type: "image",
       mimeType: file.type,

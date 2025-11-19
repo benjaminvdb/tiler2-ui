@@ -22,7 +22,10 @@ export const SearchHeader: React.FC<SearchHeaderProps> = ({
       transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
       className="mb-12"
     >
-      <h1 className="mb-3 font-serif text-3xl" style={{ letterSpacing: "0.01em" }}>
+      <h1
+        className="mb-3 font-serif text-3xl"
+        style={{ letterSpacing: "0.01em" }}
+      >
         Sustainability Workflows
       </h1>
       <p className="text-muted-foreground max-w-2xl leading-relaxed">

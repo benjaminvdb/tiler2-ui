@@ -44,7 +44,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   return <>{children}</>;
-}
+};
 
 /**
  * Auth0 callback page that handles post-login redirect.
@@ -74,15 +74,14 @@ const CallbackPage = (): React.JSX.Element => {
       <div className="flex h-screen items-center justify-center">
         <div className="text-center">
           <p className="text-red-500">Authentication error occurred</p>
-          <p className="text-sm text-gray-500 mt-2">Redirecting...</p>
+          <p className="mt-2 text-sm text-gray-500">Redirecting...</p>
         </div>
       </div>
     );
   }
 
   return <LoadingScreen />;
-}
-
+};
 
 /**
  * Root application component.
@@ -140,4 +139,4 @@ export const App = () => {
       </GlobalErrorBoundary>
     </MotionConfigProvider>
   );
-}
+};

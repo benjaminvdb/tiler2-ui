@@ -59,7 +59,9 @@ const RenameForm: React.FC<RenameFormProps> = ({
   <form onSubmit={handleSubmit}>
     <DialogHeader>
       <DialogTitle>Edit Thread Title</DialogTitle>
-      <DialogDescription>Enter a new title for this conversation.</DialogDescription>
+      <DialogDescription>
+        Enter a new title for this conversation.
+      </DialogDescription>
     </DialogHeader>
 
     <div className="grid gap-4 py-4">
@@ -80,10 +82,18 @@ const RenameForm: React.FC<RenameFormProps> = ({
     </div>
 
     <DialogFooter>
-      <Button type="button" variant="outline" onClick={handleCancel} disabled={loading}>
+      <Button
+        type="button"
+        variant="outline"
+        onClick={handleCancel}
+        disabled={loading}
+      >
         Cancel
       </Button>
-      <Button type="submit" disabled={loading}>
+      <Button
+        type="submit"
+        disabled={loading}
+      >
         {loading ? "Saving..." : "Save"}
       </Button>
     </DialogFooter>
@@ -124,7 +134,9 @@ export const RenameThreadDialog = ({
         onOpenChange(false);
         setTitle(trimmedTitle);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to rename thread");
+        setError(
+          err instanceof Error ? err.message : "Failed to rename thread",
+        );
       } finally {
         setLoading(false);
       }
@@ -155,7 +167,10 @@ export const RenameThreadDialog = ({
   }, [onOpenChange]);
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={handleOpenChange}
+    >
       <DialogContent className="w-[95vw] sm:w-[90vw] md:max-w-lg lg:max-w-xl xl:max-w-2xl">
         <RenameForm
           title={title}

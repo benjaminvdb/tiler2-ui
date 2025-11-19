@@ -26,7 +26,11 @@ export const isAccessTokenError = (error: unknown): error is Error => {
  */
 export const handleTokenError = (
   error: unknown,
-  { operation = "unknown", component = "unknown", additionalData }: TokenErrorContext = {},
+  {
+    operation = "unknown",
+    component = "unknown",
+    additionalData,
+  }: TokenErrorContext = {},
 ): boolean => {
   if (!isAccessTokenError(error)) {
     return false;

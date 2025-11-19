@@ -27,7 +27,8 @@ const CITATION_CLASSES = cn(
   "!text-gray-700 hover:!text-gray-900",
 );
 
-const isExternalLink = (href?: string) => Boolean(href && href.startsWith("http"));
+const isExternalLink = (href?: string) =>
+  Boolean(href && href.startsWith("http"));
 
 const scrollToSources = (event: MouseEvent<HTMLSpanElement>) => {
   event.preventDefault();

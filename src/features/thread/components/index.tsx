@@ -18,11 +18,18 @@ import { ChatProvider } from "@/features/chat/providers/chat-provider";
 function useChatContextValue(params: {
   chatStarted: boolean;
   firstTokenReceived: boolean;
-  handleRegenerate: (parentCheckpoint: import("@langchain/langgraph-sdk").Checkpoint | null | undefined) => void;
+  handleRegenerate: (
+    parentCheckpoint:
+      | import("@langchain/langgraph-sdk").Checkpoint
+      | null
+      | undefined,
+  ) => void;
   input: string;
   setInput: (input: string) => void;
   handleSubmit: (e: React.FormEvent) => void;
-  handlePaste: (e: React.ClipboardEvent<HTMLTextAreaElement | HTMLInputElement>) => void;
+  handlePaste: (
+    e: React.ClipboardEvent<HTMLTextAreaElement | HTMLInputElement>,
+  ) => void;
   handleFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   contentBlocks: MultimodalContentBlock[];
   removeBlock: (index: number) => void;

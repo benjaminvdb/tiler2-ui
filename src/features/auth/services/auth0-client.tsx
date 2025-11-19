@@ -49,4 +49,4 @@ export const Auth0DevStatus = (): React.JSX.Element | null => {
       </div>
     </div>
   );
-}
+};

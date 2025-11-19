@@ -53,7 +53,12 @@ export const MessageContent: React.FC<MessageContentProps> = ({
             toolCallsHaveContents={!!toolCallsHaveContents}
             hasAnthropicToolCalls={hasAnthropicToolCalls}
             anthropicStreamedToolCalls={anthropicStreamedToolCalls}
-            meta={(meta as unknown as { branch?: string; branchOptions?: string[] }) || null}
+            meta={
+              (meta as unknown as {
+                branch?: string;
+                branchOptions?: string[];
+              }) || null
+            }
             thread={thread}
             parentCheckpoint={parentCheckpoint}
             handleRegenerate={handleRegenerate}

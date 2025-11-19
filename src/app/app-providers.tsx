@@ -18,7 +18,9 @@ interface AppProvidersProps {
   children: React.ReactNode;
 }
 
-export const AppProviders = ({ children }: AppProvidersProps): React.ReactNode => {
+export const AppProviders = ({
+  children,
+}: AppProvidersProps): React.ReactNode => {
   const navigate = useNavigate();
 
   const [chatHistoryOpen, setChatHistoryOpen] =
@@ -107,4 +109,4 @@ export const AppProviders = ({ children }: AppProvidersProps): React.ReactNode =
       </UIProvider>
     </>
   );
-}
+};

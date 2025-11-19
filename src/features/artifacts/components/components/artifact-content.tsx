@@ -20,4 +20,4 @@ export const ArtifactContent = (props: HTMLAttributes<HTMLDivElement>) => {
       ref={ref}
     />
   );
-}
+};

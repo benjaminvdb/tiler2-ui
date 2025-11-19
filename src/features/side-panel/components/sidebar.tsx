@@ -36,6 +36,8 @@ import { useThreads } from "@/features/thread/providers/thread-provider";
 import { ThreadActionsMenu } from "./thread-actions-menu";
 import { ThreadTitle } from "./thread-title";
 import { toast } from "sonner";
+import { useIntersectionObserver } from "@/shared/hooks/use-intersection-observer";
+import { PAGINATION_CONFIG } from "@/shared/constants/pagination";
 
 // Generate stable IDs for loading skeleton items
 const SKELETON_KEYS = Array.from({ length: 5 }, (_, i) => `skeleton-${i}`);
@@ -104,7 +106,11 @@ const SidebarHeaderSection: React.FC<SidebarHeaderSectionProps> = ({
         className="flex flex-1 cursor-pointer items-center gap-2 transition-opacity group-data-[collapsible=icon]:hidden hover:opacity-80"
         aria-label="Go to Home"
       >
-        <LinkLogoSVG width={32} height={32} className="shrink-0" />
+        <LinkLogoSVG
+          width={32}
+          height={32}
+          className="shrink-0"
+        />
       </button>
 
       <Button
@@ -160,7 +166,10 @@ const MainMenu: React.FC<MainMenuProps> = ({
             }}
             className="hover:opacity-90 data-[active=true]:opacity-100"
           >
-            <Plus className="h-4 w-4" strokeWidth={2} />
+            <Plus
+              className="h-4 w-4"
+              strokeWidth={2}
+            />
             <span className="font-medium">New Chat</span>
           </SidebarMenuButton>
         </SidebarMenuItem>
@@ -220,6 +229,9 @@ interface ThreadListProps {
   onThreadClick: (threadId: string) => void;
   onRename: (threadId: string, newTitle: string) => Promise<void>;
   onDelete: (threadId: string) => Promise<void>;
+  loadMoreThreads: () => Promise<void>;
+  hasMoreThreads: boolean;
+  isLoadingMore: boolean;
 }
 
 const ThreadList: React.FC<ThreadListProps> = ({
@@ -229,43 +241,89 @@ const ThreadList: React.FC<ThreadListProps> = ({
   onThreadClick,
   onRename,
   onDelete,
-}) => (
-  <div className="scrollbar-sidebar flex min-h-0 flex-1 flex-col overflow-y-auto">
-    <SidebarGroup>
-      <SidebarGroupLabel>CHATS</SidebarGroupLabel>
-      <SidebarGroupContent>
-        <SidebarMenu>
-          {threadsLoading ? (
-            <>
-              {SKELETON_KEYS.map((key) => (
-                <SidebarMenuItem key={key}>
-                  <SidebarMenuSkeleton showIcon />
-                </SidebarMenuItem>
-              ))}
-            </>
-          ) : threads.length === 0 ? (
-            <div className="px-2 py-4 text-center">
-              <p className="text-muted-foreground text-xs">
-                No chats yet. Start a new conversation!
-              </p>
-            </div>
-          ) : (
-            threads.map((thread: Thread) => (
-              <ThreadItem
-                key={thread.thread_id}
-                thread={thread}
-                isActive={thread.thread_id === threadId}
-                onThreadClick={onThreadClick}
-                onRename={onRename}
-                onDelete={onDelete}
-              />
-            ))
-          )}
-        </SidebarMenu>
-      </SidebarGroupContent>
-    </SidebarGroup>
-  </div>
-);
+  loadMoreThreads,
+  hasMoreThreads,
+  isLoadingMore,
+}) => {
+  const sentinelRef = useIntersectionObserver(loadMoreThreads, {
+    rootMargin: PAGINATION_CONFIG.PREFETCH_THRESHOLD,
+    enabled: hasMoreThreads && !isLoadingMore && !threadsLoading,
+    debounceMs: PAGINATION_CONFIG.SCROLL_DEBOUNCE_MS,
+  });
+
+  return (
+    <div className="scrollbar-sidebar flex min-h-0 flex-1 flex-col overflow-y-auto">
+      <SidebarGroup>
+        <SidebarGroupLabel>CHATS</SidebarGroupLabel>
+        <SidebarGroupContent>
+          <SidebarMenu>
+            {threadsLoading ? (
+              <>
+                {SKELETON_KEYS.map((key) => (
+                  <SidebarMenuItem key={key}>
+                    <SidebarMenuSkeleton showIcon />
+                  </SidebarMenuItem>
+                ))}
+              </>
+            ) : threads.length === 0 ? (
+              <div className="px-2 py-4 text-center">
+                <p className="text-muted-foreground text-xs">
+                  No chats yet. Start a new conversation!
+                </p>
+              </div>
+            ) : (
+              <>
+                {threads.map((thread: Thread) => (
+                  <ThreadItem
+                    key={thread.thread_id}
+                    thread={thread}
+                    isActive={thread.thread_id === threadId}
+                    onThreadClick={onThreadClick}
+                    onRename={onRename}
+                    onDelete={onDelete}
+                  />
+                ))}
+
+                {hasMoreThreads && (
+                  <div
+                    ref={sentinelRef}
+                    className="h-4"
+                    aria-hidden="true"
+                  />
+                )}
+
+                {isLoadingMore && (
+                  <div className="px-2 py-2">
+                    <div
+                      className="text-muted-foreground w-full rounded-md px-2 py-2 text-center text-xs"
+                      role="status"
+                      aria-live="polite"
+                    >
+                      Loading more threads...
+                    </div>
+                  </div>
+                )}
+
+                {!isLoadingMore && hasMoreThreads && (
+                  <div className="px-2 py-2">
+                    <button
+                      type="button"
+                      onClick={loadMoreThreads}
+                      className="hover:bg-accent w-full rounded-md px-2 py-2 text-xs transition-colors"
+                      aria-label="Load more threads"
+                    >
+                      Load More
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
+    </div>
+  );
+};
 
 /**
  * Hook for sidebar event handlers
@@ -357,7 +415,13 @@ export const AppSidebar = (): React.JSX.Element => {
   const { navigationService } = useUIContext();
   const [threadId] = useSearchParamState("threadId");
   const { threads, threadsLoading } = useThreadHistory();
-  const { deleteThread, renameThread } = useThreads();
+  const {
+    deleteThread,
+    renameThread,
+    loadMoreThreads,
+    hasMoreThreads,
+    isLoadingMore,
+  } = useThreads();
   const { state, toggleSidebar } = useSidebar();
   const isCollapsed = state === "collapsed";
 
@@ -368,7 +432,12 @@ export const AppSidebar = (): React.JSX.Element => {
     handleNewChatClick,
     handleWorkflowsClick,
     handleWikiClick,
-  } = useSidebarHandlers(threadId, navigationService, deleteThread, renameThread);
+  } = useSidebarHandlers(
+    threadId,
+    navigationService,
+    deleteThread,
+    renameThread,
+  );
 
   return (
     <Sidebar collapsible="icon">
@@ -397,6 +466,9 @@ export const AppSidebar = (): React.JSX.Element => {
             onThreadClick={handleThreadClick}
             onRename={handleRename}
             onDelete={handleDelete}
+            loadMoreThreads={loadMoreThreads}
+            hasMoreThreads={hasMoreThreads}
+            isLoadingMore={isLoadingMore}
           />
         )}
       </SidebarContent>

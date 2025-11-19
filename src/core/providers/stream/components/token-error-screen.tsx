@@ -14,9 +14,7 @@ export const TokenErrorScreen: React.FC<TokenErrorScreenProps> = ({
 }) => (
   <div className="bg-background flex h-screen w-full items-center justify-center">
     <div className="flex flex-col items-center gap-4 text-center">
-      <p className="text-destructive">
-        Authentication error: {error.message}
-      </p>
+      <p className="text-destructive">Authentication error: {error.message}</p>
       <p className="text-muted-foreground text-sm">
         Your session may have expired. Please log in again.
       </p>

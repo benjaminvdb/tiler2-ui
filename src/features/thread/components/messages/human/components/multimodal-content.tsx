@@ -22,9 +22,14 @@ export const MultimodalContent: React.FC<MultimodalContentProps> = ({
         const source = block.source;
         const sourceKey =
           source && typeof source === "object" && "url" in source
-            ? source.url || ("data" in source && typeof source.data === "string" ? source.data.slice(0, 50) : null) || idx
+            ? source.url ||
+              ("data" in source && typeof source.data === "string"
+                ? source.data.slice(0, 50)
+                : null) ||
+              idx
             : idx;
-        const key = block.type === "image" ? `img-${sourceKey}` : `file-${sourceKey}`;
+        const key =
+          block.type === "image" ? `img-${sourceKey}` : `file-${sourceKey}`;
 
         return (
           <MultimodalPreview

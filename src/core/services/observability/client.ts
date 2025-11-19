@@ -492,7 +492,12 @@ export const reportError = (
 
   errorCount++;
 
-  const structuredError = createStructuredError(error, severity, category, context);
+  const structuredError = createStructuredError(
+    error,
+    severity,
+    category,
+    context,
+  );
   errorHistory.push(structuredError);
 
   logErrorToConsole(severity, structuredError.message, structuredError.context);
@@ -588,8 +593,7 @@ function sendRetryErrorToSentry(
 ): void {
   if (typeof window === "undefined") return;
 
-  const errorToSend =
-    error instanceof Error ? error : new Error(String(error));
+  const errorToSend = error instanceof Error ? error : new Error(String(error));
 
   Sentry.captureException(errorToSend, {
     level: "error",
@@ -663,7 +667,11 @@ export const reportRetryExhausted = (
 
   if (config.enableConsoleLogging) {
     console.error(
-      formatForConsole("error", structuredError.message, structuredError.context),
+      formatForConsole(
+        "error",
+        structuredError.message,
+        structuredError.context,
+      ),
     );
   }
 

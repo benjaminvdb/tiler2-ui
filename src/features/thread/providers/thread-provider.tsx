@@ -12,6 +12,7 @@ import {
 import { reportThreadError } from "@/core/services/observability";
 import { useAuthenticatedFetch } from "@/core/services/http-client";
 import { getClientConfig } from "@/core/config/client";
+import { PAGINATION_CONFIG } from "@/shared/constants/pagination";
 
 const THREAD_LIST_TIMEOUT_MS = 10000;
 const THREAD_DELETE_TIMEOUT_MS = 5000;
@@ -27,6 +28,9 @@ interface ThreadContextType {
   addOptimisticThread: (thread: Thread) => void;
   removeOptimisticThread: (threadId: string) => void;
   updateThreadInList: (threadId: string, updates: Partial<Thread>) => void;
+  loadMoreThreads: () => Promise<void>;
+  hasMoreThreads: boolean;
+  isLoadingMore: boolean;
 }
 const ThreadContext = createContext<ThreadContextType | undefined>(undefined);
 
@@ -41,45 +45,49 @@ const getThreadSearchMetadata = (
 };
 
 /**
- * Hook to get threads from API
+ * Hook to get threads from API with pagination support
  */
 function useGetThreads(
   apiUrl: string | undefined,
   assistantId: string | undefined,
   fetchWithAuth: ReturnType<typeof useAuthenticatedFetch>,
 ) {
-  return useCallback(async (): Promise<Thread[]> => {
-    if (!apiUrl || !assistantId) return [];
+  return useCallback(
+    async (offset: number = 0): Promise<Thread[]> => {
+      if (!apiUrl || !assistantId) return [];
 
-    try {
-      const response = await fetchWithAuth(`${apiUrl}/threads/search`, {
-        method: "POST",
-        timeoutMs: THREAD_LIST_TIMEOUT_MS,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          metadata: {
-            ...getThreadSearchMetadata(assistantId),
+      try {
+        const response = await fetchWithAuth(`${apiUrl}/threads/search`, {
+          method: "POST",
+          timeoutMs: THREAD_LIST_TIMEOUT_MS,
+          headers: {
+            "Content-Type": "application/json",
           },
-          limit: 100,
-        }),
-      });
+          body: JSON.stringify({
+            metadata: {
+              ...getThreadSearchMetadata(assistantId),
+            },
+            limit: PAGINATION_CONFIG.THREAD_LIST_PAGE_SIZE,
+            offset,
+          }),
+        });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const threads = await response.json();
+        return threads;
+      } catch (error) {
+        reportThreadError(error as Error, {
+          operation: "searchThreads",
+          component: "ThreadProvider",
+          url: apiUrl,
+        });
+        return [];
       }
-      const threads = await response.json();
-      return threads;
-    } catch (error) {
-      reportThreadError(error as Error, {
-        operation: "searchThreads",
-        component: "ThreadProvider",
-        url: apiUrl,
-      });
-      return [];
-    }
-  }, [apiUrl, assistantId, fetchWithAuth]);
+    },
+    [apiUrl, assistantId, fetchWithAuth],
+  );
 }
 
 /**
@@ -201,9 +209,18 @@ export const ThreadProvider: React.FC<{ children: ReactNode }> = ({
   const [threadsLoading, setThreadsLoading] = useState(false);
   const fetchWithAuth = useAuthenticatedFetch();
 
+  const [offset, setOffset] = useState(0);
+  const [hasMoreThreads, setHasMoreThreads] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+
   const getThreads = useGetThreads(apiUrl, assistantId, fetchWithAuth);
   const deleteThread = useDeleteThread(apiUrl, fetchWithAuth, setThreads);
-  const renameThread = useRenameThread(apiUrl, threads, fetchWithAuth, setThreads);
+  const renameThread = useRenameThread(
+    apiUrl,
+    threads,
+    fetchWithAuth,
+    setThreads,
+  );
 
   const addOptimisticThread = useCallback((thread: Thread): void => {
     setThreads((prev) => [thread, ...prev]);
@@ -222,6 +239,30 @@ export const ThreadProvider: React.FC<{ children: ReactNode }> = ({
     [],
   );
 
+  const loadMoreThreads = useCallback(async (): Promise<void> => {
+    if (isLoadingMore || !hasMoreThreads) return;
+
+    setIsLoadingMore(true);
+
+    try {
+      const newThreads = await getThreads(offset);
+
+      if (newThreads.length < PAGINATION_CONFIG.THREAD_LIST_PAGE_SIZE) {
+        setHasMoreThreads(false);
+      }
+
+      setThreads((prev) => [...prev, ...newThreads]);
+      setOffset((prev) => prev + PAGINATION_CONFIG.THREAD_LIST_PAGE_SIZE);
+    } catch (error) {
+      reportThreadError(error as Error, {
+        operation: "loadMoreThreads",
+        component: "ThreadProvider",
+      });
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }, [isLoadingMore, hasMoreThreads, offset, getThreads]);
+
   const value = {
     getThreads,
     threads,
@@ -233,6 +274,9 @@ export const ThreadProvider: React.FC<{ children: ReactNode }> = ({
     addOptimisticThread,
     removeOptimisticThread,
     updateThreadInList,
+    loadMoreThreads,
+    hasMoreThreads,
+    isLoadingMore,
   };
 
   return (

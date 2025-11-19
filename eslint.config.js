@@ -59,10 +59,7 @@ export default defineConfig(
         },
       ],
       "react/no-array-index-key": "warn",
-      "react/no-unstable-nested-components": [
-        "error",
-        { allowAsProps: true },
-      ],
+      "react/no-unstable-nested-components": ["error", { allowAsProps: true }],
       "react/jsx-no-useless-fragment": ["warn", { allowExpressions: true }],
       "react/jsx-curly-brace-presence": [
         "warn",
@@ -82,14 +79,14 @@ export default defineConfig(
       "react/button-has-type": "warn",
       "react/iframe-missing-sandbox": "warn",
 
-      "complexity": ["warn", { "max": 10 }],
+      complexity: ["warn", { max: 10 }],
       "max-depth": ["warn", 4],
       "max-lines-per-function": [
         "warn",
         {
-          "max": 100,
-          "skipBlankLines": true,
-          "skipComments": true,
+          max: 100,
+          skipBlankLines: true,
+          skipComments: true,
         },
       ],
       "max-nested-callbacks": ["warn", 3],

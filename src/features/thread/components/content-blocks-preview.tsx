@@ -31,7 +31,11 @@ const BlockItem = React.memo(function BlockItem({
   const source = block.source;
   const sourceKey =
     source && typeof source === "object" && "url" in source
-      ? source.url || ("data" in source && typeof source.data === "string" ? source.data.slice(0, 50) : null) || index
+      ? source.url ||
+        ("data" in source && typeof source.data === "string"
+          ? source.data.slice(0, 50)
+          : null) ||
+        index
       : index;
   const blockKey =
     block.type === "image" ? `image-${sourceKey}` : `file-${sourceKey}`;
@@ -65,7 +69,11 @@ export const ContentBlocksPreview: React.FC<ContentBlocksPreviewProps> = ({
         const source = block.source;
         const sourceKey =
           source && typeof source === "object" && "url" in source
-            ? source.url || ("data" in source && typeof source.data === "string" ? source.data.slice(0, 50) : null) || idx
+            ? source.url ||
+              ("data" in source && typeof source.data === "string"
+                ? source.data.slice(0, 50)
+                : null) ||
+              idx
             : idx;
         const key =
           block.type === "image" ? `image-${sourceKey}` : `file-${sourceKey}`;

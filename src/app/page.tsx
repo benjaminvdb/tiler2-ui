@@ -175,7 +175,7 @@ const ThreadWithWorkflowHandler = (): React.ReactNode => {
   }, [threadId, workflowId, updateSearchParams]);
 
   return <Thread />;
-}
+};
 
 /**
  * Main threads page component.

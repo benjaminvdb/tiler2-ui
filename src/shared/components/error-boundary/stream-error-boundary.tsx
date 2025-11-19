@@ -77,12 +77,14 @@ function categorizeStreamError(error: Error): {
   const httpMatch = message.match(/http[s]?\s+(\d{3})/i);
   const statusCode = httpMatch ? parseInt(httpMatch[1], 10) : undefined;
 
-  const makeResult = (type: "auth" | "network" | "timeout" | "rateLimit" | "server" | "unknown") =>
-    statusCode !== undefined ? { type, statusCode } : { type };
+  const makeResult = (
+    type: "auth" | "network" | "timeout" | "rateLimit" | "server" | "unknown",
+  ) => (statusCode !== undefined ? { type, statusCode } : { type });
 
   if (isAuthError(message, statusCode)) return makeResult("auth");
   if (isRateLimitError(message, statusCode)) return makeResult("rateLimit");
-  if (isServerError(statusCode)) return { type: "server", statusCode: statusCode! };
+  if (isServerError(statusCode))
+    return { type: "server", statusCode: statusCode! };
   if (isTimeoutError(message)) return makeResult("timeout");
   if (isNetworkError(message)) return makeResult("network");
 

@@ -90,7 +90,7 @@ interface OnboardingQuickActionsProps {
 }
 
 interface OnboardingButtonProps {
-  option: typeof onboardingOptions[0];
+  option: (typeof onboardingOptions)[0];
   index: number;
   onSelect: (name: string) => void;
 }
@@ -185,7 +185,7 @@ interface WorkflowCategoryButtonsProps {
 }
 
 interface CategoryButtonProps {
-  category: typeof workflowCategories[0];
+  category: (typeof workflowCategories)[0];
   index: number;
   onCategoryClick: (name: string) => void;
 }
@@ -282,7 +282,9 @@ export const EmptyState = ({
           {...(onSuggestionClick ? { onSuggestionClick } : {})}
         />
         <WorkflowCategoryButtons
-          {...(onWorkflowCategoryClick ? { onCategoryClick: onWorkflowCategoryClick } : {})}
+          {...(onWorkflowCategoryClick
+            ? { onCategoryClick: onWorkflowCategoryClick }
+            : {})}
         />
       </div>
     </div>

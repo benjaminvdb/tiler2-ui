@@ -55,10 +55,7 @@ const NETWORK_RETRY_CONFIG = {
   maxDelay: 8000,
 };
 
-const createTimedSignal = (
-  timeoutMs: number,
-  externalSignal?: AbortSignal,
-) => {
+const createTimedSignal = (timeoutMs: number, externalSignal?: AbortSignal) => {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => {
     // Provide a clear timeout reason instead of generic "failed to fetch"
@@ -251,7 +248,12 @@ export async function fetchWithAuth(
     requestHeaders.Authorization = `Bearer ${token}`;
   }
 
-  const executeRequest = createRequestExecutor(url, fetchOptions, requestHeaders, timeoutMs);
+  const executeRequest = createRequestExecutor(
+    url,
+    fetchOptions,
+    requestHeaders,
+    timeoutMs,
+  );
 
   try {
     const response = await executeRequest(fetchOptions.signal ?? undefined);

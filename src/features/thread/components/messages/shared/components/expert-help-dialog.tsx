@@ -165,7 +165,15 @@ function useExpertHelpSubmit(
         setIsSubmitting(false);
       }
     },
-    [message, threadId, runId, aiMessageContent, apiUrl, getToken, onOpenChange],
+    [
+      message,
+      threadId,
+      runId,
+      aiMessageContent,
+      apiUrl,
+      getToken,
+      onOpenChange,
+    ],
   );
 
   return { handleSubmit, isSubmitting };
@@ -251,7 +259,10 @@ export const ExpertHelpDialog: React.FC<ExpertHelpDialogProps> = ({
   );
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={onOpenChange}
+    >
       <DialogContent className="sm:max-w-[500px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
@@ -292,7 +303,10 @@ export const ExpertHelpDialog: React.FC<ExpertHelpDialogProps> = ({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+            >
               {isSubmitting ? "Sending..." : "Send to Expert"}
             </Button>
           </DialogFooter>

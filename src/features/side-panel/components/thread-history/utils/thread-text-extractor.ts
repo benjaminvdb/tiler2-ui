@@ -19,8 +19,7 @@ const extractFirstMessageText = (thread: Thread): string | null => {
     return null;
   }
 
-  const messages = (thread.values as { messages?: Array<Message> })
-    .messages;
+  const messages = (thread.values as { messages?: Array<Message> }).messages;
 
   if (!Array.isArray(messages) || messages.length === 0) {
     return null;

@@ -47,7 +47,7 @@ const Auth0ProviderWithNavigate = ({
       {children}
     </Auth0Provider>
   );
-}
+};
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

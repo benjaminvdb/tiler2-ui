@@ -76,10 +76,16 @@ const GuestProfile = ({ isCollapsed }: { isCollapsed: boolean }) => (
 /**
  * Get user display information
  */
-function getUserDisplayInfo(user: { name?: string; email?: string; picture?: string }) {
+function getUserDisplayInfo(user: {
+  name?: string;
+  email?: string;
+  picture?: string;
+}) {
   const displayName = user.name || user.email || "User";
   const initials = getInitials(displayName);
-  const showSecondaryEmail = Boolean(user.name && user.email && user.name !== user.email);
+  const showSecondaryEmail = Boolean(
+    user.name && user.email && user.name !== user.email,
+  );
 
   return { displayName, initials, showSecondaryEmail };
 }
@@ -96,7 +102,8 @@ const AuthenticatedProfile: React.FC<AuthenticatedProfileProps> = ({
   user,
   isCollapsed,
 }) => {
-  const { displayName, initials, showSecondaryEmail } = getUserDisplayInfo(user);
+  const { displayName, initials, showSecondaryEmail } =
+    getUserDisplayInfo(user);
 
   return (
     <SidebarFooter>
@@ -110,7 +117,10 @@ const AuthenticatedProfile: React.FC<AuthenticatedProfileProps> = ({
               >
                 <Avatar className="size-6">
                   {user.picture && (
-                    <AvatarImage src={user.picture} alt={displayName} />
+                    <AvatarImage
+                      src={user.picture}
+                      alt={displayName}
+                    />
                   )}
                   <AvatarFallback className="bg-sage/20 text-sage text-xs font-medium">
                     {initials}
@@ -120,7 +130,11 @@ const AuthenticatedProfile: React.FC<AuthenticatedProfileProps> = ({
                 <ChevronDown className="ml-auto size-4 group-data-[collapsible=icon]:hidden" />
               </SidebarMenuButton>
             </DropdownMenuTrigger>
-            <DropdownMenuContent side="top" align="start" className="min-w-56">
+            <DropdownMenuContent
+              side="top"
+              align="start"
+              className="min-w-56"
+            >
               <DropdownMenuLabel className="truncate">
                 {displayName}
               </DropdownMenuLabel>
@@ -160,5 +174,10 @@ export const SidebarUserProfile = (): React.JSX.Element => {
     return <GuestProfile isCollapsed={isCollapsed} />;
   }
 
-  return <AuthenticatedProfile user={user} isCollapsed={isCollapsed} />;
+  return (
+    <AuthenticatedProfile
+      user={user}
+      isCollapsed={isCollapsed}
+    />
+  );
 };

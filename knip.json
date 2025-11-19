@@ -20,17 +20,11 @@
 
   "ignoreExportsUsedInFile": true,
 
-  "ignoreDependencies": [
-    "@types/uuid"
-  ],
+  "ignoreDependencies": ["@types/uuid"],
 
-  "ignore": [
-    "src/vite-env.d.ts"
-  ],
+  "ignore": ["src/vite-env.d.ts"],
 
-  "ignoreBinaries": [
-    "vite-bundle-visualizer"
-  ],
+  "ignoreBinaries": ["vite-bundle-visualizer"],
 
   "ignoreIssues": {
     "src/shared/components/ui/**": ["exports"],

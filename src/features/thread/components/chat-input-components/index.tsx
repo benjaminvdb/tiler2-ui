@@ -13,7 +13,9 @@ interface FileUploadButtonProps {
   onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-const FileUploadButton: React.FC<FileUploadButtonProps> = ({ onFileUpload }) => {
+const FileUploadButton: React.FC<FileUploadButtonProps> = ({
+  onFileUpload,
+}) => {
   const handleClick = useCallback(() => {
     const input = document.getElementById("file-input") as HTMLInputElement;
     input?.click();
@@ -27,7 +29,10 @@ const FileUploadButton: React.FC<FileUploadButtonProps> = ({ onFileUpload }) => 
         className="text-muted-foreground hover:bg-sand hover:text-foreground absolute bottom-2.5 left-2 flex h-8 w-8 items-center justify-center rounded-md transition-all duration-200"
         aria-label="Attach file"
       >
-        <Plus className="h-4 w-4" strokeWidth={2} />
+        <Plus
+          className="h-4 w-4"
+          strokeWidth={2}
+        />
       </button>
       <input
         id="file-input"
@@ -122,15 +127,19 @@ const SubmitButton: React.FC<SubmitButtonProps> = ({
     style={{
       backgroundColor: "var(--forest-green)",
       boxShadow:
-        inputHasText || isLoading
-          ? "0 2px 8px rgba(11, 61, 46, 0.15)"
-          : "none",
+        inputHasText || isLoading ? "0 2px 8px rgba(11, 61, 46, 0.15)" : "none",
     }}
   >
     {isLoading ? (
-      <Loader2 className="h-3.5 w-3.5 animate-spin" strokeWidth={2} />
+      <Loader2
+        className="h-3.5 w-3.5 animate-spin"
+        strokeWidth={2}
+      />
     ) : (
-      <Send className="h-3.5 w-3.5" strokeWidth={2} />
+      <Send
+        className="h-3.5 w-3.5"
+        strokeWidth={2}
+      />
     )}
   </button>
 );
@@ -159,9 +168,18 @@ const ChatInputComponent = ({
   );
 
   return (
-    <div ref={dropRef} className="relative mx-auto w-full max-w-3xl">
-      <form onSubmit={onSubmit} className="w-full">
-        <ContentBlocksPreview blocks={contentBlocks} onRemove={onRemoveBlock} />
+    <div
+      ref={dropRef}
+      className="relative mx-auto w-full max-w-3xl"
+    >
+      <form
+        onSubmit={onSubmit}
+        className="w-full"
+      >
+        <ContentBlocksPreview
+          blocks={contentBlocks}
+          onRemove={onRemoveBlock}
+        />
 
         <div
           className={cn(
