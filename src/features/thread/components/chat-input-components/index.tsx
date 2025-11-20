@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { Send, Plus, Loader2 } from "lucide-react";
 import { ContentBlocksPreview } from "../content-blocks-preview";
 import { InterruptIndicator } from "./components/interrupt-indicator";
@@ -64,6 +64,14 @@ const ChatTextarea: React.FC<ChatTextareaProps> = ({
   isLoading,
   isRespondingToInterrupt,
 }) => {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (value === "" && !isLoading && textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  }, [value, isLoading]);
+
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
       if (
@@ -83,6 +91,7 @@ const ChatTextarea: React.FC<ChatTextareaProps> = ({
 
   return (
     <textarea
+      ref={textareaRef}
       value={value}
       onChange={onChange}
       onPaste={onPaste}
@@ -93,6 +102,7 @@ const ChatTextarea: React.FC<ChatTextareaProps> = ({
           : "Ask anything about sustainability, climate action, and regenerative practices"
       }
       disabled={isLoading}
+      autoFocus
       rows={1}
       className="placeholder:text-muted-foreground field-sizing-content max-h-[200px] w-full resize-none overflow-y-auto bg-transparent py-3.5 pr-11 pl-11 outline-none placeholder:opacity-40 disabled:cursor-not-allowed disabled:opacity-50"
       style={{
