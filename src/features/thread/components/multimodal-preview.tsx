@@ -3,9 +3,11 @@ import {
   MultimodalPreviewProps,
   isImageBlock,
   isPdfBlock,
+  isCsvBlock,
 } from "./multimodal-preview/types";
 import { ImagePreview } from "./multimodal-preview/components/image-preview";
 import { PdfPreview } from "./multimodal-preview/components/pdf-preview";
+import { CsvPreview } from "./multimodal-preview/components/csv-preview";
 import { FallbackPreview } from "./multimodal-preview/components/fallback-preview";
 
 export const MultimodalPreview: React.FC<MultimodalPreviewProps> = ({
@@ -29,6 +31,17 @@ export const MultimodalPreview: React.FC<MultimodalPreviewProps> = ({
   if (isPdfBlock(block)) {
     return (
       <PdfPreview
+        block={block}
+        removable={removable}
+        onRemove={onRemove}
+        className={className}
+        size={size}
+      />
+    );
+  }
+  if (isCsvBlock(block)) {
+    return (
+      <CsvPreview
         block={block}
         removable={removable}
         onRemove={onRemove}

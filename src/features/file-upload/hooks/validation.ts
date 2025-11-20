@@ -14,6 +14,14 @@ export const isDuplicate = (
         b.metadata?.filename === file.name,
     );
   }
+  if (file.type === "text/csv") {
+    return blocks.some(
+      (b) =>
+        b.type === "file" &&
+        b.mimeType === "text/csv" &&
+        b.metadata?.filename === file.name,
+    );
+  }
   if (SUPPORTED_FILE_TYPES.includes(file.type)) {
     return blocks.some(
       (b) =>

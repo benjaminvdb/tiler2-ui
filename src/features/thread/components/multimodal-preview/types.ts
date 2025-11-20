@@ -27,3 +27,7 @@ export const isImageBlock = (block: MultimodalContentBlock): boolean => {
 export const isPdfBlock = (block: MultimodalContentBlock): boolean => {
   return block.type === "file" && block.mimeType === "application/pdf";
 };
+
+export const isCsvBlock = (block: MultimodalContentBlock): boolean => {
+  return block.type === "file" && block.mimeType === "text/csv";
+};

@@ -9,7 +9,14 @@ export const fileUploadSchema = z.object({
     name: z.string().min(1, "File name is required"),
     size: z.number().max(50 * 1024 * 1024, "File size cannot exceed 50MB"),
     type: z.enum(
-      ["image/jpeg", "image/png", "image/gif", "image/webp", "application/pdf"],
+      [
+        "image/jpeg",
+        "image/png",
+        "image/gif",
+        "image/webp",
+        "application/pdf",
+        "text/csv",
+      ],
       { message: "File type not supported" },
     ),
   }),

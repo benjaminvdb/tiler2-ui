@@ -8,7 +8,11 @@ const IMAGE_MIME_TYPES = [
   "image/webp",
 ] as const;
 
-const SUPPORTED_MIME_TYPES = [...IMAGE_MIME_TYPES, "application/pdf"] as const;
+const SUPPORTED_MIME_TYPES = [
+  ...IMAGE_MIME_TYPES,
+  "application/pdf",
+  "text/csv",
+] as const;
 const BASE64_SEPARATOR = ",";
 
 const isSupportedMimeType = (mime: string) =>
@@ -39,10 +43,14 @@ export const fileToContentBlock = async (
 
   return {
     type: "file",
-    mimeType: "application/pdf",
-    mime_type: "application/pdf", // Python backend expects snake_case
+    mimeType: file.type,
+    mime_type: file.type,
     data,
-    source_type: "base64", // Tell Python backend we're using v0 format with 'data' field
+    source_type: "base64",
+    metadata: {
+      filename: file.name,
+      name: file.name,
+    },
   } as MultimodalContentBlock;
 };
 
@@ -59,6 +67,8 @@ export const fileToBase64 = async (file: File): Promise<string> => {
   });
 };
 
+const FILE_MIME_TYPES = ["application/pdf", "text/csv"];
+
 export const isBase64ContentBlock = (
   block: unknown,
 ): block is MultimodalContentBlock => {
@@ -68,22 +78,22 @@ export const isBase64ContentBlock = (
 
   const candidate = block as Partial<MultimodalContentBlock>;
   const hasBase64Data = typeof candidate.data === "string";
+  const mimeType = candidate.mimeType;
 
   if (
     candidate.type === "image" &&
-    typeof candidate.mimeType === "string" &&
-    candidate.mimeType.startsWith("image/") &&
+    typeof mimeType === "string" &&
     hasBase64Data
   ) {
-    return true;
+    return mimeType.startsWith("image/");
   }
 
   if (
     candidate.type === "file" &&
-    candidate.mimeType === "application/pdf" &&
+    typeof mimeType === "string" &&
     hasBase64Data
   ) {
-    return true;
+    return FILE_MIME_TYPES.includes(mimeType);
   }
 
   return false;

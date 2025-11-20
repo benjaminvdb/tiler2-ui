@@ -39,7 +39,7 @@ const FileUploadButton: React.FC<FileUploadButtonProps> = ({
         type="file"
         onChange={onFileUpload}
         multiple
-        accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
+        accept="image/jpeg,image/png,image/gif,image/webp,application/pdf,text/csv"
         className="hidden"
       />
     </>
