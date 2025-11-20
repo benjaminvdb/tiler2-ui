@@ -6,19 +6,6 @@ import {
   isRemoveUIMessage,
 } from "@langchain/langgraph-sdk/react-ui";
 import { reportStreamError } from "@/core/services/observability";
-import { fetchWithRetry } from "@/shared/utils/retry";
-
-// Increased from 15s to 30s to accommodate longer LLM operations with tools/workflows
-const STREAM_TIMEOUT_MS = 60000;
-
-const customFetch = (input: string | URL | Request, init?: RequestInit) => {
-  const url = input instanceof Request ? input.url : input.toString();
-  return fetchWithRetry(url, init, {
-    maxRetries: 3,
-    baseDelay: 1000,
-    maxDelay: 10000,
-  });
-};
 
 const isStreamErrorEvent = (
   event: unknown,
@@ -95,13 +82,8 @@ export function useStreamSetup({
         apiKey: undefined,
         assistantId,
         threadId: threadId ?? null,
-        timeoutMs: STREAM_TIMEOUT_MS,
         defaultHeaders: {
           Authorization: `Bearer ${accessToken}`,
-        },
-        callerOptions: {
-          maxRetries: 0,
-          fetch: customFetch,
         },
       }
     : null;
@@ -112,11 +94,6 @@ export function useStreamSetup({
       apiKey: undefined,
       assistantId,
       threadId: null,
-      timeoutMs: STREAM_TIMEOUT_MS,
-      callerOptions: {
-        maxRetries: 0,
-        fetch: customFetch,
-      },
     }),
     fetchStateHistory: streamConfig !== null,
     onMetadataEvent: (data: { run_id?: string }) => {
