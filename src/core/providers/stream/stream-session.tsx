@@ -11,15 +11,18 @@ import { useThreadVerification } from "./hooks/use-thread-verification";
 import { useGraphStatus } from "./hooks/use-graph-status";
 import { useStreamSetup } from "./hooks/use-stream-setup";
 import { TokenErrorScreen } from "./components/token-error-screen";
+import { useAuth0 } from "@auth0/auth0-react";
 
 export const StreamSession: React.FC<StreamSessionProps> = ({
   children,
   apiUrl,
   assistantId,
 }) => {
+  const { loginWithRedirect } = useAuth0();
+
   const handleLoginRedirect = useCallback(() => {
-    window.location.href = "/auth/login";
-  }, []);
+    loginWithRedirect();
+  }, [loginWithRedirect]);
 
   const [threadId, setThreadId] = useSearchParamState("threadId");
   const { getThreads, setThreads, removeOptimisticThread } = useThreads();

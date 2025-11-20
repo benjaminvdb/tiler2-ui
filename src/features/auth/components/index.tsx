@@ -1,4 +1,4 @@
-import React, { forwardRef } from "react";
+import React, { forwardRef, useCallback } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
@@ -41,20 +41,21 @@ const GuestAvatar = forwardRef<HTMLButtonElement>((props, ref) => {
 GuestAvatar.displayName = "GuestAvatar";
 
 const GuestDropdown = (): React.JSX.Element => {
+  const { loginWithRedirect } = useAuth0();
+
+  const handleLogin = useCallback(() => {
+    loginWithRedirect();
+  }, [loginWithRedirect]);
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <GuestAvatar />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem asChild>
-          <a
-            href="/auth/login"
-            className="flex w-full cursor-pointer items-center"
-          >
-            <LogIn className="mr-2 h-4 w-4" />
-            <span>Login</span>
-          </a>
+        <DropdownMenuItem onClick={handleLogin}>
+          <LogIn className="mr-2 h-4 w-4" />
+          <span>Login</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

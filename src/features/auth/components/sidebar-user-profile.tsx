@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useCallback } from "react";
 import {
   SidebarFooter,
   SidebarMenu,
@@ -36,42 +37,45 @@ const LoadingProfile = () => (
   </SidebarFooter>
 );
 
-const GuestProfile = ({ isCollapsed }: { isCollapsed: boolean }) => (
-  <SidebarFooter>
-    <SidebarMenu>
-      <SidebarMenuItem>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <SidebarMenuButton {...(isCollapsed && { tooltip: "Sign in" })}>
-              <Avatar className="size-6">
-                <AvatarFallback className="bg-sage/20">
-                  <User className="text-sage h-3 w-3" />
-                </AvatarFallback>
-              </Avatar>
-              <span className="truncate">Guest</span>
-              <ChevronDown className="ml-auto size-4 group-data-[collapsible=icon]:hidden" />
-            </SidebarMenuButton>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            side="top"
-            align="start"
-            className="min-w-56"
-          >
-            <DropdownMenuItem asChild>
-              <a
-                href="/auth/login"
-                className="flex cursor-pointer items-center"
-              >
+const GuestProfile = ({ isCollapsed }: { isCollapsed: boolean }) => {
+  const { loginWithRedirect } = useAuth0();
+
+  const handleLogin = useCallback(() => {
+    loginWithRedirect();
+  }, [loginWithRedirect]);
+
+  return (
+    <SidebarFooter>
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <SidebarMenuButton {...(isCollapsed && { tooltip: "Sign in" })}>
+                <Avatar className="size-6">
+                  <AvatarFallback className="bg-sage/20">
+                    <User className="text-sage h-3 w-3" />
+                  </AvatarFallback>
+                </Avatar>
+                <span className="truncate">Guest</span>
+                <ChevronDown className="ml-auto size-4 group-data-[collapsible=icon]:hidden" />
+              </SidebarMenuButton>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              side="top"
+              align="start"
+              className="min-w-56"
+            >
+              <DropdownMenuItem onClick={handleLogin}>
                 <LogIn className="mr-2 h-4 w-4" />
                 <span>Sign in</span>
-              </a>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </SidebarMenuItem>
-    </SidebarMenu>
-  </SidebarFooter>
-);
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    </SidebarFooter>
+  );
+};
 
 /**
  * Get user display information
@@ -102,8 +106,17 @@ const AuthenticatedProfile: React.FC<AuthenticatedProfileProps> = ({
   user,
   isCollapsed,
 }) => {
+  const { logout } = useAuth0();
   const { displayName, initials, showSecondaryEmail } =
     getUserDisplayInfo(user);
+
+  const handleLogout = useCallback(() => {
+    logout({
+      logoutParams: {
+        returnTo: window.location.origin,
+      },
+    });
+  }, [logout]);
 
   return (
     <SidebarFooter>
@@ -144,14 +157,9 @@ const AuthenticatedProfile: React.FC<AuthenticatedProfileProps> = ({
                 </DropdownMenuLabel>
               )}
               <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <a
-                  href="/auth/logout"
-                  className="flex cursor-pointer items-center"
-                >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Logout</span>
-                </a>
+              <DropdownMenuItem onClick={handleLogout}>
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Logout</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

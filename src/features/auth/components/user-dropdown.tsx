@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,6 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
 import { LogOut } from "lucide-react";
+import { useAuth0 } from "@auth0/auth0-react";
 import { UserAvatar } from "./user-avatar";
 
 interface UserDropdownProps {
@@ -17,6 +19,16 @@ interface UserDropdownProps {
   };
 }
 export const UserDropdown: React.FC<UserDropdownProps> = ({ user }) => {
+  const { logout } = useAuth0();
+
+  const handleLogout = useCallback(() => {
+    logout({
+      logoutParams: {
+        returnTo: window.location.origin,
+      },
+    });
+  }, [logout]);
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -27,14 +39,9 @@ export const UserDropdown: React.FC<UserDropdownProps> = ({ user }) => {
           {user.name || user.email || "User"}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem asChild>
-          <a
-            href="/auth/logout"
-            className="flex w-full cursor-pointer items-center"
-          >
-            <LogOut className="mr-2 h-4 w-4" />
-            <span>Logout</span>
-          </a>
+        <DropdownMenuItem onClick={handleLogout}>
+          <LogOut className="mr-2 h-4 w-4" />
+          <span>Logout</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

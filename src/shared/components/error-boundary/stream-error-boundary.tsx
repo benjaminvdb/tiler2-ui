@@ -3,6 +3,7 @@ import { Button } from "@/shared/components/ui/button";
 import { WifiOff, RefreshCw, AlertTriangle } from "lucide-react";
 import { reportStreamError } from "@/core/services/observability";
 import { useNetworkStatus } from "@/core/providers/network-status-provider";
+import { triggerLogin, triggerLogout } from "@/core/services/auth-helpers";
 
 interface StreamErrorBoundaryState {
   hasError: boolean;
@@ -123,9 +124,9 @@ class StreamErrorBoundaryClass extends React.Component<
 
     if (type === "auth") {
       if (statusCode === 401) {
-        window.location.href = "/api/auth/login";
+        triggerLogin();
       } else if (statusCode === 403) {
-        window.location.href = "/api/auth/logout";
+        triggerLogout(window.location.origin, "403 Forbidden from stream");
       }
     }
 

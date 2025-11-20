@@ -9,6 +9,7 @@ import { fetchWithRetry } from "@/shared/utils/retry";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useCallback } from "react";
 import { env } from "@/env";
+import { triggerLogout } from "./auth-helpers";
 
 interface FetchWithAuthOptions extends Omit<RequestInit, "headers"> {
   headers?: Record<string, string>;
@@ -33,16 +34,7 @@ export class ForbiddenError extends Error {
 }
 
 function triggerSilentLogout(reason: string): void {
-  reportAuthError(new Error(`Silent logout triggered: ${reason}`), {
-    operation: "silentLogout",
-    component: "http-client",
-    additionalData: {
-      severity: "high",
-      reason,
-    },
-  });
-
-  window.location.href = "/api/auth/logout";
+  triggerLogout(window.location.origin, reason);
 }
 
 const NETWORK_RETRY_CONFIG = {
