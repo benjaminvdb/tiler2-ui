@@ -17,7 +17,6 @@ function setRef<T>(ref: React.Ref<T> | undefined, value: T): void {
   if (typeof ref === "function") {
     ref(value);
   } else if (ref != null) {
-    // @ts-expect-error - Setting ref.current is standard React pattern (see Radix UI)
     (ref as React.MutableRefObject<T>).current = value;
   }
 }
