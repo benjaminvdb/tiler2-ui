@@ -56,6 +56,9 @@ export const RegularMessage: React.FC<RegularMessageProps> = ({
       <MessageText
         contentString={renumberedContent}
         containerRef={htmlContainerRef}
+        messageId={message.id}
+        checkpointId={parentCheckpoint?.checkpoint_id ?? undefined}
+        branch={meta?.branch ?? undefined}
       />
       <ToolCallsSection
         message={message}

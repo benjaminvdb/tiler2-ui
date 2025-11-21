@@ -21,6 +21,11 @@ interface FetchWithAuthOptions extends Omit<RequestInit, "headers"> {
   timeoutMs?: number;
 }
 
+export type FetchWithAuth = (
+  url: string,
+  options?: FetchWithAuthOptions,
+) => Promise<Response>;
+
 type TokenGetter = () => Promise<string>;
 
 export class ForbiddenError extends Error {

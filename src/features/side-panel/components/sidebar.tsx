@@ -2,6 +2,7 @@ import * as React from "react";
 import {
   Plus,
   GitBranch,
+  Lightbulb,
   BookOpen,
   PanelLeftOpen,
   PanelLeftClose,
@@ -136,12 +137,14 @@ const SidebarHeaderSection: React.FC<SidebarHeaderSectionProps> = ({
 interface MainMenuProps {
   onNewChat: () => void;
   onWorkflows: () => void;
+  onInsights: () => void;
   onWiki: () => void;
 }
 
 const MainMenu: React.FC<MainMenuProps> = ({
   onNewChat,
   onWorkflows,
+  onInsights,
   onWiki,
 }) => (
   <SidebarGroup>
@@ -190,6 +193,28 @@ const MainMenu: React.FC<MainMenuProps> = ({
           >
             <GitBranch className="h-4 w-4" />
             <span>Workflows</span>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+
+        <SidebarMenuItem>
+          <SidebarMenuButton
+            onClick={onInsights}
+            tooltip={{
+              children: (
+                <div className="text-center">
+                  <p className="font-medium">Insights</p>
+                  <p
+                    className="invisible mt-1 text-xs text-white/60"
+                    aria-hidden="true"
+                  >
+                    &nbsp;
+                  </p>
+                </div>
+              ),
+            }}
+          >
+            <Lightbulb className="h-4 w-4" />
+            <span>Insights</span>
           </SidebarMenuButton>
         </SidebarMenuItem>
 
@@ -397,6 +422,10 @@ function useSidebarHandlers(
     handleNavigate("workflows");
   }, [handleNavigate]);
 
+  const handleInsightsClick = React.useCallback(() => {
+    navigationService.navigateToInsights();
+  }, [navigationService]);
+
   const handleWikiClick = React.useCallback(() => {
     handleNavigate("wiki");
   }, [handleNavigate]);
@@ -407,6 +436,7 @@ function useSidebarHandlers(
     handleDelete,
     handleNewChatClick,
     handleWorkflowsClick,
+    handleInsightsClick,
     handleWikiClick,
   };
 }
@@ -431,6 +461,7 @@ export const AppSidebar = (): React.JSX.Element => {
     handleDelete,
     handleNewChatClick,
     handleWorkflowsClick,
+    handleInsightsClick,
     handleWikiClick,
   } = useSidebarHandlers(
     threadId,
@@ -451,6 +482,7 @@ export const AppSidebar = (): React.JSX.Element => {
         <MainMenu
           onNewChat={handleNewChatClick}
           onWorkflows={handleWorkflowsClick}
+          onInsights={handleInsightsClick}
           onWiki={handleWikiClick}
         />
 

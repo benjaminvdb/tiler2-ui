@@ -14,6 +14,7 @@ import { AppLayout } from "@/app/app-layout";
 import { LoadingScreen } from "@/shared/components/loading-spinner";
 import ThreadsPage from "@/app/page";
 import WorkflowsPage from "@/app/workflows/page";
+import InsightsPage from "@/app/insights/page";
 
 // Warn if Auth0 is not configured in development
 warnAuth0NotConfigured();
@@ -116,6 +117,16 @@ export const App = () => {
                   <ProtectedRoute>
                     <AppLayout>
                       <WorkflowsPage />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/insights"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <InsightsPage />
                     </AppLayout>
                   </ProtectedRoute>
                 }
