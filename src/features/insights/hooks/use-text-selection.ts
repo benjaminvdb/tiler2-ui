@@ -6,6 +6,7 @@
  */
 
 import { useEffect, useRef, useState } from "react";
+import { selectionToMarkdown } from "../utils/html-to-markdown";
 
 export interface SelectionPosition {
   top: number;
@@ -73,7 +74,7 @@ export function useTextSelection(
     if (!enabled) return;
 
     const selection = window.getSelection();
-    const text = selection?.toString().trim();
+    const text = selectionToMarkdown(selection);
 
     if (text && text.length > 0) {
       setSelectedText(text);

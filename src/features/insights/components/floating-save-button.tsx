@@ -29,7 +29,10 @@ export const FloatingSaveButton = ({
     >
       {saved ? (
         <div className="flex items-center gap-1.5 rounded-md bg-[var(--sage)] px-3 py-1.5 text-white shadow-lg">
-          <Lightbulb className="h-3.5 w-3.5" strokeWidth={2} />
+          <Lightbulb
+            className="h-3.5 w-3.5"
+            strokeWidth={2}
+          />
           <span className="text-[13px] whitespace-nowrap">Saved!</span>
         </div>
       ) : (
@@ -39,7 +42,10 @@ export const FloatingSaveButton = ({
           disabled={disabled}
           className="flex items-center gap-1.5 rounded-md bg-[var(--forest-green)] px-3 py-1.5 text-white shadow-lg transition-opacity duration-200 hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          <Lightbulb className="h-3.5 w-3.5" strokeWidth={2} />
+          <Lightbulb
+            className="h-3.5 w-3.5"
+            strokeWidth={2}
+          />
           <span className="text-[13px] whitespace-nowrap">
             {disabled ? "Saving..." : "Save Insight"}
           </span>

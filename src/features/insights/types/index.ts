@@ -23,7 +23,7 @@ export interface CreateInsightRequest {
   /** Conversation branch identifier for handling message regeneration */
   branch?: string;
 
-  /** The highlighted text content saved by the user (1-5000 chars) */
+  /** The message content in markdown format (1-5000 chars). Preserves formatting like bold, lists, code, etc. */
   insight_content: string;
 
   /** Optional user note or annotation for this insight (max 2000 chars) */
@@ -57,7 +57,7 @@ export interface Insight {
   /** Conversation branch identifier */
   branch?: string;
 
-  /** The saved text content */
+  /** The saved content in markdown format. Rendered with full formatting support. */
   insight_content: string;
 
   /** Optional user note */
