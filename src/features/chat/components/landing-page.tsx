@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback } from "react";
 import { motion } from "framer-motion";
 import {
   Shield,
@@ -13,33 +13,16 @@ import {
 } from "lucide-react";
 import { useUIContext } from "@/features/chat/providers/ui-provider";
 import { type NavigationService } from "@/core/services/navigation";
-import { useAuthenticatedFetch } from "@/core/services/http-client";
-import { getClientConfig } from "@/core/config/client";
+import {
+  useWorkflowCategories,
+  type CategoryResponse,
+} from "@/core/hooks";
 
 const earthImage = "/images/earth-satellite.webp";
 
 interface LandingPageProps {
   onSuggestionClick?: (text: string) => void;
   onWorkflowCategoryClick?: (category: string) => void;
-}
-
-interface CategoryResponse {
-  id: number;
-  name: string;
-  color: string;
-  icon_name: string;
-  order_index: number;
-}
-
-interface WorkflowConfig {
-  id: number;
-  workflow_id: string;
-  title: string;
-  description: string;
-  icon: string;
-  icon_color: string;
-  order_index: number;
-  category: CategoryResponse;
 }
 
 const onboardingOptions = [
@@ -323,45 +306,7 @@ export const LandingPage = ({
   onWorkflowCategoryClick,
 }: LandingPageProps): React.JSX.Element => {
   const { navigationService } = useUIContext();
-  const fetchWithAuth = useAuthenticatedFetch();
-  const { apiUrl } = getClientConfig();
-  const [categories, setCategories] = useState<CategoryResponse[]>([]);
-
-  useEffect(() => {
-    const fetchWorkflowCategories = async () => {
-      if (!apiUrl || !onWorkflowCategoryClick) {
-        return;
-      }
-
-      try {
-        const response = await fetchWithAuth(`${apiUrl}/workflows`, {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        });
-
-        if (response.ok) {
-          const workflows: WorkflowConfig[] = await response.json();
-
-          const categoryMap: Record<number, CategoryResponse> = {};
-          workflows.forEach((workflow) => {
-            if (workflow.category.name !== "Onboarding") {
-              categoryMap[workflow.category.id] = workflow.category;
-            }
-          });
-
-          const uniqueCategories = Object.values(categoryMap).sort(
-            (a, b) => a.order_index - b.order_index
-          );
-
-          setCategories(uniqueCategories);
-        }
-      } catch (error) {
-        console.error("Failed to fetch workflow categories:", error);
-      }
-    };
-
-    fetchWorkflowCategories();
-  }, [apiUrl, fetchWithAuth, onWorkflowCategoryClick]);
+  const { categories } = useWorkflowCategories();
 
   return (
     <div className="flex h-full flex-col items-center justify-start px-6 py-12 sm:py-16 md:py-20 lg:py-24">

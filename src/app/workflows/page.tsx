@@ -1,11 +1,10 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
 import * as LucideIcons from "lucide-react";
 import { useUIContext } from "@/features/chat/providers/ui-provider";
 import { LoadingScreen } from "@/shared/components/loading-spinner";
 import { Button } from "@/shared/components/ui/button";
-import { useAuthenticatedFetch } from "@/core/services/http-client";
-import { getClientConfig } from "@/core/config/client";
+import { useWorkflows } from "@/core/hooks";
 import { SearchHeader } from "./components/search-header";
 import { StatusMessages } from "./components/status-messages";
 import { CategoryNavigation } from "./components/category-navigation";
@@ -343,60 +342,6 @@ const CategorySection = React.memo(function CategorySection({
 });
 
 /**
- * Hook to fetch and manage workflows data
- */
-function useWorkflowsData(
-  apiUrl: string | undefined,
-  fetchWithAuth: ReturnType<typeof useAuthenticatedFetch>,
-) {
-  const [workflows, setWorkflows] =
-    useState<WorkflowConfig[]>(BUILT_IN_WORKFLOWS);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchWorkflows = async () => {
-      try {
-        setLoading(true);
-
-        if (!apiUrl) {
-          throw new Error("API URL not configured");
-        }
-
-        const response = await fetchWithAuth(`${apiUrl}/workflows`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (response.ok) {
-          const dynamicWorkflows: WorkflowConfig[] = await response.json();
-          setWorkflows(mergeWithBuiltIns(dynamicWorkflows));
-          setError(null);
-        } else {
-          throw new Error(`Failed to fetch workflows: ${response.statusText}`);
-        }
-      } catch (err) {
-        console.error("Error fetching dynamic workflows:", err);
-        setError(
-          err instanceof Error
-            ? err.message
-            : "Failed to load dynamic workflows",
-        );
-        setWorkflows(BUILT_IN_WORKFLOWS);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchWorkflows();
-  }, [apiUrl, fetchWithAuth]);
-
-  return { workflows, loading, error };
-}
-
-/**
  * Hook to filter and organize workflows by category
  */
 function useWorkflowFiltering(
@@ -520,13 +465,13 @@ const WorkflowsContent: React.FC<WorkflowsContentProps> = ({
 
 const WorkflowsPage = (): React.ReactNode => {
   const { navigationService } = useUIContext();
-  const { apiUrl } = getClientConfig();
   const [searchQuery, setSearchQuery] = useState("");
-  const fetchWithAuth = useAuthenticatedFetch();
   const categoryRefsRef = useRef<Record<string, HTMLElement | null>>({});
   const hasScrolledToHash = useRef(false);
 
-  const { workflows, loading, error } = useWorkflowsData(apiUrl, fetchWithAuth);
+  const { workflows: rawWorkflows, isLoading: loading, error: swrError } = useWorkflows();
+  const workflows = useMemo(() => mergeWithBuiltIns(rawWorkflows), [rawWorkflows]);
+  const error = swrError?.message ?? null;
   const { filteredWorkflows, workflowsByCategory, categories } =
     useWorkflowFiltering(workflows, searchQuery);
 

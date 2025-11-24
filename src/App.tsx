@@ -1,11 +1,13 @@
 import React, { useEffect } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
+import { SWRConfig } from "swr";
 import { MotionConfigProvider } from "@/core/providers/motion-config-provider";
 import { GlobalErrorBoundary } from "@/shared/components/error-boundary/global-error-boundary";
 import { AsyncErrorBoundary } from "@/shared/components/error-boundary/async-error-boundary";
 import { NetworkStatusProvider } from "@/core/providers/network-status-provider";
 import { SentryUserContext } from "@/core/providers/sentry-user-context";
+import { localStorageProvider } from "@/core/providers/swr-cache-provider";
 import {
   Auth0DevStatus,
   warnAuth0NotConfigured,
@@ -100,7 +102,8 @@ export const App = () => {
           <NetworkStatusProvider>
             <SentryUserContext user={user ?? null} />
             <Auth0DevStatus />
-            <Routes>
+            <SWRConfig value={{ provider: localStorageProvider }}>
+              <Routes>
               <Route
                 path="/"
                 element={
@@ -145,6 +148,7 @@ export const App = () => {
                 }
               />
             </Routes>
+            </SWRConfig>
           </NetworkStatusProvider>
         </AsyncErrorBoundary>
       </GlobalErrorBoundary>
