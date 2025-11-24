@@ -10,6 +10,7 @@ import {
 import { TooltipIconButton } from "../../../../tooltip-icon-button";
 import { CommandBarProps } from "../../types";
 import { shouldShowEditButton } from "./validation";
+import { copyWithFormat } from "@/shared/utils/clipboard";
 
 interface EditActionsProps {
   isLoading: boolean;
@@ -95,38 +96,17 @@ const MessageActions: React.FC<MessageActionsProps> = ({
 }) => {
   const [copied, setCopied] = useState(false);
 
-  const copyPlainText = useCallback(async () => {
-    await navigator.clipboard.writeText(content);
-  }, [content]);
-
-  const copyHtml = useCallback(async () => {
-    if (!htmlContainerRef?.current) {
-      await copyPlainText();
-      return;
-    }
-
-    const htmlContent = htmlContainerRef.current.innerHTML;
-    const clipboardItem = new ClipboardItem({
-      "text/html": new Blob([htmlContent], { type: "text/html" }),
-      "text/plain": new Blob([content], { type: "text/plain" }),
-    });
-    await navigator.clipboard.write([clipboardItem]);
-  }, [htmlContainerRef, content, copyPlainText]);
-
   const handleCopy = useCallback(async () => {
-    try {
-      await copyHtml();
-    } catch {
-      try {
-        await copyPlainText();
-      } catch (fallbackErr) {
-        console.error("Failed to copy:", fallbackErr);
-      }
-    }
+    const success = await copyWithFormat({
+      markdownText: content,
+      ...(htmlContainerRef && { htmlContainerRef }),
+    });
 
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }, [copyHtml, copyPlainText]);
+    if (success) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  }, [content, htmlContainerRef]);
 
   const handleEditClick = useCallback(() => {
     setIsEditing?.(true);
