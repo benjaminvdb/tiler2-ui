@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Shield,
@@ -13,12 +13,33 @@ import {
 } from "lucide-react";
 import { useUIContext } from "@/features/chat/providers/ui-provider";
 import { type NavigationService } from "@/core/services/navigation";
+import { useAuthenticatedFetch } from "@/core/services/http-client";
+import { getClientConfig } from "@/core/config/client";
 
 const earthImage = "/images/earth-satellite.webp";
 
-interface EmptyStateProps {
+interface LandingPageProps {
   onSuggestionClick?: (text: string) => void;
   onWorkflowCategoryClick?: (category: string) => void;
+}
+
+interface CategoryResponse {
+  id: number;
+  name: string;
+  color: string;
+  icon_name: string;
+  order_index: number;
+}
+
+interface WorkflowConfig {
+  id: number;
+  workflow_id: string;
+  title: string;
+  description: string;
+  icon: string;
+  icon_color: string;
+  order_index: number;
+  category: CategoryResponse;
 }
 
 const onboardingOptions = [
@@ -38,16 +59,6 @@ const onboardingWorkflowIds: Record<string, string> = {
   "Personalize Link AI": "onb-1",
   "Tips & Tricks": "onb-2",
 };
-
-const workflowCategories = [
-  { name: "Strategy", icon: Map, color: "#767C91" },
-  { name: "Policies & Governance", icon: Shield, color: "#7ca2b7" },
-  { name: "Impacts & Risk Assessment", icon: Target, color: "#72a6a6" },
-  { name: "Interventions", icon: Lightbulb, color: "#a6c887" },
-  { name: "Standards & Reporting", icon: BookCheck, color: "#e39c5a" },
-  { name: "Stakeholder Engagement", icon: Users, color: "#ac876c" },
-  { name: "Knowledge & Guidance", icon: BookOpen, color: "#878879" },
-];
 
 const SatelliteGraphic = () => (
   <motion.div
@@ -181,14 +192,44 @@ const OnboardingQuickActions = ({
 };
 
 interface WorkflowCategoryButtonsProps {
+  categories: CategoryResponse[];
   onCategoryClick?: (category: string) => void;
 }
 
 interface CategoryButtonProps {
-  category: (typeof workflowCategories)[0];
+  category: CategoryResponse;
   index: number;
   onCategoryClick: (name: string) => void;
 }
+
+const CATEGORY_COLORS: Record<string, string> = {
+  Onboarding: "#767C91",
+  Strategy: "#82889f",
+  "Policies & Governance": "#7ca2b7",
+  "Impacts & Risk Assessment": "#72a6a6",
+  Interventions: "#a6c887",
+  "Standards & Reporting": "#e39c5a",
+  "Stakeholder Engagement": "#ac876c",
+  "Knowledge & Guidance": "#878879",
+};
+
+const getCategoryColor = (categoryName: string): string => {
+  return CATEGORY_COLORS[categoryName] ?? "#767C91";
+};
+
+const CATEGORY_ICONS: Record<string, React.ComponentType<{ className?: string; strokeWidth?: number }>> = {
+  Strategy: Map,
+  "Policies & Governance": Shield,
+  "Impacts & Risk Assessment": Target,
+  Interventions: Lightbulb,
+  "Standards & Reporting": BookCheck,
+  "Stakeholder Engagement": Users,
+  "Knowledge & Guidance": BookOpen,
+};
+
+const getCategoryIcon = (categoryName: string) => {
+  return CATEGORY_ICONS[categoryName] ?? BookOpen;
+};
 
 const CategoryButton = React.memo(function CategoryButton({
   category,
@@ -198,6 +239,18 @@ const CategoryButton = React.memo(function CategoryButton({
   const handleClick = useCallback(() => {
     onCategoryClick(category.name);
   }, [onCategoryClick, category.name]);
+
+  const color = getCategoryColor(category.name);
+
+  const renderIcon = () => {
+    const Icon = getCategoryIcon(category.name);
+    return (
+      <Icon
+        className="h-3.5 w-3.5 text-white transition-opacity duration-200"
+        strokeWidth={1.5}
+      />
+    );
+  };
 
   return (
     <motion.button
@@ -211,14 +264,11 @@ const CategoryButton = React.memo(function CategoryButton({
       onClick={handleClick}
       className="group flex items-center gap-2 rounded-md border-0 px-3 py-1.5 transition-all duration-200 hover:opacity-90"
       style={{
-        backgroundColor: category.color,
+        backgroundColor: color,
         boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
       }}
     >
-      <category.icon
-        className="h-3.5 w-3.5 text-white transition-opacity duration-200"
-        strokeWidth={1.5}
-      />
+      {renderIcon()}
       <span
         className="text-[13px] text-white transition-colors duration-200"
         style={{ letterSpacing: "-0.005em" }}
@@ -230,9 +280,10 @@ const CategoryButton = React.memo(function CategoryButton({
 });
 
 const WorkflowCategoryButtons = ({
+  categories,
   onCategoryClick,
 }: WorkflowCategoryButtonsProps) => {
-  if (!onCategoryClick) {
+  if (!onCategoryClick || categories.length === 0) {
     return null;
   }
 
@@ -254,9 +305,9 @@ const WorkflowCategoryButtons = ({
         Or explore workflows by category
       </p>
       <div className="mx-auto flex max-w-xl flex-wrap justify-center gap-2">
-        {workflowCategories.map((category, index) => (
+        {categories.map((category, index) => (
           <CategoryButton
-            key={category.name}
+            key={category.id}
             category={category}
             index={index}
             onCategoryClick={onCategoryClick}
@@ -267,11 +318,50 @@ const WorkflowCategoryButtons = ({
   );
 };
 
-export const EmptyState = ({
+export const LandingPage = ({
   onSuggestionClick,
   onWorkflowCategoryClick,
-}: EmptyStateProps): React.JSX.Element => {
+}: LandingPageProps): React.JSX.Element => {
   const { navigationService } = useUIContext();
+  const fetchWithAuth = useAuthenticatedFetch();
+  const { apiUrl } = getClientConfig();
+  const [categories, setCategories] = useState<CategoryResponse[]>([]);
+
+  useEffect(() => {
+    const fetchWorkflowCategories = async () => {
+      if (!apiUrl || !onWorkflowCategoryClick) {
+        return;
+      }
+
+      try {
+        const response = await fetchWithAuth(`${apiUrl}/workflows`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        });
+
+        if (response.ok) {
+          const workflows: WorkflowConfig[] = await response.json();
+
+          const categoryMap: Record<number, CategoryResponse> = {};
+          workflows.forEach((workflow) => {
+            if (workflow.category.name !== "Onboarding") {
+              categoryMap[workflow.category.id] = workflow.category;
+            }
+          });
+
+          const uniqueCategories = Object.values(categoryMap).sort(
+            (a, b) => a.order_index - b.order_index
+          );
+
+          setCategories(uniqueCategories);
+        }
+      } catch (error) {
+        console.error("Failed to fetch workflow categories:", error);
+      }
+    };
+
+    fetchWorkflowCategories();
+  }, [apiUrl, fetchWithAuth, onWorkflowCategoryClick]);
 
   return (
     <div className="flex h-full flex-col items-center justify-start px-6 py-12 sm:py-16 md:py-20 lg:py-24">
@@ -282,6 +372,7 @@ export const EmptyState = ({
           {...(onSuggestionClick ? { onSuggestionClick } : {})}
         />
         <WorkflowCategoryButtons
+          categories={categories}
           {...(onWorkflowCategoryClick
             ? { onCategoryClick: onWorkflowCategoryClick }
             : {})}

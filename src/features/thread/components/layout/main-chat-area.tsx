@@ -5,7 +5,7 @@ import { AnimatedContainer } from "./main-chat-area/components/animated-containe
 import { ScrollableContent } from "./main-chat-area/components/scrollable-content";
 import { useChatContext } from "@/features/chat/providers/chat-provider";
 import { useStreamContext } from "@/core/providers/stream";
-import { EmptyState } from "@/features/chat/components/empty-state";
+import { LandingPage } from "@/features/chat/components/landing-page";
 import { LoadingSpinner } from "@/shared/components/loading-spinner";
 import { useUIContext } from "@/features/chat/providers/ui-provider";
 
@@ -26,8 +26,8 @@ const MainChatAreaComponent: React.FC = () => {
   );
 
   const handleWorkflowCategoryClick = useCallback(
-    (_category: string) => {
-      navigationService.navigateToWorkflows();
+    (category: string) => {
+      navigationService.navigateToWorkflows({ category });
     },
     [navigationService],
   );
@@ -51,7 +51,7 @@ const MainChatAreaComponent: React.FC = () => {
     }
 
     return (
-      <EmptyState
+      <LandingPage
         onSuggestionClick={handleSuggestionClick}
         onWorkflowCategoryClick={handleWorkflowCategoryClick}
       />

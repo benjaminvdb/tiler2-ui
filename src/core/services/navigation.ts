@@ -11,7 +11,7 @@ import { type SearchParams, mergeSearchParams } from "@/core/routing";
 
 export interface NavigationService {
   navigateToHome: (options?: { threadId?: string }) => void;
-  navigateToWorkflows: (params?: Partial<SearchParams>) => void;
+  navigateToWorkflows: (params?: Partial<SearchParams> & { category?: string }) => void;
   navigateToWorkflow: (workflowId: string) => void;
   navigateToInsights: () => void;
 
@@ -46,9 +46,11 @@ export function createNavigationService(
     router(url);
   };
 
-  const navigateToWorkflows = (params?: Partial<SearchParams>) => {
-    const url = buildPreservedUrl(ROUTES.WORKFLOWS, params);
-    router(url);
+  const navigateToWorkflows = (params?: Partial<SearchParams> & { category?: string }) => {
+    const { category, ...searchParams } = params ?? {};
+    const url = buildPreservedUrl(ROUTES.WORKFLOWS, searchParams);
+    const urlWithHash = category ? `${url}#${encodeURIComponent(category)}` : url;
+    router(urlWithHash);
   };
 
   const navigateToWorkflow = (workflowId: string) => {

@@ -524,6 +524,7 @@ const WorkflowsPage = (): React.ReactNode => {
   const [searchQuery, setSearchQuery] = useState("");
   const fetchWithAuth = useAuthenticatedFetch();
   const categoryRefsRef = useRef<Record<string, HTMLElement | null>>({});
+  const hasScrolledToHash = useRef(false);
 
   const { workflows, loading, error } = useWorkflowsData(apiUrl, fetchWithAuth);
   const { filteredWorkflows, workflowsByCategory, categories } =
@@ -560,6 +561,21 @@ const WorkflowsPage = (): React.ReactNode => {
   const handleClearSearch = useCallback(() => {
     setSearchQuery("");
   }, []);
+
+  useEffect(() => {
+    if (!loading && !hasScrolledToHash.current && window.location.hash) {
+      const hash = decodeURIComponent(window.location.hash.substring(1));
+      if (hash && categoryRefsRef.current[hash]) {
+        setTimeout(() => {
+          categoryRefsRef.current[hash]?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+          hasScrolledToHash.current = true;
+        }, 100);
+      }
+    }
+  }, [loading, workflowsByCategory]);
 
   if (loading) {
     return <LoadingScreen />;
