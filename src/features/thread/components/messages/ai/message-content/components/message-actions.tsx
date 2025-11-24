@@ -1,11 +1,11 @@
 import { useState, useCallback } from "react";
-import { motion } from "framer-motion";
 import { BranchSwitcher } from "../../../shared/components/branch-switcher";
 import { CommandBar } from "../../../shared/components/command-bar";
 import { ExpertHelpDialog } from "../../../shared/components/expert-help-dialog";
 import { Checkpoint } from "@langchain/langgraph-sdk";
 import type { StreamContextType } from "@/core/providers/stream/types";
 import type { MessageMetadata } from "@/shared/types";
+import { cn } from "@/shared/utils/utils";
 
 interface MessageMetadataWithBranch extends Partial<MessageMetadata> {
   branch?: string;
@@ -31,15 +31,6 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
   handleRegenerate,
 }) => {
   const [isExpertHelpDialogOpen, setIsExpertHelpDialogOpen] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
-
-  const handleMouseEnter = useCallback(() => {
-    setIsHovered(true);
-  }, []);
-
-  const handleMouseLeave = useCallback(() => {
-    setIsHovered(false);
-  }, []);
 
   const handleBranchSelect = useCallback(
     (branch: string) => {
@@ -59,32 +50,25 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
   return (
     <>
       <div
-        className="mr-auto"
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
+        className={cn(
+          "mr-auto flex items-center gap-2 transition-opacity duration-200",
+          "opacity-0 group-hover:opacity-100 group-focus-within:opacity-100",
+        )}
       >
-        <motion.div
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: isHovered ? 1 : 0, y: isHovered ? 0 : -8 }}
-          transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-          className="flex items-center gap-2"
-          style={{ pointerEvents: isHovered ? "auto" : "none" }}
-        >
-          <BranchSwitcher
-            branch={meta?.branch}
-            branchOptions={meta?.branchOptions}
-            onSelect={handleBranchSelect}
-            isLoading={isLoading}
-          />
-          <CommandBar
-            content={contentString}
-            htmlContainerRef={htmlContainerRef}
-            isLoading={isLoading}
-            isAiMessage={true}
-            handleRegenerate={handleRegenerateClick}
-            onExpertHelpClick={handleExpertHelpClick}
-          />
-        </motion.div>
+        <BranchSwitcher
+          branch={meta?.branch}
+          branchOptions={meta?.branchOptions}
+          onSelect={handleBranchSelect}
+          isLoading={isLoading}
+        />
+        <CommandBar
+          content={contentString}
+          htmlContainerRef={htmlContainerRef}
+          isLoading={isLoading}
+          isAiMessage={true}
+          handleRegenerate={handleRegenerateClick}
+          onExpertHelpClick={handleExpertHelpClick}
+        />
       </div>
 
       <ExpertHelpDialog
