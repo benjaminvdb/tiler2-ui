@@ -12,7 +12,7 @@ export function useWorkflowCategories(excludeOnboarding = true) {
       }
     });
     return Object.values(categoryMap).sort(
-      (a, b) => a.order_index - b.order_index
+      (a, b) => a.order_index - b.order_index,
     );
   }, [workflows, excludeOnboarding]);
 

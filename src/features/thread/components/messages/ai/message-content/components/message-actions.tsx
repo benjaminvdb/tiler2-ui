@@ -52,7 +52,7 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
       <div
         className={cn(
           "mr-auto flex items-center gap-2 transition-opacity duration-200",
-          "opacity-0 group-hover:opacity-100 group-focus-within:opacity-100",
+          "opacity-0 group-focus-within:opacity-100 group-hover:opacity-100",
         )}
       >
         <BranchSwitcher

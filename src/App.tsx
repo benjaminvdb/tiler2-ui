@@ -104,50 +104,50 @@ export const App = () => {
             <Auth0DevStatus />
             <SWRConfig value={{ provider: localStorageProvider }}>
               <Routes>
-              <Route
-                path="/"
-                element={
-                  <ProtectedRoute>
-                    <AppLayout>
-                      <ThreadsPage />
-                    </AppLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/workflows"
-                element={
-                  <ProtectedRoute>
-                    <AppLayout>
-                      <WorkflowsPage />
-                    </AppLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/insights"
-                element={
-                  <ProtectedRoute>
-                    <AppLayout>
-                      <InsightsPage />
-                    </AppLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/auth/callback"
-                element={<CallbackPage />}
-              />
-              <Route
-                path="*"
-                element={
-                  <Navigate
-                    to="/"
-                    replace
-                  />
-                }
-              />
-            </Routes>
+                <Route
+                  path="/"
+                  element={
+                    <ProtectedRoute>
+                      <AppLayout>
+                        <ThreadsPage />
+                      </AppLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/workflows"
+                  element={
+                    <ProtectedRoute>
+                      <AppLayout>
+                        <WorkflowsPage />
+                      </AppLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/insights"
+                  element={
+                    <ProtectedRoute>
+                      <AppLayout>
+                        <InsightsPage />
+                      </AppLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/auth/callback"
+                  element={<CallbackPage />}
+                />
+                <Route
+                  path="*"
+                  element={
+                    <Navigate
+                      to="/"
+                      replace
+                    />
+                  }
+                />
+              </Routes>
             </SWRConfig>
           </NetworkStatusProvider>
         </AsyncErrorBoundary>

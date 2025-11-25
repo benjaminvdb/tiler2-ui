@@ -1,4 +1,10 @@
-import React, { useEffect, useState, useRef, useCallback, useMemo } from "react";
+import React, {
+  useEffect,
+  useState,
+  useRef,
+  useCallback,
+  useMemo,
+} from "react";
 import { motion } from "framer-motion";
 import * as LucideIcons from "lucide-react";
 import { useUIContext } from "@/features/chat/providers/ui-provider";
@@ -469,8 +475,15 @@ const WorkflowsPage = (): React.ReactNode => {
   const categoryRefsRef = useRef<Record<string, HTMLElement | null>>({});
   const hasScrolledToHash = useRef(false);
 
-  const { workflows: rawWorkflows, isLoading: loading, error: swrError } = useWorkflows();
-  const workflows = useMemo(() => mergeWithBuiltIns(rawWorkflows), [rawWorkflows]);
+  const {
+    workflows: rawWorkflows,
+    isLoading: loading,
+    error: swrError,
+  } = useWorkflows();
+  const workflows = useMemo(
+    () => mergeWithBuiltIns(rawWorkflows),
+    [rawWorkflows],
+  );
   const error = swrError?.message ?? null;
   const { filteredWorkflows, workflowsByCategory, categories } =
     useWorkflowFiltering(workflows, searchQuery);

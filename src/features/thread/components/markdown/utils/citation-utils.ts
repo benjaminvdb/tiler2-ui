@@ -18,9 +18,6 @@ export function formatMLA(source: Source): string {
   return source.filename || source.title;
 }
 
-/**
- * Group sources by type for organized display
- */
 export function groupSourcesByType(sources: Source[]): {
   library: Source[];
   web: Source[];

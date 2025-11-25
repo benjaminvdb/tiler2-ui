@@ -4,7 +4,7 @@ const CACHE_KEY = "link-chat-swr-cache";
 
 export function localStorageProvider(): Cache {
   const map = new Map<string, State<unknown>>(
-    JSON.parse(localStorage.getItem(CACHE_KEY) || "[]")
+    JSON.parse(localStorage.getItem(CACHE_KEY) || "[]"),
   );
 
   window.addEventListener("beforeunload", () => {

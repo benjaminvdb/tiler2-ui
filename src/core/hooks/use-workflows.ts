@@ -40,7 +40,7 @@ export function useWorkflows() {
     {
       revalidateOnFocus: false,
       dedupingInterval: 60000,
-    }
+    },
   );
 
   return {

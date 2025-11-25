@@ -13,10 +13,7 @@ import {
 } from "lucide-react";
 import { useUIContext } from "@/features/chat/providers/ui-provider";
 import { type NavigationService } from "@/core/services/navigation";
-import {
-  useWorkflowCategories,
-  type CategoryResponse,
-} from "@/core/hooks";
+import { useWorkflowCategories, type CategoryResponse } from "@/core/hooks";
 
 const earthImage = "/images/earth-satellite.webp";
 
@@ -200,7 +197,10 @@ const getCategoryColor = (categoryName: string): string => {
   return CATEGORY_COLORS[categoryName] ?? "#767C91";
 };
 
-const CATEGORY_ICONS: Record<string, React.ComponentType<{ className?: string; strokeWidth?: number }>> = {
+const CATEGORY_ICONS: Record<
+  string,
+  React.ComponentType<{ className?: string; strokeWidth?: number }>
+> = {
   Strategy: Map,
   "Policies & Governance": Shield,
   "Impacts & Risk Assessment": Target,
