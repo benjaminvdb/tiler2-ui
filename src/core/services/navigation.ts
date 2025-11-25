@@ -16,10 +16,12 @@ export interface NavigationService {
   ) => void;
   navigateToWorkflow: (workflowId: string) => void;
   navigateToInsights: () => void;
+  navigateToActivities: () => void;
 
   isHomePage: (pathname: string) => boolean;
   isWorkflowsPage: (pathname: string) => boolean;
   isInsightsPage: (pathname: string) => boolean;
+  isActivitiesPage: (pathname: string) => boolean;
 }
 
 export function createNavigationService(
@@ -71,6 +73,10 @@ export function createNavigationService(
     router(ROUTES.INSIGHTS);
   };
 
+  const navigateToActivities = () => {
+    router(ROUTES.ACTIVITIES);
+  };
+
   const isHomePage = (pathname: string): boolean => {
     return pathname === ROUTES.HOME;
   };
@@ -83,14 +89,20 @@ export function createNavigationService(
     return pathname === ROUTES.INSIGHTS;
   };
 
+  const isActivitiesPage = (pathname: string): boolean => {
+    return pathname === ROUTES.ACTIVITIES;
+  };
+
   return {
     navigateToHome,
     navigateToWorkflows,
     navigateToWorkflow,
     navigateToInsights,
+    navigateToActivities,
     isHomePage,
     isWorkflowsPage,
     isInsightsPage,
+    isActivitiesPage,
   };
 }
 

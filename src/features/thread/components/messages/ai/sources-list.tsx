@@ -44,7 +44,7 @@ const LibrarySourceItem: FC<LibrarySourceItemProps> = ({
           onKeyDown={handleKeyDown}
           aria-label={`Open ${source.title || source.filename} (PDF, opens in new tab)`}
           aria-disabled={isLoading}
-          className="cursor-pointer font-normal text-primary/70 underline underline-offset-2 transition-colors hover:text-primary/90 aria-disabled:cursor-wait aria-disabled:opacity-70"
+          className="text-primary/70 hover:text-primary/90 cursor-pointer font-normal underline underline-offset-2 transition-colors aria-disabled:cursor-wait aria-disabled:opacity-70"
         >
           {isLoading && (
             <Loader2 className="mr-1 inline h-3 w-3 animate-spin" />

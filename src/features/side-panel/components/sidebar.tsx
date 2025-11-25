@@ -4,6 +4,7 @@ import {
   GitBranch,
   Lightbulb,
   BookOpen,
+  FileSpreadsheet,
   PanelLeftOpen,
   PanelLeftClose,
 } from "lucide-react";
@@ -132,117 +133,149 @@ const SidebarHeaderSection: React.FC<SidebarHeaderSectionProps> = ({
 );
 
 /**
- * Main navigation menu with New Chat, Workflows, and Wiki
+ * Main navigation menu with New Chat, Workflows, Activities, and Wiki
  */
 interface MainMenuProps {
   onNewChat: () => void;
   onWorkflows: () => void;
   onInsights: () => void;
+  onActivities: () => void;
   onWiki: () => void;
 }
+
+/**
+ * Menu item configuration for main navigation.
+ */
+interface MenuItemConfig {
+  id: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+  shortcutKey?: string;
+  isNew?: boolean;
+}
+
+/**
+ * Individual menu item component.
+ */
+interface MainMenuItemProps {
+  config: MenuItemConfig;
+  onClick: () => void;
+}
+
+const MainMenuItem: React.FC<MainMenuItemProps> = ({ config, onClick }) => {
+  const { label, icon: Icon, shortcutKey, isNew } = config;
+  const hasShortcut = Boolean(shortcutKey);
+
+  return (
+    <SidebarMenuItem>
+      <SidebarMenuButton
+        onClick={onClick}
+        tooltip={{
+          children: (
+            <div className="text-center">
+              <p className="font-medium">{label}</p>
+              {hasShortcut ? (
+                <p className="mt-1 text-xs text-white/60">
+                  {getShortcutText(shortcutKey)}
+                </p>
+              ) : (
+                <p
+                  className="invisible mt-1 text-xs text-white/60"
+                  aria-hidden="true"
+                >
+                  &nbsp;
+                </p>
+              )}
+            </div>
+          ),
+        }}
+        {...(isNew && {
+          style: {
+            backgroundColor: "var(--forest-green)",
+            color: "var(--off-white)",
+          },
+          className: "hover:opacity-90 data-[active=true]:opacity-100",
+        })}
+      >
+        <Icon
+          className="h-4 w-4"
+          {...(isNew && { strokeWidth: 2 })}
+        />
+        <span {...(isNew && { className: "font-medium" })}>{label}</span>
+      </SidebarMenuButton>
+    </SidebarMenuItem>
+  );
+};
 
 const MainMenu: React.FC<MainMenuProps> = ({
   onNewChat,
   onWorkflows,
   onInsights,
+  onActivities,
   onWiki,
-}) => (
-  <SidebarGroup>
-    <SidebarGroupContent>
-      <SidebarMenu>
-        <SidebarMenuItem>
-          <SidebarMenuButton
-            onClick={onNewChat}
-            tooltip={{
-              children: (
-                <div className="text-center">
-                  <p className="font-medium">New Chat</p>
-                  <p className="mt-1 text-xs text-white/60">
-                    {getShortcutText("new-chat")}
-                  </p>
-                </div>
-              ),
-            }}
-            style={{
-              backgroundColor: "var(--forest-green)",
-              color: "var(--off-white)",
-            }}
-            className="hover:opacity-90 data-[active=true]:opacity-100"
-          >
-            <Plus
-              className="h-4 w-4"
-              strokeWidth={2}
+}) => {
+  const menuItems: Array<{ config: MenuItemConfig; onClick: () => void }> = [
+    {
+      config: {
+        id: "new-chat",
+        label: "New Chat",
+        icon: Plus,
+        shortcutKey: "new-chat",
+        isNew: true,
+      },
+      onClick: onNewChat,
+    },
+    {
+      config: {
+        id: "workflows",
+        label: "Workflows",
+        icon: GitBranch,
+        shortcutKey: "workflows",
+      },
+      onClick: onWorkflows,
+    },
+    {
+      config: {
+        id: "insights",
+        label: "Insights",
+        icon: Lightbulb,
+      },
+      onClick: onInsights,
+    },
+    {
+      config: {
+        id: "activities",
+        label: "Data",
+        icon: FileSpreadsheet,
+      },
+      onClick: onActivities,
+    },
+    {
+      config: {
+        id: "wiki",
+        label: "Wiki",
+        icon: BookOpen,
+      },
+      onClick: onWiki,
+    },
+  ];
+
+  return (
+    <SidebarGroup>
+      <SidebarGroupContent>
+        <SidebarMenu>
+          {menuItems.map(({ config, onClick }) => (
+            <MainMenuItem
+              key={config.id}
+              config={config}
+              onClick={onClick}
             />
-            <span className="font-medium">New Chat</span>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-
-        <SidebarMenuItem>
-          <SidebarMenuButton
-            onClick={onWorkflows}
-            tooltip={{
-              children: (
-                <div className="text-center">
-                  <p className="font-medium">Workflows</p>
-                  <p className="mt-1 text-xs text-white/60">
-                    {getShortcutText("workflows")}
-                  </p>
-                </div>
-              ),
-            }}
-          >
-            <GitBranch className="h-4 w-4" />
-            <span>Workflows</span>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-
-        <SidebarMenuItem>
-          <SidebarMenuButton
-            onClick={onInsights}
-            tooltip={{
-              children: (
-                <div className="text-center">
-                  <p className="font-medium">Insights</p>
-                  <p
-                    className="invisible mt-1 text-xs text-white/60"
-                    aria-hidden="true"
-                  >
-                    &nbsp;
-                  </p>
-                </div>
-              ),
-            }}
-          >
-            <Lightbulb className="h-4 w-4" />
-            <span>Insights</span>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-
-        <SidebarMenuItem>
-          <SidebarMenuButton
-            onClick={onWiki}
-            tooltip={{
-              children: (
-                <div className="text-center">
-                  <p className="font-medium">Wiki</p>
-                  <p
-                    className="invisible mt-1 text-xs text-white/60"
-                    aria-hidden="true"
-                  >
-                    &nbsp;
-                  </p>
-                </div>
-              ),
-            }}
-          >
-            <BookOpen className="h-4 w-4" />
-            <span>Wiki</span>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-      </SidebarMenu>
-    </SidebarGroupContent>
-  </SidebarGroup>
-);
+          ))}
+        </SidebarMenu>
+      </SidebarGroupContent>
+    </SidebarGroup>
+  );
+};
 
 /**
  * Thread list section with loading and empty states
@@ -426,6 +459,10 @@ function useSidebarHandlers(
     navigationService.navigateToInsights();
   }, [navigationService]);
 
+  const handleActivitiesClick = React.useCallback(() => {
+    navigationService.navigateToActivities();
+  }, [navigationService]);
+
   const handleWikiClick = React.useCallback(() => {
     handleNavigate("wiki");
   }, [handleNavigate]);
@@ -437,6 +474,7 @@ function useSidebarHandlers(
     handleNewChatClick,
     handleWorkflowsClick,
     handleInsightsClick,
+    handleActivitiesClick,
     handleWikiClick,
   };
 }
@@ -462,6 +500,7 @@ export const AppSidebar = (): React.JSX.Element => {
     handleNewChatClick,
     handleWorkflowsClick,
     handleInsightsClick,
+    handleActivitiesClick,
     handleWikiClick,
   } = useSidebarHandlers(
     threadId,
@@ -483,6 +522,7 @@ export const AppSidebar = (): React.JSX.Element => {
           onNewChat={handleNewChatClick}
           onWorkflows={handleWorkflowsClick}
           onInsights={handleInsightsClick}
+          onActivities={handleActivitiesClick}
           onWiki={handleWikiClick}
         />
 
