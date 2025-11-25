@@ -176,7 +176,7 @@ const MainMenuItem: React.FC<MainMenuItemProps> = ({ config, onClick }) => {
               <p className="font-medium">{label}</p>
               {hasShortcut ? (
                 <p className="mt-1 text-xs text-white/60">
-                  {getShortcutText(shortcutKey)}
+                  {getShortcutText(shortcutKey as "new-chat" | "workflows")}
                 </p>
               ) : (
                 <p
