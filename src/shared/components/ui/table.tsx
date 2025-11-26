@@ -17,7 +17,7 @@ type TableHeaderProps = React.ComponentProps<"thead">;
 const TableHeader: React.FC<TableHeaderProps> = ({ className, ...props }) => (
   <thead
     data-slot="table-header"
-    className={cn("bg-muted/50 sticky top-0 z-10 [&_tr]:border-b", className)}
+    className={cn("bg-muted sticky top-0 z-20 [&_tr]:border-b", className)}
     {...props}
   />
 );
@@ -51,7 +51,7 @@ const TableRow: React.FC<TableRowProps> = ({ className, ...props }) => (
   <tr
     data-slot="table-row"
     className={cn(
-      "border-b transition-colors",
+      "group border-b transition-colors",
       "even:bg-muted/30",
       "hover:bg-muted/50 data-[state=selected]:bg-muted",
       className,

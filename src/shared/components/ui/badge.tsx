@@ -17,15 +17,15 @@ const badgeVariants = cva(
         outline: "text-foreground",
         // Risk level variants (1-5 scale)
         risk1:
-          "border-transparent bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
+          "border-transparent bg-[#5BB2BA] text-[#1F4A4D] dark:bg-[#5BB2BA]/80 dark:text-[#1F4A4D]",
         risk2:
-          "border-transparent bg-lime-100 text-lime-800 dark:bg-lime-900/30 dark:text-lime-400",
+          "border-transparent bg-[#9DD7D7] text-[#276060] dark:bg-[#9DD7D7]/80 dark:text-[#276060]",
         risk3:
-          "border-transparent bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
+          "border-transparent bg-[#EBD5A1] text-[#795D19] dark:bg-[#EBD5A1]/80 dark:text-[#795D19]",
         risk4:
-          "border-transparent bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400",
+          "border-transparent bg-[#E6AC83] text-[#7B4219] dark:bg-[#E6AC83]/80 dark:text-[#7B4219]",
         risk5:
-          "border-transparent bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
+          "border-transparent bg-[#E08670] text-[#5A2215] dark:bg-[#E08670]/80 dark:text-[#5A2215]",
       },
     },
     defaultVariants: {

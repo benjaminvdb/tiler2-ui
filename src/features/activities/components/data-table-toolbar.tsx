@@ -110,7 +110,7 @@ interface ColumnMenuItemProps<TData> {
   column: ReturnType<Table<TData>["getAllLeafColumns"]>[number];
 }
 
-const ColumnMenuItem = <TData,>({
+const ColumnMenuItemInner = <TData,>({
   column,
 }: ColumnMenuItemProps<TData>): React.JSX.Element => {
   const handleCheckedChange = React.useCallback(
@@ -137,6 +137,11 @@ const ColumnMenuItem = <TData,>({
   );
 };
 
+// Memoize to prevent re-renders when dropdown opens (improves performance with many columns)
+const ColumnMenuItem = React.memo(
+  ColumnMenuItemInner,
+) as typeof ColumnMenuItemInner;
+
 /**
  * Column visibility dropdown menu.
  *
@@ -161,7 +166,7 @@ const ColumnVisibilityMenu = <TData,>({
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="w-[180px]"
+        className="w-[180px] max-h-[300px] overflow-y-auto"
       >
         <DropdownMenuLabel>Toggle columns</DropdownMenuLabel>
         <DropdownMenuSeparator />

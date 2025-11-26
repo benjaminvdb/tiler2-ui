@@ -72,6 +72,8 @@
   --sidebar-accent-foreground: var(--almost-black);
   --sidebar-border: rgba(17, 28, 23, 0.08);
   --sidebar-ring: var(--sage);
+  /* Pre-computed: bg-muted/50 over bg-background (for opaque table row hover) */
+  --table-row-hover: #e6e1d8;
 }
 
 .dark {
@@ -111,6 +113,8 @@
   --sidebar-accent-foreground: var(--off-white);
   --sidebar-border: rgba(147, 177, 166, 0.12);
   --sidebar-ring: var(--sage);
+  /* Pre-computed: bg-muted/50 over bg-background (for opaque table row hover) */
+  --table-row-hover: #234540;
 }
 
 @theme inline {
@@ -150,6 +154,7 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-table-row-hover: var(--table-row-hover);
 }
 
 @layer base {

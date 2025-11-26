@@ -16,6 +16,8 @@ interface DataTableColumnHeaderProps<TData, TValue> {
   unit?: string;
   className?: string;
   isSticky?: boolean;
+  /** Allow header text to wrap to multiple lines */
+  allowWrap?: boolean;
 }
 
 /**
@@ -29,16 +31,18 @@ export const DataTableColumnHeader = <TData, TValue>({
   unit,
   className,
   isSticky,
+  allowWrap,
 }: DataTableColumnHeaderProps<TData, TValue>): React.JSX.Element => {
   const handleClick = React.useCallback(() => {
     column.toggleSorting(column.getIsSorted() === "asc");
   }, [column]);
 
-  const stickyClasses = isSticky ? "sticky left-0 z-20 bg-[#E1DBD1]" : "";
+  const stickyClasses = isSticky ? "sticky left-0 z-20 bg-muted" : "";
+  const wrapClasses = allowWrap ? "whitespace-normal text-left" : "";
 
   if (!column.getCanSort()) {
     return (
-      <div className={cn(stickyClasses, className)}>
+      <div className={cn(stickyClasses, wrapClasses, className)}>
         <div>{title}</div>
         {unit && <div className="text-muted-foreground text-xs">{unit}</div>}
       </div>
@@ -52,22 +56,23 @@ export const DataTableColumnHeader = <TData, TValue>({
       variant="ghost"
       size="sm"
       className={cn(
-        "data-[state=open]:bg-accent -ml-3 h-8",
+        "data-[state=open]:bg-accent -ml-3",
+        allowWrap ? "h-auto py-1" : "h-8",
         stickyClasses,
         className,
       )}
       onClick={handleClick}
     >
-      <div className="flex flex-col items-start gap-0">
+      <div className={cn("flex flex-col items-start gap-0", wrapClasses)}>
         <span>{title}</span>
         {unit && <span className="text-muted-foreground text-xs">{unit}</span>}
       </div>
       {sorted === "desc" ? (
-        <ArrowDown className="ml-2 h-4 w-4" />
+        <ArrowDown className="ml-2 h-4 w-4 shrink-0" />
       ) : sorted === "asc" ? (
-        <ArrowUp className="ml-2 h-4 w-4" />
+        <ArrowUp className="ml-2 h-4 w-4 shrink-0" />
       ) : (
-        <ChevronsUpDown className="ml-2 h-4 w-4" />
+        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0" />
       )}
     </Button>
   );

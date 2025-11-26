@@ -104,7 +104,11 @@ const RiskBadge = ({ value }: { value: unknown }): React.JSX.Element => {
     | "risk4"
     | "risk5";
 
-  return <Badge variant={riskVariant}>{getRiskLabel(risk)}</Badge>;
+  return (
+    <Badge variant={riskVariant} className="w-full justify-center">
+      {getRiskLabel(risk)}
+    </Badge>
+  );
 };
 
 /**
@@ -130,12 +134,16 @@ function isLciaColumn(columnName: string): boolean {
 
 const columnHelper = createColumnHelper<ActivityRow>();
 
+// Fixed width for risk columns - sized for "Extremely high" label (bold text + padding)
+const RISK_COLUMN_WIDTH = 130;
+
 /**
  * Build a single column definition from column metadata.
  */
 function buildSingleColumn(col: ColumnMetadata): ColumnDef<ActivityRow> {
   const unit = getColumnUnit(col.name);
   const isSticky = col.name === "activity_name";
+  const isRisk = isRiskColumn(col.name);
 
   // Strip group prefixes from column titles since they're clear from group headers
   let columnTitle = col.name;
@@ -143,7 +151,7 @@ function buildSingleColumn(col: ColumnMetadata): ColumnDef<ActivityRow> {
     columnTitle = columnTitle.replace(/^lcia_/, "");
   } else if (isImpactColumn(col.name)) {
     columnTitle = columnTitle.replace(/^impact_/, "");
-  } else if (isRiskColumn(col.name)) {
+  } else if (isRisk) {
     columnTitle = columnTitle.replace(/^risk_/, "");
   }
   columnTitle = formatColumnTitle(columnTitle);
@@ -151,17 +159,24 @@ function buildSingleColumn(col: ColumnMetadata): ColumnDef<ActivityRow> {
   return {
     id: col.name,
     accessorKey: col.name,
+    // Fixed width for risk columns to fit "Extremely high" badge
+    ...(isRisk && {
+      size: RISK_COLUMN_WIDTH,
+      minSize: RISK_COLUMN_WIDTH,
+      maxSize: RISK_COLUMN_WIDTH,
+    }),
     header: ({ column }) => (
       <DataTableColumnHeader
         column={column}
         title={columnTitle}
         {...(unit && { unit })}
         isSticky={isSticky}
+        allowWrap={isRisk}
       />
     ),
     cell: ({ getValue }) => {
       const value = getValue();
-      if (isRiskColumn(col.name)) {
+      if (isRisk) {
         return <RiskBadge value={value} />;
       }
       return formatCellValue(value, col.type);
@@ -186,8 +201,10 @@ function buildSingleColumn(col: ColumnMetadata): ColumnDef<ActivityRow> {
 function buildColumns(
   columnMetadata: ColumnMetadata[],
 ): ColumnDef<ActivityRow>[] {
-  // Filter out the 'id' column - it should never be visible to users
-  const visibleMetadata = columnMetadata.filter((c) => c.name !== "id");
+  // Filter out internal ID columns - they should never be visible to users
+  const visibleMetadata = columnMetadata.filter(
+    (c) => c.name !== "id" && c.name !== "row_id",
+  );
 
   const lciaCols = visibleMetadata.filter((c) => isLciaColumn(c.name));
   const impactCols = visibleMetadata.filter((c) => isImpactColumn(c.name));
@@ -453,33 +470,66 @@ const getHeaderClassName = (
   isGroupHeader: boolean,
   groupId: string,
   isSticky: boolean,
+  isRisk: boolean,
+  hasVisibleGroupHeaders: boolean,
 ): string => {
+  // Use bg-muted when group headers are visible, bg-background when not
+  // This ensures header blends with page background when no groups exist
+  const headerBg = hasVisibleGroupHeaders ? "bg-muted" : "bg-background";
+
+  // Base sticky classes for first column (both group and regular headers)
+  const stickyBase = isSticky ? `sticky left-0 z-20 ${headerBg}` : "";
+
+  // Risk columns: allow text wrapping for multi-line headers
+  // Other columns: prevent wrapping
+  const wrapClass = isRisk
+    ? "whitespace-normal break-words"
+    : "whitespace-nowrap";
+
   if (isGroupHeader) {
     if (groupId === "lcia") {
-      return "whitespace-nowrap bg-gray-100 dark:bg-gray-950";
+      return cn(stickyBase, "whitespace-nowrap bg-gray-100 dark:bg-gray-950");
     }
     if (groupId === "impacts") {
-      return "whitespace-nowrap bg-yellow-100 dark:bg-yellow-950";
+      // Use "Medium-high" risk color (risk3)
+      return cn(
+        stickyBase,
+        "whitespace-nowrap bg-[#EBD5A1] dark:bg-[#EBD5A1]/80",
+      );
     }
     if (groupId === "risks") {
-      return "whitespace-nowrap bg-red-100 dark:bg-red-950";
+      // Use "Extremely high" risk color (risk5)
+      return cn(
+        stickyBase,
+        "whitespace-nowrap bg-[#E08670] dark:bg-[#E08670]/80",
+      );
     }
-    return "whitespace-nowrap bg-background";
+    // Empty placeholder cells (like first column's group row cell)
+    // Use bg-background so it blends with the page when no colored group headers are visible
+    return cn(stickyBase, "whitespace-nowrap bg-background");
   }
+
   if (isSticky) {
-    return "whitespace-nowrap sticky left-0 z-20 bg-[#E1DBD1]";
+    return cn(wrapClass, `sticky left-0 z-20 ${headerBg}`);
   }
-  return "whitespace-nowrap";
+  return wrapClass;
 };
 
 /**
  * Get sticky cell className based on row index.
+ * Uses opaque backgrounds to prevent stacking with row backgrounds.
  */
 const getStickyClassName = (isSticky: boolean, isEvenRow: boolean): string => {
   if (!isSticky) return "";
-  return isEvenRow
-    ? "sticky left-0 z-10 bg-[#EBE8E1]"
-    : "sticky left-0 z-10 bg-background";
+
+  // Use OPAQUE backgrounds to prevent double-stacking with row background
+  // bg-secondary approximates bg-muted/30 over bg-background
+  // bg-table-row-hover is pre-computed bg-muted/50 over bg-background
+  const baseClasses = "sticky left-0 z-10";
+  const bgClasses = isEvenRow ? "bg-secondary" : "bg-background";
+  const hoverClasses = "group-hover:bg-table-row-hover";
+
+  return cn(baseClasses, bgClasses, hoverClasses);
 };
 
 /**
@@ -491,33 +541,62 @@ const TableContent = ({
   globalFilter,
   isValidating,
   hasData,
-}: TableContentProps): React.JSX.Element => (
-  <div className="relative h-full overflow-auto rounded-md border">
-    {isValidating && hasData && (
-      <div className="bg-background/50 absolute inset-0 z-10 flex items-center justify-center">
-        <Loader2 className="text-muted-foreground h-6 w-6 animate-spin" />
-      </div>
-    )}
+}: TableContentProps): React.JSX.Element => {
+  const headerGroups = table.getHeaderGroups();
 
-    <Table>
-      <TableHeader>
-        {table.getHeaderGroups().map((headerGroup) => (
+  // Check if there are visible group headers (non-placeholder headers in first row when multiple rows exist)
+  // When groups exist: row 0 has group headers + placeholders, row 1 has column headers
+  // When no groups: row 0 has only column headers (no placeholders)
+  // We only want bg-muted when actual group header text (like "ENVIRONMENTAL IMPACTS") is visible
+  const hasVisibleGroupHeaders =
+    headerGroups.length > 1 &&
+    headerGroups[0].headers.some((header) => !header.isPlaceholder);
+
+  return (
+    <div className="relative h-full overflow-auto rounded-md border">
+      {isValidating && hasData && (
+        <div className="bg-background/50 absolute inset-0 z-10 flex items-center justify-center">
+          <Loader2 className="text-muted-foreground h-6 w-6 animate-spin" />
+        </div>
+      )}
+
+      <Table>
+        <TableHeader className={!hasVisibleGroupHeaders ? "bg-background" : undefined}>
+        {headerGroups.map((headerGroup) => (
           <TableRow key={headerGroup.id}>
             {headerGroup.headers.map((header) => {
               const isGroupHeader = header.subHeaders.length > 0;
               const groupId = header.column.id;
               const isSticky = header.column.columnDef.meta?.isSticky ?? false;
+              const columnId = header.column.id;
+              // Risk columns have fixed width and wrapping headers
+              const isRisk =
+                !isGroupHeader && columnId.toLowerCase().startsWith("risk_");
               const headerClassName = getHeaderClassName(
                 isGroupHeader,
                 groupId,
                 isSticky,
+                isRisk,
+                hasVisibleGroupHeaders,
               );
+
+              // Apply fixed width for columns with custom size (not default 150)
+              const columnSize = header.getSize();
+              const hasCustomSize = columnSize !== 150;
+              const widthStyle = hasCustomSize
+                ? {
+                    width: `${columnSize}px`,
+                    minWidth: `${columnSize}px`,
+                    maxWidth: `${columnSize}px`,
+                  }
+                : undefined;
 
               return (
                 <TableHead
                   key={header.id}
                   colSpan={header.colSpan}
                   className={headerClassName}
+                  style={widthStyle}
                 >
                   {header.isPlaceholder
                     ? null
@@ -549,13 +628,27 @@ const TableContent = ({
                     isEvenRow,
                   );
 
+                  // Apply fixed width for columns with custom size (not default 150)
+                  const columnSize = cell.column.getSize();
+                  const hasCustomSize = columnSize !== 150;
+                  const widthStyle = hasCustomSize
+                    ? {
+                        width: `${columnSize}px`,
+                        minWidth: `${columnSize}px`,
+                        maxWidth: `${columnSize}px`,
+                      }
+                    : undefined;
+
+                  // Risk columns show badges - don't truncate
+                  const cellClasses = hasCustomSize
+                    ? cellStickyClasses
+                    : cn("max-w-[300px] truncate", cellStickyClasses);
+
                   return (
                     <TableCell
                       key={cell.id}
-                      className={cn(
-                        "max-w-[300px] truncate",
-                        cellStickyClasses,
-                      )}
+                      className={cellClasses}
+                      style={widthStyle}
                       title={String(cell.getValue() ?? "")}
                     >
                       {flexRender(
@@ -581,7 +674,8 @@ const TableContent = ({
       </TableBody>
     </Table>
   </div>
-);
+  );
+};
 
 /**
  * Activities data table with server-side pagination and sorting.
