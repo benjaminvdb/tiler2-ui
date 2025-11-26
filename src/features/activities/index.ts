@@ -6,7 +6,7 @@
  */
 
 // Components
-export { ActivitiesDataTable } from "./components/activities-data-table";
+export { ActivitiesDataTable } from "./components/data-table";
 export { DataTableColumnHeader } from "./components/data-table-column-header";
 export { DataTablePagination } from "./components/data-table-pagination";
 export { DataTableToolbar } from "./components/data-table-toolbar";
@@ -15,6 +15,8 @@ export { DataTableToolbar } from "./components/data-table-toolbar";
 export { useActivities } from "./hooks/use-activities";
 export { useActivitySchema } from "./hooks/use-activity-schema";
 export type { UseActivitySchemaReturn } from "./hooks/use-activity-schema";
+export { useActivitiesTable } from "./hooks/use-activities-table";
+export type { UseActivitiesTableReturn } from "./hooks/use-activities-table";
 
 // Types
 export type {
@@ -23,3 +25,6 @@ export type {
   ActivityRow,
   ColumnMetadata,
 } from "./types";
+
+// Utils
+export { formatColumnTitle } from "./utils";

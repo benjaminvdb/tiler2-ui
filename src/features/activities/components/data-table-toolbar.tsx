@@ -20,6 +20,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
+import { formatColumnTitle } from "../utils";
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
@@ -108,10 +109,13 @@ export const DataTableToolbar = <TData,>({
  */
 interface ColumnMenuItemProps<TData> {
   column: ReturnType<Table<TData>["getAllLeafColumns"]>[number];
+  /** Visibility state passed separately for proper memo comparison */
+  isVisible: boolean;
 }
 
 const ColumnMenuItemInner = <TData,>({
   column,
+  isVisible,
 }: ColumnMenuItemProps<TData>): React.JSX.Element => {
   const handleCheckedChange = React.useCallback(
     (value: boolean) => {
@@ -128,11 +132,11 @@ const ColumnMenuItemInner = <TData,>({
     <DropdownMenuCheckboxItem
       key={column.id}
       className="capitalize"
-      checked={column.getIsVisible()}
+      checked={isVisible}
       onCheckedChange={handleCheckedChange}
       onSelect={handleSelect}
     >
-      {formatColumnName(column.id)}
+      {formatColumnTitle(column.id)}
     </DropdownMenuCheckboxItem>
   );
 };
@@ -166,7 +170,7 @@ const ColumnVisibilityMenu = <TData,>({
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="w-[180px] max-h-[300px] overflow-y-auto"
+        className="max-h-[300px] w-[180px] overflow-y-auto"
       >
         <DropdownMenuLabel>Toggle columns</DropdownMenuLabel>
         <DropdownMenuSeparator />
@@ -177,20 +181,10 @@ const ColumnVisibilityMenu = <TData,>({
             <ColumnMenuItem
               key={column.id}
               column={column}
+              isVisible={column.getIsVisible()}
             />
           ))}
       </DropdownMenuContent>
     </DropdownMenu>
   );
 };
-
-/**
- * Format a column ID for display.
- * Converts snake_case to Title Case.
- */
-function formatColumnName(columnId: string): string {
-  return columnId
-    .split("_")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-}
