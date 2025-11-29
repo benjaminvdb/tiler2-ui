@@ -10,6 +10,7 @@ export const ROUTES = {
   WORKFLOWS: "/workflows",
   INSIGHTS: "/insights",
   ACTIVITIES: "/activities",
+  GOALS: "/goals",
 } as const;
 
 export type Route = (typeof ROUTES)[keyof typeof ROUTES];

@@ -1,6 +1,6 @@
 @import "tailwindcss";
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&display=swap");
 
 @plugin "tailwindcss-animate";
 
@@ -10,7 +10,7 @@
   --font-size: 16px;
   --font-inter:
     "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-source-serif-pro: "Source Serif 4", Georgia, serif;
+  --font-lora: "Lora", Georgia, serif;
 
   /* Sustainability Intelligence Color System */
   --forest-green: #0b3d2e;
@@ -33,7 +33,7 @@
   --engagement-charcoal: #3d4447;
   --strategy-mauve: #b39fc4;
 
-  --background: var(--stone);
+  --background: #fafaf9;
   --foreground: var(--almost-black);
   --card: var(--off-white);
   --card-foreground: var(--almost-black);
@@ -118,6 +118,9 @@
 }
 
 @theme inline {
+  /* Sustainability palette colors */
+  --color-forest-green: var(--forest-green);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -176,7 +179,7 @@
   h1,
   h2,
   h3 {
-    font-family: var(--font-source-serif-pro), Georgia, serif;
+    font-family: var(--font-lora), Georgia, serif;
     letter-spacing: 0.01em;
   }
 }

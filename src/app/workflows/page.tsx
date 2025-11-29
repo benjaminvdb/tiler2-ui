@@ -192,13 +192,12 @@ const WorkflowCard = React.memo(function WorkflowCard({
           </div>
         </div>
         <h4
-          className="text-foreground group-hover:text-foreground mb-4 transition-colors duration-250"
+          className="text-foreground group-hover:text-foreground mb-4 font-serif transition-colors duration-250"
           style={{
             letterSpacing: "-0.01em",
             lineHeight: "1.4",
             fontSize: "18px",
             fontWeight: 500,
-            fontFamily: "var(--font-source-serif-pro), Georgia, serif",
           }}
         >
           {workflow.title}

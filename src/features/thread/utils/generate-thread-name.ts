@@ -13,12 +13,14 @@ const truncateMessage = (text: string, maxLength: number): string => {
 
 export function generateThreadName({
   workflowTitle,
+  taskTitle,
   firstMessage,
 }: {
   workflowTitle?: string;
+  taskTitle?: string;
   firstMessage?: string;
 }): string {
-  const candidates = [workflowTitle, firstMessage]
+  const candidates = [workflowTitle, taskTitle, firstMessage]
     .filter((value): value is string => Boolean(value && value.trim()))
     .map((value) => value.trim());
 

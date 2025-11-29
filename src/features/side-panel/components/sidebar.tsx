@@ -5,6 +5,7 @@ import {
   Lightbulb,
   BookOpen,
   FileSpreadsheet,
+  Target,
   PanelLeftOpen,
   PanelLeftClose,
 } from "lucide-react";
@@ -140,6 +141,7 @@ interface MainMenuProps {
   onWorkflows: () => void;
   onInsights: () => void;
   onActivities: () => void;
+  onGoals: () => void;
   onWiki: () => void;
 }
 
@@ -212,6 +214,7 @@ const MainMenu: React.FC<MainMenuProps> = ({
   onWorkflows,
   onInsights,
   onActivities,
+  onGoals,
   onWiki,
 }) => {
   const menuItems: Array<{ config: MenuItemConfig; onClick: () => void }> = [
@@ -249,6 +252,14 @@ const MainMenu: React.FC<MainMenuProps> = ({
         icon: FileSpreadsheet,
       },
       onClick: onActivities,
+    },
+    {
+      config: {
+        id: "goals",
+        label: "Goals",
+        icon: Target,
+      },
+      onClick: onGoals,
     },
     {
       config: {
@@ -463,6 +474,10 @@ function useSidebarHandlers(
     navigationService.navigateToActivities();
   }, [navigationService]);
 
+  const handleGoalsClick = React.useCallback(() => {
+    navigationService.navigateToGoals();
+  }, [navigationService]);
+
   const handleWikiClick = React.useCallback(() => {
     handleNavigate("wiki");
   }, [handleNavigate]);
@@ -475,6 +490,7 @@ function useSidebarHandlers(
     handleWorkflowsClick,
     handleInsightsClick,
     handleActivitiesClick,
+    handleGoalsClick,
     handleWikiClick,
   };
 }
@@ -501,6 +517,7 @@ export const AppSidebar = (): React.JSX.Element => {
     handleWorkflowsClick,
     handleInsightsClick,
     handleActivitiesClick,
+    handleGoalsClick,
     handleWikiClick,
   } = useSidebarHandlers(
     threadId,
@@ -523,6 +540,7 @@ export const AppSidebar = (): React.JSX.Element => {
           onWorkflows={handleWorkflowsClick}
           onInsights={handleInsightsClick}
           onActivities={handleActivitiesClick}
+          onGoals={handleGoalsClick}
           onWiki={handleWikiClick}
         />
 

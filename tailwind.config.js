@@ -58,7 +58,7 @@ module.exports = {
       fontFamily: {
         "comic-mono": ['"Comic Mono"', "ui-monospace", "monospace"],
         inter: ["var(--font-inter)", "sans-serif"],
-        serif: ["var(--font-source-serif-pro)", "Georgia", "serif"],
+        serif: ["var(--font-lora)", "Georgia", "serif"],
       },
       borderRadius: {
         lg: "var(--radius)",

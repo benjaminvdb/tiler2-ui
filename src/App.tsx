@@ -18,6 +18,8 @@ import ThreadsPage from "@/app/page";
 import WorkflowsPage from "@/app/workflows/page";
 import InsightsPage from "@/app/insights/page";
 import ActivitiesPage from "@/app/activities/page";
+import GoalsPage from "@/app/goals/page";
+import GoalDetailPage from "@/app/goals/[goalId]/page";
 
 // Warn if Auth0 is not configured in development
 warnAuth0NotConfigured();
@@ -141,6 +143,26 @@ export const App = () => {
                     <ProtectedRoute>
                       <AppLayout>
                         <ActivitiesPage />
+                      </AppLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/goals"
+                  element={
+                    <ProtectedRoute>
+                      <AppLayout>
+                        <GoalsPage />
+                      </AppLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/goals/:goalId"
+                  element={
+                    <ProtectedRoute>
+                      <AppLayout>
+                        <GoalDetailPage />
                       </AppLayout>
                     </ProtectedRoute>
                   }

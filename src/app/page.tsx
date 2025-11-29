@@ -14,6 +14,7 @@ import { useAuthenticatedFetch } from "@/core/services/http-client";
 import { generateThreadName } from "@/features/thread/utils/generate-thread-name";
 import { buildOptimisticThread } from "@/features/thread/utils/build-optimistic-thread";
 import { getClientConfig } from "@/core/config/client";
+import { linkThreadToTask } from "@/features/goals/services";
 
 interface WorkflowData {
   id: number;
@@ -84,18 +85,27 @@ const submitWorkflowWithThread = (
  * Watches for workflow query parameter and automatically submits to create a new thread.
  * @returns Thread component with artifact provider
  */
+// eslint-disable-next-line max-lines-per-function -- Complex workflow/task handler with multiple effects
 const ThreadWithWorkflowHandler = (): React.ReactNode => {
   const [searchParams] = useSearchParams();
   const stream = useStreamContext();
   const workflowId = searchParams.get("workflow");
+  const taskId = searchParams.get("taskId");
+  const taskTitle = searchParams.get("taskTitle");
   const [threadId, setThreadId] = useSearchParamState("threadId");
   const updateSearchParams = useSearchParamsUpdate();
   const { addOptimisticThread } = useThreads();
   const { user } = useAuth0();
   const [isSubmittingWorkflow, setIsSubmittingWorkflow] = useState(false);
+  const [isSubmittingTask, setIsSubmittingTask] = useState(false);
   const fetchWithAuth = useAuthenticatedFetch();
 
   const submittedWorkflowRef = useRef<string | null>(null);
+  const submittedTaskRef = useRef<string | null>(null);
+  const pendingTaskLinkRef = useRef<{
+    taskId: string;
+    threadId: string;
+  } | null>(null);
 
   const apiUrl = getClientConfig().apiUrl;
 
@@ -173,6 +183,114 @@ const ThreadWithWorkflowHandler = (): React.ReactNode => {
       updateSearchParams({ workflow: undefined });
     }
   }, [threadId, workflowId, updateSearchParams]);
+
+  // Handle task-based thread creation
+  useEffect(() => {
+    const submitTask = async () => {
+      // Skip if already submitting, no task, or workflow takes priority
+      if (
+        !taskId ||
+        workflowId ||
+        submittedTaskRef.current === taskId ||
+        isSubmittingTask ||
+        isSubmittingWorkflow
+      ) {
+        return;
+      }
+
+      setIsSubmittingTask(true);
+      console.log("Starting thread for task:", taskId, taskTitle);
+      submittedTaskRef.current = taskId;
+
+      if (threadId) {
+        console.log("Clearing existing thread ID to start fresh task thread");
+        setThreadId(null);
+      }
+
+      // Create optimistic thread with task context
+      if (user?.email) {
+        const optimisticThreadId = crypto.randomUUID();
+        const threadName = generateThreadName({
+          taskTitle: taskTitle || "Task",
+        });
+        const optimisticThread = buildOptimisticThread({
+          threadId: optimisticThreadId,
+          threadName,
+          userEmail: user.email,
+        });
+
+        addOptimisticThread(optimisticThread);
+
+        // Store task link info to be processed when thread is confirmed
+        pendingTaskLinkRef.current = {
+          taskId,
+          threadId: optimisticThreadId,
+        };
+
+        // Submit to create thread with task context
+        stream.submit(
+          { messages: [] },
+          {
+            threadId: optimisticThreadId,
+            metadata: { name: threadName },
+            config: {
+              configurable: {
+                task_id: taskId,
+              },
+            },
+          },
+        );
+
+        console.log(`Task thread started: ${optimisticThreadId}`);
+      }
+
+      setIsSubmittingTask(false);
+    };
+
+    submitTask();
+  }, [
+    taskId,
+    taskTitle,
+    workflowId,
+    threadId,
+    setThreadId,
+    user,
+    stream,
+    addOptimisticThread,
+    isSubmittingTask,
+    isSubmittingWorkflow,
+  ]);
+
+  // Link thread to task and clear task params after thread is created
+  useEffect(() => {
+    const linkAndClearTask = async () => {
+      if (!threadId || !taskId || !pendingTaskLinkRef.current) {
+        return;
+      }
+
+      // Only process if this is the thread we created for the task
+      if (pendingTaskLinkRef.current.threadId !== threadId) {
+        return;
+      }
+
+      try {
+        console.log(`Linking thread ${threadId} to task ${taskId}`);
+        await linkThreadToTask(fetchWithAuth, taskId, { thread_id: threadId });
+        console.log("Successfully linked thread to task");
+      } catch (error) {
+        console.error("Failed to link thread to task:", error);
+      }
+
+      // Clear task params from URL
+      console.log("Task thread started, clearing task params from URL");
+      updateSearchParams({ taskId: undefined, taskTitle: undefined });
+
+      // Clear pending link ref
+      pendingTaskLinkRef.current = null;
+    };
+
+    linkAndClearTask();
+  }, [threadId, taskId, fetchWithAuth, updateSearchParams]);
 
   return <Thread />;
 };

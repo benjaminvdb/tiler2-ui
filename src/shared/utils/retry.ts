@@ -4,11 +4,18 @@
  * AbortSignal integration, and error reporting.
  */
 
-import pRetry, { AbortError as PRetryAbortError } from "p-retry";
+import pRetry, { AbortError as PRetryAbortError, type Options } from "p-retry";
 import * as Sentry from "@sentry/react";
 import { reportNetworkError } from "@/core/services/observability";
 
 export { AbortError } from "p-retry";
+
+/**
+ * Context object passed to onFailedAttempt callback in p-retry v7+
+ */
+type FailedAttemptContext = Parameters<
+  NonNullable<Options["onFailedAttempt"]>
+>[0];
 
 export interface RetryConfig {
   /** Maximum number of retry attempts (default: 4) */
@@ -165,29 +172,29 @@ export async function fetchWithRetry(
       maxTimeout: maxDelay,
       randomize: true,
       ...(maxRetryTime !== undefined && { maxRetryTime }),
-      onFailedAttempt: (error) => {
+      onFailedAttempt: (context: FailedAttemptContext) => {
         if (onRetry) {
-          onRetry(error.attemptNumber, error);
+          onRetry(context.attemptNumber, context.error);
         }
 
-        if (error.retriesLeft === 0) {
-          reportNetworkError(error, {
+        if (context.retriesLeft === 0) {
+          reportNetworkError(context.error, {
             operation: "fetchWithRetry",
             component: "retry utilities",
             url,
             additionalData: {
-              attempts: error.attemptNumber,
+              attempts: context.attemptNumber,
               exhaustedRetries: true,
             },
           });
         } else {
           Sentry.addBreadcrumb({
             category: "retry",
-            message: `Retry attempt ${error.attemptNumber} for ${url}`,
+            message: `Retry attempt ${context.attemptNumber} for ${url}`,
             level: "info",
             data: {
-              retriesLeft: error.retriesLeft,
-              error: error.message,
+              retriesLeft: context.retriesLeft,
+              error: context.error.message,
             },
           });
         }
