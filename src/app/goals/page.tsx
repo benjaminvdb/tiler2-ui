@@ -10,11 +10,15 @@ import { toast } from "sonner";
 import { Target, Plus, Trash2 } from "lucide-react";
 import { cn } from "@/shared/utils/utils";
 import { Skeleton } from "@/shared/components/ui/skeleton";
+import { Page } from "@/shared/components/ui/page";
+import { PageContent } from "@/shared/components/ui/page-content";
+import { PageHeader } from "@/shared/components/ui/page-header";
 import { useGoals } from "@/features/goals/hooks";
 import { useAuthenticatedFetch } from "@/core/services/http-client";
 import {
   CreateGoalWizard,
   DeleteConfirmationDialog,
+  AddItemButton,
 } from "@/features/goals/components";
 import {
   getCategoryById,
@@ -120,47 +124,6 @@ const groupGoalsByStatus = (
   return grouped;
 };
 
-interface GoalsHeaderProps {
-  count: number;
-  onCreateGoal: () => void;
-}
-
-const GoalsHeader = ({
-  count,
-  onCreateGoal,
-}: GoalsHeaderProps): React.JSX.Element => (
-  <div className="border-b border-[var(--border)] bg-[var(--card)] px-6 py-5">
-    <div className="mx-auto max-w-6xl">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="mb-2">Goals</h1>
-          <p className="text-[var(--muted-foreground)]">
-            Track your sustainability objectives with structured plans
-          </p>
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 text-sm">
-            <Target
-              className="h-4 w-4"
-              style={{ color: "var(--forest-green)" }}
-            />
-            <span className="text-[var(--muted-foreground)]">
-              {count} goal{count !== 1 ? "s" : ""}
-            </span>
-          </div>
-          <button
-            type="button"
-            onClick={onCreateGoal}
-            className="flex items-center gap-2 rounded-lg bg-[var(--forest-green)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--forest-green)]/90"
-          >
-            <Plus className="h-4 w-4" />
-            Create Goal
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-);
 
 interface EmptyStateProps {
   onCreateGoal: () => void;
@@ -169,7 +132,7 @@ interface EmptyStateProps {
 const EmptyState = ({ onCreateGoal }: EmptyStateProps): React.JSX.Element => (
   <div className="py-16 text-center">
     <Target className="mx-auto mb-4 h-12 w-12 text-[var(--muted-foreground)]" />
-    <h3 className="mb-2">No goals created yet</h3>
+    <h3 className="mb-2 text-lg font-medium">No goals created yet</h3>
     <p className="mx-auto mb-6 max-w-md text-[var(--muted-foreground)]">
       Create your first sustainability goal to start tracking progress with
       structured milestones and tasks.
@@ -361,7 +324,7 @@ const ErrorState = ({ error }: { error: Error }): React.JSX.Element => (
   <div className="flex h-full flex-col items-center justify-center bg-[var(--background)]">
     <div className="text-center">
       <Target className="mx-auto mb-4 h-12 w-12 text-[var(--destructive)]" />
-      <h3 className="mb-2">Failed to load goals</h3>
+      <h3 className="mb-2 text-lg font-medium">Failed to load goals</h3>
       <p className="mx-auto max-w-md text-sm text-[var(--muted-foreground)]">
         {error.message}
       </p>
@@ -420,47 +383,20 @@ const StatusSection = ({
   );
 };
 
-const GoalsPage = (): React.JSX.Element => {
-  const navigate = useNavigate();
-  const fetchWithAuth = useAuthenticatedFetch();
-  const { goals, total, isLoading, error, mutate } = useGoals();
-
-  // Poll while any goal is generating (SWR's refreshInterval has race condition issues)
-  useEffect(() => {
-    const hasGeneratingGoal = goals.some((g) => g.status === "generating");
-
-    if (!hasGeneratingGoal) {
-      return;
-    }
-
-    const intervalId = setInterval(() => {
-      mutate();
-    }, 3000);
-
-    return () => clearInterval(intervalId);
-  }, [goals, mutate]);
-
-  const [isWizardOpen, setIsWizardOpen] = useState(false);
+/**
+ * Custom hook for goal deletion state and handlers
+ */
+const useGoalDeletion = (
+  fetchWithAuth: ReturnType<typeof useAuthenticatedFetch>,
+  mutate: () => void,
+): {
+  goalToDelete: GoalListItem | null;
+  isDeleting: boolean;
+  setGoalToDelete: (goal: GoalListItem | null) => void;
+  handleDeleteConfirm: () => Promise<void>;
+} => {
   const [goalToDelete, setGoalToDelete] = useState<GoalListItem | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
-
-  // Group goals by status for display (React Compiler handles memoization)
-  const groupedGoals = groupGoalsByStatus(goals);
-
-  const handleCreateGoal = useCallback(() => {
-    setIsWizardOpen(true);
-  }, []);
-
-  const handleGoalCreated = useCallback(() => {
-    mutate();
-  }, [mutate]);
-
-  const handleGoalClick = useCallback(
-    (goalId: string) => {
-      navigate(`/goals/${goalId}`);
-    },
-    [navigate],
-  );
 
   const handleDeleteConfirm = useCallback(async () => {
     if (!goalToDelete) return;
@@ -479,53 +415,110 @@ const GoalsPage = (): React.JSX.Element => {
     }
   }, [fetchWithAuth, goalToDelete, mutate]);
 
-  // Loading state
-  if (isLoading) {
-    return <LoadingState />;
-  }
+  return { goalToDelete, isDeleting, setGoalToDelete, handleDeleteConfirm };
+};
 
-  // Error state
-  if (error) {
-    return <ErrorState error={error} />;
-  }
+/**
+ * Content area for the goals list
+ */
+interface GoalsListContentProps {
+  goals: GoalListItem[];
+  groupedGoals: Record<GoalStatus, GoalListItem[]>;
+  onCreateGoal: () => void;
+  onGoalClick: (goalId: string) => void;
+  onGoalDelete: (goal: GoalListItem) => void;
+}
+
+const GoalsListContent = ({
+  goals,
+  groupedGoals,
+  onCreateGoal,
+  onGoalClick,
+  onGoalDelete,
+}: GoalsListContentProps): React.JSX.Element => (
+  <PageContent>
+      {goals.length === 0 ? (
+        <EmptyState onCreateGoal={onCreateGoal} />
+      ) : (
+        <div>
+          {STATUS_SECTIONS.map(({ status, label }) => (
+            <StatusSection
+              key={status}
+              status={status}
+              label={label}
+              goals={groupedGoals[status]}
+              onGoalClick={onGoalClick}
+              onGoalDelete={onGoalDelete}
+            />
+          ))}
+          <div className="mt-4">
+            <AddItemButton
+              label="Create new goal"
+              onClick={onCreateGoal}
+            />
+          </div>
+        </div>
+      )}
+    </PageContent>
+);
+
+const GoalsPage = (): React.JSX.Element => {
+  const navigate = useNavigate();
+  const fetchWithAuth = useAuthenticatedFetch();
+  const { goals, total, isLoading, error, mutate } = useGoals();
+
+  // Poll while any goal is generating
+  useEffect(() => {
+    const hasGeneratingGoal = goals.some((g) => g.status === "generating");
+    if (!hasGeneratingGoal) return;
+
+    const intervalId = setInterval(() => mutate(), 3000);
+    return () => clearInterval(intervalId);
+  }, [goals, mutate]);
+
+  const [isWizardOpen, setIsWizardOpen] = useState(false);
+  const { goalToDelete, isDeleting, setGoalToDelete, handleDeleteConfirm } =
+    useGoalDeletion(fetchWithAuth, mutate);
+
+  const groupedGoals = groupGoalsByStatus(goals);
+
+  const handleCreateGoal = useCallback(() => setIsWizardOpen(true), []);
+  const handleGoalCreated = useCallback(() => mutate(), [mutate]);
+  const handleGoalClick = useCallback(
+    (goalId: string) => navigate(`/goals/${goalId}`),
+    [navigate],
+  );
+
+  if (isLoading) return <LoadingState />;
+  if (error) return <ErrorState error={error} />;
 
   return (
-    <div className="flex h-full flex-col bg-[var(--background)]">
-      <GoalsHeader
-        count={total}
-        onCreateGoal={handleCreateGoal}
-      />
+    <>
+      <Page>
+        <PageHeader
+          title="Goals"
+          subtitle="Track your sustainability objectives with structured plans"
+          badge={{
+            icon: Target,
+            label: `${total} goal${total !== 1 ? "s" : ""}`,
+            iconColor: "var(--forest-green)",
+          }}
+        />
+        <GoalsListContent
+          goals={goals}
+          groupedGoals={groupedGoals}
+          onCreateGoal={handleCreateGoal}
+          onGoalClick={handleGoalClick}
+          onGoalDelete={setGoalToDelete}
+        />
+      </Page>
 
-      {/* Content */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-6xl px-6 py-6">
-          {goals.length === 0 ? (
-            <EmptyState onCreateGoal={handleCreateGoal} />
-          ) : (
-            <div>
-              {STATUS_SECTIONS.map(({ status, label }) => (
-                <StatusSection
-                  key={status}
-                  status={status}
-                  label={label}
-                  goals={groupedGoals[status]}
-                  onGoalClick={handleGoalClick}
-                  onGoalDelete={setGoalToDelete}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Create Goal Wizard Modal */}
       <CreateGoalWizard
         open={isWizardOpen}
         onOpenChange={setIsWizardOpen}
         onGoalCreated={handleGoalCreated}
       />
 
-      {/* Delete Goal Confirmation Dialog */}
       {goalToDelete && (
         <DeleteConfirmationDialog
           open={!!goalToDelete}
@@ -538,7 +531,7 @@ const GoalsPage = (): React.JSX.Element => {
           isDeleting={isDeleting}
         />
       )}
-    </div>
+    </>
   );
 };
 

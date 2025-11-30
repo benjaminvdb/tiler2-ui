@@ -9,36 +9,15 @@ import {
 } from "@/features/insights/services/insights-api";
 import type { Insight } from "@/features/insights/types";
 import { MarkdownText } from "@/features/thread/components/markdown-text";
+import { Page } from "@/shared/components/ui/page";
+import { PageContent } from "@/shared/components/ui/page-content";
+import { PageHeader } from "@/shared/components/ui/page-header";
 import { copyWithFormat } from "@/shared/utils/clipboard";
-
-const InsightsHeader = ({ count }: { count: number }): React.JSX.Element => (
-  <div className="border-b border-[var(--border)] bg-[var(--card)] px-6 py-5">
-    <div className="mx-auto max-w-6xl">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="mb-2">Insights</h1>
-          <p className="text-[var(--muted-foreground)]">
-            Key findings and important information saved from your conversations
-          </p>
-        </div>
-        <div className="flex items-center gap-2 text-sm">
-          <Lightbulb
-            className="h-4 w-4"
-            style={{ color: "var(--copper)" }}
-          />
-          <span className="text-[var(--muted-foreground)]">
-            {count} total insight{count !== 1 ? "s" : ""}
-          </span>
-        </div>
-      </div>
-    </div>
-  </div>
-);
 
 const EmptyState = (): React.JSX.Element => (
   <div className="py-16 text-center">
     <Lightbulb className="mx-auto mb-4 h-12 w-12 text-[var(--muted-foreground)]" />
-    <h3 className="mb-2">No insights saved yet</h3>
+    <h3 className="mb-2 text-lg font-medium">No insights saved yet</h3>
     <p className="mx-auto max-w-md text-[var(--muted-foreground)]">
       As you chat with the AI, highlight text and click &ldquo;Save
       Insight&rdquo; to capture important findings here.
@@ -227,31 +206,35 @@ const InsightsPage = (): React.JSX.Element => {
   }
 
   return (
-    <div className="flex h-full flex-col bg-[var(--background)]">
-      <InsightsHeader count={insights.length} />
-
-      {/* Content */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-6xl px-6 py-6">
-          {insights.length === 0 ? (
-            <EmptyState />
-          ) : (
-            <div className="space-y-4">
-              {insights.map((insight) => (
-                <InsightCard
-                  key={insight.id}
-                  insight={insight}
-                  copiedId={copiedId}
-                  onCopy={handleCopy}
-                  onDelete={handleDelete}
-                  onViewConversation={handleViewConversation}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
+    <Page>
+      <PageHeader
+        title="Insights"
+        subtitle="Key findings and important information saved from your conversations"
+        badge={{
+          icon: Lightbulb,
+          label: `${insights.length} insight${insights.length !== 1 ? "s" : ""}`,
+          iconColor: "var(--copper)",
+        }}
+      />
+      <PageContent>
+        {insights.length === 0 ? (
+          <EmptyState />
+        ) : (
+          <div className="space-y-4">
+            {insights.map((insight) => (
+              <InsightCard
+                key={insight.id}
+                insight={insight}
+                copiedId={copiedId}
+                onCopy={handleCopy}
+                onDelete={handleDelete}
+                onViewConversation={handleViewConversation}
+              />
+            ))}
+          </div>
+        )}
+      </PageContent>
+    </Page>
   );
 };
 

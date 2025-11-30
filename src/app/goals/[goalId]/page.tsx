@@ -50,7 +50,6 @@ import { AddItemButton } from "@/features/goals/components/add-item-button";
 import { TASK_STATUS_CONFIG } from "@/features/goals/constants";
 import { getTaskBlockingInfo } from "@/features/goals/utils";
 import type {
-  Goal,
   GoalStatus,
   Milestone,
   Task,
@@ -58,6 +57,9 @@ import type {
 } from "@/features/goals/types";
 import { Button } from "@/shared/components/ui/button";
 import { IconBox } from "@/shared/components/ui/icon-box";
+import { Page } from "@/shared/components/ui/page";
+import { PageContent } from "@/shared/components/ui/page-content";
+import { PageHeader } from "@/shared/components/ui/page-header";
 import {
   Tooltip,
   TooltipTrigger,
@@ -148,59 +150,6 @@ const calculateProgress = (
 // =============================================================================
 // Components
 // =============================================================================
-
-interface GoalDetailHeaderProps {
-  goal: Goal;
-  onBack: () => void;
-}
-
-const GoalDetailHeader = ({
-  goal,
-  onBack,
-}: GoalDetailHeaderProps): React.JSX.Element => {
-  const { completed, total } = calculateProgress(goal.milestones);
-  const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
-  const remaining = total - completed;
-
-  return (
-    <div className="border-b border-[var(--border)] bg-[var(--card)] px-6 py-6">
-      <div className="mx-auto max-w-4xl">
-        {/* Back link */}
-        <button
-          type="button"
-          onClick={onBack}
-          className="mb-4 flex items-center gap-1 text-sm text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Goals
-        </button>
-
-        {/* Title */}
-        <h1 className="mb-2 text-2xl font-medium">{goal.title}</h1>
-
-        {/* Description */}
-        {goal.description && (
-          <p className="mb-4 max-w-2xl text-sm text-[var(--muted-foreground)]">
-            {goal.description}
-          </p>
-        )}
-
-        {/* Progress bar with stats */}
-        <div className="flex items-center gap-3">
-          <div className="h-2 w-full max-w-xs overflow-hidden rounded-full bg-[var(--sand)]">
-            <div
-              className="h-full rounded-full bg-[var(--forest-green)] transition-all duration-500"
-              style={{ width: `${percentage}%` }}
-            />
-          </div>
-          <span className="text-sm text-[var(--muted-foreground)]">
-            {completed} completed • {remaining} remaining
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 // eslint-disable-next-line max-lines-per-function -- Content-heavy presentational component
 const AboutPlanSection = (): React.JSX.Element => {
@@ -1091,60 +1040,91 @@ const GoalDetailPage = (): React.JSX.Element => {
 
   // Generating state - show skeleton while plan is being created
   if (goal.status === "generating") {
+    const { completed, total } = calculateProgress(goal.milestones);
+    const remaining = total - completed;
+
     return (
-      <div className="flex h-full flex-col bg-[var(--background)]">
-        <GoalDetailHeader
-          goal={goal}
-          onBack={handleBack}
+      <Page>
+        <PageHeader
+          title={goal.title}
+          subtitle={goal.description}
+          backButton={{
+            label: "Back to Goals",
+            onClick: handleBack,
+          }}
+          progress={{
+            completed,
+            total,
+            label: `${completed} completed • ${remaining} remaining`,
+          }}
         />
-        <div className="flex-1 overflow-y-auto">
-          <div className="mx-auto max-w-4xl px-6 py-6">
-            <GoalGeneratingSkeleton />
-          </div>
+        <div className="mx-auto max-w-4xl px-6 py-6">
+          <GoalGeneratingSkeleton />
         </div>
-      </div>
+      </Page>
     );
   }
 
   // Failed state - show error message with back button
   if (goal.status === "failed") {
+    const { completed, total } = calculateProgress(goal.milestones);
+    const remaining = total - completed;
+
     return (
-      <div className="flex h-full flex-col bg-[var(--background)]">
-        <GoalDetailHeader
-          goal={goal}
-          onBack={handleBack}
+      <Page>
+        <PageHeader
+          title={goal.title}
+          subtitle={goal.description}
+          backButton={{
+            label: "Back to Goals",
+            onClick: handleBack,
+          }}
+          progress={{
+            completed,
+            total,
+            label: `${completed} completed • ${remaining} remaining`,
+          }}
         />
-        <div className="flex-1 overflow-y-auto">
-          <div className="mx-auto max-w-4xl px-6 py-6">
-            <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center">
-              <Target className="mx-auto mb-4 h-12 w-12 text-red-500" />
-              <h3 className="mb-2 text-lg font-medium text-red-800">
-                Plan Generation Failed
-              </h3>
-              <p className="mb-4 text-sm text-red-600">
-                {goal.error_message ??
-                  "An error occurred while generating your plan"}
-              </p>
-              <Button onClick={handleBack}>
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Goals
-              </Button>
-            </div>
+        <div className="mx-auto max-w-4xl px-6 py-6">
+          <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center">
+            <Target className="mx-auto mb-4 h-12 w-12 text-red-500" />
+            <h3 className="mb-2 text-lg font-medium text-red-800">
+              Plan Generation Failed
+            </h3>
+            <p className="mb-4 text-sm text-red-600">
+              {goal.error_message ??
+                "An error occurred while generating your plan"}
+            </p>
+            <Button onClick={handleBack}>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Goals
+            </Button>
           </div>
         </div>
-      </div>
+      </Page>
     );
   }
 
-  return (
-    <div className="flex h-full flex-col bg-[var(--background)]">
-      <GoalDetailHeader
-        goal={goal}
-        onBack={handleBack}
-      />
+  const { completed, total } = calculateProgress(goal.milestones);
+  const remaining = total - completed;
 
-      <div className="flex-1 overflow-y-auto">
-        <div className="mx-auto max-w-4xl px-6 py-6">
+  return (
+    <>
+      <Page>
+        <PageHeader
+          title={goal.title}
+          subtitle={goal.description}
+          backButton={{
+            label: "Back to Goals",
+            onClick: handleBack,
+          }}
+          progress={{
+            completed,
+            total,
+            label: `${completed} completed • ${remaining} remaining`,
+          }}
+        />
+        <PageContent>
           {/* About this plan */}
           <AboutPlanSection />
 
@@ -1203,8 +1183,8 @@ const GoalDetailPage = (): React.JSX.Element => {
               </div>
             )}
           </div>
-        </div>
-      </div>
+        </PageContent>
+      </Page>
 
       {/* Dialogs */}
       <CreateMilestoneDialog
@@ -1290,7 +1270,7 @@ const GoalDetailPage = (): React.JSX.Element => {
           isDeleting={isDeleting}
         />
       )}
-    </div>
+    </>
   );
 };
 

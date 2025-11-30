@@ -4,6 +4,7 @@
  * Re-exports all components for the goals feature.
  */
 
+export { AddItemButton } from "./add-item-button";
 export { CreateGoalWizard } from "./create-goal-wizard";
 export { CreateMilestoneDialog } from "./create-milestone-dialog";
 export { CreateTaskDialog } from "./create-task-dialog";

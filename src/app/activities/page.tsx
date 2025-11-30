@@ -5,36 +5,13 @@
  * data table with sorting and filtering capabilities.
  */
 
-import { Table2 } from "lucide-react";
-import { ActivitiesDataTable } from "@/features/activities";
+"use client";
 
-/**
- * Page header with title and description.
- */
-const ActivitiesHeader = (): React.JSX.Element => (
-  <div className="border-b border-[var(--border)] bg-[var(--card)] px-6 py-5">
-    <div className="mx-auto max-w-7xl">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="mb-2">Environmental Impact and Risk Assessment</h1>
-          <p className="text-[var(--muted-foreground)]">
-            View and explore your organization&apos;s activities and
-            environmental impact data
-          </p>
-        </div>
-        <div className="flex items-center gap-2 text-sm">
-          <Table2
-            className="h-4 w-4"
-            style={{ color: "var(--forest-green)" }}
-          />
-          <span className="text-[var(--muted-foreground)]">
-            Activity Records
-          </span>
-        </div>
-      </div>
-    </div>
-  </div>
-);
+import { FileSpreadsheet } from "lucide-react";
+import { ActivitiesDataTable, useActivities } from "@/features/activities";
+import { Page } from "@/shared/components/ui/page";
+import { PageContent } from "@/shared/components/ui/page-content";
+import { PageHeader } from "@/shared/components/ui/page-header";
 
 /**
  * Activities page component.
@@ -43,17 +20,25 @@ const ActivitiesHeader = (): React.JSX.Element => (
  * from the tenant's activities table.
  */
 const ActivitiesPage = (): React.JSX.Element => {
-  return (
-    <div className="flex h-full flex-col bg-[var(--background)]">
-      <ActivitiesHeader />
+  const { total } = useActivities({});
 
-      {/* Data Table Content */}
-      <div className="min-h-0 flex-1 px-6 py-6">
-        <div className="mx-auto h-full max-w-7xl">
-          <ActivitiesDataTable />
-        </div>
-      </div>
-    </div>
+  return (
+    <Page variant="fixed">
+      <PageHeader
+        sticky={false}
+        title="Environmental Impact and Risk Assessment"
+        subtitle="View and explore your organization's activities and environmental impact data"
+        badge={{
+          icon: FileSpreadsheet,
+          label: `${total.toLocaleString()} records`,
+          iconColor: "var(--forest-green)",
+        }}
+      />
+
+      <PageContent variant="fixed">
+        <ActivitiesDataTable />
+      </PageContent>
+    </Page>
   );
 };
 

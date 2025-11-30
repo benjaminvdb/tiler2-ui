@@ -7,11 +7,15 @@ import React, {
 } from "react";
 import { motion } from "framer-motion";
 import * as LucideIcons from "lucide-react";
+import { Workflow } from "lucide-react";
 import { useUIContext } from "@/features/chat/providers/ui-provider";
 import { LoadingScreen } from "@/shared/components/loading-spinner";
 import { Button } from "@/shared/components/ui/button";
+import { Page } from "@/shared/components/ui/page";
+import { PageContent } from "@/shared/components/ui/page-content";
+import { PageHeader } from "@/shared/components/ui/page-header";
 import { useWorkflows } from "@/core/hooks";
-import { SearchHeader } from "./components/search-header";
+import { WorkflowsToolbar } from "./components/workflows-toolbar";
 import { StatusMessages } from "./components/status-messages";
 import { CategoryNavigation } from "./components/category-navigation";
 
@@ -468,7 +472,10 @@ const WorkflowsContent: React.FC<WorkflowsContentProps> = ({
   </>
 );
 
-const WorkflowsPage = (): React.ReactNode => {
+/**
+ * Custom hook for workflows page state and handlers
+ */
+function useWorkflowsPage() {
   const { navigationService } = useUIContext();
   const [searchQuery, setSearchQuery] = useState("");
   const categoryRefsRef = useRef<Record<string, HTMLElement | null>>({});
@@ -479,6 +486,7 @@ const WorkflowsPage = (): React.ReactNode => {
     isLoading: loading,
     error: swrError,
   } = useWorkflows();
+
   const workflows = useMemo(
     () => mergeWithBuiltIns(rawWorkflows),
     [rawWorkflows],
@@ -502,23 +510,18 @@ const WorkflowsPage = (): React.ReactNode => {
   }, []);
 
   const handleWorkflowClick = useCallback(
-    (workflowId: string) => {
-      navigationService.navigateToWorkflow(workflowId);
-    },
+    (workflowId: string) => navigationService.navigateToWorkflow(workflowId),
     [navigationService],
   );
 
   const handleSearchChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setSearchQuery(e.target.value);
-    },
+    (e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value),
     [],
   );
 
-  const handleClearSearch = useCallback(() => {
-    setSearchQuery("");
-  }, []);
+  const handleClearSearch = useCallback(() => setSearchQuery(""), []);
 
+  // Scroll to hash on initial load
   useEffect(() => {
     if (!loading && !hasScrolledToHash.current && window.location.hash) {
       const hash = decodeURIComponent(window.location.hash.substring(1));
@@ -534,44 +537,86 @@ const WorkflowsPage = (): React.ReactNode => {
     }
   }, [loading, workflowsByCategory]);
 
-  if (loading) {
-    return <LoadingScreen />;
-  }
-
   const showBuiltInOnly =
     !loading && workflows.length === BUILT_IN_WORKFLOWS.length;
 
+  return {
+    loading,
+    error,
+    searchQuery,
+    filteredWorkflows,
+    workflowsByCategory,
+    categories,
+    showBuiltInOnly,
+    setCategoryRef,
+    scrollToCategory,
+    handleWorkflowClick,
+    handleSearchChange,
+    handleClearSearch,
+  };
+}
+
+const WorkflowsPage = (): React.ReactNode => {
+  const {
+    loading,
+    error,
+    searchQuery,
+    filteredWorkflows,
+    workflowsByCategory,
+    categories,
+    showBuiltInOnly,
+    setCategoryRef,
+    scrollToCategory,
+    handleWorkflowClick,
+    handleSearchChange,
+    handleClearSearch,
+  } = useWorkflowsPage();
+
+  if (loading) return <LoadingScreen />;
+
   return (
-    <div className="mx-auto max-w-5xl px-6 py-12">
-      <SearchHeader
-        searchQuery={searchQuery}
-        filteredCount={filteredWorkflows.length}
-        onSearchChange={handleSearchChange}
-        onClearSearch={handleClearSearch}
+    <Page>
+      <PageHeader
+        title="Sustainability Workflows"
+        subtitle="Select a workflow to begin your sustainability analysis"
+        badge={{
+          icon: Workflow,
+          label: `${filteredWorkflows.length} workflow${filteredWorkflows.length !== 1 ? "s" : ""}`,
+          iconColor: "var(--forest-green)",
+        }}
       />
 
-      <StatusMessages
-        error={error}
-        loading={loading}
-        showBuiltInOnly={showBuiltInOnly}
-      />
-
-      {!searchQuery.trim() && (
-        <CategoryNavigation
-          categories={categories}
-          onCategoryClick={scrollToCategory}
+      <PageContent>
+        <WorkflowsToolbar
+          searchQuery={searchQuery}
+          filteredCount={filteredWorkflows.length}
+          onSearchChange={handleSearchChange}
+          onClearSearch={handleClearSearch}
         />
-      )}
 
-      <WorkflowsContent
-        searchQuery={searchQuery}
-        filteredWorkflows={filteredWorkflows}
-        workflowsByCategory={workflowsByCategory}
-        setCategoryRef={setCategoryRef}
-        onWorkflowClick={handleWorkflowClick}
-        onClearSearch={handleClearSearch}
-      />
-    </div>
+        <StatusMessages
+          error={error}
+          loading={loading}
+          showBuiltInOnly={showBuiltInOnly}
+        />
+
+        {!searchQuery.trim() && (
+          <CategoryNavigation
+            categories={categories}
+            onCategoryClick={scrollToCategory}
+          />
+        )}
+
+        <WorkflowsContent
+          searchQuery={searchQuery}
+          filteredWorkflows={filteredWorkflows}
+          workflowsByCategory={workflowsByCategory}
+          setCategoryRef={setCategoryRef}
+          onWorkflowClick={handleWorkflowClick}
+          onClearSearch={handleClearSearch}
+        />
+      </PageContent>
+    </Page>
   );
 };
 
