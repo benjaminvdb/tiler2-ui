@@ -15,12 +15,10 @@ import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import {
   ArrowLeft,
-  ArrowRight,
   Target,
   Plus,
   ChevronDown,
   ChevronUp,
-  Lightbulb,
   Link2,
   Zap,
   Pencil,
@@ -28,12 +26,15 @@ import {
   Play,
   CheckCircle2,
   MessageSquare,
+  ListChecks,
+  OctagonAlert,
 } from "lucide-react";
 import { useAuthenticatedFetch } from "@/core/services/http-client";
 import { useWorkflows } from "@/core/hooks/use-workflows";
 import { useGoal } from "@/features/goals/hooks";
 import {
   updateTask,
+  updateMilestone,
   deleteTask,
   deleteMilestone,
 } from "@/features/goals/services";
@@ -56,10 +57,12 @@ import type {
   TaskStatus,
 } from "@/features/goals/types";
 import { Button } from "@/shared/components/ui/button";
-import { IconBox } from "@/shared/components/ui/icon-box";
 import { Page } from "@/shared/components/ui/page";
 import { PageContent } from "@/shared/components/ui/page-content";
-import { PageHeader } from "@/shared/components/ui/page-header";
+import {
+  PageHeader,
+  type StatItemConfig,
+} from "@/shared/components/ui/page-header";
 import {
   Tooltip,
   TooltipTrigger,
@@ -147,127 +150,60 @@ const calculateProgress = (
   return { completed, total };
 };
 
+const calculateGoalStats = (
+  milestones: Milestone[],
+  allTasks: Task[],
+): StatItemConfig[] => {
+  const tasksDone = allTasks.filter((t) => t.status === "done").length;
+  const tasksActive = allTasks.filter((t) => t.status === "in_progress").length;
+  const workflowsCount = allTasks.filter((t) => t.workflow_id).length;
+  const blockedCount = allTasks.filter(
+    (t) => getTaskBlockingInfo(t, allTasks).isBlocked,
+  ).length;
+
+  return [
+    {
+      icon: Target,
+      value: milestones.length,
+      label: "milestones",
+      tooltip: "Major phases that organize your work",
+      iconColor: "forest-green",
+    },
+    {
+      icon: ListChecks,
+      value: allTasks.length,
+      label: "tasks",
+      sublabel: `(${tasksDone} done, ${tasksActive} active)`,
+      tooltip: "Individual tasks you work on through AI chats",
+      iconColor: "forest-green",
+    },
+    {
+      icon: Zap,
+      value: workflowsCount,
+      label: "workflows",
+      tooltip: "Structured step-by-step guides for complex tasks",
+      iconColor: "copper",
+    },
+    {
+      icon: OctagonAlert,
+      value: blockedCount,
+      label: "blocked",
+      tooltip: "Tasks waiting on dependencies to be completed",
+      iconColor: "copper",
+    },
+  ];
+};
+
 // =============================================================================
 // Components
 // =============================================================================
 
-// eslint-disable-next-line max-lines-per-function -- Content-heavy presentational component
-const AboutPlanSection = (): React.JSX.Element => {
-  const [isExpanded, setIsExpanded] = useState(() => {
-    if (typeof window === "undefined") return true;
-    const hasSeen = localStorage.getItem("link-chat-about-plan-seen");
-    if (hasSeen) {
-      return false; // Returning user → collapsed
-    }
-    // First-time user → expanded, mark as seen
-    localStorage.setItem("link-chat-about-plan-seen", "true");
-    return true;
-  });
-
-  const handleToggleExpanded = useCallback(() => {
-    setIsExpanded((prev) => !prev);
-  }, []);
-
-  return (
-    <SectionCard className="mb-6">
-      <SectionCardHeader
-        asChild
-        className="px-5 py-4"
-      >
-        <button
-          type="button"
-          onClick={handleToggleExpanded}
-          className="flex w-full items-center justify-between text-left"
-        >
-          <div className="flex items-center gap-3">
-            <IconBox>
-              <Lightbulb className="h-5 w-5" />
-            </IconBox>
-            <span className="text-base font-medium">About this plan</span>
-          </div>
-          {isExpanded ? (
-            <ChevronUp className="h-5 w-5 text-[var(--muted-foreground)]" />
-          ) : (
-            <ChevronDown className="h-5 w-5 text-[var(--muted-foreground)]" />
-          )}
-        </button>
-      </SectionCardHeader>
-
-      {isExpanded && (
-        <SectionCardContent className="pt-4 pr-5 pb-5 pl-[4.25rem]">
-          <p className="mb-4 text-sm text-[var(--muted-foreground)]">
-            This workplan breaks down your goal into{" "}
-            <strong className="text-[var(--foreground)]">milestones</strong>.
-            Each milestone contains specific{" "}
-            <strong className="text-[var(--foreground)]">tasks</strong>. You
-            work on completing tasks through conversations with the AI.
-          </p>
-
-          <ul className="mb-5 space-y-2 text-sm text-[var(--muted-foreground)]">
-            <li className="flex items-start gap-2">
-              <span className="mt-0.5">•</span>
-              <span>
-                Some tasks have a{" "}
-                <strong className="text-[var(--foreground)]">dependency</strong>{" "}
-                (
-                <span className="inline-flex items-center justify-center rounded bg-[var(--sage)]/10 p-1">
-                  <Link2 className="h-3 w-3 text-[var(--sage)]" />
-                </span>
-                ) on other tasks—meaning they build on previous work and carry
-                forward key insights.
-              </span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="mt-0.5">•</span>
-              <span>
-                Complex tasks may include a{" "}
-                <strong className="text-[var(--foreground)]">Workflow</strong> (
-                <span className="inline-flex items-center justify-center rounded bg-[var(--copper)]/10 p-1">
-                  <Zap className="h-3 w-3 text-[var(--copper)]" />
-                </span>
-                ) to guide you through structured steps.
-              </span>
-            </li>
-          </ul>
-
-          <h4 className="mb-3 text-sm font-medium">Using this page:</h4>
-          <ul className="space-y-2 text-sm text-[var(--muted-foreground)]">
-            <li className="flex items-start gap-2">
-              <ArrowRight className="mt-0.5 h-4 w-4 flex-shrink-0" />
-              <span>
-                <strong className="text-[var(--foreground)]">
-                  Click on a task
-                </strong>{" "}
-                to start working on it through an AI conversation.
-              </span>
-            </li>
-            <li className="flex items-start gap-2">
-              <ArrowRight className="mt-0.5 h-4 w-4 flex-shrink-0" />
-              <span>
-                <strong className="text-[var(--foreground)]">
-                  Mark tasks as done
-                </strong>{" "}
-                to track your progress toward the goal.
-              </span>
-            </li>
-            <li className="flex items-start gap-2">
-              <ArrowRight className="mt-0.5 h-4 w-4 flex-shrink-0" />
-              <span>
-                <strong className="text-[var(--foreground)]">
-                  Add or edit tasks
-                </strong>{" "}
-                as you go—plans are meant to evolve.
-              </span>
-            </li>
-          </ul>
-        </SectionCardContent>
-      )}
-    </SectionCard>
-  );
-};
-
 interface TaskItemActionsProps {
   task: Task;
+  isFirst: boolean;
+  isLast: boolean;
+  onMoveUp: (task: Task) => void;
+  onMoveDown: (task: Task) => void;
   onOpenDependencies: (task: Task) => void;
   onEdit: (task: Task) => void;
   onDelete: (task: Task) => void;
@@ -275,17 +211,25 @@ interface TaskItemActionsProps {
 
 const TaskItemActions = ({
   task,
+  isFirst,
+  isLast,
+  onMoveUp,
+  onMoveDown,
   onOpenDependencies,
   onEdit,
   onDelete,
 }: TaskItemActionsProps): React.JSX.Element => {
-  const handleComingSoon = useCallback(() => {
-    toast.info("Coming soon");
-  }, []);
-
   const handleOpenDeps = useCallback(() => {
     onOpenDependencies(task);
   }, [onOpenDependencies, task]);
+
+  const handleMoveUp = useCallback(() => {
+    onMoveUp(task);
+  }, [onMoveUp, task]);
+
+  const handleMoveDown = useCallback(() => {
+    onMoveDown(task);
+  }, [onMoveDown, task]);
 
   const handleEdit = useCallback(() => {
     onEdit(task);
@@ -310,7 +254,8 @@ const TaskItemActions = ({
         variant="ghost"
         size="sm"
         className="h-8 w-8 p-0"
-        onClick={handleComingSoon}
+        onClick={handleMoveUp}
+        disabled={isFirst}
         title="Move up"
       >
         <ChevronUp className="h-4 w-4" />
@@ -319,7 +264,8 @@ const TaskItemActions = ({
         variant="ghost"
         size="sm"
         className="h-8 w-8 p-0"
-        onClick={handleComingSoon}
+        onClick={handleMoveDown}
+        disabled={isLast}
         title="Move down"
       >
         <ChevronDown className="h-4 w-4" />
@@ -567,6 +513,10 @@ interface TaskItemProps {
   task: Task;
   goalId: string;
   allTasks: Task[];
+  isFirst: boolean;
+  isLast: boolean;
+  onMoveUp: (task: Task) => void;
+  onMoveDown: (task: Task) => void;
   onStatusChange: (taskId: string, status: TaskStatus) => void;
   onOpenDependencies: (task: Task) => void;
   onEdit: (task: Task) => void;
@@ -578,6 +528,10 @@ const TaskItem = ({
   task,
   goalId,
   allTasks,
+  isFirst,
+  isLast,
+  onMoveUp,
+  onMoveDown,
   onStatusChange,
   onOpenDependencies,
   onEdit,
@@ -655,6 +609,10 @@ const TaskItem = ({
         <div className="flex shrink-0 flex-col items-end justify-between self-stretch">
           <TaskItemActions
             task={task}
+            isFirst={isFirst}
+            isLast={isLast}
+            onMoveUp={onMoveUp}
+            onMoveDown={onMoveDown}
             onOpenDependencies={onOpenDependencies}
             onEdit={onEdit}
             onDelete={onDelete}
@@ -702,6 +660,10 @@ interface MilestoneCardProps {
   index: number;
   goalId: string;
   allTasks: Task[];
+  isFirst: boolean;
+  isLast: boolean;
+  onMilestoneMove: (milestone: Milestone, direction: "up" | "down") => void;
+  onTaskMove: (task: Task, direction: "up" | "down") => void;
   onTaskStatusChange: (taskId: string, status: TaskStatus) => void;
   onAddTask: (milestoneId: string, milestoneTitle: string) => void;
   onOpenDependencies: (task: Task) => void;
@@ -717,6 +679,10 @@ const MilestoneCard = ({
   index,
   goalId,
   allTasks,
+  isFirst,
+  isLast,
+  onMilestoneMove,
+  onTaskMove,
   onTaskStatusChange,
   onAddTask,
   onOpenDependencies,
@@ -732,12 +698,32 @@ const MilestoneCard = ({
   const percentage = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
 
   const handleMoveUp = useCallback(() => {
-    toast.info("Coming soon");
-  }, []);
+    onMilestoneMove(milestone, "up");
+  }, [onMilestoneMove, milestone]);
 
   const handleMoveDown = useCallback(() => {
-    toast.info("Coming soon");
-  }, []);
+    onMilestoneMove(milestone, "down");
+  }, [onMilestoneMove, milestone]);
+
+  const handleTaskMoveUp = useCallback(
+    (task: Task) => {
+      onTaskMove(task, "up");
+    },
+    [onTaskMove],
+  );
+
+  const handleTaskMoveDown = useCallback(
+    (task: Task) => {
+      onTaskMove(task, "down");
+    },
+    [onTaskMove],
+  );
+
+  // Sort tasks by order_index for determining first/last
+  const sortedTasks = useMemo(
+    () => [...milestone.tasks].sort((a, b) => a.order_index - b.order_index),
+    [milestone.tasks],
+  );
 
   return (
     <SectionCard>
@@ -771,6 +757,7 @@ const MilestoneCard = ({
             size="sm"
             className="h-8 w-8 p-0"
             onClick={handleMoveUp}
+            disabled={isFirst}
             title="Move up"
           >
             <ChevronUp className="h-4 w-4" />
@@ -780,6 +767,7 @@ const MilestoneCard = ({
             size="sm"
             className="h-8 w-8 p-0"
             onClick={handleMoveDown}
+            disabled={isLast}
             title="Move down"
           >
             <ChevronDown className="h-4 w-4" />
@@ -811,20 +799,22 @@ const MilestoneCard = ({
       <SectionCardContent>
         {/* Tasks (always visible, no collapse) */}
         <div className="space-y-3">
-          {milestone.tasks
-            .sort((a, b) => a.order_index - b.order_index)
-            .map((task) => (
-              <TaskItem
-                key={task.id}
-                task={task}
-                goalId={goalId}
-                allTasks={allTasks}
-                onStatusChange={onTaskStatusChange}
-                onOpenDependencies={onOpenDependencies}
-                onEdit={onEditTask}
-                onDelete={onDeleteTask}
-              />
-            ))}
+          {sortedTasks.map((task, taskIndex) => (
+            <TaskItem
+              key={task.id}
+              task={task}
+              goalId={goalId}
+              allTasks={allTasks}
+              isFirst={taskIndex === 0}
+              isLast={taskIndex === sortedTasks.length - 1}
+              onMoveUp={handleTaskMoveUp}
+              onMoveDown={handleTaskMoveDown}
+              onStatusChange={onTaskStatusChange}
+              onOpenDependencies={onOpenDependencies}
+              onEdit={onEditTask}
+              onDelete={onDeleteTask}
+            />
+          ))}
         </div>
 
         {/* Add Task Button */}
@@ -1009,6 +999,92 @@ const GoalDetailPage = (): React.JSX.Element => {
     }
   }, [fetchWithAuth, milestoneToDelete, mutate]);
 
+  // Move milestone up or down
+  const handleMilestoneMove = useCallback(
+    async (milestone: Milestone, direction: "up" | "down") => {
+      if (!goal) return;
+
+      const sortedMilestones = [...goal.milestones].sort(
+        (a, b) => a.order_index - b.order_index,
+      );
+      const currentIndex = sortedMilestones.findIndex(
+        (m) => m.id === milestone.id,
+      );
+
+      // Find the adjacent milestone
+      const adjacentIndex =
+        direction === "up" ? currentIndex - 1 : currentIndex + 1;
+      if (adjacentIndex < 0 || adjacentIndex >= sortedMilestones.length) return;
+
+      const adjacentMilestone = sortedMilestones[adjacentIndex];
+
+      // Swap order_index values
+      const currentOrderIndex = milestone.order_index;
+      const adjacentOrderIndex = adjacentMilestone.order_index;
+
+      try {
+        // Update both milestones in parallel
+        await Promise.all([
+          updateMilestone(fetchWithAuth, milestone.id, {
+            order_index: adjacentOrderIndex,
+          }),
+          updateMilestone(fetchWithAuth, adjacentMilestone.id, {
+            order_index: currentOrderIndex,
+          }),
+        ]);
+        mutate();
+      } catch (err) {
+        console.error("Failed to move milestone:", err);
+        toast.error("Failed to move milestone");
+      }
+    },
+    [fetchWithAuth, goal, mutate],
+  );
+
+  // Move task up or down within its milestone
+  const handleTaskMove = useCallback(
+    async (task: Task, direction: "up" | "down") => {
+      if (!goal) return;
+
+      // Find the milestone containing this task
+      const milestone = goal.milestones.find((m) => m.id === task.milestone_id);
+      if (!milestone) return;
+
+      const sortedTasks = [...milestone.tasks].sort(
+        (a, b) => a.order_index - b.order_index,
+      );
+      const currentIndex = sortedTasks.findIndex((t) => t.id === task.id);
+
+      // Find the adjacent task
+      const adjacentIndex =
+        direction === "up" ? currentIndex - 1 : currentIndex + 1;
+      if (adjacentIndex < 0 || adjacentIndex >= sortedTasks.length) return;
+
+      const adjacentTask = sortedTasks[adjacentIndex];
+
+      // Swap order_index values
+      const currentOrderIndex = task.order_index;
+      const adjacentOrderIndex = adjacentTask.order_index;
+
+      try {
+        // Update both tasks in parallel
+        await Promise.all([
+          updateTask(fetchWithAuth, task.id, {
+            order_index: adjacentOrderIndex,
+          }),
+          updateTask(fetchWithAuth, adjacentTask.id, {
+            order_index: currentOrderIndex,
+          }),
+        ]);
+        mutate();
+      } catch (err) {
+        console.error("Failed to move task:", err);
+        toast.error("Failed to move task");
+      }
+    },
+    [fetchWithAuth, goal, mutate],
+  );
+
   // Compute all tasks from all milestones for dependency checking
   const allTasks = useMemo(() => {
     if (!goal) return [];
@@ -1044,6 +1120,7 @@ const GoalDetailPage = (): React.JSX.Element => {
   if (goal.status === "generating") {
     const { completed, total } = calculateProgress(goal.milestones);
     const remaining = total - completed;
+    const stats = calculateGoalStats(goal.milestones, allTasks);
 
     return (
       <Page>
@@ -1054,6 +1131,7 @@ const GoalDetailPage = (): React.JSX.Element => {
             label: "Back to Goals",
             onClick: handleBack,
           }}
+          stats={stats}
           progress={{
             completed,
             total,
@@ -1071,6 +1149,7 @@ const GoalDetailPage = (): React.JSX.Element => {
   if (goal.status === "failed") {
     const { completed, total } = calculateProgress(goal.milestones);
     const remaining = total - completed;
+    const stats = calculateGoalStats(goal.milestones, allTasks);
 
     return (
       <Page>
@@ -1081,6 +1160,7 @@ const GoalDetailPage = (): React.JSX.Element => {
             label: "Back to Goals",
             onClick: handleBack,
           }}
+          stats={stats}
           progress={{
             completed,
             total,
@@ -1109,6 +1189,7 @@ const GoalDetailPage = (): React.JSX.Element => {
 
   const { completed, total } = calculateProgress(goal.milestones);
   const remaining = total - completed;
+  const stats = calculateGoalStats(goal.milestones, allTasks);
 
   return (
     <>
@@ -1120,6 +1201,7 @@ const GoalDetailPage = (): React.JSX.Element => {
             label: "Back to Goals",
             onClick: handleBack,
           }}
+          stats={stats}
           progress={{
             completed,
             total,
@@ -1127,9 +1209,6 @@ const GoalDetailPage = (): React.JSX.Element => {
           }}
         />
         <PageContent>
-          {/* About this plan */}
-          <AboutPlanSection />
-
           {/* Milestones */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -1160,13 +1239,17 @@ const GoalDetailPage = (): React.JSX.Element => {
               <div className="space-y-6">
                 {goal.milestones
                   .sort((a, b) => a.order_index - b.order_index)
-                  .map((milestone, index) => (
+                  .map((milestone, index, sortedArray) => (
                     <MilestoneCard
                       key={milestone.id}
                       milestone={milestone}
                       index={index}
                       goalId={goal.id}
                       allTasks={allTasks}
+                      isFirst={index === 0}
+                      isLast={index === sortedArray.length - 1}
+                      onMilestoneMove={handleMilestoneMove}
+                      onTaskMove={handleTaskMove}
                       onTaskStatusChange={handleTaskStatusChange}
                       onAddTask={handleAddTask}
                       onOpenDependencies={handleOpenDependencies}

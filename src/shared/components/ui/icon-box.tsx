@@ -16,15 +16,16 @@ import { cn } from "@/shared/utils/utils";
  * Available colors from the design system.
  * Each color maps to a CSS variable defined in globals.css.
  */
-type IconBoxColor = "sage" | "forest-green" | "sand" | "muted";
+export type IconBoxColor = "sage" | "forest-green" | "sand" | "muted" | "copper";
 
 /**
  * Size variants for the icon box.
+ * - xs: 24x24px container, for inline stats and compact UI
  * - sm: 32x32px container, suitable for inline use
  * - md: 40x40px container, default size for dialogs and cards
  * - lg: 48x48px container, for hero/feature sections
  */
-type IconBoxSize = "sm" | "md" | "lg";
+type IconBoxSize = "xs" | "sm" | "md" | "lg";
 
 interface IconBoxProps {
   /** The icon element to display */
@@ -39,19 +40,21 @@ interface IconBoxProps {
 
 /**
  * Maps color names to Tailwind classes for background and text.
- * Background uses 20% opacity, text uses full color.
+ * Background uses 15% opacity, text uses full color.
  */
 const colorStyles: Record<IconBoxColor, string> = {
-  sage: "bg-[var(--sage)]/20 text-[var(--sage)]",
-  "forest-green": "bg-[var(--forest-green)]/20 text-[var(--forest-green)]",
+  sage: "bg-[var(--sage)]/15 text-[var(--sage)]",
+  "forest-green": "bg-[var(--forest-green)]/15 text-[var(--forest-green)]",
   sand: "bg-[var(--sand)] text-[var(--muted-foreground)]",
-  muted: "bg-[var(--muted)]/20 text-[var(--muted-foreground)]",
+  muted: "bg-[var(--muted)]/15 text-[var(--muted-foreground)]",
+  copper: "bg-[var(--copper)]/15 text-[var(--copper)]",
 };
 
 /**
  * Maps size names to Tailwind dimension classes.
  */
 const sizeStyles: Record<IconBoxSize, string> = {
+  xs: "h-6 w-6",
   sm: "h-8 w-8",
   md: "h-10 w-10",
   lg: "h-12 w-12",

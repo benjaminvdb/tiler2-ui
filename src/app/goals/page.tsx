@@ -132,10 +132,6 @@ const EmptyState = ({ onCreateGoal }: EmptyStateProps): React.JSX.Element => (
   <div className="py-16 text-center">
     <Target className="mx-auto mb-4 h-12 w-12 text-[var(--muted-foreground)]" />
     <h3 className="mb-2 text-lg font-medium">No goals created yet</h3>
-    <p className="mx-auto mb-6 max-w-md text-[var(--muted-foreground)]">
-      Create your first sustainability goal to start tracking progress with
-      structured milestones and tasks.
-    </p>
     <button
       type="button"
       onClick={onCreateGoal}
@@ -496,7 +492,7 @@ const GoalsPage = (): React.JSX.Element => {
       <Page>
         <PageHeader
           title="Goals"
-          subtitle="Track your sustainability objectives with structured plans"
+          subtitle="Create goals, track progress, work faster"
           badge={{
             icon: Target,
             label: `${total} goal${total !== 1 ? "s" : ""}`,
