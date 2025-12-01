@@ -54,23 +54,39 @@ export default defineConfig({
   build: {
     // Enable source map generation for Sentry
     sourcemap: true,
-    // Increase chunk size warning limit (similar to Next.js)
-    chunkSizeWarningLimit: 1000,
+    // Increase chunk size warning limit to accommodate markdown rendering pipeline
+    chunkSizeWarningLimit: 1200,
     rollupOptions: {
+      // Silence expected warnings
+      onwarn(warning, warn) {
+        // Silence "node:async_hooks" externalization warning from @langchain/langgraph
+        if (
+          warning.message &&
+          warning.message.includes("node:async_hooks")
+        ) {
+          return;
+        }
+        warn(warning);
+      },
       output: {
         manualChunks: {
-          // Vendor chunking for better caching
+          // Core React
           react: ["react", "react-dom"],
           router: ["react-router-dom"],
+          // UI components (Radix primitives)
           ui: [
             "@radix-ui/react-avatar",
+            "@radix-ui/react-checkbox",
             "@radix-ui/react-dialog",
             "@radix-ui/react-dropdown-menu",
             "@radix-ui/react-label",
+            "@radix-ui/react-select",
             "@radix-ui/react-separator",
+            "@radix-ui/react-slot",
             "@radix-ui/react-switch",
             "@radix-ui/react-tooltip",
           ],
+          // Markdown rendering pipeline
           markdown: [
             "react-markdown",
             "react-syntax-highlighter",
@@ -79,12 +95,24 @@ export default defineConfig({
             "remark-math",
             "rehype-katex",
             "rehype-sanitize",
+            "katex",
           ],
+          // LangChain SDK
           langchain: [
             "@langchain/core",
             "@langchain/langgraph",
             "@langchain/langgraph-sdk",
           ],
+          // Data tables
+          tanstack: ["@tanstack/react-table"],
+          // Error monitoring
+          sentry: ["@sentry/react"],
+          // Authentication
+          auth: ["@auth0/auth0-react"],
+          // Animation library
+          animation: ["framer-motion"],
+          // Icon library
+          icons: ["lucide-react"],
         },
       },
     },

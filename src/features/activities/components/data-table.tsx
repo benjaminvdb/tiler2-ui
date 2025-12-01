@@ -1,5 +1,3 @@
-"use no memo";
-
 /**
  * Activities data table component.
  *
@@ -26,36 +24,45 @@ import { DataTableToolbar } from "./data-table-toolbar";
 import type { ActivityRow } from "../types";
 
 /** Loading state component. */
-const LoadingState = (): React.JSX.Element => (
-  <div className="flex items-center justify-center gap-2 py-24">
-    <LoadingSpinner />
-    <span className="text-muted-foreground">Loading activities...</span>
-  </div>
-);
+const LoadingState = (): React.JSX.Element => {
+  "use no memo";
+  return (
+    <div className="flex items-center justify-center gap-2 py-24">
+      <LoadingSpinner />
+      <span className="text-muted-foreground">Loading activities...</span>
+    </div>
+  );
+};
 
 /**
  * Error state component.
  */
-const ErrorState = ({ message }: { message?: string }): React.JSX.Element => (
-  <div className="flex flex-col items-center justify-center py-24 text-center">
-    <p className="text-destructive font-medium">Failed to load activities</p>
-    <p className="text-muted-foreground mt-1 text-sm">
-      {message || "Please try again later."}
-    </p>
-  </div>
-);
+const ErrorState = ({ message }: { message?: string }): React.JSX.Element => {
+  "use no memo";
+  return (
+    <div className="flex flex-col items-center justify-center py-24 text-center">
+      <p className="text-destructive font-medium">Failed to load activities</p>
+      <p className="text-muted-foreground mt-1 text-sm">
+        {message || "Please try again later."}
+      </p>
+    </div>
+  );
+};
 
 /**
  * Empty state component.
  */
-const EmptyState = (): React.JSX.Element => (
-  <div className="flex flex-col items-center justify-center py-24 text-center">
-    <p className="text-muted-foreground">No activities found</p>
-    <p className="text-muted-foreground mt-1 text-sm">
-      Your activities data will appear here once uploaded.
-    </p>
-  </div>
-);
+const EmptyState = (): React.JSX.Element => {
+  "use no memo";
+  return (
+    <div className="flex flex-col items-center justify-center py-24 text-center">
+      <p className="text-muted-foreground">No activities found</p>
+      <p className="text-muted-foreground mt-1 text-sm">
+        Your activities data will appear here once uploaded.
+      </p>
+    </div>
+  );
+};
 
 interface TableContentProps {
   table: ReturnType<typeof useReactTable<ActivityRow>>;
@@ -145,6 +152,7 @@ const TableContent = ({
   isValidating,
   hasData,
 }: TableContentProps): React.JSX.Element => {
+  "use no memo";
   const headerGroups = table.getHeaderGroups();
 
   return (
@@ -243,6 +251,7 @@ const TableContent = ({
  * Activities data table with server-side pagination and sorting.
  */
 export const ActivitiesDataTable = (): React.JSX.Element => {
+  "use no memo";
   const {
     table,
     tableColumns,

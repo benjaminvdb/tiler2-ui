@@ -5,6 +5,7 @@
  */
 
 import * as Sentry from "@sentry/react";
+import { toast } from "sonner";
 import type {
   ErrorCategory,
   Logger,
@@ -99,40 +100,34 @@ const showUserNotification = (
     return;
   }
 
-  import("sonner")
-    .then(({ toast }) => {
-      switch (severity) {
-        case "fatal":
-          toast.error("Critical Error", {
-            description: `${message}${category ? ` (${category})` : ""}`,
-            duration: 0,
-          });
-          break;
-        case "error":
-          toast.error("Error", {
-            description: message,
-            duration: 8000,
-          });
-          break;
-        case "warn":
-          toast.warning("Warning", {
-            description: message,
-            duration: 5000,
-          });
-          break;
-        case "info":
-          toast.info("Notice", {
-            description: message,
-            duration: 3000,
-          });
-          break;
-        default:
-          break;
-      }
-    })
-    .catch(() => {
-      console.warn("User notification failed - sonner not available");
-    });
+  switch (severity) {
+    case "fatal":
+      toast.error("Critical Error", {
+        description: `${message}${category ? ` (${category})` : ""}`,
+        duration: 0,
+      });
+      break;
+    case "error":
+      toast.error("Error", {
+        description: message,
+        duration: 8000,
+      });
+      break;
+    case "warn":
+      toast.warning("Warning", {
+        description: message,
+        duration: 5000,
+      });
+      break;
+    case "info":
+      toast.info("Notice", {
+        description: message,
+        duration: 3000,
+      });
+      break;
+    default:
+      break;
+  }
 };
 
 /**
@@ -633,22 +628,16 @@ function showRetryNotification(
 ): void {
   if (context.skipNotification || typeof window === "undefined") return;
 
-  import("sonner")
-    .then(({ toast }) => {
-      toast.error(
-        `Operation failed after ${context.attempts} attempts. Please try again.`,
-        {
-          duration: 8000,
-          action: {
-            label: "Retry",
-            onClick: () => window.location.reload(),
-          },
-        },
-      );
-    })
-    .catch(() => {
-      console.warn("User notification failed - sonner not available");
-    });
+  toast.error(
+    `Operation failed after ${context.attempts} attempts. Please try again.`,
+    {
+      duration: 8000,
+      action: {
+        label: "Retry",
+        onClick: () => window.location.reload(),
+      },
+    },
+  );
 }
 
 /**
