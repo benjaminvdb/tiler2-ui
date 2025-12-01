@@ -6,7 +6,7 @@
  *
  * Structure:
  * - SectionCard: Outer wrapper (white background, rounded, bordered)
- * - SectionCardHeader: Header area (gray background, bottom border)
+ * - SectionCardHeader: Header area (white background, bottom border)
  * - SectionCardContent: Content area (white background, padding)
  *
  * @example
@@ -50,7 +50,7 @@ export const SectionCard = ({
 );
 
 /**
- * Header section with gray background.
+ * Header section with white background (same as content).
  * Typically contains title, icon, and optional action buttons.
  *
  * Use `asChild` to merge styles onto a child element (e.g., a button for collapsible headers).
@@ -84,7 +84,7 @@ export const SectionCardHeader = ({
   return (
     <Comp
       className={cn(
-        "border-b border-[var(--border)] bg-[var(--background)] p-4",
+        "border-b border-[var(--border)] bg-white p-4",
         className,
       )}
     >

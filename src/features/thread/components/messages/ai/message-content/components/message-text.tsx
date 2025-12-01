@@ -97,14 +97,7 @@ export const MessageText: React.FC<MessageTextProps> = ({
     <div
       ref={handleRef}
       onMouseUp={handleMouseUp}
-      style={{
-        fontFamily:
-          "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-        fontSize: "15px",
-        letterSpacing: "0.01em",
-        lineHeight: "1.7",
-        position: "relative",
-      }}
+      className="relative text-sm leading-relaxed tracking-[0.01em]"
     >
       <MarkdownText>{displayedText}</MarkdownText>
 

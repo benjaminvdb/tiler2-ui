@@ -104,13 +104,7 @@ const ChatTextarea: React.FC<ChatTextareaProps> = ({
       disabled={isLoading}
       autoFocus
       rows={1}
-      className="placeholder:text-muted-foreground field-sizing-content max-h-[200px] w-full resize-none overflow-y-auto bg-transparent py-3.5 pr-11 pl-11 outline-none placeholder:opacity-40 disabled:cursor-not-allowed disabled:opacity-50"
-      style={{
-        lineHeight: "1.5",
-        fontFamily:
-          "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-        fontSize: "15px",
-      }}
+      className="placeholder:text-muted-foreground field-sizing-content max-h-[200px] w-full resize-none overflow-y-auto bg-transparent py-3.5 pr-11 pl-11 text-sm leading-normal outline-none placeholder:opacity-40 disabled:cursor-not-allowed disabled:opacity-50"
     />
   );
 };

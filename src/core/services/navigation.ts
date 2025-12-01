@@ -45,12 +45,13 @@ export function createNavigationService(
   };
 
   const navigateToHome = (options?: { threadId?: string }) => {
-    const params: Partial<SearchParams> = {
-      threadId: options?.threadId,
-      workflow: undefined,
-    };
-    const url = buildPreservedUrl(ROUTES.HOME, params);
-    router(url);
+    // Clear ALL query params when navigating home (New Chat / logo click)
+    // Only preserve threadId if explicitly provided
+    if (options?.threadId) {
+      router(`${ROUTES.HOME}?threadId=${options.threadId}`);
+    } else {
+      router(ROUTES.HOME);
+    }
   };
 
   const navigateToWorkflows = (

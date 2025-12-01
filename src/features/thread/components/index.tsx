@@ -9,6 +9,7 @@ import { useThreadHandlers } from "./hooks/use-thread-handlers";
 import { useThreadEffects } from "./hooks/use-thread-effects";
 import { MainChatArea } from "./layout/main-chat-area";
 import { ArtifactPanel } from "./layout/artifact-panel";
+import { TaskThreadHeader } from "./task-thread-header";
 import { ComponentErrorBoundary } from "@/shared/components/error-boundary";
 import { ChatProvider } from "@/features/chat/providers/chat-provider";
 
@@ -139,21 +140,24 @@ export const Thread = (): React.JSX.Element => {
 
   return (
     <ChatProvider value={chatContextValue}>
-      <div
-        className={cn(
-          "grid h-full w-full transition-all duration-500",
-          artifactOpen ? "grid-cols-[3fr_2fr]" : "grid-cols-[1fr]",
-        )}
-      >
-        <ComponentErrorBoundary>
-          <MainChatArea />
-        </ComponentErrorBoundary>
-
-        {artifactOpen && (
+      <div className="flex h-full w-full flex-col">
+        <TaskThreadHeader />
+        <div
+          className={cn(
+            "grid min-h-0 flex-1 transition-all duration-500",
+            artifactOpen ? "grid-cols-[3fr_2fr]" : "grid-cols-[1fr]",
+          )}
+        >
           <ComponentErrorBoundary>
-            <ArtifactPanel onClose={closeArtifact} />
+            <MainChatArea />
           </ComponentErrorBoundary>
-        )}
+
+          {artifactOpen && (
+            <ComponentErrorBoundary>
+              <ArtifactPanel onClose={closeArtifact} />
+            </ComponentErrorBoundary>
+          )}
+        </div>
       </div>
     </ChatProvider>
   );

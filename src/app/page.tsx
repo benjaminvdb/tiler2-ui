@@ -14,7 +14,7 @@ import { useAuthenticatedFetch } from "@/core/services/http-client";
 import { generateThreadName } from "@/features/thread/utils/generate-thread-name";
 import { buildOptimisticThread } from "@/features/thread/utils/build-optimistic-thread";
 import { getClientConfig } from "@/core/config/client";
-import { linkThreadToTask } from "@/features/goals/services";
+import { linkThreadToTask, getTaskContext } from "@/features/goals/services";
 
 interface WorkflowData {
   id: number;
@@ -91,7 +91,6 @@ const ThreadWithWorkflowHandler = (): React.ReactNode => {
   const stream = useStreamContext();
   const workflowId = searchParams.get("workflow");
   const taskId = searchParams.get("taskId");
-  const taskTitle = searchParams.get("taskTitle");
   const [threadId, setThreadId] = useSearchParamState("threadId");
   const updateSearchParams = useSearchParamsUpdate();
   const { addOptimisticThread } = useThreads();
@@ -199,7 +198,7 @@ const ThreadWithWorkflowHandler = (): React.ReactNode => {
       }
 
       setIsSubmittingTask(true);
-      console.log("Starting thread for task:", taskId, taskTitle);
+      console.log("Starting thread for task:", taskId);
       submittedTaskRef.current = taskId;
 
       if (threadId) {
@@ -209,9 +208,18 @@ const ThreadWithWorkflowHandler = (): React.ReactNode => {
 
       // Create optimistic thread with task context
       if (user?.email) {
+        // Fetch task context to get the task title for thread naming
+        let taskTitle = "Task";
+        try {
+          const taskContext = await getTaskContext(fetchWithAuth, taskId);
+          taskTitle = taskContext.task_title;
+        } catch (error) {
+          console.error("Failed to fetch task context for thread name:", error);
+        }
+
         const optimisticThreadId = crypto.randomUUID();
         const threadName = generateThreadName({
-          taskTitle: taskTitle || "Task",
+          taskTitle,
         });
         const optimisticThread = buildOptimisticThread({
           threadId: optimisticThreadId,
@@ -250,13 +258,13 @@ const ThreadWithWorkflowHandler = (): React.ReactNode => {
     submitTask();
   }, [
     taskId,
-    taskTitle,
     workflowId,
     threadId,
     setThreadId,
     user,
     stream,
     addOptimisticThread,
+    fetchWithAuth,
     isSubmittingTask,
     isSubmittingWorkflow,
   ]);
@@ -281,9 +289,8 @@ const ThreadWithWorkflowHandler = (): React.ReactNode => {
         console.error("Failed to link thread to task:", error);
       }
 
-      // Clear task params from URL
-      console.log("Task thread started, clearing task params from URL");
-      updateSearchParams({ taskId: undefined, taskTitle: undefined });
+      // Note: We keep goalId and taskId in URL for the TaskThreadHeader to display
+      // The header uses these to show task info and enable back navigation to goal
 
       // Clear pending link ref
       pendingTaskLinkRef.current = null;

@@ -548,21 +548,21 @@ const TaskItem = ({
 
   const handleTitleClick = useCallback(() => {
     const targetUrl = task.thread_id
-      ? `/?threadId=${task.thread_id}`
-      : `/?goalId=${goalId}&taskId=${task.id}&taskTitle=${encodeURIComponent(task.title)}`;
+      ? `/?threadId=${task.thread_id}&goalId=${goalId}&taskId=${task.id}`
+      : `/?goalId=${goalId}&taskId=${task.id}`;
     navigate(targetUrl);
-  }, [navigate, task.thread_id, task.id, task.title, goalId]);
+  }, [navigate, task.thread_id, task.id, goalId]);
 
   // Handler for Start button - navigates to chat with task context
   const handleStart = useCallback(() => {
-    const targetUrl = `/?goalId=${goalId}&taskId=${task.id}&taskTitle=${encodeURIComponent(task.title)}`;
+    const targetUrl = `/?goalId=${goalId}&taskId=${task.id}`;
     navigate(targetUrl);
-  }, [navigate, goalId, task.id, task.title]);
+  }, [navigate, goalId, task.id]);
 
   // Handler for Continue button - navigates to existing thread
   const handleContinue = useCallback(() => {
-    navigate(`/?threadId=${task.thread_id}`);
-  }, [navigate, task.thread_id]);
+    navigate(`/?threadId=${task.thread_id}&goalId=${goalId}&taskId=${task.id}`);
+  }, [navigate, task.thread_id, goalId, task.id]);
 
   // Handler for Mark complete button - sets status to done
   const handleMarkComplete = useCallback(() => {

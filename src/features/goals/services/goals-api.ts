@@ -18,6 +18,7 @@ import type {
   UpdateTaskRequest,
   LinkThreadRequest,
   DeleteResponse,
+  TaskContextResponse,
 } from "../types";
 
 /**
@@ -282,6 +283,30 @@ export async function linkThreadToTask(
   if (!response.ok) {
     const error = await response.text();
     throw new Error(`Failed to link thread to task: ${error}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * Gets task context including title, description, and upstream task info.
+ *
+ * @param fetch - Authenticated fetch function from useAuthenticatedFetch hook
+ * @param taskId - UUID of the task
+ * @returns Promise resolving to the task context
+ * @throws Error if the API request fails or task not found
+ */
+export async function getTaskContext(
+  fetch: FetchWithAuth,
+  taskId: string,
+): Promise<TaskContextResponse> {
+  const response = await fetch(`${GOALS_API_BASE}/tasks/${taskId}/context`, {
+    method: "GET",
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Failed to get task context: ${error}`);
   }
 
   return response.json();

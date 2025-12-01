@@ -340,6 +340,40 @@ export interface DeleteResponse {
   message?: string;
 }
 
+/**
+ * Upstream task info for task context.
+ */
+export interface UpstreamTaskInfo {
+  /** Upstream task ID */
+  task_id: string;
+
+  /** Upstream task title */
+  title: string;
+
+  /** Upstream task description */
+  description: string | null;
+
+  /** Upstream task thread ID */
+  thread_id: string;
+}
+
+/**
+ * Response from getting task context.
+ */
+export interface TaskContextResponse {
+  /** Task ID */
+  task_id: string;
+
+  /** Task title */
+  task_title: string;
+
+  /** Task description */
+  task_description: string | null;
+
+  /** Completed upstream tasks with threads */
+  upstream_tasks: UpstreamTaskInfo[];
+}
+
 // =============================================================================
 // Wizard Types
 // =============================================================================

@@ -30,11 +30,15 @@ export const MessageContent: React.FC<MessageContentProps> = ({
     return null;
   }
 
+  // Check if tool calls will actually be visible (not hidden by user preference)
+  const hasVisibleToolCalls =
+    (hasToolCalls || hasAnthropicToolCalls) && !hideToolCalls;
+
+  // Filter out messages with no visible content (empty text + no visible tool calls)
   if (
     !isToolResult &&
     contentString.trim().length === 0 &&
-    !hasToolCalls &&
-    !hasAnthropicToolCalls
+    !hasVisibleToolCalls
   ) {
     return null;
   }

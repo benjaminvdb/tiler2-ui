@@ -14,4 +14,5 @@ export {
   updateTask,
   deleteTask,
   linkThreadToTask,
+  getTaskContext,
 } from "./goals-api";
