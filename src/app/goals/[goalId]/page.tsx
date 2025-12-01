@@ -384,7 +384,9 @@ const WorkflowBadge = ({
         type="button"
         onClick={disabled ? undefined : onClick}
         className={`flex items-center justify-center rounded bg-[var(--copper)]/10 p-1 text-[var(--copper)] transition-colors ${
-          disabled ? "cursor-not-allowed opacity-50" : "hover:bg-[var(--copper)]/20"
+          disabled
+            ? "cursor-not-allowed opacity-50"
+            : "hover:bg-[var(--copper)]/20"
         }`}
         aria-disabled={disabled}
         aria-label={workflowTitle}

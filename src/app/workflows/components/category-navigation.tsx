@@ -79,10 +79,7 @@ const CategoryButton = React.memo(function CategoryButton({
       >
         {getWorkflowIcon(category.icon_name)}
       </span>
-      <span
-        className="text-[13px] text-white transition-colors duration-250"
-        style={{ letterSpacing: "-0.005em" }}
-      >
+      <span className="text-[13px] font-normal text-white transition-colors duration-250">
         {category.name}
       </span>
     </button>

@@ -135,7 +135,7 @@ const AuthenticatedProfile: React.FC<AuthenticatedProfileProps> = ({
                       alt={displayName}
                     />
                   )}
-                  <AvatarFallback className="bg-sage/20 text-sage text-xs font-medium">
+                  <AvatarFallback className="bg-sage/20 text-sage text-xs font-normal">
                     {initials}
                   </AvatarFallback>
                 </Avatar>

@@ -56,9 +56,7 @@ export const PageContent = ({
   // Default scroll variant: Standard padding and max-width wrapper
   return (
     <div className="px-6 py-6">
-      <div className={cn("mx-auto max-w-5xl", className)}>
-        {children}
-      </div>
+      <div className={cn("mx-auto max-w-5xl", className)}>{children}</div>
     </div>
   );
 };

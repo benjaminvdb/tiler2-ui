@@ -124,7 +124,6 @@ const groupGoalsByStatus = (
   return grouped;
 };
 
-
 interface EmptyStateProps {
   onCreateGoal: () => void;
 }
@@ -437,29 +436,29 @@ const GoalsListContent = ({
   onGoalDelete,
 }: GoalsListContentProps): React.JSX.Element => (
   <PageContent>
-      {goals.length === 0 ? (
-        <EmptyState onCreateGoal={onCreateGoal} />
-      ) : (
-        <div>
-          {STATUS_SECTIONS.map(({ status, label }) => (
-            <StatusSection
-              key={status}
-              status={status}
-              label={label}
-              goals={groupedGoals[status]}
-              onGoalClick={onGoalClick}
-              onGoalDelete={onGoalDelete}
-            />
-          ))}
-          <div className="mt-4">
-            <AddItemButton
-              label="Create new goal"
-              onClick={onCreateGoal}
-            />
-          </div>
+    {goals.length === 0 ? (
+      <EmptyState onCreateGoal={onCreateGoal} />
+    ) : (
+      <div>
+        {STATUS_SECTIONS.map(({ status, label }) => (
+          <StatusSection
+            key={status}
+            status={status}
+            label={label}
+            goals={groupedGoals[status]}
+            onGoalClick={onGoalClick}
+            onGoalDelete={onGoalDelete}
+          />
+        ))}
+        <div className="mt-4">
+          <AddItemButton
+            label="Create new goal"
+            onClick={onCreateGoal}
+          />
         </div>
-      )}
-    </PageContent>
+      </div>
+    )}
+  </PageContent>
 );
 
 const GoalsPage = (): React.JSX.Element => {

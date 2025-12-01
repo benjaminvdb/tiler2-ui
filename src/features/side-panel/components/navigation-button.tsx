@@ -41,7 +41,7 @@ export const NavigationButton: React.FC<NavigationButtonProps> = ({
         isCollapsed ? "h-10 w-10 justify-center p-0" : "w-full justify-start"
       } ${
         isActive
-          ? "bg-slate-100 font-medium text-slate-900"
+          ? "bg-slate-100 text-slate-900"
           : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
       }`}
       onClick={handleClick}
@@ -58,7 +58,7 @@ export const NavigationButton: React.FC<NavigationButtonProps> = ({
           <TooltipTrigger asChild>{buttonContent}</TooltipTrigger>
           <TooltipContent side="right">
             <div className="text-center">
-              <p className="font-medium">{label}</p>
+              <p className="font-normal">{label}</p>
               {shortcutText && (
                 <p className="text-muted-foreground mt-1 text-xs">
                   {shortcutText}

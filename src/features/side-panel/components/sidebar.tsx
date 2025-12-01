@@ -175,7 +175,7 @@ const MainMenuItem: React.FC<MainMenuItemProps> = ({ config, onClick }) => {
         tooltip={{
           children: (
             <div className="text-center">
-              <p className="font-medium">{label}</p>
+              <p className="font-normal">{label}</p>
               {hasShortcut ? (
                 <p className="mt-1 text-xs text-white/60">
                   {getShortcutText(shortcutKey as "new-chat" | "workflows")}
@@ -203,7 +203,7 @@ const MainMenuItem: React.FC<MainMenuItemProps> = ({ config, onClick }) => {
           className="h-4 w-4"
           {...(isNew && { strokeWidth: 2 })}
         />
-        <span {...(isNew && { className: "font-medium" })}>{label}</span>
+        <span>{label}</span>
       </SidebarMenuButton>
     </SidebarMenuItem>
   );

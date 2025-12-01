@@ -28,7 +28,7 @@ export const MobileHeader: React.FC = () => {
   }, []);
 
   return (
-    <div className="border-b bg-white lg:hidden">
+    <div className="bg-background border-b lg:hidden">
       <div className="flex h-14 items-center justify-between px-4">
         {/* Hamburger Menu Button (Top Left) */}
         <Sheet
@@ -56,7 +56,7 @@ export const MobileHeader: React.FC = () => {
                     width={24}
                     height={24}
                   />
-                  <span className="text-lg font-semibold tracking-tight">
+                  <span className="text-lg font-medium tracking-tight">
                     Link Chat
                   </span>
                 </div>
@@ -74,7 +74,7 @@ export const MobileHeader: React.FC = () => {
             {/* Thread History Section */}
             <div className="mt-6 flex min-h-0 flex-1 flex-col">
               <div className="mb-4 px-2">
-                <h2 className="text-sm font-medium tracking-tight">
+                <h2 className="text-sm font-normal tracking-tight">
                   Chat History
                 </h2>
               </div>

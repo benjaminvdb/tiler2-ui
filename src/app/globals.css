@@ -33,7 +33,7 @@
   --engagement-charcoal: #3d4447;
   --strategy-mauve: #b39fc4;
 
-  --background: #fafaf9;
+  --background: var(--stone);
   --foreground: var(--almost-black);
   --card: var(--off-white);
   --card-foreground: var(--almost-black);
@@ -57,6 +57,20 @@
   --font-weight-medium: 500;
   --font-weight-normal: 400;
   --font-weight-light: 300;
+
+  /* Font Weight Usage Guidelines
+   *
+   * Primary scale: 400 (normal), 500 (medium)
+   *
+   * - font-normal (400): Navigation, category badges, thread titles, body text, inputs
+   * - font-medium (500): Primary action buttons, emphasized elements
+   * - font-semibold (600): Headings (h3-h6), dialog titles
+   * - font-bold (700): Major headings (h1-h2), table headers
+   *
+   * Note: Avoid font-light (300) for small UI elements - accessibility concern.
+   * Use Tailwind classes (font-*) over inline styles for consistency.
+   */
+
   --ring: var(--sage);
   --chart-1: var(--ocean-blue);
   --chart-2: var(--sage);

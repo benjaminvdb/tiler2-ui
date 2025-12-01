@@ -184,13 +184,7 @@ const WorkflowCard = React.memo(function WorkflowCard({
             <span className="flex h-3 w-3 items-center justify-center text-white">
               {getWorkflowIcon(workflow.category.icon_name)}
             </span>
-            <span
-              className="text-[11px] tracking-wider text-white uppercase"
-              style={{
-                letterSpacing: "0.05em",
-                fontWeight: 600,
-              }}
-            >
+            <span className="text-[11px] font-normal tracking-wider text-white uppercase">
               {workflow.category.name}
             </span>
           </div>

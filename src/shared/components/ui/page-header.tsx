@@ -79,6 +79,37 @@ interface PageHeaderProps {
   className?: string;
 }
 
+const ProgressBar = ({
+  progress,
+}: {
+  progress: ProgressConfig;
+}): React.JSX.Element => {
+  const percentage =
+    progress.total > 0
+      ? Math.round((progress.completed / progress.total) * 100)
+      : 0;
+
+  return (
+    <div className="mt-4 flex items-center gap-3">
+      <div className="h-2 w-full max-w-xs overflow-hidden rounded-full bg-[var(--sand)]">
+        <div
+          className="h-full rounded-full bg-[var(--forest-green)] transition-all duration-500"
+          style={{ width: `${percentage}%` }}
+          role="progressbar"
+          aria-valuenow={progress.completed}
+          aria-valuemin={0}
+          aria-valuemax={progress.total}
+        />
+      </div>
+      {progress.label && (
+        <span className="text-sm text-[var(--muted-foreground)]">
+          {progress.label}
+        </span>
+      )}
+    </div>
+  );
+};
+
 export const PageHeader = ({
   title,
   subtitle,
@@ -88,15 +119,10 @@ export const PageHeader = ({
   sticky = true,
   className,
 }: PageHeaderProps): React.JSX.Element => {
-  const percentage =
-    progress && progress.total > 0
-      ? Math.round((progress.completed / progress.total) * 100)
-      : 0;
-
   return (
     <header
       className={cn(
-        "border-b border-border bg-card px-6 py-5",
+        "border-border bg-card border-b px-6 py-5",
         sticky && "sticky top-0 z-50",
         className,
       )}
@@ -141,25 +167,7 @@ export const PageHeader = ({
         </div>
 
         {/* Progress bar */}
-        {progress && (
-          <div className="mt-4 flex items-center gap-3">
-            <div className="h-2 w-full max-w-xs overflow-hidden rounded-full bg-[var(--sand)]">
-              <div
-                className="h-full rounded-full bg-[var(--forest-green)] transition-all duration-500"
-                style={{ width: `${percentage}%` }}
-                role="progressbar"
-                aria-valuenow={progress.completed}
-                aria-valuemin={0}
-                aria-valuemax={progress.total}
-              />
-            </div>
-            {progress.label && (
-              <span className="text-sm text-[var(--muted-foreground)]">
-                {progress.label}
-              </span>
-            )}
-          </div>
-        )}
+        {progress && <ProgressBar progress={progress} />}
       </div>
     </header>
   );
