@@ -9,7 +9,7 @@ export const getMainContainerClassName = (chatStarted: boolean) => {
 
 export const getContentClassName = () => {
   return cn(
-    "absolute overflow-y-scroll px-4 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-track]:bg-transparent",
+    "absolute overflow-y-scroll px-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-muted hover:scrollbar-thumb-accent dark:scrollbar-thumb-accent/30 dark:hover:scrollbar-thumb-accent/50",
     "grid grid-rows-[1fr_auto]",
     "inset-0",
   );

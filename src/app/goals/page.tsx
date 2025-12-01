@@ -65,7 +65,7 @@ const getStatusStyles = (
     case "planning":
       return {
         bg: "bg-[var(--sand)]",
-        text: "text-[var(--charcoal)]",
+        text: "text-foreground",
         label: "Planning",
       };
     case "in-progress":
@@ -83,7 +83,7 @@ const getStatusStyles = (
     default:
       return {
         bg: "bg-[var(--sand)]",
-        text: "text-[var(--charcoal)]",
+        text: "text-foreground",
         label: status,
       };
   }

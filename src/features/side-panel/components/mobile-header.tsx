@@ -78,7 +78,7 @@ export const MobileHeader: React.FC = () => {
                   Chat History
                 </h2>
               </div>
-              <div className="scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent flex-1 overflow-y-auto overscroll-contain px-4">
+              <div className="scrollbar-thin scrollbar-track-transparent scrollbar-thumb-muted hover:scrollbar-thumb-accent dark:scrollbar-thumb-accent/30 dark:hover:scrollbar-thumb-accent/50 flex-1 overflow-y-auto overscroll-contain px-4">
                 {threadsLoading ? (
                   <ThreadHistoryLoading />
                 ) : (

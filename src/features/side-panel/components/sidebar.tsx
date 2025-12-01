@@ -321,7 +321,7 @@ const ThreadList: React.FC<ThreadListProps> = ({
   });
 
   return (
-    <div className="scrollbar-sidebar flex min-h-0 flex-1 flex-col overflow-y-auto">
+    <div className="scrollbar-thin scrollbar-track-transparent scrollbar-thumb-muted hover:scrollbar-thumb-accent dark:scrollbar-thumb-accent/30 dark:hover:scrollbar-thumb-accent/50 flex min-h-0 flex-1 flex-col overflow-y-auto">
       <SidebarGroup>
         <SidebarGroupLabel>CHATS</SidebarGroupLabel>
         <SidebarGroupContent>

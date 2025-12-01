@@ -347,7 +347,6 @@ export const CreateGoalWizard = ({
         plan_size: data.plan_size,
       };
       await createGoal(fetchWithAuth, request);
-      toast.success("Goal created successfully!");
       handleOpenChange(false);
       onGoalCreated();
     } catch (error) {

@@ -154,8 +154,6 @@ const calculateGoalStats = (
   milestones: Milestone[],
   allTasks: Task[],
 ): StatItemConfig[] => {
-  const tasksDone = allTasks.filter((t) => t.status === "done").length;
-  const tasksActive = allTasks.filter((t) => t.status === "in_progress").length;
   const workflowsCount = allTasks.filter((t) => t.workflow_id).length;
   const blockedCount = allTasks.filter(
     (t) => getTaskBlockingInfo(t, allTasks).isBlocked,
@@ -173,7 +171,6 @@ const calculateGoalStats = (
       icon: ListChecks,
       value: allTasks.length,
       label: "tasks",
-      sublabel: `(${tasksDone} done, ${tasksActive} active)`,
       tooltip: "Individual tasks you work on through AI chats",
       iconColor: "forest-green",
     },
