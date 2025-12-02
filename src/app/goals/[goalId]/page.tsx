@@ -117,7 +117,7 @@ const BlockedTaskTooltipContent = ({
   blockingTasks,
 }: BlockedTaskTooltipContentProps): React.JSX.Element => (
   <div className="text-left text-xs">
-    <p className="mb-2 font-medium">
+    <p className="mb-2 text-xs font-medium">
       To start this task, please complete the following tasks first:
     </p>
     <ol className="list-decimal space-y-1.5 pl-4 marker:font-medium marker:text-gray-500">
@@ -298,7 +298,7 @@ interface TaskContentProps {
 }
 
 const getTaskTitleClassName = (disabled: boolean, isDone: boolean): string => {
-  const base = "text-left font-medium";
+  const base = "text-left font-normal";
   if (disabled)
     return `${base} text-[var(--muted-foreground)] cursor-not-allowed`;
   if (isDone)
@@ -739,7 +739,7 @@ const MilestoneCard = ({
             <div className="mb-1 text-xs font-light tracking-wide text-[var(--muted-foreground)] uppercase">
               Milestone {index + 1}
             </div>
-            <h3 className="text-lg font-semibold">{milestone.title}</h3>
+            <h3 className="text-lg">{milestone.title}</h3>
             {milestone.description && (
               <p className="mt-1 text-sm text-[var(--muted-foreground)]">
                 {milestone.description}
