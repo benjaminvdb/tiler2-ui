@@ -89,13 +89,14 @@
    *
    * Primary scale: 400 (normal), 500 (medium)
    *
-   * - font-normal (400): Navigation, category badges, thread titles, body text, inputs
-   * - font-medium (500): Primary action buttons, emphasized elements
-   * - font-semibold (600): Headings (h3-h6), dialog titles
-   * - font-bold (700): Major headings (h1-h2), table headers
+   * - font-normal (400): Headings (h1-h4 with Lora serif), body text, inputs
+   * - font-medium (500): Primary action buttons, labels, emphasized elements
+   * - font-semibold (600): Dialog titles, strong emphasis
+   * - font-bold (700): Table headers, critical emphasis
    *
-   * Note: Avoid font-light (300) for small UI elements - accessibility concern.
-   * Use Tailwind classes (font-*) over inline styles for consistency.
+   * Note: Serif fonts (Lora) appear heavier than sans-serif at same weight.
+   * Use font-normal (400) for serif headings to maintain visual balance.
+   * Avoid font-light (300) for small UI elements - accessibility concern.
    */
 
   --ring: var(--sage);
@@ -234,25 +235,25 @@
 @layer base {
   h1 {
     font-size: var(--text-2xl);
-    font-weight: var(--font-weight-medium);
+    font-weight: var(--font-weight-normal);
     line-height: 1.5;
   }
 
   h2 {
     font-size: var(--text-xl);
-    font-weight: var(--font-weight-medium);
+    font-weight: var(--font-weight-normal);
     line-height: 1.5;
   }
 
   h3 {
     font-size: var(--text-lg);
-    font-weight: var(--font-weight-medium);
+    font-weight: var(--font-weight-normal);
     line-height: 1.5;
   }
 
   h4 {
     font-size: var(--text-base);
-    font-weight: var(--font-weight-medium);
+    font-weight: var(--font-weight-normal);
     line-height: 1.5;
   }
 

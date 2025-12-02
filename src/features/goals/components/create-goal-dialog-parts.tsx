@@ -6,8 +6,7 @@
 
 import { Label } from "@/shared/components/ui/label";
 import { Textarea } from "@/shared/components/ui/textarea";
-import { IconBox } from "@/shared/components/ui/icon-box";
-import { EXAMPLE_GOALS, PLAN_SIZES, getIcon } from "../constants";
+import { EXAMPLE_GOALS, PLAN_SIZES, getIcon, getCategoryById } from "../constants";
 import type { ExampleGoal, PlanSizeDefinition } from "../constants";
 import type { PlanSize } from "../types";
 
@@ -17,18 +16,29 @@ export const ExampleGoalCard = ({
 }: {
   example: ExampleGoal;
   onSelect: () => void;
-}): React.JSX.Element => (
-  <button
-    type="button"
-    onClick={onSelect}
-    className="flex items-center gap-3 rounded-lg border border-[var(--input)] bg-white p-4 text-left transition-all hover:border-[var(--sage)] hover:bg-[var(--sage)]/5"
-  >
-    <IconBox color="sage" size="md">
-      {getIcon(example.icon, "h-5 w-5")}
-    </IconBox>
-    <span className="flex-1 text-sm font-medium">{example.title}</span>
-  </button>
-);
+}): React.JSX.Element => {
+  const category = getCategoryById(example.category);
+  const categoryColor = category?.color ?? "var(--sage)";
+
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      className="flex items-center gap-3 rounded-lg border border-[var(--input)] bg-white p-4 text-left transition-all hover:border-[var(--sage)] hover:bg-[var(--sage)]/5"
+    >
+      <div
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg"
+        style={{
+          backgroundColor: `${categoryColor}20`,
+          color: categoryColor,
+        }}
+      >
+        {getIcon(example.icon, "h-5 w-5")}
+      </div>
+      <span className="flex-1 text-sm font-medium">{example.title}</span>
+    </button>
+  );
+};
 
 export const PlanSizeCard = ({
   size,
@@ -49,11 +59,12 @@ export const PlanSizeCard = ({
     }`}
   >
     <div
-      className={`rounded-lg p-2 ${
+      className="rounded-lg p-2"
+      style={
         selected
-          ? "bg-[var(--forest-green)] text-white"
-          : "bg-[var(--sand)] text-[var(--muted-foreground)]"
-      }`}
+          ? { backgroundColor: "var(--forest-green)", color: "white" }
+          : { backgroundColor: `${size.color}30`, color: size.color }
+      }
     >
       {getIcon(size.icon, "h-5 w-5")}
     </div>

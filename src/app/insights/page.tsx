@@ -9,21 +9,11 @@ import {
 } from "@/features/insights/services/insights-api";
 import type { Insight } from "@/features/insights/types";
 import { MarkdownText } from "@/features/thread/components/markdown-text";
+import { EmptyState } from "@/shared/components/ui/empty-state";
 import { Page } from "@/shared/components/ui/page";
 import { PageContent } from "@/shared/components/ui/page-content";
 import { PageHeader } from "@/shared/components/ui/page-header";
 import { copyWithFormat } from "@/shared/utils/clipboard";
-
-const EmptyState = (): React.JSX.Element => (
-  <div className="py-16 text-center">
-    <Lightbulb className="mx-auto mb-4 h-12 w-12 text-[var(--muted-foreground)]" />
-    <h3 className="mb-2 text-lg font-medium">No insights saved yet</h3>
-    <p className="mx-auto max-w-md text-[var(--muted-foreground)]">
-      As you chat with the AI, highlight text and click &ldquo;Save
-      Insight&rdquo; to capture important findings here.
-    </p>
-  </div>
-);
 
 const LoadingState = (): React.JSX.Element => (
   <div className="flex h-full items-center justify-center bg-[var(--background)]">
@@ -218,7 +208,11 @@ const InsightsPage = (): React.JSX.Element => {
       />
       <PageContent>
         {insights.length === 0 ? (
-          <EmptyState />
+          <EmptyState
+            icon={Lightbulb}
+            title="No insights saved yet"
+            subtitle='As you chat with the AI, highlight text and click "Save Insight" to capture important findings here.'
+          />
         ) : (
           <div className="space-y-4">
             {insights.map((insight) => (

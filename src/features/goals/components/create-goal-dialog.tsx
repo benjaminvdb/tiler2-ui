@@ -85,7 +85,7 @@ export const CreateGoalDialog = ({
             ) : (
               <>
                 What would you like to achieve,{" "}
-                <span style={{ color: "#C44536" }}>{profile?.first_name || "there"}</span>?
+                <span style={{ color: "#1b7157" }}>{profile?.first_name || "there"}</span>?
               </>
             )}
           </DialogTitle>

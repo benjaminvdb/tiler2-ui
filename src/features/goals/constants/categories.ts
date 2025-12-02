@@ -80,6 +80,8 @@ export interface ExampleGoal {
   objective: string;
   /** Icon name for the example card */
   icon: string;
+  /** Category this example relates to (for color styling) */
+  category: GoalCategory;
 }
 
 /**
@@ -93,6 +95,7 @@ export const EXAMPLE_GOALS: readonly ExampleGoal[] = [
     objective:
       "I want to draft a nature strategy for my organization. The main driver is the need to integrate nature topics around water, land, and biodiversity into our environmental strategy that is currently only around carbon. We want it to be based on data, but align with peers and best practices. I want 2 versions: a baseline version (minimal industry standards) and a mildly ambitious one.",
     icon: "leaf",
+    category: "strategy",
   },
   {
     title: "Assess Supply Chain Impacts",
@@ -100,6 +103,7 @@ export const EXAMPLE_GOALS: readonly ExampleGoal[] = [
     objective:
       "We have a plan to reduce our carbon footprint in the supply chain. I want to understand if our changes have synergies with nature and biodiversity-related hotspots and if we are not causing unwanted negative effects in other impact areas than carbon.",
     icon: "target",
+    category: "impacts-risk",
   },
 ] as const;
 
@@ -114,6 +118,8 @@ export interface PlanSizeDefinition {
   minTasks: number;
   maxTasks: number;
   icon: string;
+  /** Color for the icon background (light to dark green gradient) */
+  color: string;
 }
 
 /**
@@ -128,6 +134,7 @@ export const PLAN_SIZES: readonly PlanSizeDefinition[] = [
     minTasks: 2,
     maxTasks: 4,
     icon: "sprout",
+    color: "#a8c9a5",
   },
   {
     id: "moderate",
@@ -136,6 +143,7 @@ export const PLAN_SIZES: readonly PlanSizeDefinition[] = [
     minTasks: 6,
     maxTasks: 10,
     icon: "tree-deciduous",
+    color: "#7ba87b",
   },
   {
     id: "comprehensive",
@@ -144,6 +152,7 @@ export const PLAN_SIZES: readonly PlanSizeDefinition[] = [
     minTasks: 10,
     maxTasks: 15,
     icon: "trees",
+    color: "#4a7c4a",
   },
 ] as const;
 

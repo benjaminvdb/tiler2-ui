@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { Target, Plus, Trash2 } from "lucide-react";
 import { cn } from "@/shared/utils/utils";
 import { Skeleton } from "@/shared/components/ui/skeleton";
+import { EmptyState } from "@/shared/components/ui/empty-state";
 import { Page } from "@/shared/components/ui/page";
 import { PageContent } from "@/shared/components/ui/page-content";
 import { PageHeader } from "@/shared/components/ui/page-header";
@@ -18,7 +19,6 @@ import { useAuthenticatedFetch } from "@/core/services/http-client";
 import {
   CreateGoalDialog,
   DeleteConfirmationDialog,
-  AddItemButton,
 } from "@/features/goals/components";
 import {
   getCategoryById,
@@ -47,44 +47,38 @@ const getCategoryLabel = (category: GoalCategory): string => {
 
 const getStatusStyles = (
   status: GoalStatus,
-): { bg: string; text: string; label: string; className?: string } => {
+): { bg: string; text: string; className?: string } => {
   switch (status) {
     case "generating":
       return {
         bg: "bg-[var(--sage)]/20",
         text: "text-[var(--sage)]",
-        label: "Generating...",
         className: "animate-pulse",
       };
     case "failed":
       return {
         bg: "bg-red-100",
         text: "text-red-600",
-        label: "Failed",
       };
     case "planning":
       return {
         bg: "bg-[var(--sand)]",
         text: "text-foreground",
-        label: "Planning",
       };
     case "in-progress":
       return {
         bg: "bg-[var(--sage)]/20",
         text: "text-[var(--forest-green)]",
-        label: "In Progress",
       };
     case "completed":
       return {
         bg: "bg-[var(--forest-green)]/20",
         text: "text-[var(--forest-green)]",
-        label: "Completed",
       };
     default:
       return {
         bg: "bg-[var(--sand)]",
         text: "text-foreground",
-        label: status,
       };
   }
 };
@@ -123,25 +117,6 @@ const groupGoalsByStatus = (
 
   return grouped;
 };
-
-interface EmptyStateProps {
-  onCreateGoal: () => void;
-}
-
-const EmptyState = ({ onCreateGoal }: EmptyStateProps): React.JSX.Element => (
-  <div className="py-16 text-center">
-    <Target className="mx-auto mb-4 h-12 w-12 text-[var(--muted-foreground)]" />
-    <h3 className="mb-2 text-lg font-medium">No goals created yet</h3>
-    <button
-      type="button"
-      onClick={onCreateGoal}
-      className="inline-flex items-center gap-2 rounded-lg bg-[var(--forest-green)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--forest-green)]/90"
-    >
-      <Plus className="h-4 w-4" />
-      Create Your First Goal
-    </button>
-  </div>
-);
 
 const LoadingState = (): React.JSX.Element => (
   <div className="flex h-full items-center justify-center bg-[var(--background)]">
@@ -281,15 +256,26 @@ const GoalCard = ({
       </button>
 
       {/* Header: Category */}
-      <div className="mb-3 flex items-center gap-2 pr-6 text-sm text-[var(--muted-foreground)]">
-        {getCategoryIcon(goal.category)}
-        <span>{getCategoryLabel(goal.category)}</span>
-      </div>
+      {isGenerating ? (
+        <div className="mb-3 flex items-center gap-2 pr-6">
+          <Skeleton className="h-4 w-4 rounded" />
+          <Skeleton className="h-4 w-16" />
+        </div>
+      ) : (
+        <div className="mb-3 flex items-center gap-2 pr-6 text-sm text-[var(--muted-foreground)]">
+          {getCategoryIcon(goal.category)}
+          <span>{getCategoryLabel(goal.category)}</span>
+        </div>
+      )}
 
       {/* Title */}
-      <h3 className="mb-2 font-medium text-[var(--foreground)]">
-        {goal.title}
-      </h3>
+      {isGenerating ? (
+        <Skeleton className="mb-2 h-5 w-3/4" />
+      ) : (
+        <h3 className="mb-2 font-medium text-[var(--foreground)]">
+          {goal.title}
+        </h3>
+      )}
 
       {/* Description (truncated) - flex-grow pushes footer down */}
       <div className="mb-4 flex-grow">
@@ -433,7 +419,15 @@ const GoalsListContent = ({
 }: GoalsListContentProps): React.JSX.Element => (
   <PageContent>
     {goals.length === 0 ? (
-      <EmptyState onCreateGoal={onCreateGoal} />
+      <EmptyState
+        icon={Target}
+        title="No goals created yet"
+        subtitle="Create your first sustainability goal to get started. We will generate a personalized plan and track your progress."
+        action={{
+          label: "Create goal",
+          onClick: onCreateGoal,
+        }}
+      />
     ) : (
       <div>
         {STATUS_SECTIONS.map(({ status, label }) => (
@@ -446,12 +440,6 @@ const GoalsListContent = ({
             onGoalDelete={onGoalDelete}
           />
         ))}
-        <div className="mt-4">
-          <AddItemButton
-            label="Create new goal"
-            onClick={onCreateGoal}
-          />
-        </div>
       </div>
     )}
   </PageContent>
@@ -460,7 +448,7 @@ const GoalsListContent = ({
 const GoalsPage = (): React.JSX.Element => {
   const navigate = useNavigate();
   const fetchWithAuth = useAuthenticatedFetch();
-  const { goals, total, isLoading, error, mutate } = useGoals();
+  const { goals, isLoading, error, mutate } = useGoals();
 
   // Poll while any goal is generating
   useEffect(() => {
@@ -493,11 +481,18 @@ const GoalsPage = (): React.JSX.Element => {
         <PageHeader
           title="Goals"
           subtitle="Create goals, track progress, work faster"
-          badge={{
-            icon: Target,
-            label: `${total} goal${total !== 1 ? "s" : ""}`,
-            iconColor: "var(--forest-green)",
-          }}
+          action={
+            goals.length > 0 ? (
+              <button
+                type="button"
+                onClick={handleCreateGoal}
+                className="inline-flex items-center gap-2 rounded-lg bg-[var(--forest-green)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--forest-green)]/90"
+              >
+                <Plus className="h-4 w-4" />
+                Create goal
+              </button>
+            ) : undefined
+          }
         />
         <GoalsListContent
           goals={goals}

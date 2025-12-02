@@ -86,6 +86,8 @@ interface PageHeaderProps {
   backButton?: BackButtonConfig;
   /** Icon + count badge on right side (optional) */
   badge?: BadgeConfig;
+  /** Action element on the right side (optional) - takes precedence over badge */
+  action?: React.ReactNode;
   /** Row of statistics with icons (optional) */
   stats?: StatItemConfig[];
   /** Progress bar with stats (optional) */
@@ -190,6 +192,7 @@ export const PageHeader = ({
   subtitle,
   backButton,
   badge,
+  action,
   stats,
   progress,
   sticky = true,
@@ -220,7 +223,7 @@ export const PageHeader = ({
         {/* Main header row */}
         <div className="flex items-end justify-between gap-4">
           <div className="min-w-0 flex-1">
-            <h1 className="mb-2 text-2xl font-medium">{title}</h1>
+            <h1 className="mb-2 text-2xl">{title}</h1>
             {subtitle && (
               <p className="leading-snug text-[var(--muted-foreground)]">
                 {subtitle}
@@ -228,17 +231,21 @@ export const PageHeader = ({
             )}
           </div>
 
-          {/* Badge - aligned to bottom right */}
-          {badge && (
-            <div className="flex shrink-0 items-center gap-2 text-sm">
-              <badge.icon
-                className="h-4 w-4"
-                style={{ color: badge.iconColor }}
-              />
-              <span className="text-[var(--muted-foreground)]">
-                {badge.label}
-              </span>
-            </div>
+          {/* Action or Badge - aligned to bottom right */}
+          {action ? (
+            <div className="shrink-0">{action}</div>
+          ) : (
+            badge && (
+              <div className="flex shrink-0 items-center gap-2 text-sm">
+                <badge.icon
+                  className="h-4 w-4"
+                  style={{ color: badge.iconColor }}
+                />
+                <span className="text-[var(--muted-foreground)]">
+                  {badge.label}
+                </span>
+              </div>
+            )
           )}
         </div>
 
