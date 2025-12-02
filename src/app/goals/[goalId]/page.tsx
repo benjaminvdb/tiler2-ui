@@ -57,6 +57,7 @@ import type {
   TaskStatus,
 } from "@/features/goals/types";
 import { Button } from "@/shared/components/ui/button";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Page } from "@/shared/components/ui/page";
 import { PageContent } from "@/shared/components/ui/page-content";
 import {
@@ -773,7 +774,7 @@ const MilestoneCard = ({
             variant="ghost"
             size="sm"
             className="h-8 w-8 p-0"
-            // eslint-disable-next-line react/jsx-no-bind -- Closure needed for milestone item
+             
             onClick={() => onEditMilestone(milestone)}
             title="Edit"
           >
@@ -783,7 +784,7 @@ const MilestoneCard = ({
             variant="ghost"
             size="sm"
             className="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600"
-            // eslint-disable-next-line react/jsx-no-bind -- Closure needed for milestone item
+             
             onClick={() => onDeleteMilestone(milestone)}
             title="Delete"
           >
@@ -818,7 +819,7 @@ const MilestoneCard = ({
         <AddItemButton
           label="Add Task"
           size="sm"
-          // eslint-disable-next-line react/jsx-no-bind -- Closure needed for milestone item
+           
           onClick={() => onAddTask(milestone.id, milestone.title)}
           className="mt-4"
         />
@@ -1115,24 +1116,19 @@ const GoalDetailPage = (): React.JSX.Element => {
 
   // Generating state - show skeleton while plan is being created
   if (goal.status === "generating") {
-    const { completed, total } = calculateProgress(goal.milestones);
-    const remaining = total - completed;
-    const stats = calculateGoalStats(goal.milestones, allTasks);
-
     return (
       <Page>
         <PageHeader
-          title={goal.title}
-          subtitle={goal.description}
+          title={<Skeleton className="h-8 w-80" />}
+          subtitle={
+            <div className="space-y-2">
+              <Skeleton className="h-5 w-full max-w-lg" />
+              <Skeleton className="h-5 w-3/4 max-w-md" />
+            </div>
+          }
           backButton={{
             label: "Back to Goals",
             onClick: handleBack,
-          }}
-          stats={stats}
-          progress={{
-            completed,
-            total,
-            label: `${completed} completed • ${remaining} remaining`,
           }}
         />
         <div className="mx-auto max-w-4xl px-6 py-6">
@@ -1279,7 +1275,7 @@ const GoalDetailPage = (): React.JSX.Element => {
       {selectedMilestone && (
         <CreateTaskDialog
           open={isTaskDialogOpen}
-          // eslint-disable-next-line react/jsx-no-bind -- Dialog state handler
+           
           onOpenChange={(open) => {
             setIsTaskDialogOpen(open);
             if (!open) {
@@ -1295,7 +1291,7 @@ const GoalDetailPage = (): React.JSX.Element => {
       {dependenciesTask && (
         <TaskDependenciesDialog
           open={!!dependenciesTask}
-          // eslint-disable-next-line react/jsx-no-bind -- Dialog state handler
+           
           onOpenChange={(open) => !open && setDependenciesTask(null)}
           task={dependenciesTask}
           allMilestones={goal.milestones}
@@ -1307,7 +1303,7 @@ const GoalDetailPage = (): React.JSX.Element => {
       {taskToEdit && (
         <EditTaskDialog
           open={!!taskToEdit}
-          // eslint-disable-next-line react/jsx-no-bind -- Dialog state handler
+           
           onOpenChange={(open) => !open && setTaskToEdit(null)}
           task={taskToEdit}
           onTaskUpdated={mutate}
@@ -1318,7 +1314,7 @@ const GoalDetailPage = (): React.JSX.Element => {
       {milestoneToEdit && (
         <EditMilestoneDialog
           open={!!milestoneToEdit}
-          // eslint-disable-next-line react/jsx-no-bind -- Dialog state handler
+           
           onOpenChange={(open) => !open && setMilestoneToEdit(null)}
           milestone={milestoneToEdit}
           onMilestoneUpdated={mutate}
@@ -1329,7 +1325,7 @@ const GoalDetailPage = (): React.JSX.Element => {
       {taskToDelete && (
         <DeleteConfirmationDialog
           open={!!taskToDelete}
-          // eslint-disable-next-line react/jsx-no-bind -- Dialog state handler
+           
           onOpenChange={(open) => !open && setTaskToDelete(null)}
           title="Delete task"
           description="This action cannot be undone."
@@ -1343,7 +1339,7 @@ const GoalDetailPage = (): React.JSX.Element => {
       {milestoneToDelete && (
         <DeleteConfirmationDialog
           open={!!milestoneToDelete}
-          // eslint-disable-next-line react/jsx-no-bind -- Dialog state handler
+           
           onOpenChange={(open) => !open && setMilestoneToDelete(null)}
           title="Delete milestone"
           description="This will also delete all tasks within this milestone. This action cannot be undone."

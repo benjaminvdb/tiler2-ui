@@ -149,7 +149,7 @@ export const TaskDependenciesDialog = ({
                     <button
                       key={t.id}
                       type="button"
-                      // eslint-disable-next-line react/jsx-no-bind -- Closure needed for list items
+                       
                       onClick={() => handleToggle(t.id)}
                       className="flex w-full items-start gap-3 rounded-md px-1 py-2 text-left transition-colors hover:bg-[var(--sand)]/50"
                     >

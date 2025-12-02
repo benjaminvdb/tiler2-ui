@@ -78,10 +78,10 @@ export interface StatItemConfig {
 }
 
 interface PageHeaderProps {
-  /** Page title (required) */
-  title: string;
-  /** Subtitle/description (optional) */
-  subtitle?: string | undefined;
+  /** Page title (required) - can be a string or ReactNode for skeleton states */
+  title: React.ReactNode;
+  /** Subtitle/description (optional) - can be a string or ReactNode for skeleton states */
+  subtitle?: React.ReactNode;
   /** Back navigation button (optional) */
   backButton?: BackButtonConfig;
   /** Icon + count badge on right side (optional) */

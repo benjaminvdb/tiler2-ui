@@ -50,14 +50,8 @@ export default defineConfig(
       // React-specific rules
       "react/prop-types": "off",
       "react/require-default-props": "off",
-      "react/jsx-no-bind": [
-        "warn",
-        {
-          allowArrowFunctions: false,
-          allowBind: false,
-          ignoreRefs: true,
-        },
-      ],
+      // React Compiler v1 auto-memoizes, so arrow functions in JSX are safe
+      "react/jsx-no-bind": "off",
       "react/no-array-index-key": "warn",
       "react/no-unstable-nested-components": ["error", { allowAsProps: true }],
       "react/jsx-no-useless-fragment": ["warn", { allowExpressions: true }],

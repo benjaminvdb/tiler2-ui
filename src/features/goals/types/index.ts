@@ -296,22 +296,14 @@ export interface GoalListItem {
 
 /**
  * Request payload for creating a new goal.
+ * The LLM will generate title, description, and category from the objective.
  */
 export interface CreateGoalRequest {
-  /** Title of the goal (1-255 chars) */
-  title: string;
-
-  /** Detailed description of the goal (max 5000 chars) */
-  description?: string;
-
-  /** Category of the goal */
-  category: GoalCategory;
+  /** Free-form user objective (200-10000 chars) */
+  objective: string;
 
   /** Plan complexity level */
   plan_size: PlanSize;
-
-  /** Target completion date for the goal (ISO format) */
-  target_date?: string;
 }
 
 // =============================================================================

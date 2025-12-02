@@ -72,57 +72,34 @@ export const GOAL_CATEGORIES: readonly CategoryDefinition[] = [
 // =============================================================================
 
 export interface ExampleGoal {
+  /** Short display title for the example card */
   title: string;
-  description: string;
+  /** Short description for the example card */
+  shortDescription: string;
+  /** Full madlib template text that pre-fills the objective textarea */
+  objective: string;
+  /** Icon name for the example card */
   icon: string;
-  suggestedCategory: GoalCategory;
 }
 
 /**
- * Example goals shown in Step 1 of the wizard.
- * Users can click these to populate the title field.
+ * Example goals shown in the create goal dialog.
+ * Users can click these to populate the objective textarea with full template.
  */
 export const EXAMPLE_GOALS: readonly ExampleGoal[] = [
   {
     title: "Develop a Nature Strategy",
-    description:
-      "Create a comprehensive biodiversity and nature-positive strategy aligned with TNFD",
+    shortDescription: "Integrate nature topics into environmental strategy",
+    objective:
+      "I want to draft a nature strategy for my organization. The main driver is the need to integrate nature topics around water, land, and biodiversity into our environmental strategy that is currently only around carbon. We want it to be based on data, but align with peers and best practices. I want 2 versions: a baseline version (minimal industry standards) and a mildly ambitious one.",
     icon: "leaf",
-    suggestedCategory: "strategy",
   },
   {
-    title: "Draft Environmental Policy",
-    description:
-      "Create an environmental policy covering climate, water, waste, and biodiversity",
-    icon: "clipboard",
-    suggestedCategory: "policies-governance",
-  },
-  {
-    title: "Prepare B Corp Certification",
-    description:
-      "Work through B Corp Impact Assessment requirements and gather necessary documentation",
-    icon: "check-square",
-    suggestedCategory: "standards-reporting",
-  },
-  {
-    title: "Conduct Materiality Assessment",
-    description:
-      "Identify and prioritize key sustainability topics relevant to stakeholders",
+    title: "Assess Supply Chain Impacts",
+    shortDescription: "Understand synergies and trade-offs with nature",
+    objective:
+      "We have a plan to reduce our carbon footprint in the supply chain. I want to understand if our changes have synergies with nature and biodiversity-related hotspots and if we are not causing unwanted negative effects in other impact areas than carbon.",
     icon: "target",
-    suggestedCategory: "impacts-risk",
-  },
-  {
-    title: "Design Circular Product Line",
-    description: "Redesign product portfolio using circular economy principles",
-    icon: "lightbulb",
-    suggestedCategory: "interventions",
-  },
-  {
-    title: "Plan Stakeholder Summit",
-    description:
-      "Organize an engagement event with key sustainability stakeholders",
-    icon: "users",
-    suggestedCategory: "stakeholder-engagement",
   },
 ] as const;
 

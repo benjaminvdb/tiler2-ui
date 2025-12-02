@@ -5,7 +5,7 @@
  */
 
 export { AddItemButton } from "./add-item-button";
-export { CreateGoalWizard } from "./create-goal-wizard";
+export { CreateGoalDialog } from "./create-goal-dialog";
 export { CreateMilestoneDialog } from "./create-milestone-dialog";
 export { CreateTaskDialog } from "./create-task-dialog";
 export { EditMilestoneDialog } from "./edit-milestone-dialog";

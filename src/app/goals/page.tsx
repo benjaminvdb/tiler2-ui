@@ -16,7 +16,7 @@ import { PageHeader } from "@/shared/components/ui/page-header";
 import { useGoals } from "@/features/goals/hooks";
 import { useAuthenticatedFetch } from "@/core/services/http-client";
 import {
-  CreateGoalWizard,
+  CreateGoalDialog,
   DeleteConfirmationDialog,
   AddItemButton,
 } from "@/features/goals/components";
@@ -254,7 +254,7 @@ const GoalCard = ({
       aria-busy={isGenerating}
       tabIndex={isGenerating ? -1 : 0}
       onClick={handleClick}
-      // eslint-disable-next-line react/jsx-no-bind -- Keyboard accessibility handler
+       
       onKeyDown={(e) => {
         if (!isGenerating && (e.key === "Enter" || e.key === " ")) {
           onClick();
@@ -367,9 +367,9 @@ const StatusSection = ({
           <GoalCard
             key={goal.id}
             goal={goal}
-            // eslint-disable-next-line react/jsx-no-bind -- Closure needed for list items
+             
             onClick={() => onGoalClick(goal.id)}
-            // eslint-disable-next-line react/jsx-no-bind -- Closure needed for list items
+             
             onDelete={() => onGoalDelete(goal)}
           />
         ))}
@@ -508,7 +508,7 @@ const GoalsPage = (): React.JSX.Element => {
         />
       </Page>
 
-      <CreateGoalWizard
+      <CreateGoalDialog
         open={isWizardOpen}
         onOpenChange={setIsWizardOpen}
         onGoalCreated={handleGoalCreated}
@@ -517,7 +517,7 @@ const GoalsPage = (): React.JSX.Element => {
       {goalToDelete && (
         <DeleteConfirmationDialog
           open={!!goalToDelete}
-          // eslint-disable-next-line react/jsx-no-bind -- Dialog state handler
+           
           onOpenChange={(open) => !open && setGoalToDelete(null)}
           title="Delete goal"
           description="This action cannot be undone. All milestones and tasks will be permanently deleted."
