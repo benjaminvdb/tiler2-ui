@@ -187,6 +187,29 @@ const ProgressBar = ({
   );
 };
 
+const HeaderBadge = ({ badge }: { badge: BadgeConfig }): React.JSX.Element => (
+  <div className="flex shrink-0 items-center gap-2 text-sm">
+    <badge.icon className="h-4 w-4" style={{ color: badge.iconColor }} />
+    <span className="text-[var(--muted-foreground)]">{badge.label}</span>
+  </div>
+);
+
+const HeaderRightSection = ({
+  action,
+  badge,
+}: {
+  action?: React.ReactNode;
+  badge?: BadgeConfig;
+}): React.JSX.Element | null => {
+  if (action) {
+    return <div className="shrink-0">{action}</div>;
+  }
+  if (badge) {
+    return <HeaderBadge badge={badge} />;
+  }
+  return null;
+};
+
 export const PageHeader = ({
   title,
   subtitle,
@@ -232,21 +255,7 @@ export const PageHeader = ({
           </div>
 
           {/* Action or Badge - aligned to bottom right */}
-          {action ? (
-            <div className="shrink-0">{action}</div>
-          ) : (
-            badge && (
-              <div className="flex shrink-0 items-center gap-2 text-sm">
-                <badge.icon
-                  className="h-4 w-4"
-                  style={{ color: badge.iconColor }}
-                />
-                <span className="text-[var(--muted-foreground)]">
-                  {badge.label}
-                </span>
-              </div>
-            )
-          )}
+          <HeaderRightSection action={action} badge={badge} />
         </div>
 
         {/* Stats row */}
