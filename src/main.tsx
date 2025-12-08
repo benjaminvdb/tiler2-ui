@@ -6,6 +6,7 @@ import { Auth0Provider, type AppState } from "@auth0/auth0-react";
 import * as Sentry from "@sentry/react";
 import { App } from "./App";
 import { env } from "./env";
+import { MaintenancePage } from "./shared/components/maintenance-page";
 import "./app/globals.css";
 import "@fontsource/comic-mono/400.css";
 import "@fontsource/comic-mono/700.css";
@@ -51,12 +52,16 @@ const Auth0ProviderWithNavigate = ({
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <Sentry.ErrorBoundary fallback={<div>An error occurred</div>}>
-      <BrowserRouter>
-        <Auth0ProviderWithNavigate>
-          <App />
-        </Auth0ProviderWithNavigate>
-      </BrowserRouter>
-    </Sentry.ErrorBoundary>
+    {env.MAINTENANCE_MODE ? (
+      <MaintenancePage />
+    ) : (
+      <Sentry.ErrorBoundary fallback={<div>An error occurred</div>}>
+        <BrowserRouter>
+          <Auth0ProviderWithNavigate>
+            <App />
+          </Auth0ProviderWithNavigate>
+        </BrowserRouter>
+      </Sentry.ErrorBoundary>
+    )}
   </React.StrictMode>,
 );
