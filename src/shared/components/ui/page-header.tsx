@@ -255,7 +255,10 @@ export const PageHeader = ({
           </div>
 
           {/* Action or Badge - aligned to bottom right */}
-          <HeaderRightSection action={action} badge={badge} />
+          <HeaderRightSection
+            {...(action !== undefined && { action })}
+            {...(badge !== undefined && { badge })}
+          />
         </div>
 
         {/* Stats row */}
