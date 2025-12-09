@@ -74,7 +74,6 @@ export function useStreamSetup({
   setThreadId,
 }: UseStreamSetupProps) {
   const [currentRunId, setCurrentRunId] = useState<string | null>(null);
-  const [streamError, setStreamError] = useState<Error | null>(null);
 
   const streamConfig = accessToken
     ? {
@@ -126,18 +125,18 @@ export function useStreamSetup({
   });
 
   const clearError = () => {
-    setStreamError(null);
+    // SDK doesn't support clearing error state
   };
 
   const retryStream = async () => {
-    setStreamError(null);
+    // SDK doesn't expose retry functionality
   };
 
   const base = Object.create(streamValue);
   return Object.assign(base, {
     currentRunId,
     threadId,
-    error: streamError,
+    error: streamValue.error,
     clearError,
     retryStream,
   });

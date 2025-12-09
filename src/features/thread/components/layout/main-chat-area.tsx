@@ -8,6 +8,8 @@ import { useStreamContext } from "@/core/providers/stream";
 import { LandingPage } from "@/features/chat/components/landing-page";
 import { LoadingSpinner } from "@/shared/components/loading-spinner";
 import { useUIContext } from "@/features/chat/providers/ui-provider";
+import { ThreadNotFound } from "../thread-not-found";
+import { isThreadNotFoundError } from "../../utils/error-utils";
 
 const MainChatAreaComponent: React.FC = () => {
   const { firstTokenReceived, handleRegenerate } = useChatContext();
@@ -17,6 +19,7 @@ const MainChatAreaComponent: React.FC = () => {
   const messages = stream.messages;
   const hasMessages = messages && messages.length > 0;
   const isLoading = stream.isLoading;
+  const error = stream.error;
 
   const handleSuggestionClick = useCallback(
     (text: string) => {
@@ -33,6 +36,11 @@ const MainChatAreaComponent: React.FC = () => {
   );
 
   const renderMessageContent = () => {
+    // Handle thread not found errors (404)
+    if (error && isThreadNotFoundError(error)) {
+      return <ThreadNotFound error={error} />;
+    }
+
     if (hasMessages) {
       return (
         <MessageList
@@ -60,11 +68,14 @@ const MainChatAreaComponent: React.FC = () => {
 
   const chatFooterContent = <ChatFooter />;
 
+  // Don't show footer if thread not found
+  const showFooter = !(error && isThreadNotFoundError(error));
+
   return (
     <AnimatedContainer>
       <ScrollableContent
         content={renderMessageContent()}
-        footer={chatFooterContent}
+        footer={showFooter ? chatFooterContent : null}
       />
     </AnimatedContainer>
   );
