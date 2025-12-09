@@ -23,6 +23,46 @@ import { createGoal } from "../services";
 import type { PlanSize } from "../types";
 import { GoalFormContent } from "./create-goal-dialog-parts";
 
+interface DialogFooterProps {
+  onCancel: () => void;
+  onSubmit: () => void;
+  isValid: boolean;
+  isSubmitting: boolean;
+}
+
+const DialogFooter = ({
+  onCancel,
+  onSubmit,
+  isValid,
+  isSubmitting,
+}: DialogFooterProps): React.JSX.Element => (
+  <div className="flex items-center justify-between pt-4">
+    <Button
+      variant="ghost"
+      onClick={onCancel}
+      disabled={isSubmitting}
+    >
+      Cancel
+    </Button>
+    <Button
+      onClick={onSubmit}
+      disabled={!isValid || isSubmitting}
+    >
+      {isSubmitting ? (
+        <>
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          Generating...
+        </>
+      ) : (
+        <>
+          <Sparkles className="mr-2 h-4 w-4" />
+          Generate Plan
+        </>
+      )}
+    </Button>
+  </div>
+);
+
 const MIN_OBJECTIVE_LENGTH = 200;
 const MAX_OBJECTIVE_LENGTH = 10000;
 
@@ -47,7 +87,8 @@ export const CreateGoalDialog = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const objectiveLength = objective.trim().length;
-  const isValid = objectiveLength >= MIN_OBJECTIVE_LENGTH && planSize !== undefined;
+  const isValid =
+    objectiveLength >= MIN_OBJECTIVE_LENGTH && planSize !== undefined;
 
   const handleOpenChange = (newOpen: boolean): void => {
     if (!newOpen) {
@@ -64,19 +105,27 @@ export const CreateGoalDialog = ({
     }
     setIsSubmitting(true);
     try {
-      await createGoal(fetchWithAuth, { objective: objective.trim(), plan_size: planSize });
+      await createGoal(fetchWithAuth, {
+        objective: objective.trim(),
+        plan_size: planSize,
+      });
       handleOpenChange(false);
       onGoalCreated();
     } catch (error) {
       console.error("Failed to create goal:", error);
-      toast.error(error instanceof Error ? error.message : "Failed to create goal");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to create goal",
+      );
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={handleOpenChange}
+    >
       <DialogContent className="max-h-[90vh] w-[95vw] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle className="text-2xl font-medium">
@@ -85,7 +134,10 @@ export const CreateGoalDialog = ({
             ) : (
               <>
                 What would you like to achieve,{" "}
-                <span style={{ color: "#1b7157" }}>{profile?.first_name || "there"}</span>?
+                <span style={{ color: "#1b7157" }}>
+                  {profile?.first_name || "there"}
+                </span>
+                ?
               </>
             )}
           </DialogTitle>
@@ -102,24 +154,12 @@ export const CreateGoalDialog = ({
           onPlanSizeChange={setPlanSize}
         />
 
-        <div className="flex items-center justify-between pt-4">
-          <Button variant="ghost" onClick={() => handleOpenChange(false)} disabled={isSubmitting}>
-            Cancel
-          </Button>
-          <Button onClick={handleSubmit} disabled={!isValid || isSubmitting}>
-            {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Generating...
-              </>
-            ) : (
-              <>
-                <Sparkles className="mr-2 h-4 w-4" />
-                Generate Plan
-              </>
-            )}
-          </Button>
-        </div>
+        <DialogFooter
+          onCancel={() => handleOpenChange(false)}
+          onSubmit={handleSubmit}
+          isValid={isValid}
+          isSubmitting={isSubmitting}
+        />
       </DialogContent>
     </Dialog>
   );

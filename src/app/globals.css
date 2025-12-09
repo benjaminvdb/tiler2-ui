@@ -6,7 +6,8 @@
 @plugin "tailwind-scrollbar";
 
 /* Safelist workflow icon colors (ensures they're not purged) */
-@source inline("
+@source inline(
+  "
   bg-slate-100 text-slate-600
   bg-gray-100 text-gray-600
   bg-zinc-100 text-zinc-600
@@ -29,7 +30,8 @@
   bg-fuchsia-100 text-fuchsia-600
   bg-pink-100 text-pink-600
   bg-rose-100 text-rose-600
-");
+"
+);
 
 @custom-variant dark (&:is(.dark *));
 
@@ -301,5 +303,4 @@ html {
       "Comic Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
       "Liberation Mono", "Courier New", monospace !important;
   }
-
 }

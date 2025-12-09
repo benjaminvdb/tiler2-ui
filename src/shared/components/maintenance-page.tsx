@@ -43,7 +43,7 @@ const styles = {
     fontWeight: 400,
     color: "#0b3d2e", // --forest-green
     marginBottom: "1rem",
-    fontFamily: 'Lora, Georgia, serif',
+    fontFamily: "Lora, Georgia, serif",
     letterSpacing: "0.01em",
   },
   description: {
@@ -133,12 +133,19 @@ export const MaintenancePage = (): React.JSX.Element => {
 
   return (
     <div style={styles.container}>
-      <main style={styles.card} role="main" aria-labelledby="maintenance-title">
+      <main
+        style={styles.card}
+        role="main"
+        aria-labelledby="maintenance-title"
+      >
         <div style={styles.iconContainer}>
           <MaintenanceIcon />
         </div>
 
-        <h1 id="maintenance-title" style={styles.title}>
+        <h1
+          id="maintenance-title"
+          style={styles.title}
+        >
           We&apos;ll be back soon
         </h1>
 
@@ -156,7 +163,8 @@ export const MaintenancePage = (): React.JSX.Element => {
               styles.buttonHover.backgroundColor;
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = styles.button.backgroundColor;
+            e.currentTarget.style.backgroundColor =
+              styles.button.backgroundColor;
           }}
           aria-label="Refresh page to check if maintenance is complete"
         >
@@ -167,7 +175,10 @@ export const MaintenancePage = (): React.JSX.Element => {
         <footer style={styles.footer}>
           <p>
             Questions?{" "}
-            <a href="mailto:chat@linknature.io" style={styles.link}>
+            <a
+              href="mailto:chat@linknature.io"
+              style={styles.link}
+            >
               Contact support
             </a>
           </p>

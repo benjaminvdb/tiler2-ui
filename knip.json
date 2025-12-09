@@ -20,7 +20,11 @@
 
   "ignoreExportsUsedInFile": true,
 
-  "ignoreDependencies": ["@types/uuid"],
+  "ignoreDependencies": [
+    "tailwindcss",
+    "tailwindcss-animate",
+    "tailwind-scrollbar"
+  ],
 
   "ignore": ["src/vite-env.d.ts"],
 
@@ -29,6 +33,7 @@
   "ignoreIssues": {
     "src/shared/components/ui/**": ["exports"],
     "src/core/services/observability/**": ["exports"],
-    "src/shared/components/error-boundary/**": ["exports"]
+    "src/shared/components/error-boundary/**": ["exports"],
+    "src/features/goals/types/**": ["types"]
   }
 }

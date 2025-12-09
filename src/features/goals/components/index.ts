@@ -13,3 +13,4 @@ export { EditTaskDialog } from "./edit-task-dialog";
 export { TaskDependenciesDialog } from "./task-dependencies-dialog";
 export { DeleteConfirmationDialog } from "./delete-confirmation-dialog";
 export { GoalGeneratingSkeleton } from "./goal-generating-skeleton";
+export { DatabaseAlertBanner } from "./database-alert-banner";

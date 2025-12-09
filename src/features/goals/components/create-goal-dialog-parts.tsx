@@ -6,7 +6,12 @@
 
 import { Label } from "@/shared/components/ui/label";
 import { Textarea } from "@/shared/components/ui/textarea";
-import { EXAMPLE_GOALS, PLAN_SIZES, getIcon, getCategoryById } from "../constants";
+import {
+  EXAMPLE_GOALS,
+  PLAN_SIZES,
+  getIcon,
+  getCategoryById,
+} from "../constants";
 import type { ExampleGoal, PlanSizeDefinition } from "../constants";
 import type { PlanSize } from "../types";
 
@@ -149,7 +154,10 @@ export const GoalFormContent = ({
         className="min-h-[160px] resize-none"
         maxLength={maxLength}
       />
-      <CharacterCount current={objectiveLength} min={minLength} />
+      <CharacterCount
+        current={objectiveLength}
+        min={minLength}
+      />
     </div>
 
     <div className="space-y-3">

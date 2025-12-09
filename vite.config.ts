@@ -60,10 +60,7 @@ export default defineConfig({
       // Silence expected warnings
       onwarn(warning, warn) {
         // Silence "node:async_hooks" externalization warning from @langchain/langgraph
-        if (
-          warning.message &&
-          warning.message.includes("node:async_hooks")
-        ) {
+        if (warning.message && warning.message.includes("node:async_hooks")) {
           return;
         }
         warn(warning);

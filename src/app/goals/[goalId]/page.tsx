@@ -46,6 +46,7 @@ import {
   TaskDependenciesDialog,
   DeleteConfirmationDialog,
   GoalGeneratingSkeleton,
+  DatabaseAlertBanner,
 } from "@/features/goals/components";
 import { AddItemButton } from "@/features/goals/components/add-item-button";
 import { TASK_STATUS_CONFIG } from "@/features/goals/constants";
@@ -774,7 +775,6 @@ const MilestoneCard = ({
             variant="ghost"
             size="sm"
             className="h-8 w-8 p-0"
-             
             onClick={() => onEditMilestone(milestone)}
             title="Edit"
           >
@@ -784,7 +784,6 @@ const MilestoneCard = ({
             variant="ghost"
             size="sm"
             className="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600"
-             
             onClick={() => onDeleteMilestone(milestone)}
             title="Delete"
           >
@@ -819,7 +818,6 @@ const MilestoneCard = ({
         <AddItemButton
           label="Add Task"
           size="sm"
-           
           onClick={() => onAddTask(milestone.id, milestone.title)}
           className="mt-4"
         />
@@ -888,6 +886,9 @@ const GoalDetailPage = (): React.JSX.Element => {
     }
     prevStatusRef.current = goal?.status;
   }, [goal?.status, goal?.error_message]);
+
+  // Database alert banner state
+  const [showDatabaseAlert, setShowDatabaseAlert] = useState(true);
 
   // Dialog state
   const [isMilestoneDialogOpen, setIsMilestoneDialogOpen] = useState(false);
@@ -1089,6 +1090,13 @@ const GoalDetailPage = (): React.JSX.Element => {
     return goal.milestones.flatMap((m) => m.tasks);
   }, [goal]);
 
+  // Check if goal has work in progress (tasks with in_progress or done status)
+  const hasInProgressWork = useMemo(() => {
+    return allTasks.some(
+      (task) => task.status === "in_progress" || task.status === "done",
+    );
+  }, [allTasks]);
+
   // Loading state
   if (isLoading) {
     return <LoadingState />;
@@ -1201,6 +1209,12 @@ const GoalDetailPage = (): React.JSX.Element => {
             label: `${completed} completed • ${remaining} remaining`,
           }}
         />
+
+        {/* Database Issue Alert Banner */}
+        {showDatabaseAlert && hasInProgressWork && (
+          <DatabaseAlertBanner onDismiss={() => setShowDatabaseAlert(false)} />
+        )}
+
         <PageContent>
           {/* Milestones */}
           <div className="space-y-4">
@@ -1275,7 +1289,6 @@ const GoalDetailPage = (): React.JSX.Element => {
       {selectedMilestone && (
         <CreateTaskDialog
           open={isTaskDialogOpen}
-           
           onOpenChange={(open) => {
             setIsTaskDialogOpen(open);
             if (!open) {
@@ -1291,7 +1304,6 @@ const GoalDetailPage = (): React.JSX.Element => {
       {dependenciesTask && (
         <TaskDependenciesDialog
           open={!!dependenciesTask}
-           
           onOpenChange={(open) => !open && setDependenciesTask(null)}
           task={dependenciesTask}
           allMilestones={goal.milestones}
@@ -1303,7 +1315,6 @@ const GoalDetailPage = (): React.JSX.Element => {
       {taskToEdit && (
         <EditTaskDialog
           open={!!taskToEdit}
-           
           onOpenChange={(open) => !open && setTaskToEdit(null)}
           task={taskToEdit}
           onTaskUpdated={mutate}
@@ -1314,7 +1325,6 @@ const GoalDetailPage = (): React.JSX.Element => {
       {milestoneToEdit && (
         <EditMilestoneDialog
           open={!!milestoneToEdit}
-           
           onOpenChange={(open) => !open && setMilestoneToEdit(null)}
           milestone={milestoneToEdit}
           onMilestoneUpdated={mutate}
@@ -1325,7 +1335,6 @@ const GoalDetailPage = (): React.JSX.Element => {
       {taskToDelete && (
         <DeleteConfirmationDialog
           open={!!taskToDelete}
-           
           onOpenChange={(open) => !open && setTaskToDelete(null)}
           title="Delete task"
           description="This action cannot be undone."
@@ -1339,7 +1348,6 @@ const GoalDetailPage = (): React.JSX.Element => {
       {milestoneToDelete && (
         <DeleteConfirmationDialog
           open={!!milestoneToDelete}
-           
           onOpenChange={(open) => !open && setMilestoneToDelete(null)}
           title="Delete milestone"
           description="This will also delete all tasks within this milestone. This action cannot be undone."

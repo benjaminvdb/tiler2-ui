@@ -44,11 +44,7 @@ import { ArrowLeft, type LucideIcon } from "lucide-react";
 
 import { cn } from "@/shared/utils/utils";
 import { IconBox, type IconBoxColor } from "./icon-box";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "./tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
 
 interface BackButtonConfig {
   label: string;
@@ -141,7 +137,11 @@ const StatItem = ({ stat }: { stat: StatItemConfig }): React.JSX.Element => {
   return content;
 };
 
-const StatsRow = ({ stats }: { stats: StatItemConfig[] }): React.JSX.Element => (
+const StatsRow = ({
+  stats,
+}: {
+  stats: StatItemConfig[];
+}): React.JSX.Element => (
   <div
     className="mt-4 flex flex-wrap gap-4 md:gap-6"
     role="list"
@@ -189,9 +189,28 @@ const ProgressBar = ({
 
 const HeaderBadge = ({ badge }: { badge: BadgeConfig }): React.JSX.Element => (
   <div className="flex shrink-0 items-center gap-2 text-sm">
-    <badge.icon className="h-4 w-4" style={{ color: badge.iconColor }} />
+    <badge.icon
+      className="h-4 w-4"
+      style={{ color: badge.iconColor }}
+    />
     <span className="text-[var(--muted-foreground)]">{badge.label}</span>
   </div>
+);
+
+const BackButton = ({
+  backButton,
+}: {
+  backButton: BackButtonConfig;
+}): React.JSX.Element => (
+  <button
+    type="button"
+    onClick={backButton.onClick}
+    aria-label={backButton.ariaLabel ?? backButton.label}
+    className="mb-4 flex items-center gap-1 text-sm text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
+  >
+    <ArrowLeft className="h-4 w-4" />
+    {backButton.label}
+  </button>
 );
 
 const HeaderRightSection = ({
@@ -230,18 +249,7 @@ export const PageHeader = ({
       )}
     >
       <div className="mx-auto max-w-5xl">
-        {/* Back button */}
-        {backButton && (
-          <button
-            type="button"
-            onClick={backButton.onClick}
-            aria-label={backButton.ariaLabel ?? backButton.label}
-            className="mb-4 flex items-center gap-1 text-sm text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            {backButton.label}
-          </button>
-        )}
+        {backButton && <BackButton backButton={backButton} />}
 
         {/* Main header row */}
         <div className="flex items-end justify-between gap-4">

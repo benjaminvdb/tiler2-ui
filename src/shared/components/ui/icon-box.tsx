@@ -16,7 +16,12 @@ import { cn } from "@/shared/utils/utils";
  * Available colors from the design system.
  * Each color maps to a CSS variable defined in globals.css.
  */
-export type IconBoxColor = "sage" | "forest-green" | "sand" | "muted" | "copper";
+export type IconBoxColor =
+  | "sage"
+  | "forest-green"
+  | "sand"
+  | "muted"
+  | "copper";
 
 /**
  * Size variants for the icon box.

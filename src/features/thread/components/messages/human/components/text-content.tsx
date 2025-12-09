@@ -13,9 +13,7 @@ export const TextContent: React.FC<TextContentProps> = ({ contentString }) => {
         boxShadow: "0 1px 3px rgba(0, 0, 0, 0.08)",
       }}
     >
-      <p className="whitespace-pre-wrap text-sm">
-        {contentString}
-      </p>
+      <p className="text-sm whitespace-pre-wrap">{contentString}</p>
     </div>
   );
 };

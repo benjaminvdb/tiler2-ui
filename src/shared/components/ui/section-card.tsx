@@ -83,10 +83,7 @@ export const SectionCardHeader = ({
   const Comp = asChild ? Slot : "div";
   return (
     <Comp
-      className={cn(
-        "border-b border-[var(--border)] bg-white p-4",
-        className,
-      )}
+      className={cn("border-b border-[var(--border)] bg-white p-4", className)}
     >
       {children}
     </Comp>

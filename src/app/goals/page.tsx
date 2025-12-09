@@ -229,7 +229,6 @@ const GoalCard = ({
       aria-busy={isGenerating}
       tabIndex={isGenerating ? -1 : 0}
       onClick={handleClick}
-       
       onKeyDown={(e) => {
         if (!isGenerating && (e.key === "Enter" || e.key === " ")) {
           onClick();
@@ -353,9 +352,7 @@ const StatusSection = ({
           <GoalCard
             key={goal.id}
             goal={goal}
-             
             onClick={() => onGoalClick(goal.id)}
-             
             onDelete={() => onGoalDelete(goal)}
           />
         ))}
@@ -512,7 +509,6 @@ const GoalsPage = (): React.JSX.Element => {
       {goalToDelete && (
         <DeleteConfirmationDialog
           open={!!goalToDelete}
-           
           onOpenChange={(open) => !open && setGoalToDelete(null)}
           title="Delete goal"
           description="This action cannot be undone. All milestones and tasks will be permanently deleted."
