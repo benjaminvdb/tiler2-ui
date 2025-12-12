@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import { Button } from "@/shared/components/ui/button";
-import { Thread } from "@langchain/langgraph-sdk";
+import type { Thread } from "@/features/thread/providers/thread-provider";
 import { useSearchParamState } from "@/core/routing/hooks";
 import { extractThreadDisplayText } from "../utils/thread-text-extractor";
 import { useUIContext } from "@/features/chat/providers/ui-provider";

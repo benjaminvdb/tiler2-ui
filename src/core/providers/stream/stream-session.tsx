@@ -2,14 +2,14 @@ import React, { useCallback, useEffect } from "react";
 import { useSearchParamState } from "@/core/routing/hooks";
 import { useThreads } from "@/features/thread/providers/thread-provider";
 import { StreamContext } from "./stream-context";
-import { StreamSessionProps } from "./types";
+import { StreamSessionProps } from "./ag-ui-types";
 import { LoadingScreen } from "@/shared/components/loading-spinner";
 import { useObservability } from "@/core/services/observability";
 import * as Sentry from "@sentry/react";
 import { useStreamToken } from "./hooks/use-stream-token";
 import { useThreadVerification } from "./hooks/use-thread-verification";
 import { useGraphStatus } from "./hooks/use-graph-status";
-import { useStreamSetup } from "./hooks/use-stream-setup";
+import { useAGUIAgent } from "./hooks/use-ag-ui-agent";
 import { TokenErrorScreen } from "./components/token-error-screen";
 import { useAuth0 } from "@auth0/auth0-react";
 
@@ -25,7 +25,7 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
   }, [loginWithRedirect]);
 
   const [threadId, setThreadId] = useSearchParamState("threadId");
-  const { getThreads, setThreads, removeOptimisticThread } = useThreads();
+  const { getThreads, resetThreads, removeOptimisticThread } = useThreads();
 
   const baseLogger = useObservability();
   const logger = baseLogger.child({
@@ -51,25 +51,34 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
 
   const verifyThreadCreation = useThreadVerification({
     getThreads,
-    setThreads,
+    resetThreads,
     removeOptimisticThread,
     logger,
   });
 
   useGraphStatus({ apiUrl, logger });
 
-  const extendedStreamValue = useStreamSetup({
+  // Handle thread ID updates from the agent
+  const handleThreadId = useCallback(
+    (id: string) => {
+      setThreadId(id);
+      verifyThreadCreation(id);
+    },
+    [setThreadId, verifyThreadCreation],
+  );
+
+  // Use the AG-UI agent hook
+  const streamValue = useAGUIAgent({
     apiUrl,
     assistantId,
     threadId,
     accessToken,
-    verifyThreadCreation,
-    setThreadId,
+    onThreadId: handleThreadId,
   });
 
   if (isUserLoading || (!accessToken && !tokenError && user)) {
     return (
-      <StreamContext.Provider value={extendedStreamValue}>
+      <StreamContext.Provider value={streamValue}>
         <LoadingScreen />
       </StreamContext.Provider>
     );
@@ -77,7 +86,7 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
 
   if (tokenError) {
     return (
-      <StreamContext.Provider value={extendedStreamValue}>
+      <StreamContext.Provider value={streamValue}>
         <TokenErrorScreen
           error={tokenError}
           onLoginRedirect={handleLoginRedirect}
@@ -87,7 +96,7 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
   }
 
   return (
-    <StreamContext.Provider value={extendedStreamValue}>
+    <StreamContext.Provider value={streamValue}>
       {children}
     </StreamContext.Provider>
   );

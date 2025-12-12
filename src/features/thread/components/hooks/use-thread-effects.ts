@@ -1,23 +1,38 @@
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { useStreamContext } from "@/core/providers/stream";
-import { getContentString } from "../utils";
-import type { HumanInterrupt } from "@langchain/langgraph/prebuilt";
 
 interface UseThreadEffectsProps {
   lastErrorRef: React.MutableRefObject<string | undefined>;
   setFirstTokenReceived: (value: boolean) => void;
-  isRespondingToInterrupt: boolean;
-  setIsRespondingToInterrupt: (value: boolean) => void;
-  setCurrentInterrupt: (value: HumanInterrupt | null) => void;
 }
+
+/**
+ * Get string content from a message content field.
+ */
+const getMessageContentString = (
+  content: string | unknown[] | undefined,
+): string => {
+  if (typeof content === "string") {
+    return content;
+  }
+  if (Array.isArray(content)) {
+    return content
+      .map((block) => {
+        if (typeof block === "string") return block;
+        if (typeof block === "object" && block !== null && "text" in block) {
+          return (block as { text: string }).text;
+        }
+        return "";
+      })
+      .join("");
+  }
+  return "";
+};
 
 export function useThreadEffects({
   lastErrorRef,
   setFirstTokenReceived,
-  isRespondingToInterrupt,
-  setIsRespondingToInterrupt,
-  setCurrentInterrupt,
 }: UseThreadEffectsProps) {
   const stream = useStreamContext();
   const messages = stream.messages;
@@ -49,24 +64,9 @@ export function useThreadEffects({
       return;
     }
 
-    const contentString = getContentString(lastMessage.content);
+    const contentString = getMessageContentString(lastMessage.content);
     if (contentString.trim().length > 0) {
       setFirstTokenReceived(true);
     }
   }, [messages, setFirstTokenReceived]);
-
-  useEffect(() => {
-    if (stream.interrupt && !isRespondingToInterrupt) {
-      setCurrentInterrupt(stream.interrupt as HumanInterrupt);
-      setIsRespondingToInterrupt(true);
-    } else if (!stream.interrupt && isRespondingToInterrupt) {
-      setIsRespondingToInterrupt(false);
-      setCurrentInterrupt(null);
-    }
-  }, [
-    stream.interrupt,
-    isRespondingToInterrupt,
-    setCurrentInterrupt,
-    setIsRespondingToInterrupt,
-  ]);
 }

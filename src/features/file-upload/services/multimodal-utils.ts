@@ -66,35 +66,3 @@ export const fileToBase64 = async (file: File): Promise<string> => {
     reader.readAsDataURL(file);
   });
 };
-
-const FILE_MIME_TYPES = ["application/pdf", "text/csv"];
-
-export const isBase64ContentBlock = (
-  block: unknown,
-): block is MultimodalContentBlock => {
-  if (typeof block !== "object" || block === null) {
-    return false;
-  }
-
-  const candidate = block as Partial<MultimodalContentBlock>;
-  const hasBase64Data = typeof candidate.data === "string";
-  const mimeType = candidate.mimeType;
-
-  if (
-    candidate.type === "image" &&
-    typeof mimeType === "string" &&
-    hasBase64Data
-  ) {
-    return mimeType.startsWith("image/");
-  }
-
-  if (
-    candidate.type === "file" &&
-    typeof mimeType === "string" &&
-    hasBase64Data
-  ) {
-    return FILE_MIME_TYPES.includes(mimeType);
-  }
-
-  return false;
-};

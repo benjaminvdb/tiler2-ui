@@ -1,10 +1,3 @@
-export interface BranchSwitcherProps {
-  branch: string | undefined;
-  branchOptions: string[] | undefined;
-  onSelect: (branch: string) => void;
-  isLoading: boolean;
-}
-
 export interface CommandBarProps {
   content: string;
   htmlContainerRef?: React.RefObject<HTMLDivElement | null>;

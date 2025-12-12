@@ -1,13 +1,13 @@
 import { ToolCalls } from "../../../tool-calls";
-import { Message, AIMessage } from "@langchain/langgraph-sdk";
+import type { UIMessage, ToolCall } from "@/core/providers/stream/ag-ui-types";
 
 interface ToolCallsSectionProps {
-  message: Message;
+  message: UIMessage;
   hideToolCalls: boolean;
   hasToolCalls: boolean;
   toolCallsHaveContents: boolean;
   hasAnthropicToolCalls: boolean;
-  anthropicStreamedToolCalls?: AIMessage["tool_calls"];
+  anthropicStreamedToolCalls?: ToolCall[] | undefined;
 }
 export const ToolCallsSection: React.FC<ToolCallsSectionProps> = ({
   message,
@@ -23,14 +23,12 @@ export const ToolCallsSection: React.FC<ToolCallsSectionProps> = ({
   return (
     <>
       {(hasToolCalls && toolCallsHaveContents && (
-        <ToolCalls toolCalls={(message as AIMessage).tool_calls} />
+        <ToolCalls toolCalls={message.tool_calls} />
       )) ||
         (hasAnthropicToolCalls && (
           <ToolCalls toolCalls={anthropicStreamedToolCalls} />
         )) ||
-        (hasToolCalls && (
-          <ToolCalls toolCalls={(message as AIMessage).tool_calls} />
-        ))}
+        (hasToolCalls && <ToolCalls toolCalls={message.tool_calls} />)}
     </>
   );
 };

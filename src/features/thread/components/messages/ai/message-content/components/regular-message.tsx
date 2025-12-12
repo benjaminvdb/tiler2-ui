@@ -1,4 +1,3 @@
-import { Message, Checkpoint, AIMessage } from "@langchain/langgraph-sdk";
 import { useRef } from "react";
 import { CustomComponent } from "../../custom-component";
 import { MessageText } from "./message-text";
@@ -6,28 +5,24 @@ import { ToolCallsSection } from "./tool-calls-section";
 import { MessageActions } from "./message-actions";
 import { SourcesList } from "../../sources-list";
 import { renumberCitations } from "../../../../markdown/utils/citation-renumbering";
-import type { StreamContextType } from "@/core/providers/stream/types";
-import type { MessageMetadata } from "@/shared/types";
-
-interface MessageMetadataWithBranch extends Partial<MessageMetadata> {
-  branch?: string;
-  branchOptions?: string[];
-}
+import type {
+  StreamContextType,
+  UIMessage,
+  ToolCall,
+} from "@/core/providers/stream/ag-ui-types";
 
 interface RegularMessageProps {
-  message: Message;
+  message: UIMessage;
   isLoading: boolean;
   contentString: string;
   hideToolCalls: boolean;
   hasToolCalls: boolean;
   toolCallsHaveContents: boolean;
   hasAnthropicToolCalls: boolean;
-  anthropicStreamedToolCalls?: AIMessage["tool_calls"];
-  meta: MessageMetadataWithBranch | null;
+  anthropicStreamedToolCalls?: ToolCall[] | undefined;
   thread: StreamContextType;
-  parentCheckpoint: Checkpoint | null | undefined;
-  handleRegenerate: (parentCheckpoint: Checkpoint | null | undefined) => void;
 }
+
 export const RegularMessage: React.FC<RegularMessageProps> = ({
   message,
   isLoading,
@@ -37,10 +32,7 @@ export const RegularMessage: React.FC<RegularMessageProps> = ({
   toolCallsHaveContents,
   hasAnthropicToolCalls,
   anthropicStreamedToolCalls,
-  meta,
   thread,
-  parentCheckpoint,
-  handleRegenerate,
 }) => {
   const htmlContainerRef = useRef<HTMLDivElement>(null);
 
@@ -57,8 +49,6 @@ export const RegularMessage: React.FC<RegularMessageProps> = ({
         contentString={renumberedContent}
         containerRef={htmlContainerRef}
         messageId={message.id}
-        checkpointId={parentCheckpoint?.checkpoint_id ?? undefined}
-        branch={meta?.branch ?? undefined}
       />
       <ToolCallsSection
         message={message}
@@ -77,10 +67,7 @@ export const RegularMessage: React.FC<RegularMessageProps> = ({
         contentString={renumberedContent}
         htmlContainerRef={htmlContainerRef}
         isLoading={isLoading}
-        meta={meta}
         thread={thread}
-        parentCheckpoint={parentCheckpoint}
-        handleRegenerate={handleRegenerate}
       />
     </>
   );

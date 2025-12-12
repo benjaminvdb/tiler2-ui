@@ -13,7 +13,7 @@ import type { ActivitiesListResponse, ColumnMetadata } from "../types";
 /**
  * Base URL for activities API endpoints.
  */
-const ACTIVITIES_API_BASE = `${env.API_URL}/api/v1/activities`;
+const ACTIVITIES_API_BASE = `${env.API_URL}/activities`;
 
 export interface UseActivitySchemaReturn {
   /** Column metadata for dynamic table rendering */

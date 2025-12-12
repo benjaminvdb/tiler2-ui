@@ -2,18 +2,37 @@
  * Central type definitions for the application
  */
 
-import type { ContentBlock as LangChainContentBlock } from "@langchain/core/messages";
+/**
+ * Metadata for multimodal content blocks.
+ * Supports both image and file metadata fields.
+ */
+export interface MultimodalMetadata {
+  name?: string;
+  filename?: string;
+}
 
 /**
  * Multimodal content blocks representing uploaded files or images.
- * Conforms to LangChain's content block standard for interoperability with LangGraph.
+ * Uses flat structure with mimeType at top level for file-upload compatibility.
  */
 export type MultimodalContentBlock =
-  | LangChainContentBlock.Multimodal.Image
-  | LangChainContentBlock.Multimodal.File;
+  | {
+      type: "image";
+      mimeType: string;
+      mime_type?: string; // Python backend expects snake_case
+      data: string;
+      metadata?: MultimodalMetadata;
+    }
+  | {
+      type: "file";
+      mimeType: string;
+      mime_type?: string;
+      data: string;
+      source_type?: string;
+      metadata?: MultimodalMetadata;
+    };
 
-export type ContentBlock = MultimodalContentBlock;
-export type ContentBlocks = ContentBlock[];
+export type ContentBlocks = MultimodalContentBlock[];
 
 /**
  * Context for rendering artifacts in the side panel.
@@ -39,13 +58,3 @@ export type JsonValue =
   | null
   | JsonValue[]
   | { [key: string]: JsonValue };
-
-/**
- * Metadata about individual messages in the conversation.
- */
-export interface MessageMetadata {
-  id: string;
-  timestamp: string;
-  threadId?: string;
-  parentCheckpoint?: string;
-}

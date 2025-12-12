@@ -1,18 +1,15 @@
 import React, { createContext, useContext, ReactNode } from "react";
-import { Checkpoint } from "@langchain/langgraph-sdk";
 import type { ContentBlocks } from "@/shared/types";
 
-interface ChatContextType {
+export interface ChatContextType {
   chatStarted: boolean;
   firstTokenReceived: boolean;
   input: string;
   contentBlocks: ContentBlocks;
-  isRespondingToInterrupt: boolean;
   hideToolCalls: boolean;
   dragOver: boolean;
   dropRef: React.RefObject<HTMLDivElement | null>;
 
-  handleRegenerate: (parentCheckpoint: Checkpoint | null | undefined) => void;
   onInputChange: (value: string) => void;
   onSubmit: (e: React.FormEvent) => void;
   onPaste: (

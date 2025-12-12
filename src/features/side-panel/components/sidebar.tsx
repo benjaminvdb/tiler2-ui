@@ -9,7 +9,7 @@ import {
   PanelLeftOpen,
   PanelLeftClose,
 } from "lucide-react";
-import { Thread } from "@langchain/langgraph-sdk";
+import type { Thread } from "@/features/thread/providers/thread-provider";
 import { useSearchParamState } from "@/core/routing/hooks";
 import { LinkLogoSVG } from "@/shared/components/icons/link";
 

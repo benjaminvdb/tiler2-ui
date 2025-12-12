@@ -1,5 +1,5 @@
 import { useSearchParamState } from "@/core/routing/hooks";
-import { Message } from "@langchain/langgraph-sdk";
+import type { UIMessage, ToolCall } from "@/core/providers/stream/ag-ui-types";
 import { useStreamContext } from "@/core/providers/stream";
 import { getContentString } from "../../../../utils";
 import { parseAnthropicStreamedToolCalls } from "../../utils";
@@ -7,7 +7,7 @@ import { parseAnthropicStreamedToolCalls } from "../../utils";
 /**
  * Check if message has tool calls with content
  */
-const checkToolCallsStatus = (message: Message) => {
+const checkToolCallsStatus = (message: UIMessage) => {
   const hasToolCalls =
     "tool_calls" in message &&
     message.tool_calls &&
@@ -15,14 +15,23 @@ const checkToolCallsStatus = (message: Message) => {
 
   const toolCallsHaveContents =
     hasToolCalls &&
-    message.tool_calls?.some(
-      (tc) => tc.args && Object.keys(tc.args).length > 0,
-    );
+    message.tool_calls?.some((tc: ToolCall) => {
+      // Handle both AG-UI format (function.arguments) and LangChain format (args)
+      if ("function" in tc && tc.function?.arguments) {
+        try {
+          const args = JSON.parse(tc.function.arguments);
+          return Object.keys(args).length > 0;
+        } catch {
+          return false;
+        }
+      }
+      return false;
+    });
 
   return { hasToolCalls, toolCallsHaveContents };
 };
 
-export function useMessageContent(message: Message) {
+export function useMessageContent(message: UIMessage) {
   const content = message?.content ?? [];
   const contentString = getContentString(content);
   const [hideToolCallsParam] = useSearchParamState("hideToolCalls");
@@ -32,8 +41,6 @@ export function useMessageContent(message: Message) {
     hideToolCallsParam !== null ? hideToolCallsParam === true : envDefaultHide;
 
   const thread = useStreamContext();
-  const meta = thread.getMessagesMetadata(message);
-  const parentCheckpoint = meta?.firstSeenState?.parent_checkpoint;
 
   const anthropicStreamedToolCalls = Array.isArray(content)
     ? parseAnthropicStreamedToolCalls(content)
@@ -47,8 +54,6 @@ export function useMessageContent(message: Message) {
     contentString,
     hideToolCalls,
     thread,
-    meta,
-    parentCheckpoint,
     anthropicStreamedToolCalls,
     hasToolCalls,
     toolCallsHaveContents,

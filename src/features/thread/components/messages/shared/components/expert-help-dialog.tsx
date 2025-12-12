@@ -37,7 +37,7 @@ async function submitExpertHelpRequest(
   aiMessageContent: string,
 ): Promise<Response> {
   return fetchWithRetry(
-    `${apiUrl}/api/v1/support/expert-help`,
+    `${apiUrl}/support/expert-help`,
     {
       method: "POST",
       headers: {

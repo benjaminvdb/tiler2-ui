@@ -1,8 +1,10 @@
-import { Message } from "@langchain/langgraph-sdk";
-import type { MessageContent } from "@langchain/core/messages";
+import type {
+  UIMessage,
+  ContentBlock,
+} from "@/core/providers/stream/ag-ui-types";
 
 export interface HumanMessageProps {
-  message: Message;
+  message: UIMessage;
   isLoading: boolean;
 }
 
@@ -13,7 +15,7 @@ export interface EditableContentProps {
 }
 
 export interface MultimodalContentProps {
-  content: MessageContent;
+  content: string | ContentBlock[];
 }
 
 export interface TextContentProps {
@@ -26,7 +28,4 @@ export interface MessageControlsProps {
   isEditing: boolean;
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
   handleSubmitEdit: () => void;
-  branch?: string;
-  branchOptions?: string[];
-  onBranchSelect: (branch: string) => void;
 }

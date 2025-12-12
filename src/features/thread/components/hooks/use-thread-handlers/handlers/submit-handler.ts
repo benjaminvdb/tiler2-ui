@@ -1,17 +1,24 @@
 import { FormEvent } from "react";
-import { Thread, type Message } from "@langchain/langgraph-sdk";
 import { ensureToolCallsHaveResponses } from "@/features/thread/services/ensure-tool-responses";
-import {
-  buildHumanMessage,
-  buildInterruptResponse,
-} from "../utils/message-builder";
+import { buildHumanMessage } from "../utils/message-builder";
 import { UseThreadHandlersProps } from "../types";
 import type {
   StreamContextType,
   GraphState,
-} from "@/core/providers/stream/types";
+  UIMessage,
+} from "@/core/providers/stream/ag-ui-types";
 import { generateThreadName } from "@/features/thread/utils/generate-thread-name";
 import { buildOptimisticThread } from "@/features/thread/utils/build-optimistic-thread";
+
+// Thread type for optimistic thread creation
+interface Thread {
+  thread_id: string;
+  created_at: string;
+  updated_at: string;
+  metadata: Record<string, unknown>;
+  status: string;
+  values: Record<string, unknown>;
+}
 
 const buildContext = (
   artifactContext: Record<string, unknown> | undefined | null,
@@ -22,8 +29,8 @@ const buildContext = (
 };
 
 const buildSubmitData = (
-  toolMessages: Message[],
-  newHumanMessage: Message,
+  toolMessages: UIMessage[],
+  newHumanMessage: UIMessage,
   context: Record<string, unknown> | undefined,
 ) => ({
   messages: [...toolMessages, newHumanMessage],
@@ -31,23 +38,12 @@ const buildSubmitData = (
 });
 
 const baseSubmitOptions = (
-  context: Record<string, unknown> | undefined,
-  toolMessages: Message[],
-  newHumanMessage: Message,
+  toolMessages: UIMessage[],
+  newHumanMessage: UIMessage,
 ) => {
-  const streamMode = ["values"] as (
-    | "values"
-    | "messages"
-    | "updates"
-    | "debug"
-    | "custom"
-  )[];
   return {
-    streamMode,
-    streamSubgraphs: true,
     optimisticValues: (prev: GraphState) => ({
       ...prev,
-      context,
       messages: [
         ...(Array.isArray(prev.messages) ? prev.messages : []),
         ...toolMessages,
@@ -59,7 +55,7 @@ const baseSubmitOptions = (
 
 const createOptimisticThread = (
   threadName: string,
-  message: Message,
+  message: UIMessage,
   userEmail: string,
   addOptimisticThread: (thread: Thread) => void,
 ) => {
@@ -94,24 +90,9 @@ export const createSubmitHandler = (
     setInput,
     contentBlocks,
     setContentBlocks,
-    isRespondingToInterrupt,
-    setIsRespondingToInterrupt,
-    currentInterrupt,
-    setCurrentInterrupt,
     setFirstTokenReceived,
     artifactContext,
   } = props;
-
-  const submitInterruptResponse = () => {
-    const response = buildInterruptResponse(input);
-    stream.submit(null, {
-      command: { resume: response },
-    });
-    setIsRespondingToInterrupt(false);
-    setCurrentInterrupt(null);
-    setInput("");
-    setContentBlocks([]);
-  };
 
   return (e: FormEvent) => {
     e.preventDefault();
@@ -119,21 +100,12 @@ export const createSubmitHandler = (
       return;
     setFirstTokenReceived(false);
 
-    if (isRespondingToInterrupt && currentInterrupt) {
-      submitInterruptResponse();
-      return;
-    }
-
     const newHumanMessage = buildHumanMessage(input, contentBlocks);
     const toolMessages = ensureToolCallsHaveResponses(stream.messages);
     const context = buildContext(artifactContext);
 
     const submitData = buildSubmitData(toolMessages, newHumanMessage, context);
-    let submitOptions = baseSubmitOptions(
-      context,
-      toolMessages,
-      newHumanMessage,
-    );
+    let submitOptions = baseSubmitOptions(toolMessages, newHumanMessage);
 
     if (!stream.threadId && userEmail) {
       const threadName = generateThreadName({ firstMessage: input });

@@ -27,9 +27,8 @@ export const NavigationButton: React.FC<NavigationButtonProps> = ({
   shortcut,
 }) => {
   const handleClick = useCallback(() => {
-    console.log("NavigationButton clicked:", label);
     onClick();
-  }, [label, onClick]);
+  }, [onClick]);
 
   const shortcutText = shortcut ? getShortcutText(shortcut) : null;
 

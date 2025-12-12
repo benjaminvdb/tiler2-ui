@@ -5,7 +5,8 @@
  * before server confirmation.
  */
 
-import { Thread, Message } from "@langchain/langgraph-sdk";
+import type { Thread } from "@/features/thread/providers/thread-provider";
+import type { UIMessage } from "@/core/providers/stream/ag-ui-types";
 import { getClientConfig } from "@/core/config/client";
 
 interface OptimisticThreadOptions {
@@ -27,13 +28,13 @@ interface OptimisticThreadOptions {
   /**
    * Optional first message for thread values
    */
-  firstMessage?: Message;
+  firstMessage?: UIMessage;
 }
 
 /**
  * Build a complete Thread object for optimistic UI rendering.
  *
- * Creates a thread structure that matches the LangGraph SDK Thread type
+ * Creates a thread structure that matches the Thread type
  * for immediate display in the sidebar before server confirmation.
  *
  * @param options - Thread building options
@@ -60,7 +61,6 @@ export function buildOptimisticThread(
           messages: [options.firstMessage],
         }
       : {},
-    interrupts: {},
   };
 
   return thread;

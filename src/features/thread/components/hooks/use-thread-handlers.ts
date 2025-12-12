@@ -1,15 +1,12 @@
 import { useStreamContext } from "@/core/providers/stream";
 import { useThreads } from "@/features/thread/providers/thread-provider";
 import { useAuth0 } from "@auth0/auth0-react";
-import { Checkpoint } from "@langchain/langgraph-sdk";
 import { UseThreadHandlersProps } from "./use-thread-handlers/types";
 import { createSubmitHandler } from "./use-thread-handlers/handlers/submit-handler";
-import { createRegenerateHandler } from "./use-thread-handlers/handlers/regenerate-handler";
 import { createActionHandler } from "./use-thread-handlers/handlers/action-handler";
 
 export function useThreadHandlers(props: UseThreadHandlersProps): {
   handleSubmit: (e: React.FormEvent) => void;
-  handleRegenerate: (parentCheckpoint: Checkpoint | null | undefined) => void;
   handleActionClick: (prompt: string) => void;
 } {
   const stream = useStreamContext();
@@ -24,16 +21,10 @@ export function useThreadHandlers(props: UseThreadHandlersProps): {
     addOptimisticThread,
     user?.email || "",
   );
-  const handleRegenerate = createRegenerateHandler(
-    stream,
-    props.setFirstTokenReceived,
-    props.prevMessageLength,
-  );
   const handleActionClick = createActionHandler(stream);
 
   return {
     handleSubmit,
-    handleRegenerate,
     handleActionClick,
   };
 }

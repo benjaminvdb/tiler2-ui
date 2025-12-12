@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useRef } from "react";
 import { Send, Plus, Loader2 } from "lucide-react";
 import { ContentBlocksPreview } from "../content-blocks-preview";
-import { InterruptIndicator } from "./components/interrupt-indicator";
 import { ToolCallsToggle } from "./components/tool-calls-toggle";
 import { ChatInputProps } from "./types";
 import { cn } from "@/shared/utils/utils";
@@ -54,7 +53,6 @@ interface ChatTextareaProps {
   onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   onPaste: (e: React.ClipboardEvent<HTMLTextAreaElement>) => void;
   isLoading: boolean;
-  isRespondingToInterrupt: boolean;
 }
 
 const ChatTextarea: React.FC<ChatTextareaProps> = ({
@@ -62,7 +60,6 @@ const ChatTextarea: React.FC<ChatTextareaProps> = ({
   onChange,
   onPaste,
   isLoading,
-  isRespondingToInterrupt,
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -96,11 +93,7 @@ const ChatTextarea: React.FC<ChatTextareaProps> = ({
       onChange={onChange}
       onPaste={onPaste}
       onKeyDown={handleKeyDown}
-      placeholder={
-        isRespondingToInterrupt
-          ? "Type your response..."
-          : "Ask anything about sustainability, climate action, and regenerative practices"
-      }
+      placeholder="Ask anything about sustainability, climate action, and regenerative practices"
       disabled={isLoading}
       autoFocus
       rows={1}
@@ -157,7 +150,6 @@ const ChatInputComponent = ({
   contentBlocks,
   onRemoveBlock,
   isLoading,
-  isRespondingToInterrupt,
   hideToolCalls,
   onHideToolCallsChange,
   onStop,
@@ -201,7 +193,6 @@ const ChatInputComponent = ({
             onChange={handleChange}
             onPaste={onPaste}
             isLoading={isLoading}
-            isRespondingToInterrupt={isRespondingToInterrupt}
           />
 
           <SubmitButton
@@ -210,8 +201,6 @@ const ChatInputComponent = ({
             onStop={onStop}
           />
         </div>
-
-        <InterruptIndicator isRespondingToInterrupt={isRespondingToInterrupt} />
 
         <ToolCallsToggle
           hideToolCalls={hideToolCalls}

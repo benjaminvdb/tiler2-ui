@@ -23,8 +23,8 @@ export function useGraphStatus({ apiUrl, logger }: UseGraphStatusProps) {
         const ok = await checkGraphStatus(apiUrl, null, controller.signal);
 
         if (!controller.signal.aborted && !ok) {
-          toast.error("Failed to connect to LangGraph server", {
-            description: `Please ensure your graph is running at ${apiUrl} and you are properly authenticated.`,
+          toast.error("Failed to connect to backend server", {
+            description: `Please ensure the server is running at ${apiUrl} and you are properly authenticated.`,
             duration: 10000,
             richColors: true,
             closeButton: true,

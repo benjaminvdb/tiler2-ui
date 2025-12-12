@@ -1,4 +1,4 @@
-import { ToolMessage } from "@langchain/langgraph-sdk";
+import type { UIMessage } from "@/core/providers/stream/ag-ui-types";
 import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { ChevronDown, ChevronUp } from "lucide-react";
@@ -7,7 +7,7 @@ import { ToolResultContent } from "./tool-result-content";
 import type { JsonValue } from "@/shared/types";
 
 interface ToolResultItemProps {
-  message: ToolMessage;
+  message: UIMessage;
 }
 
 /**
@@ -51,6 +51,23 @@ const truncateContent = (
   return { displayedContent, shouldTruncate };
 };
 
+/**
+ * Get content string from message
+ */
+const getContentString = (content: UIMessage["content"]): string => {
+  if (typeof content === "string") {
+    return content;
+  }
+  // For ContentBlock arrays, extract text content
+  if (Array.isArray(content)) {
+    return content
+      .filter((block) => block.type === "text")
+      .map((block) => ("text" in block ? block.text : ""))
+      .join("\n");
+  }
+  return String(content);
+};
+
 export const ToolResultItem: React.FC<ToolResultItemProps> = ({ message }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -58,11 +75,12 @@ export const ToolResultItem: React.FC<ToolResultItemProps> = ({ message }) => {
     setIsExpanded((prev) => !prev);
   }, []);
 
-  const { parsedContent, isJsonContent } = parseMessageContent(message.content);
+  const contentString = getContentString(message.content);
+  const { parsedContent, isJsonContent } = parseMessageContent(contentString);
 
   const contentStr = isJsonContent
     ? JSON.stringify(parsedContent, null, 2)
-    : String(message.content);
+    : contentString;
 
   const { displayedContent, shouldTruncate } = truncateContent(
     contentStr,
@@ -79,7 +97,7 @@ export const ToolResultItem: React.FC<ToolResultItemProps> = ({ message }) => {
         <div className="flex flex-wrap items-center justify-between gap-2">
           {message.name ? (
             <h3 className="font-medium text-gray-900">
-              Tool Result: ;
+              Tool Result:
               <code className="rounded bg-gray-100 px-2 py-1">
                 {message.name}
               </code>

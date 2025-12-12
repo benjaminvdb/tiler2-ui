@@ -1,6 +1,25 @@
 import { MultimodalPreview } from "../../../multimodal-preview";
-import { isBase64ContentBlock } from "@/features/file-upload/services/multimodal-utils";
+import type { MultimodalContentBlock } from "@/shared/types";
 import { MultimodalContentProps } from "../types";
+
+/**
+ * Type guard to check if a content block is a multimodal content block
+ * with base64 data (image or file)
+ */
+const isMultimodalContentBlock = (
+  block: unknown,
+): block is MultimodalContentBlock => {
+  if (typeof block !== "object" || block === null) {
+    return false;
+  }
+
+  const candidate = block as Record<string, unknown>;
+  const hasBase64Data = typeof candidate.data === "string";
+  const hasType = candidate.type === "image" || candidate.type === "file";
+  const hasMimeType = typeof candidate.mimeType === "string";
+
+  return hasBase64Data && hasType && hasMimeType;
+};
 
 export const MultimodalContent: React.FC<MultimodalContentProps> = ({
   content,
@@ -9,7 +28,9 @@ export const MultimodalContent: React.FC<MultimodalContentProps> = ({
     return null;
   }
 
-  const mediaBlocks = content.filter(isBase64ContentBlock);
+  // Filter for multimodal blocks (images and files with base64 data)
+  // Cast content to unknown[] first to allow proper type narrowing
+  const mediaBlocks = (content as unknown[]).filter(isMultimodalContentBlock);
 
   if (mediaBlocks.length === 0) {
     return null;
@@ -18,18 +39,12 @@ export const MultimodalContent: React.FC<MultimodalContentProps> = ({
   return (
     <div className="flex flex-wrap items-end justify-end gap-2">
       {mediaBlocks.map((block, idx) => {
-        // Generate stable key from block content - use source for image/file types
-        const source = block.source;
-        const sourceKey =
-          source && typeof source === "object" && "url" in source
-            ? source.url ||
-              ("data" in source && typeof source.data === "string"
-                ? source.data.slice(0, 50)
-                : null) ||
-              idx
-            : idx;
+        // Generate stable key from block content - use data for the key
+        const sourceKey = block.data.slice(0, 50);
         const key =
-          block.type === "image" ? `img-${sourceKey}` : `file-${sourceKey}`;
+          block.type === "image"
+            ? `img-${sourceKey}`
+            : `file-${sourceKey}-${idx}`;
 
         return (
           <MultimodalPreview

@@ -11,7 +11,8 @@ const environment =
   import.meta.env.MODE ??
   "development";
 const dsn = env.SENTRY_DSN;
-const shouldInitializeSentry = !isDevelopment && Boolean(dsn);
+// Initialize Sentry in all environments if DSN is provided (enables "Report Bug" in dev)
+const shouldInitializeSentry = Boolean(dsn);
 
 const replayOptions = {
   maskAllText: false,
@@ -36,6 +37,10 @@ const ignoredErrors = [
 if (shouldInitializeSentry && dsn) {
   Sentry.init({
     dsn,
+    // Use tunnel to bypass ad-blockers, DNS filters, and browser privacy features
+    // In dev: Vite proxy forwards /api/* to backend. In prod: use full API URL.
+    // Generic name "/t" avoids ad-blocker keyword detection
+    tunnel: env.API_URL ? `${env.API_URL}/t` : "/t",
     environment,
     ...(env.APP_VERSION && {
       release: `agent-chat-ui@${env.APP_VERSION}`,

@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useStreamContext } from "@/core/providers/stream";
-import { Message } from "@langchain/langgraph-sdk";
+import type { UIMessage } from "@/core/providers/stream/ag-ui-types";
 
-export function useHumanMessageEdit(message: Message, contentString: string) {
+export function useHumanMessageEdit(
+  _message: UIMessage,
+  contentString: string,
+) {
   const thread = useStreamContext();
-  const meta = thread.getMessagesMetadata(message);
-  const parentCheckpoint = meta?.firstSeenState?.parent_checkpoint;
 
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState("");
@@ -13,22 +14,16 @@ export function useHumanMessageEdit(message: Message, contentString: string) {
   const handleSubmitEdit = () => {
     setIsEditing(false);
 
-    const newMessage: Message = { type: "human", content: value };
+    const newMessage: UIMessage = {
+      id: crypto.randomUUID(),
+      type: "human",
+      content: value,
+    };
     thread.submit(
       { messages: [newMessage] },
       {
-        ...(parentCheckpoint && { checkpoint: parentCheckpoint }),
         streamMode: ["values"],
         streamSubgraphs: true,
-        optimisticValues: (prev) => {
-          const values = meta?.firstSeenState?.values;
-          if (!values) return prev;
-
-          return {
-            ...values,
-            messages: [...(values.messages ?? []), newMessage],
-          };
-        },
       },
     );
   };
@@ -50,6 +45,5 @@ export function useHumanMessageEdit(message: Message, contentString: string) {
     setValue,
     handleSubmitEdit,
     setIsEditing: handleSetIsEditing,
-    meta,
   };
 }

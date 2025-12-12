@@ -1,5 +1,4 @@
-import { memo, useCallback } from "react";
-import { useStreamContext } from "@/core/providers/stream";
+import { memo } from "react";
 import { getContentString } from "../../utils";
 import { cn } from "@/shared/utils/utils";
 import { HumanMessageProps } from "./types";
@@ -13,18 +12,10 @@ export const HumanMessage = memo(function HumanMessage({
   message,
   isLoading,
 }: HumanMessageProps) {
-  const thread = useStreamContext();
   const contentString = getContentString(message.content);
 
-  const { isEditing, value, setValue, handleSubmitEdit, setIsEditing, meta } =
+  const { isEditing, value, setValue, handleSubmitEdit, setIsEditing } =
     useHumanMessageEdit(message, contentString);
-
-  const handleBranchSelect = useCallback(
-    (branch: string) => {
-      thread.setBranch(branch);
-    },
-    [thread],
-  );
 
   return (
     <div
@@ -52,9 +43,6 @@ export const HumanMessage = memo(function HumanMessage({
           isEditing={isEditing}
           setIsEditing={setIsEditing}
           handleSubmitEdit={handleSubmitEdit}
-          branch={meta?.branch || ""}
-          branchOptions={meta?.branchOptions || []}
-          onBranchSelect={handleBranchSelect}
         />
       </div>
     </div>

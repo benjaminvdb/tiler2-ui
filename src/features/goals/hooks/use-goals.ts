@@ -7,7 +7,7 @@ import { useAuthenticatedFetch } from "@/core/services/http-client";
 import { env } from "@/env";
 import type { GoalListResponse, GoalListItem } from "../types";
 
-const GOALS_API_BASE = `${env.API_URL}/api/v1/goals`;
+const GOALS_API_BASE = `${env.API_URL}/goals`;
 
 export interface UseGoalsReturn {
   goals: GoalListItem[];
@@ -43,6 +43,12 @@ export function useGoals(): UseGoalsReturn {
         revalidateOnFocus: true,
         revalidateOnReconnect: true,
         dedupingInterval: 2000,
+        refreshInterval: (data) => {
+          const hasGeneratingGoals = data?.goals.some(
+            (g) => g.status === "generating" || g.status === "planning",
+          );
+          return hasGeneratingGoals ? 3000 : 0;
+        },
       },
     );
 

@@ -1,27 +1,47 @@
-import { parsePartialJson } from "@langchain/core/output_parsers";
-import { AIMessage } from "@langchain/langgraph-sdk";
-import { MessageContentComplex } from "@langchain/core/messages";
+import { jsonrepair } from "jsonrepair";
+import type {
+  ContentBlock,
+  ToolCall,
+} from "@/core/providers/stream/ag-ui-types";
 
+/**
+ * Parse partial/incomplete JSON from streaming LLM output.
+ * Uses jsonrepair to handle truncated JSON and returns an empty object on failure.
+ */
+function parsePartialJson(input: string): Record<string, unknown> {
+  try {
+    const repaired = jsonrepair(input);
+    return JSON.parse(repaired) as Record<string, unknown>;
+  } catch {
+    return {};
+  }
+}
+
+/**
+ * Parse Anthropic-style tool calls from message content.
+ * Converts Anthropic tool_use blocks to AG-UI ToolCall format.
+ */
 export function parseAnthropicStreamedToolCalls(
-  content: MessageContentComplex[],
-): AIMessage["tool_calls"] {
-  const toolCallContents = content.filter((c) => c.type === "tool_use" && c.id);
+  content: ContentBlock[],
+): ToolCall[] {
+  const toolCallContents = content.filter(
+    (c) => c.type === "tool_use" && "id" in c,
+  );
 
   return toolCallContents.map((tc) => {
     const toolCall = tc as Record<string, unknown>;
     let json: Record<string, unknown> = {};
     if (toolCall?.input) {
-      try {
-        json = parsePartialJson(toolCall.input as string) ?? {};
-      } catch {
-        json = {};
-      }
+      json = parsePartialJson(toolCall.input as string);
     }
+    // Convert to AG-UI ToolCall format
     return {
-      name: (toolCall.name as string) ?? "",
+      function: {
+        name: (toolCall.name as string) ?? "",
+        arguments: JSON.stringify(json),
+      },
+      type: "function" as const,
       id: (toolCall.id as string) ?? "",
-      args: json,
-      type: "tool_call" as const,
     };
   });
 }

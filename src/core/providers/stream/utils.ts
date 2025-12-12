@@ -44,7 +44,7 @@ export async function checkGraphStatus(
   try {
     const combinedSignal = combineSignals(controller.signal, signal);
     const res = await fetchWithRetry(
-      `${apiUrl}/info`,
+      `${apiUrl}/health`,
       {
         signal: combinedSignal,
         ...(apiKey && {
@@ -69,7 +69,7 @@ export async function checkGraphStatus(
       component: "stream-utils",
       skipNotification: true,
       additionalData: {
-        url: `${apiUrl}/info`,
+        url: `${apiUrl}/health`,
         hasApiKey: !!apiKey,
       },
     });

@@ -1,15 +1,19 @@
 import { v4 as uuidv4 } from "uuid";
-import { Message, ToolMessage } from "@langchain/langgraph-sdk";
+import type { UIMessage } from "@/core/providers/stream/ag-ui-types";
 
 export const DO_NOT_RENDER_ID_PREFIX = "do-not-render-";
 
 export const ensureToolCallsHaveResponses = (
-  messages: Message[],
-): Message[] => {
-  const newMessages: ToolMessage[] = [];
+  messages: UIMessage[],
+): UIMessage[] => {
+  const newMessages: UIMessage[] = [];
 
   messages.forEach((message, index) => {
-    if (message.type !== "ai" || message.tool_calls?.length === 0) {
+    if (
+      message.type !== "ai" ||
+      !message.tool_calls ||
+      message.tool_calls.length === 0
+    ) {
       return;
     }
 
@@ -19,13 +23,13 @@ export const ensureToolCallsHaveResponses = (
     }
 
     newMessages.push(
-      ...(message.tool_calls?.map((tc) => ({
+      ...message.tool_calls.map((tc) => ({
         type: "tool" as const,
         tool_call_id: tc.id ?? "",
         id: `${DO_NOT_RENDER_ID_PREFIX}${uuidv4()}`,
-        name: tc.name,
+        name: tc.function.name,
         content: "Successfully handled tool call.",
-      })) ?? []),
+      })),
     );
   });
 

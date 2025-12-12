@@ -5,7 +5,11 @@ import { StreamErrorBoundary } from "@/shared/components/error-boundary/stream-e
 
 // eslint-disable-next-line react-refresh/only-export-components -- Re-export hook from child module
 export { useStreamContext } from "./stream/stream-context";
-export type { StreamContextType, GraphState } from "./stream/types";
+export type {
+  StreamContextType,
+  GraphState,
+  UIMessage,
+} from "./stream/ag-ui-types";
 
 export const StreamProvider: React.FC<{ children: ReactNode }> = ({
   children,

@@ -10,12 +10,15 @@ import remarkMath from "remark-math";
 import { FC, memo } from "react";
 import { defaultComponents } from "./components";
 
+const REMARK_PLUGINS = [remarkGfm, remarkBreaks, remarkMath];
+const REHYPE_PLUGINS = [rehypeKatex, rehypeSanitize];
+
 const MarkdownTextImpl: FC<{ children: string }> = ({ children }) => {
   return (
     <div className="markdown-content">
       <ReactMarkdown
-        remarkPlugins={[remarkGfm, remarkBreaks, remarkMath]}
-        rehypePlugins={[rehypeKatex, rehypeSanitize]}
+        remarkPlugins={REMARK_PLUGINS}
+        rehypePlugins={REHYPE_PLUGINS}
         components={defaultComponents as Partial<Components>}
       >
         {children}

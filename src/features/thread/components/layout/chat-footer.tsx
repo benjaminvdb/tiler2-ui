@@ -15,7 +15,6 @@ const ChatFooterComponent: React.FC = () => {
     onFileUpload,
     contentBlocks,
     onRemoveBlock,
-    isRespondingToInterrupt,
     hideToolCalls,
     onHideToolCallsChange,
     dragOver,
@@ -45,7 +44,6 @@ const ChatFooterComponent: React.FC = () => {
         contentBlocks={contentBlocks}
         onRemoveBlock={onRemoveBlock}
         isLoading={isLoading}
-        isRespondingToInterrupt={isRespondingToInterrupt}
         hideToolCalls={hideToolCalls}
         onHideToolCallsChange={onHideToolCallsChange}
         onStop={handleStop}

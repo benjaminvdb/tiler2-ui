@@ -57,14 +57,6 @@ export default defineConfig({
     // Increase chunk size warning limit to accommodate markdown rendering pipeline
     chunkSizeWarningLimit: 1200,
     rollupOptions: {
-      // Silence expected warnings
-      onwarn(warning, warn) {
-        // Silence "node:async_hooks" externalization warning from @langchain/langgraph
-        if (warning.message && warning.message.includes("node:async_hooks")) {
-          return;
-        }
-        warn(warning);
-      },
       output: {
         manualChunks: {
           // Core React
@@ -94,12 +86,6 @@ export default defineConfig({
             "rehype-sanitize",
             "katex",
           ],
-          // LangChain SDK
-          langchain: [
-            "@langchain/core",
-            "@langchain/langgraph",
-            "@langchain/langgraph-sdk",
-          ],
           // Data tables
           tanstack: ["@tanstack/react-table"],
           // Error monitoring
@@ -115,13 +101,6 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    include: [
-      "react",
-      "react-dom",
-      "react-router-dom",
-      "@langchain/core",
-      "@langchain/langgraph",
-      "@langchain/langgraph-sdk",
-    ],
+    include: ["react", "react-dom", "react-router-dom"],
   },
 });

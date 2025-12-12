@@ -10,16 +10,11 @@ export interface ChatInputProps {
   contentBlocks: ContentBlocks;
   onRemoveBlock: (index: number) => void;
   isLoading: boolean;
-  isRespondingToInterrupt: boolean;
   hideToolCalls: boolean;
   onHideToolCallsChange: (checked: boolean) => void;
   onStop: () => void;
   dragOver: boolean;
   dropRef: React.RefObject<HTMLDivElement | null>;
-}
-
-export interface InterruptIndicatorProps {
-  isRespondingToInterrupt: boolean;
 }
 
 export interface ToolCallsToggleProps {

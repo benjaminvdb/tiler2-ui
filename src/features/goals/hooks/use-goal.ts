@@ -12,7 +12,7 @@ import type { Goal } from "../types";
 /**
  * Base URL for goals API endpoints.
  */
-const GOALS_API_BASE = `${env.API_URL}/api/v1/goals`;
+const GOALS_API_BASE = `${env.API_URL}/goals`;
 
 export interface UseGoalReturn {
   /** Goal with milestones and tasks */
@@ -60,6 +60,11 @@ export function useGoal(goalId: string | undefined): UseGoalReturn {
     {
       revalidateOnFocus: false,
       dedupingInterval: 2000,
+      refreshInterval: (data) => {
+        const isGenerating =
+          data?.status === "generating" || data?.status === "planning";
+        return isGenerating ? 3000 : 0;
+      },
     },
   );
 

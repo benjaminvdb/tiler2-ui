@@ -1,35 +1,19 @@
-import { Fragment } from "react/jsx-runtime";
-import { LoadExternalComponent } from "@langchain/langgraph-sdk/react-ui";
-import { Message } from "@langchain/langgraph-sdk";
-import { useStreamContext } from "@/core/providers/stream";
-import { useArtifact } from "@/features/artifacts/components";
+import type {
+  UIMessage,
+  StreamContextType,
+} from "@/core/providers/stream/ag-ui-types";
 
 interface CustomComponentProps {
-  message: Message;
-  thread: ReturnType<typeof useStreamContext>;
+  message: UIMessage;
+  thread: StreamContextType;
 }
-export const CustomComponent: React.FC<CustomComponentProps> = ({
-  message,
-  thread,
-}) => {
-  const artifact = useArtifact();
-  const { values } = useStreamContext();
-  const customComponents = values.ui?.filter(
-    (ui) => ui.metadata?.message_id === message.id,
-  );
 
-  if (!customComponents?.length) return null;
-
-  return (
-    <Fragment key={message.id}>
-      {customComponents.map((customComponent) => (
-        <LoadExternalComponent
-          key={customComponent.id}
-          stream={thread}
-          message={customComponent}
-          meta={{ ui: customComponent, artifact }}
-        />
-      ))}
-    </Fragment>
-  );
+/**
+ * Custom component rendering placeholder.
+ * LangGraph UI components are not supported in AG-UI mode.
+ * This component is kept for API compatibility but renders nothing.
+ */
+export const CustomComponent: React.FC<CustomComponentProps> = () => {
+  // Custom UI components from LangGraph are not supported in AG-UI mode
+  return null;
 };

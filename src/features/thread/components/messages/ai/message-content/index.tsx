@@ -1,24 +1,20 @@
-import { Message, Checkpoint, ToolMessage } from "@langchain/langgraph-sdk";
+import type { UIMessage } from "@/core/providers/stream/ag-ui-types";
 import { ToolResult } from "../../tool-calls";
 import { useMessageContent } from "./hooks/use-message-content";
 import { RegularMessage } from "./components";
 
 interface MessageContentProps {
-  message: Message;
+  message: UIMessage;
   isLoading: boolean;
-  handleRegenerate: (parentCheckpoint: Checkpoint | null | undefined) => void;
 }
 export const MessageContent: React.FC<MessageContentProps> = ({
   message,
   isLoading,
-  handleRegenerate,
 }) => {
   const {
     contentString,
     hideToolCalls,
     thread,
-    meta,
-    parentCheckpoint,
     anthropicStreamedToolCalls,
     hasToolCalls,
     toolCallsHaveContents,
@@ -46,7 +42,7 @@ export const MessageContent: React.FC<MessageContentProps> = ({
     <div className="group mr-auto flex items-start gap-2">
       <div className="flex flex-col gap-2">
         {isToolResult ? (
-          <ToolResult message={message as ToolMessage} />
+          <ToolResult message={message} />
         ) : (
           <RegularMessage
             message={message}
@@ -57,15 +53,7 @@ export const MessageContent: React.FC<MessageContentProps> = ({
             toolCallsHaveContents={!!toolCallsHaveContents}
             hasAnthropicToolCalls={hasAnthropicToolCalls}
             anthropicStreamedToolCalls={anthropicStreamedToolCalls}
-            meta={
-              (meta as unknown as {
-                branch?: string;
-                branchOptions?: string[];
-              }) || null
-            }
             thread={thread}
-            parentCheckpoint={parentCheckpoint}
-            handleRegenerate={handleRegenerate}
           />
         )}
       </div>

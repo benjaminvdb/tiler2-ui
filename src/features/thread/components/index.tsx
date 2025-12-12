@@ -19,12 +19,6 @@ import { ChatProvider } from "@/features/chat/providers/chat-provider";
 function useChatContextValue(params: {
   chatStarted: boolean;
   firstTokenReceived: boolean;
-  handleRegenerate: (
-    parentCheckpoint:
-      | import("@langchain/langgraph-sdk").Checkpoint
-      | null
-      | undefined,
-  ) => void;
   input: string;
   setInput: (input: string) => void;
   handleSubmit: (e: React.FormEvent) => void;
@@ -34,7 +28,6 @@ function useChatContextValue(params: {
   handleFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   contentBlocks: MultimodalContentBlock[];
   removeBlock: (index: number) => void;
-  isRespondingToInterrupt: boolean;
   hideToolCalls: boolean;
   setHideToolCalls: (hide: boolean) => void;
   dragOver: boolean;
@@ -44,7 +37,6 @@ function useChatContextValue(params: {
   return {
     chatStarted: params.chatStarted,
     firstTokenReceived: params.firstTokenReceived,
-    handleRegenerate: params.handleRegenerate,
     input: params.input,
     onInputChange: params.setInput,
     onSubmit: params.handleSubmit,
@@ -52,7 +44,6 @@ function useChatContextValue(params: {
     onFileUpload: params.handleFileUpload,
     contentBlocks: params.contentBlocks,
     onRemoveBlock: params.removeBlock,
-    isRespondingToInterrupt: params.isRespondingToInterrupt,
     hideToolCalls: params.hideToolCalls,
     onHideToolCallsChange: params.setHideToolCalls,
     dragOver: params.dragOver,
@@ -73,10 +64,6 @@ export const Thread = (): React.JSX.Element => {
     setInput,
     firstTokenReceived,
     setFirstTokenReceived,
-    isRespondingToInterrupt,
-    setIsRespondingToInterrupt,
-    currentInterrupt,
-    setCurrentInterrupt,
     lastErrorRef,
     prevMessageLength,
   } = useThreadState();
@@ -94,27 +81,19 @@ export const Thread = (): React.JSX.Element => {
   const stream = useStreamContext();
   const messages = stream.messages;
 
-  const { handleSubmit, handleRegenerate, handleActionClick } =
-    useThreadHandlers({
-      input,
-      setInput,
-      contentBlocks,
-      setContentBlocks,
-      isRespondingToInterrupt,
-      setIsRespondingToInterrupt,
-      currentInterrupt,
-      setCurrentInterrupt,
-      setFirstTokenReceived,
-      artifactContext,
-      prevMessageLength,
-    });
+  const { handleSubmit, handleActionClick } = useThreadHandlers({
+    input,
+    setInput,
+    contentBlocks,
+    setContentBlocks,
+    setFirstTokenReceived,
+    artifactContext,
+    prevMessageLength,
+  });
 
   useThreadEffects({
     lastErrorRef,
     setFirstTokenReceived,
-    isRespondingToInterrupt,
-    setIsRespondingToInterrupt,
-    setCurrentInterrupt,
   });
 
   const chatStarted = !!threadId || !!messages.length;
@@ -122,7 +101,6 @@ export const Thread = (): React.JSX.Element => {
   const chatContextValue = useChatContextValue({
     chatStarted,
     firstTokenReceived,
-    handleRegenerate,
     input,
     setInput,
     handleSubmit,
@@ -130,7 +108,6 @@ export const Thread = (): React.JSX.Element => {
     handleFileUpload,
     contentBlocks,
     removeBlock,
-    isRespondingToInterrupt,
     hideToolCalls,
     setHideToolCalls,
     dragOver,

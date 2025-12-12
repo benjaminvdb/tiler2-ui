@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import { StreamContextType } from "./types";
+import { StreamContextType } from "./ag-ui-types";
 
 export const StreamContext = createContext<StreamContextType | undefined>(
   undefined,

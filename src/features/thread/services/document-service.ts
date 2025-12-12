@@ -10,7 +10,7 @@ export async function fetchDocumentPresignedUrl(
   }
 
   const response = await fetch(
-    `${apiUrl}/api/v1/documents/presigned-url?filename=${encodeURIComponent(filename)}`,
+    `${apiUrl}/documents/presigned-url?filename=${encodeURIComponent(filename)}`,
     {
       headers: {
         Authorization: `Bearer ${accessToken}`,

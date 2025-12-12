@@ -7,7 +7,7 @@ import { useAuthenticatedFetch } from "@/core/services/http-client";
 import { env } from "@/env";
 import type { UserProfile } from "../types";
 
-const USER_API_BASE = `${env.API_URL}/api/v1/user`;
+const USER_API_BASE = `${env.API_URL}/user`;
 
 export interface UseUserProfileReturn {
   profile: UserProfile | null;

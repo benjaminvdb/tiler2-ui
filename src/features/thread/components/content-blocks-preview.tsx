@@ -28,15 +28,7 @@ const BlockItem = React.memo(function BlockItem({
   }, [index, onRemove]);
 
   // Generate stable key from block content
-  const source = block.source;
-  const sourceKey =
-    source && typeof source === "object" && "url" in source
-      ? source.url ||
-        ("data" in source && typeof source.data === "string"
-          ? source.data.slice(0, 50)
-          : null) ||
-        index
-      : index;
+  const sourceKey = block.data ? block.data.slice(0, 50) : index;
   const blockKey =
     block.type === "image" ? `image-${sourceKey}` : `file-${sourceKey}`;
 
@@ -66,15 +58,7 @@ export const ContentBlocksPreview: React.FC<ContentBlocksPreviewProps> = ({
     <div className={cn("flex flex-wrap gap-2 p-3.5 pb-0", className)}>
       {blocks.map((block, idx) => {
         // Generate stable key from block content
-        const source = block.source;
-        const sourceKey =
-          source && typeof source === "object" && "url" in source
-            ? source.url ||
-              ("data" in source && typeof source.data === "string"
-                ? source.data.slice(0, 50)
-                : null) ||
-              idx
-            : idx;
+        const sourceKey = block.data ? block.data.slice(0, 50) : idx;
         const key =
           block.type === "image" ? `image-${sourceKey}` : `file-${sourceKey}`;
 

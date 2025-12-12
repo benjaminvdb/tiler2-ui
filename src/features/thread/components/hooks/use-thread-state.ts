@@ -4,7 +4,6 @@ import {
   useArtifactContext,
   useArtifactOpen,
 } from "@/features/artifacts/components";
-import type { HumanInterrupt } from "@langchain/langgraph/prebuilt";
 
 interface ThreadStateValue {
   artifactContext: Record<string, unknown>;
@@ -18,10 +17,6 @@ interface ThreadStateValue {
   setInput: (input: string) => void;
   firstTokenReceived: boolean;
   setFirstTokenReceived: (received: boolean) => void;
-  isRespondingToInterrupt: boolean;
-  setIsRespondingToInterrupt: (responding: boolean) => void;
-  currentInterrupt: HumanInterrupt | null;
-  setCurrentInterrupt: (interrupt: HumanInterrupt | null) => void;
   lastErrorRef: React.MutableRefObject<string | undefined>;
   prevMessageLength: React.MutableRefObject<number>;
 }
@@ -36,9 +31,6 @@ export function useThreadState(): ThreadStateValue {
 
   const [input, setInput] = useState("");
   const [firstTokenReceived, setFirstTokenReceived] = useState(false);
-  const [isRespondingToInterrupt, setIsRespondingToInterrupt] = useState(false);
-  const [currentInterrupt, setCurrentInterrupt] =
-    useState<HumanInterrupt | null>(null);
 
   const lastErrorRef = useRef<string | undefined>(undefined);
   const prevMessageLength = useRef(0);
@@ -63,11 +55,6 @@ export function useThreadState(): ThreadStateValue {
     setInput,
     firstTokenReceived,
     setFirstTokenReceived,
-
-    isRespondingToInterrupt,
-    setIsRespondingToInterrupt,
-    currentInterrupt,
-    setCurrentInterrupt,
 
     lastErrorRef,
     prevMessageLength,

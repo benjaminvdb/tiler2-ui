@@ -1,14 +1,14 @@
-import { useCallback, Dispatch, SetStateAction } from "react";
+import { useCallback } from "react";
 import { toast } from "sonner";
 import type { Logger } from "@/core/services/observability";
 import { sleep } from "../utils";
-import type { Thread } from "@langchain/langgraph-sdk";
+import type { Thread } from "@/features/thread/providers/thread-provider";
 
 const THREAD_SYNC_DELAY_MS = 500;
 
 interface UseThreadVerificationProps {
   getThreads: () => Promise<Thread[]>;
-  setThreads: Dispatch<SetStateAction<Thread[]>>;
+  resetThreads: (threads: Thread[]) => void;
   removeOptimisticThread: (id: string) => void;
   logger: Logger;
 }
@@ -18,7 +18,7 @@ interface UseThreadVerificationProps {
  */
 export function useThreadVerification({
   getThreads,
-  setThreads,
+  resetThreads,
   removeOptimisticThread,
   logger,
 }: UseThreadVerificationProps) {
@@ -27,7 +27,7 @@ export function useThreadVerification({
       try {
         await sleep(THREAD_SYNC_DELAY_MS);
         const threads = await getThreads();
-        setThreads(threads);
+        resetThreads(threads);
         logger.info("Thread created successfully", {
           operation: "thread_creation_confirmed",
           threadId: id,
@@ -45,6 +45,6 @@ export function useThreadVerification({
         }
       }
     },
-    [getThreads, logger, removeOptimisticThread, setThreads],
+    [getThreads, logger, removeOptimisticThread, resetThreads],
   );
 }

@@ -19,7 +19,7 @@ import {
  * Base URL for insights API endpoints.
  * Uses the configured API URL from environment variables.
  */
-const INSIGHTS_API_BASE = `${env.API_URL}/api/v1/insights`;
+const INSIGHTS_API_BASE = `${env.API_URL}/insights`;
 
 /**
  * Creates a new insight from a text selection.

@@ -25,7 +25,7 @@ import type {
  * Base URL for goals API endpoints.
  * Uses the configured API URL from environment variables.
  */
-const GOALS_API_BASE = `${env.API_URL}/api/v1/goals`;
+const GOALS_API_BASE = `${env.API_URL}/goals`;
 
 // =============================================================================
 // Goals API

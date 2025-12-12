@@ -11,6 +11,7 @@ import { Workflow } from "lucide-react";
 import { useUIContext } from "@/features/chat/providers/ui-provider";
 import { LoadingScreen } from "@/shared/components/loading-spinner";
 import { Button } from "@/shared/components/ui/button";
+import { EmptyState } from "@/shared/components/ui/empty-state";
 import { Page } from "@/shared/components/ui/page";
 import { PageContent } from "@/shared/components/ui/page-content";
 import { PageHeader } from "@/shared/components/ui/page-header";
@@ -93,28 +94,6 @@ const CATEGORY_ILLUSTRATIONS: Record<string, string> = {
 
 const getCategoryIllustration = (categoryName: string): string => {
   return CATEGORY_ILLUSTRATIONS[categoryName] ?? "/leaves.png";
-};
-
-/**
- * Local workflows shown when the backend cannot provide data.
- */
-const BUILT_IN_WORKFLOWS: WorkflowConfig[] = [];
-
-/**
- * Deduplicates backend workflows and merges them with local fallbacks.
- */
-const mergeWithBuiltIns = (
-  dynamicWorkflows: WorkflowConfig[],
-): WorkflowConfig[] => {
-  const existingIds = new Set(
-    BUILT_IN_WORKFLOWS.map((workflow) => workflow.workflow_id),
-  );
-  const uniqueDynamicWorkflows = dynamicWorkflows.filter(
-    (workflow) => !existingIds.has(workflow.workflow_id),
-  );
-  return [...BUILT_IN_WORKFLOWS, ...uniqueDynamicWorkflows].sort(
-    (a, b) => a.order_index - b.order_index,
-  );
 };
 
 interface WorkflowCardProps {
@@ -392,6 +371,7 @@ interface WorkflowsContentProps {
   searchQuery: string;
   filteredWorkflows: WorkflowConfig[];
   workflowsByCategory: Record<string, WorkflowConfig[]>;
+  totalWorkflows: number;
   setCategoryRef: (categoryName: string, el: HTMLElement | null) => void;
   onWorkflowClick: (workflowId: string) => void;
   onClearSearch: () => void;
@@ -401,70 +381,90 @@ const WorkflowsContent: React.FC<WorkflowsContentProps> = ({
   searchQuery,
   filteredWorkflows,
   workflowsByCategory,
+  totalWorkflows,
   setCategoryRef,
   onWorkflowClick,
   onClearSearch,
-}) => (
-  <>
-    {searchQuery.trim() ? (
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {filteredWorkflows.map((workflow, index) => (
-          <WorkflowCard
-            key={workflow.workflow_id}
-            workflow={workflow}
-            index={index}
-            onWorkflowClick={onWorkflowClick}
-          />
-        ))}
-      </div>
-    ) : (
-      <div className="space-y-12">
-        {Object.entries(workflowsByCategory).map(
-          ([categoryName, categoryWorkflows], categoryIndex) => (
-            <CategorySection
-              key={categoryName}
-              categoryName={categoryName}
-              categoryWorkflows={categoryWorkflows}
-              categoryIndex={categoryIndex}
-              totalCategories={Object.entries(workflowsByCategory).length}
-              setCategoryRef={setCategoryRef}
+}) => {
+  // No workflows at all - show empty state
+  if (totalWorkflows === 0 && !searchQuery.trim()) {
+    return (
+      <EmptyState
+        icon={Workflow}
+        title="No workflows available"
+        subtitle="Workflows will appear here once they are configured in your organization."
+      />
+    );
+  }
+
+  return (
+    <>
+      {searchQuery.trim() ? (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {filteredWorkflows.map((workflow, index) => (
+            <WorkflowCard
+              key={workflow.workflow_id}
+              workflow={workflow}
+              index={index}
               onWorkflowClick={onWorkflowClick}
             />
-          ),
-        )}
-      </div>
-    )}
-    {filteredWorkflows.length === 0 && (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="text-muted-foreground py-12 text-center"
-      >
-        <p className="text-lg">
-          No workflows found matching &ldquo;{searchQuery}&rdquo;
-        </p>
-        <Button
-          variant="ghost"
-          onClick={onClearSearch}
-          className="mt-4"
+          ))}
+        </div>
+      ) : (
+        <div className="space-y-12">
+          {Object.entries(workflowsByCategory).map(
+            ([categoryName, categoryWorkflows], categoryIndex) => (
+              <CategorySection
+                key={categoryName}
+                categoryName={categoryName}
+                categoryWorkflows={categoryWorkflows}
+                categoryIndex={categoryIndex}
+                totalCategories={Object.entries(workflowsByCategory).length}
+                setCategoryRef={setCategoryRef}
+                onWorkflowClick={onWorkflowClick}
+              />
+            ),
+          )}
+        </div>
+      )}
+
+      {/* Show "no results" only when actively searching */}
+      {filteredWorkflows.length === 0 && searchQuery.trim() && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-muted-foreground py-12 text-center"
         >
-          Clear search
-        </Button>
-      </motion.div>
-    )}
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5, delay: 0.8 }}
-      className="border-border mt-16 border-t pt-8"
-    >
-      <p className="text-muted-foreground text-center text-sm">
-        Can&apos;t find what you&apos;re looking for? Start a new chat to
-        discuss your specific needs.
-      </p>
-    </motion.div>
-  </>
-);
+          <p className="text-lg">
+            No workflows found matching &ldquo;{searchQuery}&rdquo;
+          </p>
+          <Button
+            variant="ghost"
+            onClick={onClearSearch}
+            className="mt-4"
+          >
+            Clear search
+          </Button>
+        </motion.div>
+      )}
+
+      {/* Footer only when workflows exist */}
+      {filteredWorkflows.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.8 }}
+          className="border-border mt-16 border-t pt-8"
+        >
+          <p className="text-muted-foreground text-center text-sm">
+            Can&apos;t find what you&apos;re looking for? Start a new chat to
+            discuss your specific needs.
+          </p>
+        </motion.div>
+      )}
+    </>
+  );
+};
 
 /**
  * Custom hook for workflows page state and handlers
@@ -482,7 +482,7 @@ function useWorkflowsPage() {
   } = useWorkflows();
 
   const workflows = useMemo(
-    () => mergeWithBuiltIns(rawWorkflows),
+    () => [...rawWorkflows].sort((a, b) => a.order_index - b.order_index),
     [rawWorkflows],
   );
   const error = swrError?.message ?? null;
@@ -531,9 +531,6 @@ function useWorkflowsPage() {
     }
   }, [loading, workflowsByCategory]);
 
-  const showBuiltInOnly =
-    !loading && workflows.length === BUILT_IN_WORKFLOWS.length;
-
   return {
     loading,
     error,
@@ -541,7 +538,7 @@ function useWorkflowsPage() {
     filteredWorkflows,
     workflowsByCategory,
     categories,
-    showBuiltInOnly,
+    totalWorkflows: workflows.length,
     setCategoryRef,
     scrollToCategory,
     handleWorkflowClick,
@@ -558,7 +555,7 @@ const WorkflowsPage = (): React.ReactNode => {
     filteredWorkflows,
     workflowsByCategory,
     categories,
-    showBuiltInOnly,
+    totalWorkflows,
     setCategoryRef,
     scrollToCategory,
     handleWorkflowClick,
@@ -591,7 +588,6 @@ const WorkflowsPage = (): React.ReactNode => {
         <StatusMessages
           error={error}
           loading={loading}
-          showBuiltInOnly={showBuiltInOnly}
         />
 
         {!searchQuery.trim() && (
@@ -605,6 +601,7 @@ const WorkflowsPage = (): React.ReactNode => {
           searchQuery={searchQuery}
           filteredWorkflows={filteredWorkflows}
           workflowsByCategory={workflowsByCategory}
+          totalWorkflows={totalWorkflows}
           setCategoryRef={setCategoryRef}
           onWorkflowClick={handleWorkflowClick}
           onClearSearch={handleClearSearch}

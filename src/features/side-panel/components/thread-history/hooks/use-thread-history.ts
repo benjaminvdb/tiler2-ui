@@ -14,8 +14,13 @@ export function useThreadHistory() {
   const [chatHistoryOpen, setChatHistoryOpen] =
     useSearchParamState("chatHistoryOpen");
 
-  const { getThreads, threads, setThreads, threadsLoading, setThreadsLoading } =
-    useThreads();
+  const {
+    getThreads,
+    threads,
+    resetThreads,
+    threadsLoading,
+    setThreadsLoading,
+  } = useThreads();
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -24,7 +29,7 @@ export function useThreadHistory() {
       setThreadsLoading(true);
       try {
         const fetchedThreads = await getThreads();
-        setThreads(fetchedThreads);
+        resetThreads(fetchedThreads);
       } catch (error) {
         reportThreadError(error as Error, {
           operation: "fetchThreads",
@@ -38,7 +43,7 @@ export function useThreadHistory() {
     const timeoutId = setTimeout(fetchThreads, AUTH_BOOTSTRAP_DELAY_MS);
 
     return () => clearTimeout(timeoutId);
-  }, [getThreads, setThreads, setThreadsLoading]);
+  }, [getThreads, resetThreads, setThreadsLoading]);
 
   return {
     isLargeScreen,

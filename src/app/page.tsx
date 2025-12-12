@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Thread } from "@/features/thread/components";
-import { Thread as ThreadType } from "@langchain/langgraph-sdk";
+import type { Thread as ThreadType } from "@/features/thread/providers/thread-provider";
 import { ArtifactProvider } from "@/features/artifacts/components";
 import { useSearchParams } from "react-router-dom";
 import { useStreamContext } from "@/core/providers/stream";
@@ -74,10 +74,6 @@ const submitWorkflowWithThread = (
       },
     },
   );
-
-  console.log(
-    `Workflow "${workflow.title}" started with thread: ${optimisticThreadId}`,
-  );
 };
 
 /**
@@ -119,11 +115,9 @@ const ThreadWithWorkflowHandler = (): React.ReactNode => {
       }
 
       setIsSubmittingWorkflow(true);
-      console.log("Starting workflow:", workflowId);
       submittedWorkflowRef.current = workflowId;
 
       if (threadId) {
-        console.log("Clearing existing thread ID to start fresh workflow");
         setThreadId(null);
       }
 
@@ -178,7 +172,6 @@ const ThreadWithWorkflowHandler = (): React.ReactNode => {
 
   useEffect(() => {
     if (threadId && workflowId) {
-      console.log("Workflow started, clearing workflow param from URL");
       updateSearchParams({ workflow: undefined });
     }
   }, [threadId, workflowId, updateSearchParams]);
@@ -198,11 +191,9 @@ const ThreadWithWorkflowHandler = (): React.ReactNode => {
       }
 
       setIsSubmittingTask(true);
-      console.log("Starting thread for task:", taskId);
       submittedTaskRef.current = taskId;
 
       if (threadId) {
-        console.log("Clearing existing thread ID to start fresh task thread");
         setThreadId(null);
       }
 
@@ -248,8 +239,6 @@ const ThreadWithWorkflowHandler = (): React.ReactNode => {
             },
           },
         );
-
-        console.log(`Task thread started: ${optimisticThreadId}`);
       }
 
       setIsSubmittingTask(false);
@@ -282,9 +271,7 @@ const ThreadWithWorkflowHandler = (): React.ReactNode => {
       }
 
       try {
-        console.log(`Linking thread ${threadId} to task ${taskId}`);
         await linkThreadToTask(fetchWithAuth, taskId, { thread_id: threadId });
-        console.log("Successfully linked thread to task");
       } catch (error) {
         console.error("Failed to link thread to task:", error);
       }

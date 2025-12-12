@@ -1,5 +1,5 @@
 import { cn } from "@/shared/utils/utils";
-import { BranchSwitcher, CommandBar } from "../../shared/index";
+import { CommandBar } from "../../shared/index";
 import { MessageControlsProps } from "../types";
 
 export const MessageControls: React.FC<MessageControlsProps> = ({
@@ -8,9 +8,6 @@ export const MessageControls: React.FC<MessageControlsProps> = ({
   isEditing,
   setIsEditing,
   handleSubmitEdit,
-  branch,
-  branchOptions,
-  onBranchSelect,
 }) => {
   return (
     <div
@@ -20,12 +17,6 @@ export const MessageControls: React.FC<MessageControlsProps> = ({
         isEditing && "opacity-100",
       )}
     >
-      <BranchSwitcher
-        branch={branch}
-        branchOptions={branchOptions}
-        onSelect={onBranchSelect}
-        isLoading={isLoading}
-      />
       <CommandBar
         isLoading={isLoading}
         content={contentString}

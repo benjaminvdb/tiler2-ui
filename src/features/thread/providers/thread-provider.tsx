@@ -1,5 +1,3 @@
-import { validate } from "uuid";
-import { Thread } from "@langchain/langgraph-sdk";
 import {
   createContext,
   useContext,
@@ -14,6 +12,18 @@ import { useAuthenticatedFetch } from "@/core/services/http-client";
 import { getClientConfig } from "@/core/config/client";
 import { PAGINATION_CONFIG } from "@/shared/constants/pagination";
 
+/**
+ * Local Thread type (replaces @langchain/langgraph-sdk Thread)
+ */
+export interface Thread {
+  thread_id: string;
+  created_at: string;
+  updated_at: string;
+  metadata: Record<string, unknown>;
+  status: string;
+  values: Record<string, unknown>;
+}
+
 const THREAD_LIST_TIMEOUT_MS = 10000;
 const THREAD_DELETE_TIMEOUT_MS = 5000;
 
@@ -21,6 +31,7 @@ interface ThreadContextType {
   getThreads: () => Promise<Thread[]>;
   threads: Thread[];
   setThreads: Dispatch<SetStateAction<Thread[]>>;
+  resetThreads: (threads: Thread[]) => void;
   threadsLoading: boolean;
   setThreadsLoading: Dispatch<SetStateAction<boolean>>;
   deleteThread: (threadId: string) => Promise<void>;
@@ -34,59 +45,60 @@ interface ThreadContextType {
 }
 const ThreadContext = createContext<ThreadContextType | undefined>(undefined);
 
-const getThreadSearchMetadata = (
-  assistantId: string,
-): { graph_id: string } | { assistant_id: string } => {
-  if (validate(assistantId)) {
-    return { assistant_id: assistantId };
-  } else {
-    return { graph_id: assistantId };
-  }
-};
-
 /**
  * Hook to get threads from API with pagination support
  */
 function useGetThreads(
   apiUrl: string | undefined,
-  assistantId: string | undefined,
   fetchWithAuth: ReturnType<typeof useAuthenticatedFetch>,
 ) {
   return useCallback(
     async (offset: number = 0): Promise<Thread[]> => {
-      if (!apiUrl || !assistantId) return [];
+      if (!apiUrl) return [];
 
       try {
-        const response = await fetchWithAuth(`${apiUrl}/threads/search`, {
-          method: "POST",
-          timeoutMs: THREAD_LIST_TIMEOUT_MS,
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            metadata: {
-              ...getThreadSearchMetadata(assistantId),
-            },
-            limit: PAGINATION_CONFIG.THREAD_LIST_PAGE_SIZE,
-            offset,
-          }),
+        const params = new URLSearchParams({
+          limit: String(PAGINATION_CONFIG.THREAD_LIST_PAGE_SIZE),
+          offset: String(offset),
         });
+        const response = await fetchWithAuth(
+          `${apiUrl}/agent/threads?${params}`,
+          {
+            method: "GET",
+            timeoutMs: THREAD_LIST_TIMEOUT_MS,
+          },
+        );
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const threads = await response.json();
-        return threads;
+        // Map backend response to frontend Thread interface
+        return threads.map(
+          (t: {
+            id: string;
+            name: string;
+            created_at: string;
+            updated_at: string;
+          }) => ({
+            thread_id: t.id,
+            created_at: t.created_at,
+            updated_at: t.updated_at,
+            metadata: { name: t.name },
+            status: "idle",
+            values: {},
+          }),
+        );
       } catch (error) {
         reportThreadError(error as Error, {
-          operation: "searchThreads",
+          operation: "listThreads",
           component: "ThreadProvider",
           url: apiUrl,
         });
         return [];
       }
     },
-    [apiUrl, assistantId, fetchWithAuth],
+    [apiUrl, fetchWithAuth],
   );
 }
 
@@ -105,10 +117,13 @@ function useDeleteThread(
       }
 
       try {
-        const response = await fetchWithAuth(`${apiUrl}/threads/${threadId}`, {
-          method: "DELETE",
-          timeoutMs: THREAD_DELETE_TIMEOUT_MS,
-        });
+        const response = await fetchWithAuth(
+          `${apiUrl}/agent/threads/${threadId}`,
+          {
+            method: "DELETE",
+            timeoutMs: THREAD_DELETE_TIMEOUT_MS,
+          },
+        );
 
         if (!response.ok) {
           throw new Error(`Failed to delete thread: ${response.status}`);
@@ -163,17 +178,18 @@ function useRenameThread(
           ),
         );
 
-        const response = await fetchWithAuth(`${apiUrl}/threads/${threadId}`, {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            metadata: {
-              name: trimmedName,
+        const response = await fetchWithAuth(
+          `${apiUrl}/agent/threads/${threadId}`,
+          {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
             },
-          }),
-        });
+            body: JSON.stringify({
+              name: trimmedName,
+            }),
+          },
+        );
 
         if (!response.ok) {
           throw new Error(`Failed to rename thread: ${response.status}`);
@@ -204,7 +220,6 @@ export const ThreadProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const config = getClientConfig();
   const apiUrl = config.apiUrl;
-  const assistantId = config.assistantId;
   const [threads, setThreads] = useState<Thread[]>([]);
   const [threadsLoading, setThreadsLoading] = useState(false);
   const fetchWithAuth = useAuthenticatedFetch();
@@ -213,7 +228,7 @@ export const ThreadProvider: React.FC<{ children: ReactNode }> = ({
   const [hasMoreThreads, setHasMoreThreads] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-  const getThreads = useGetThreads(apiUrl, assistantId, fetchWithAuth);
+  const getThreads = useGetThreads(apiUrl, fetchWithAuth);
   const deleteThread = useDeleteThread(apiUrl, fetchWithAuth, setThreads);
   const renameThread = useRenameThread(
     apiUrl,
@@ -238,6 +253,15 @@ export const ThreadProvider: React.FC<{ children: ReactNode }> = ({
     },
     [],
   );
+
+  const resetThreads = useCallback((newThreads: Thread[]): void => {
+    setThreads(newThreads);
+    // Reset pagination state for fresh load
+    setOffset(PAGINATION_CONFIG.THREAD_LIST_PAGE_SIZE);
+    setHasMoreThreads(
+      newThreads.length >= PAGINATION_CONFIG.THREAD_LIST_PAGE_SIZE,
+    );
+  }, []);
 
   const loadMoreThreads = useCallback(async (): Promise<void> => {
     if (isLoadingMore || !hasMoreThreads) return;
@@ -267,6 +291,7 @@ export const ThreadProvider: React.FC<{ children: ReactNode }> = ({
     getThreads,
     threads,
     setThreads,
+    resetThreads,
     threadsLoading,
     setThreadsLoading,
     deleteThread,
