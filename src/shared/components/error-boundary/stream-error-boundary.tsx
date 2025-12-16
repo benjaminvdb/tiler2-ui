@@ -74,7 +74,7 @@ function categorizeStreamError(error: Error): {
   type: "auth" | "network" | "timeout" | "rateLimit" | "server" | "unknown";
   statusCode?: number;
 } {
-  const message = error.message.toLowerCase();
+  const message = (error.message ?? "").toLowerCase();
   const httpMatch = message.match(/http[s]?\s+(\d{3})/i);
   const statusCode = httpMatch ? parseInt(httpMatch[1], 10) : undefined;
 

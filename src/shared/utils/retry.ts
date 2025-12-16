@@ -67,7 +67,7 @@ export function isRetryableError(error: unknown): boolean {
     return false;
   }
 
-  const message = error.message.toLowerCase();
+  const message = (error.message ?? "").toLowerCase();
   if (isNetworkErrorMessage(message)) return true;
 
   if ("isRetryable" in error && typeof error.isRetryable === "boolean") {

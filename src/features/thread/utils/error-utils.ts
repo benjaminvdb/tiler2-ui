@@ -8,7 +8,7 @@
 export const isThreadNotFoundError = (error: Error | null): boolean => {
   if (!error) return false;
 
-  const message = error.message.toLowerCase();
+  const message = (error.message ?? "").toLowerCase();
 
   // Check for HTTP 404 status in error message
   if (message.includes("http 404") || message.includes("404")) {
