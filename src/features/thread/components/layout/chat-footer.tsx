@@ -1,7 +1,7 @@
 import React, { useCallback } from "react";
 import { ScrollToBottom } from "../scroll-utils";
 import { ChatInput } from "../chat-input-components";
-import { useStreamContext } from "@/core/providers/stream";
+import { useCopilotChat } from "@/core/providers/copilotkit";
 import { useChatContext } from "@/features/chat/providers/chat-provider";
 import { cn } from "@/shared/utils/utils";
 
@@ -20,12 +20,12 @@ const ChatFooterComponent: React.FC = () => {
     dragOver,
     dropRef,
   } = useChatContext();
-  const stream = useStreamContext();
-  const isLoading = stream.isLoading;
+  const chat = useCopilotChat();
+  const isLoading = chat.isLoading;
 
   const handleStop = useCallback(() => {
-    stream.stop();
-  }, [stream]);
+    chat.stop();
+  }, [chat]);
 
   return (
     <div

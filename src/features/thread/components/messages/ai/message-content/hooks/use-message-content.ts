@@ -1,23 +1,23 @@
 import { useSearchParamState } from "@/core/routing/hooks";
-import type { UIMessage, ToolCall } from "@/core/providers/stream/ag-ui-types";
-import { useStreamContext } from "@/core/providers/stream";
+import type { Message, ToolCall, AIMessage } from "@copilotkit/shared";
+import { useCopilotChat } from "@/core/providers/copilotkit";
 import { getContentString } from "../../../../utils";
 import { parseAnthropicStreamedToolCalls } from "../../utils";
 
 /**
- * Check if message has tool calls with content
+ * Check if message has tool calls with content.
+ * AG-UI uses toolCalls (camelCase) on AssistantMessage.
  */
-const checkToolCallsStatus = (message: UIMessage) => {
-  const hasToolCalls =
-    "tool_calls" in message &&
-    message.tool_calls &&
-    message.tool_calls.length > 0;
+const checkToolCallsStatus = (message: Message) => {
+  // AG-UI AssistantMessage has toolCalls (camelCase)
+  const toolCalls = (message as AIMessage).toolCalls;
+  const hasToolCalls = toolCalls && toolCalls.length > 0;
 
   const toolCallsHaveContents =
     hasToolCalls &&
-    message.tool_calls?.some((tc: ToolCall) => {
-      // Handle both AG-UI format (function.arguments) and LangChain format (args)
-      if ("function" in tc && tc.function?.arguments) {
+    toolCalls?.some((tc: ToolCall) => {
+      // AG-UI format: toolCall.function.arguments
+      if (tc.function?.arguments) {
         try {
           const args = JSON.parse(tc.function.arguments);
           return Object.keys(args).length > 0;
@@ -31,8 +31,8 @@ const checkToolCallsStatus = (message: UIMessage) => {
   return { hasToolCalls, toolCallsHaveContents };
 };
 
-export function useMessageContent(message: UIMessage) {
-  const content = message?.content ?? [];
+export function useMessageContent(message: Message) {
+  const content = message?.content ?? "";
   const contentString = getContentString(content);
   const [hideToolCallsParam] = useSearchParamState("hideToolCalls");
 
@@ -40,7 +40,7 @@ export function useMessageContent(message: UIMessage) {
   const hideToolCalls =
     hideToolCallsParam !== null ? hideToolCallsParam === true : envDefaultHide;
 
-  const thread = useStreamContext();
+  const chat = useCopilotChat();
 
   const anthropicStreamedToolCalls = Array.isArray(content)
     ? parseAnthropicStreamedToolCalls(content)
@@ -48,12 +48,13 @@ export function useMessageContent(message: UIMessage) {
 
   const { hasToolCalls, toolCallsHaveContents } = checkToolCallsStatus(message);
   const hasAnthropicToolCalls = !!anthropicStreamedToolCalls?.length;
-  const isToolResult = message?.type === "tool";
+  // AG-UI uses role: "tool" instead of type: "tool"
+  const isToolResult = message?.role === "tool";
 
   return {
     contentString,
     hideToolCalls,
-    thread,
+    chat,
     anthropicStreamedToolCalls,
     hasToolCalls,
     toolCallsHaveContents,

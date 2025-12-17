@@ -1,4 +1,4 @@
-import { useStreamContext } from "@/core/providers/stream";
+import { useCopilotChat } from "@/core/providers/copilotkit";
 import { useThreads } from "@/features/thread/providers/thread-provider";
 import { useAuth0 } from "@auth0/auth0-react";
 import { UseThreadHandlersProps } from "./use-thread-handlers/types";
@@ -9,19 +9,19 @@ export function useThreadHandlers(props: UseThreadHandlersProps): {
   handleSubmit: (e: React.FormEvent) => void;
   handleActionClick: (prompt: string) => void;
 } {
-  const stream = useStreamContext();
-  const isLoading = stream.isLoading;
+  const chat = useCopilotChat();
+  const isLoading = chat.isLoading;
   const { addOptimisticThread } = useThreads();
   const { user } = useAuth0();
 
   const handleSubmit = createSubmitHandler(
     props,
-    stream,
+    chat,
     isLoading,
     addOptimisticThread,
     user?.email || "",
   );
-  const handleActionClick = createActionHandler(stream);
+  const handleActionClick = createActionHandler(chat);
 
   return {
     handleSubmit,

@@ -1,18 +1,14 @@
 import { useRef } from "react";
-import { CustomComponent } from "../../custom-component";
 import { MessageText } from "./message-text";
 import { ToolCallsSection } from "./tool-calls-section";
 import { MessageActions } from "./message-actions";
 import { SourcesList } from "../../sources-list";
 import { renumberCitations } from "../../../../markdown/utils/citation-renumbering";
-import type {
-  StreamContextType,
-  UIMessage,
-  ToolCall,
-} from "@/core/providers/stream/ag-ui-types";
+import type { Message, ToolCall, AIMessage } from "@copilotkit/shared";
+import type { UseCopilotChatReturn } from "@/core/providers/copilotkit";
 
 interface RegularMessageProps {
-  message: UIMessage;
+  message: Message;
   isLoading: boolean;
   contentString: string;
   hideToolCalls: boolean;
@@ -20,7 +16,7 @@ interface RegularMessageProps {
   toolCallsHaveContents: boolean;
   hasAnthropicToolCalls: boolean;
   anthropicStreamedToolCalls?: ToolCall[] | undefined;
-  thread: StreamContextType;
+  chat: UseCopilotChatReturn;
 }
 
 export const RegularMessage: React.FC<RegularMessageProps> = ({
@@ -32,11 +28,13 @@ export const RegularMessage: React.FC<RegularMessageProps> = ({
   toolCallsHaveContents,
   hasAnthropicToolCalls,
   anthropicStreamedToolCalls,
-  thread,
+  chat,
 }) => {
   const htmlContainerRef = useRef<HTMLDivElement>(null);
 
-  const sources = thread.values?.sources || [];
+  // Sources can be passed via message state in AG-UI
+  // TODO: Extract sources from agent state when available
+  const sources = (message as AIMessage).state?.sources || [];
 
   const { renumberedSources, renumberedContent } = renumberCitations(
     contentString,
@@ -58,16 +56,12 @@ export const RegularMessage: React.FC<RegularMessageProps> = ({
         hasAnthropicToolCalls={hasAnthropicToolCalls}
         anthropicStreamedToolCalls={anthropicStreamedToolCalls}
       />
-      <CustomComponent
-        message={message}
-        thread={thread}
-      />
       <SourcesList sources={renumberedSources} />
       <MessageActions
         contentString={renumberedContent}
         htmlContainerRef={htmlContainerRef}
         isLoading={isLoading}
-        thread={thread}
+        chat={chat}
       />
     </>
   );

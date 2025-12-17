@@ -7,6 +7,7 @@ import { EditableContent } from "./components/editable-content";
 import { MultimodalContent } from "./components/multimodal-content";
 import { TextContent } from "./components/text-content";
 import { MessageControls } from "./components/message-controls";
+import type { UserMessage } from "@copilotkit/shared";
 
 export const HumanMessage = memo(function HumanMessage({
   message,
@@ -33,7 +34,7 @@ export const HumanMessage = memo(function HumanMessage({
           />
         ) : (
           <div className="flex flex-col gap-2">
-            <MultimodalContent content={message.content} />
+            <MultimodalContent content={(message as UserMessage).content} />
             <TextContent contentString={contentString} />
           </div>
         )}

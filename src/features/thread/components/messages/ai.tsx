@@ -1,10 +1,10 @@
 import { memo } from "react";
-import type { UIMessage } from "@/core/providers/stream/ag-ui-types";
+import type { Message } from "@copilotkit/shared";
 import { PlaceholderMessage } from "./ai/placeholder-message";
 import { MessageContent } from "./ai/message-content";
 
 interface AssistantMessageProps {
-  message: UIMessage | undefined;
+  message: Message | undefined;
   isLoading: boolean;
 }
 export const AssistantMessage = memo(function AssistantMessage({

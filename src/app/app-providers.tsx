@@ -7,7 +7,7 @@ import { useSearchParamState } from "@/core/routing/hooks";
 import { useNavigate } from "react-router-dom";
 import { Toaster } from "@/shared";
 import { createNavigationService } from "@/core/services/navigation";
-import { StreamProvider } from "@/core/providers/stream";
+import { CopilotKitProvider } from "@/core/providers/copilotkit";
 import * as Sentry from "@sentry/react";
 import {
   SIDE_PANEL_MAX_WIDTH,
@@ -102,9 +102,9 @@ export const AppProviders = ({
       <Toaster />
       <UIProvider value={uiContextValue}>
         <HotkeysProvider>
-          <ThreadProvider>
-            <StreamProvider>{children}</StreamProvider>
-          </ThreadProvider>
+          <CopilotKitProvider threadId={threadId}>
+            <ThreadProvider>{children}</ThreadProvider>
+          </CopilotKitProvider>
         </HotkeysProvider>
       </UIProvider>
     </>

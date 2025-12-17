@@ -1,6 +1,6 @@
 import React from "react";
 import { cn } from "@/shared/utils/utils";
-import { useStreamContext } from "@/core/providers/stream";
+import { useCopilotChat } from "@/core/providers/copilotkit";
 import { useFileUpload } from "@/features/file-upload/hooks/use-file-upload";
 import type { MultimodalContentBlock } from "@/shared/types";
 
@@ -78,8 +78,8 @@ export const Thread = (): React.JSX.Element => {
     handlePaste,
   } = useFileUpload();
 
-  const stream = useStreamContext();
-  const messages = stream.messages;
+  const chat = useCopilotChat();
+  const messages = chat.messages;
 
   const { handleSubmit, handleActionClick } = useThreadHandlers({
     input,
@@ -96,7 +96,7 @@ export const Thread = (): React.JSX.Element => {
     setFirstTokenReceived,
   });
 
-  const chatStarted = !!threadId || !!messages.length;
+  const chatStarted = !!threadId || !!chat.threadId || !!messages.length;
 
   const chatContextValue = useChatContextValue({
     chatStarted,

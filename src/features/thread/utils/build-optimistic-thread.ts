@@ -6,7 +6,7 @@
  */
 
 import type { Thread } from "@/features/thread/providers/thread-provider";
-import type { UIMessage } from "@/core/providers/stream/ag-ui-types";
+import type { Message } from "@copilotkit/shared";
 import { getClientConfig } from "@/core/config/client";
 
 interface OptimisticThreadOptions {
@@ -28,7 +28,7 @@ interface OptimisticThreadOptions {
   /**
    * Optional first message for thread values
    */
-  firstMessage?: UIMessage;
+  firstMessage?: Message;
 }
 
 /**
