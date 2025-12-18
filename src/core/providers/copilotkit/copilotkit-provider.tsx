@@ -12,14 +12,38 @@
  * - CopilotKitProps.publicApiKey (copilotkit-props.tsx:22)
  */
 
-import { CopilotKit } from "@copilotkit/react-core";
+import { CopilotKit, useThreads } from "@copilotkit/react-core";
 import { useAuth0 } from "@auth0/auth0-react";
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
+import { useCopilotChat } from "./use-copilot-chat";
 
 interface CopilotKitProviderProps {
   children: ReactNode;
   threadId?: string | null;
 }
+
+const CopilotThreadSync = ({ threadId }: { threadId?: string | null }) => {
+  const { threadId: internalThreadId, setThreadId } = useThreads();
+  const chat = useCopilotChat();
+  const previousThreadIdRef = useRef<string | null>(threadId ?? null);
+
+  useEffect(() => {
+    if (threadId && threadId !== internalThreadId) {
+      setThreadId(threadId);
+    }
+
+    if (!threadId && previousThreadIdRef.current) {
+      const nextThreadId = crypto.randomUUID();
+      chat.stop();
+      chat.reset();
+      setThreadId(nextThreadId);
+    }
+
+    previousThreadIdRef.current = threadId ?? null;
+  }, [threadId, internalThreadId, setThreadId, chat]);
+
+  return null;
+};
 
 export const CopilotKitProvider = ({
   children,
@@ -48,8 +72,8 @@ export const CopilotKitProvider = ({
       runtimeUrl={runtimeUrl}
       publicApiKey="ck_pub_18c4681b69ef8cded6ae620e372e3914"
       properties={{ authorization: authToken }}
-      {...(threadId ? { threadId } : {})}
     >
+      <CopilotThreadSync threadId={threadId ?? null} />
       {children}
     </CopilotKit>
   );

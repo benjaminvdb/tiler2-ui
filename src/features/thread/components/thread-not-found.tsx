@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { MessageSquareOff, ArrowLeft, Home } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { useSearchParamState } from "@/core/routing/hooks";
+import { useUIContext } from "@/features/chat/providers/ui-provider";
 
 interface ThreadNotFoundProps {
   error: Error;
@@ -20,6 +21,7 @@ export const ThreadNotFound = ({
 }: ThreadNotFoundProps): React.JSX.Element => {
   const navigate = useNavigate();
   const [goalId] = useSearchParamState("goalId");
+  const { onNewThread } = useUIContext();
 
   const handleGoBack = useCallback(() => {
     if (goalId) {
@@ -30,8 +32,8 @@ export const ThreadNotFound = ({
   }, [navigate, goalId]);
 
   const handleStartNew = useCallback(() => {
-    navigate("/");
-  }, [navigate]);
+    onNewThread();
+  }, [onNewThread]);
 
   // Determine if user came from a goal
   const fromGoal = Boolean(goalId);
