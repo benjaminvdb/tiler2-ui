@@ -1,5 +1,5 @@
 import { ToolCalls } from "../../../tool-calls";
-import type { UIMessage, ToolCall } from "@/core/providers/stream/ag-ui-types";
+import type { UIMessage, ToolCall } from "@/core/providers/stream/stream-types";
 
 interface ToolCallsSectionProps {
   message: UIMessage;

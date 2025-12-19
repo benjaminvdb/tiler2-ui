@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useStreamContext } from "@/core/providers/stream";
-import type { UIMessage } from "@/core/providers/stream/ag-ui-types";
+import type { UIMessage } from "@/core/providers/stream/stream-types";
 
 export function useHumanMessageEdit(
   _message: UIMessage,

@@ -20,7 +20,7 @@ import type {
   SubmitConfig,
   SubmitData,
   UIMessage,
-} from "../ag-ui-types";
+} from "../stream-types";
 import { uiToVercelMessage, vercelMessagesToUI } from "../message-adapter";
 import { reportStreamError } from "@/core/services/observability";
 
@@ -269,6 +269,7 @@ const useThreadLoader = ({
   threadId,
   accessToken,
   loadedThreadIdRef,
+  skipThreadLoadRef,
   setChatMessages,
   setIsLoadingThread,
   setLocalError,
@@ -278,6 +279,7 @@ const useThreadLoader = ({
   threadId: string | null;
   accessToken: string | null;
   loadedThreadIdRef: MutableRefObject<string | null>;
+  skipThreadLoadRef: MutableRefObject<boolean>;
   setChatMessages: ReturnType<typeof useChat<VercelUIMessage>>["setMessages"];
   setIsLoadingThread: Dispatch<SetStateAction<boolean>>;
   setLocalError: Dispatch<SetStateAction<Error | null>>;
@@ -295,6 +297,12 @@ const useThreadLoader = ({
     }
 
     if (loadedThreadIdRef.current === threadId) {
+      return;
+    }
+
+    if (skipThreadLoadRef.current) {
+      skipThreadLoadRef.current = false;
+      loadedThreadIdRef.current = threadId;
       return;
     }
 
@@ -353,6 +361,7 @@ const useThreadLoader = ({
     threadId,
     accessToken,
     loadedThreadIdRef,
+    skipThreadLoadRef,
     setChatMessages,
     setIsLoadingThread,
     setLocalError,
@@ -363,6 +372,7 @@ const useSubmitHandler = ({
   threadId,
   accessToken,
   pendingSubmitRef,
+  skipThreadLoadRef,
   createThread,
   sendChatMessage,
   setLocalError,
@@ -373,6 +383,7 @@ const useSubmitHandler = ({
     data: SubmitData | null;
     config?: SubmitConfig;
   } | null>;
+  skipThreadLoadRef: MutableRefObject<boolean>;
   createThread: (name: string | undefined) => Promise<string | null>;
   sendChatMessage: (data: SubmitData | null, config?: SubmitConfig) => void;
   setLocalError: Dispatch<SetStateAction<Error | null>>;
@@ -387,6 +398,7 @@ const useSubmitHandler = ({
       }
 
       if (!threadId) {
+        skipThreadLoadRef.current = true;
         pendingSubmitRef.current = config ? { data, config } : { data };
         void createThread(getThreadName(data, config));
         return;
@@ -398,6 +410,7 @@ const useSubmitHandler = ({
       accessToken,
       createThread,
       pendingSubmitRef,
+      skipThreadLoadRef,
       sendChatMessage,
       setLocalError,
       threadId,
@@ -435,11 +448,13 @@ export function useVercelAIChat(cfg: UseVercelAIChatConfig): StreamContextType {
     config?: SubmitConfig;
   } | null>(null);
   const loadedThreadIdRef = useRef<string | null>(null);
+  const skipThreadLoadRef = useRef(false);
   const createThreadInFlightRef = useRef(false);
 
   const {
     messages: vercelMessages,
     sendMessage,
+    regenerate,
     status,
     error: chatError,
     stop: stopChat,
@@ -497,6 +512,7 @@ export function useVercelAIChat(cfg: UseVercelAIChatConfig): StreamContextType {
     threadId,
     accessToken,
     pendingSubmitRef,
+    skipThreadLoadRef,
     createThread,
     sendChatMessage,
     setLocalError,
@@ -509,6 +525,7 @@ export function useVercelAIChat(cfg: UseVercelAIChatConfig): StreamContextType {
     threadId,
     accessToken,
     loadedThreadIdRef,
+    skipThreadLoadRef,
     setChatMessages,
     setIsLoadingThread,
     setLocalError,
@@ -525,6 +542,7 @@ export function useVercelAIChat(cfg: UseVercelAIChatConfig): StreamContextType {
     values: { messages, sources: [] } as GraphState,
     submit,
     stop,
+    regenerate,
     clearError,
     retryStream,
     setMessages,

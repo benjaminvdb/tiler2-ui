@@ -9,7 +9,7 @@ export type {
   StreamContextType,
   GraphState,
   UIMessage,
-} from "./stream/ag-ui-types";
+} from "./stream/stream-types";
 
 export const StreamProvider: React.FC<{ children: ReactNode }> = ({
   children,

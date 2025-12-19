@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from "uuid";
 import type {
   UIMessage,
   ContentBlock,
-} from "@/core/providers/stream/ag-ui-types";
+} from "@/core/providers/stream/stream-types";
 import type { ContentBlocks } from "@/shared/types";
 
 const buildTextBlocks = (input: string): ContentBlock[] =>

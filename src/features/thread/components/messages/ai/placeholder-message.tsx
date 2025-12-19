@@ -4,6 +4,6 @@
  * The component is kept for API compatibility but renders nothing.
  */
 export const PlaceholderMessage: React.FC = () => {
-  // Interrupt handling has been removed in the AG-UI migration
+  // Interrupt handling has been removed; keep component for API compatibility.
   return null;
 };

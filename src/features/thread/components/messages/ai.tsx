@@ -1,5 +1,5 @@
 import { memo } from "react";
-import type { UIMessage } from "@/core/providers/stream/ag-ui-types";
+import type { UIMessage } from "@/core/providers/stream/stream-types";
 import { PlaceholderMessage } from "./ai/placeholder-message";
 import { MessageContent } from "./ai/message-content";
 

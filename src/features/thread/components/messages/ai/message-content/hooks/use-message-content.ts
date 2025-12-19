@@ -1,5 +1,5 @@
 import { useSearchParamState } from "@/core/routing/hooks";
-import type { UIMessage, ToolCall } from "@/core/providers/stream/ag-ui-types";
+import type { UIMessage, ToolCall } from "@/core/providers/stream/stream-types";
 import { useStreamContext } from "@/core/providers/stream";
 import { getContentString } from "../../../../utils";
 import { parseAnthropicStreamedToolCalls } from "../../utils";
@@ -16,7 +16,7 @@ const checkToolCallsStatus = (message: UIMessage) => {
   const toolCallsHaveContents =
     hasToolCalls &&
     message.tool_calls?.some((tc: ToolCall) => {
-      // Handle both AG-UI format (function.arguments) and LangChain format (args)
+      // Handle tool call arguments stored in the function payload.
       if ("function" in tc && tc.function?.arguments) {
         try {
           const args = JSON.parse(tc.function.arguments);

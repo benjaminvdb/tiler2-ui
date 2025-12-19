@@ -1,4 +1,4 @@
-import type { StreamContextType } from "@/core/providers/stream/ag-ui-types";
+import type { StreamContextType } from "@/core/providers/stream/stream-types";
 import { v4 as uuidv4 } from "uuid";
 
 export const createActionHandler = (stream: StreamContextType) => {

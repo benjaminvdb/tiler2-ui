@@ -1,7 +1,7 @@
 import type {
   UIMessage,
   ContentBlock,
-} from "@/core/providers/stream/ag-ui-types";
+} from "@/core/providers/stream/stream-types";
 
 export interface HumanMessageProps {
   message: UIMessage;

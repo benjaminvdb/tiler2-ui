@@ -1,4 +1,4 @@
-import type { UIMessage } from "@/core/providers/stream/ag-ui-types";
+import type { UIMessage } from "@/core/providers/stream/stream-types";
 import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { ChevronDown, ChevronUp } from "lucide-react";

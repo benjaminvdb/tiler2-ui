@@ -9,7 +9,7 @@ import type {
   StreamContextType,
   UIMessage,
   ToolCall,
-} from "@/core/providers/stream/ag-ui-types";
+} from "@/core/providers/stream/stream-types";
 
 interface RegularMessageProps {
   message: UIMessage;
@@ -68,6 +68,7 @@ export const RegularMessage: React.FC<RegularMessageProps> = ({
         htmlContainerRef={htmlContainerRef}
         isLoading={isLoading}
         thread={thread}
+        messageId={message.id}
       />
     </>
   );

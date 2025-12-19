@@ -1,4 +1,4 @@
-import type { UIMessage, ToolCall } from "@/core/providers/stream/ag-ui-types";
+import type { UIMessage, ToolCall } from "@/core/providers/stream/stream-types";
 import { ToolCallItem } from "./tool-call-item";
 import { ToolResultItem } from "./tool-result-item";
 

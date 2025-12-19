@@ -1,5 +1,5 @@
 import type { Thread } from "@/features/thread/providers/thread-provider";
-import type { UIMessage } from "@/core/providers/stream/ag-ui-types";
+import type { UIMessage } from "@/core/providers/stream/stream-types";
 import { getContentString } from "@/features/thread/components/utils";
 
 const extractMetadataName = (thread: Thread): string | null => {

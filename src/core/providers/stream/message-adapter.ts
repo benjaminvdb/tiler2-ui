@@ -10,7 +10,7 @@ import type {
   UIMessagePart,
   UITools,
 } from "ai";
-import type { UIMessage, ContentBlock, ToolCall } from "./ag-ui-types";
+import type { UIMessage, ContentBlock, ToolCall } from "./stream-types";
 
 const ROLE_TO_TYPE: Record<string, UIMessage["type"]> = {
   user: "human",

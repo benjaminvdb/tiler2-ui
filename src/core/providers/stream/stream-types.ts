@@ -113,6 +113,7 @@ export interface StreamContextType {
   // Actions
   submit: (data: SubmitData | null, config?: SubmitConfig) => void;
   stop: () => void;
+  regenerate: (options?: { messageId?: string }) => void;
 
   // State management
   clearError: () => void;

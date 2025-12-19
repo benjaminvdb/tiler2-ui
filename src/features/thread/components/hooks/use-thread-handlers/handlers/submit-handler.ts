@@ -4,7 +4,7 @@ import { UseThreadHandlersProps } from "../types";
 import type {
   StreamContextType,
   UIMessage,
-} from "@/core/providers/stream/ag-ui-types";
+} from "@/core/providers/stream/stream-types";
 import { generateThreadName } from "@/features/thread/utils/generate-thread-name";
 
 const buildContext = (

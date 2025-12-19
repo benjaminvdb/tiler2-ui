@@ -2,7 +2,7 @@ import React, { useCallback, useEffect } from "react";
 import { useSearchParamState } from "@/core/routing/hooks";
 import { useThreads } from "@/features/thread/providers/thread-provider";
 import { StreamContext } from "./stream-context";
-import { StreamSessionProps } from "./ag-ui-types";
+import { StreamSessionProps } from "./stream-types";
 import { LoadingScreen } from "@/shared/components/loading-spinner";
 import { useObservability } from "@/core/services/observability";
 import * as Sentry from "@sentry/react";

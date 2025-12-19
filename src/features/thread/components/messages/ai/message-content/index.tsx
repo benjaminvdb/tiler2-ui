@@ -1,4 +1,4 @@
-import type { UIMessage } from "@/core/providers/stream/ag-ui-types";
+import type { UIMessage } from "@/core/providers/stream/stream-types";
 import { ToolResult } from "../../tool-calls";
 import { useMessageContent } from "./hooks/use-message-content";
 import { RegularMessage } from "./components";

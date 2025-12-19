@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-import type { UIMessage } from "@/core/providers/stream/ag-ui-types";
+import type { UIMessage } from "@/core/providers/stream/stream-types";
 import { AssistantMessage, AssistantMessageLoading } from "../messages/ai";
 import { HumanMessage } from "../messages/human/index";
 import { useStreamContext } from "@/core/providers/stream";

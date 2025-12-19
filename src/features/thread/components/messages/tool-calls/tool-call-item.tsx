@@ -1,13 +1,13 @@
 import { isComplexValue } from "./utils";
 import type { JsonValue } from "@/shared/types";
-import type { ToolCall } from "@/core/providers/stream/ag-ui-types";
+import type { ToolCall } from "@/core/providers/stream/stream-types";
 
 interface ToolCallItemProps {
   toolCall: ToolCall;
 }
 
 /**
- * Parse tool call arguments from AG-UI format
+ * Parse tool call arguments from serialized JSON.
  */
 const parseToolCallArgs = (toolCall: ToolCall): Record<string, JsonValue> => {
   try {

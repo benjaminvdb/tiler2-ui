@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { CommandBar } from "../../../shared/components/command-bar";
 import { ExpertHelpDialog } from "../../../shared/components/expert-help-dialog";
-import type { StreamContextType } from "@/core/providers/stream/ag-ui-types";
+import type { StreamContextType } from "@/core/providers/stream/stream-types";
 import { cn } from "@/shared/utils/utils";
 
 interface MessageActionsProps {
@@ -9,6 +9,7 @@ interface MessageActionsProps {
   htmlContainerRef: React.RefObject<HTMLDivElement | null>;
   isLoading: boolean;
   thread: StreamContextType;
+  messageId: string;
 }
 
 export const MessageActions: React.FC<MessageActionsProps> = ({
@@ -16,12 +17,17 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
   htmlContainerRef,
   isLoading,
   thread,
+  messageId,
 }) => {
   const [isExpertHelpDialogOpen, setIsExpertHelpDialogOpen] = useState(false);
 
   const handleExpertHelpClick = useCallback(() => {
     setIsExpertHelpDialogOpen(true);
   }, []);
+
+  const handleRegenerate = useCallback(() => {
+    thread.regenerate({ messageId });
+  }, [messageId, thread]);
 
   return (
     <>
@@ -36,6 +42,7 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
           htmlContainerRef={htmlContainerRef}
           isLoading={isLoading}
           isAiMessage={true}
+          handleRegenerate={handleRegenerate}
           onExpertHelpClick={handleExpertHelpClick}
         />
       </div>

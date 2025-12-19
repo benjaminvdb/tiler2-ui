@@ -2,7 +2,7 @@ import { jsonrepair } from "jsonrepair";
 import type {
   ContentBlock,
   ToolCall,
-} from "@/core/providers/stream/ag-ui-types";
+} from "@/core/providers/stream/stream-types";
 
 /**
  * Parse partial/incomplete JSON from streaming LLM output.
@@ -19,7 +19,7 @@ function parsePartialJson(input: string): Record<string, unknown> {
 
 /**
  * Parse Anthropic-style tool calls from message content.
- * Converts Anthropic tool_use blocks to AG-UI ToolCall format.
+ * Converts Anthropic tool_use blocks to the ToolCall shape.
  */
 export function parseAnthropicStreamedToolCalls(
   content: ContentBlock[],
@@ -34,7 +34,7 @@ export function parseAnthropicStreamedToolCalls(
     if (toolCall?.input) {
       json = parsePartialJson(toolCall.input as string);
     }
-    // Convert to AG-UI ToolCall format
+    // Convert to ToolCall shape.
     return {
       function: {
         name: (toolCall.name as string) ?? "",
