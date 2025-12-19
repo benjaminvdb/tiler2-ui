@@ -1,5 +1,5 @@
 import type { Thread } from "@/features/thread/providers/thread-provider";
-import type { Message } from "@copilotkit/shared";
+import type { UIMessage } from "@/core/providers/stream/ag-ui-types";
 import { getContentString } from "@/features/thread/components/utils";
 
 const extractMetadataName = (thread: Thread): string | null => {
@@ -20,7 +20,7 @@ const extractFirstMessageText = (thread: Thread): string | null => {
     return null;
   }
 
-  const messages = (thread.values as { messages?: Array<Message> }).messages;
+  const messages = (thread.values as { messages?: Array<UIMessage> }).messages;
 
   if (!Array.isArray(messages) || messages.length === 0) {
     return null;

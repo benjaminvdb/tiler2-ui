@@ -1,10 +1,10 @@
-import type { Message } from "@copilotkit/shared";
+import type { UIMessage } from "@/core/providers/stream/ag-ui-types";
 import { ToolResult } from "../../tool-calls";
 import { useMessageContent } from "./hooks/use-message-content";
 import { RegularMessage } from "./components";
 
 interface MessageContentProps {
-  message: Message;
+  message: UIMessage;
   isLoading: boolean;
 }
 export const MessageContent: React.FC<MessageContentProps> = ({
@@ -14,7 +14,7 @@ export const MessageContent: React.FC<MessageContentProps> = ({
   const {
     contentString,
     hideToolCalls,
-    chat,
+    thread,
     anthropicStreamedToolCalls,
     hasToolCalls,
     toolCallsHaveContents,
@@ -53,7 +53,7 @@ export const MessageContent: React.FC<MessageContentProps> = ({
             toolCallsHaveContents={!!toolCallsHaveContents}
             hasAnthropicToolCalls={hasAnthropicToolCalls}
             anthropicStreamedToolCalls={anthropicStreamedToolCalls}
-            chat={chat}
+            thread={thread}
           />
         )}
       </div>

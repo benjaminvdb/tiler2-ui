@@ -1,8 +1,8 @@
 import { ToolCalls } from "../../../tool-calls";
-import type { Message, ToolCall, AIMessage } from "@copilotkit/shared";
+import type { UIMessage, ToolCall } from "@/core/providers/stream/ag-ui-types";
 
 interface ToolCallsSectionProps {
-  message: Message;
+  message: UIMessage;
   hideToolCalls: boolean;
   hasToolCalls: boolean;
   toolCallsHaveContents: boolean;
@@ -20,17 +20,15 @@ export const ToolCallsSection: React.FC<ToolCallsSectionProps> = ({
   if (hideToolCalls) {
     return null;
   }
-  // AG-UI uses toolCalls (camelCase) on AIMessage
-  const toolCalls = (message as AIMessage).toolCalls;
   return (
     <>
       {(hasToolCalls && toolCallsHaveContents && (
-        <ToolCalls toolCalls={toolCalls} />
+        <ToolCalls toolCalls={message.tool_calls} />
       )) ||
         (hasAnthropicToolCalls && (
           <ToolCalls toolCalls={anthropicStreamedToolCalls} />
         )) ||
-        (hasToolCalls && <ToolCalls toolCalls={toolCalls} />)}
+        (hasToolCalls && <ToolCalls toolCalls={message.tool_calls} />)}
     </>
   );
 };

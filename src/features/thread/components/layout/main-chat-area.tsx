@@ -1,10 +1,11 @@
 import React, { useCallback } from "react";
+import { v4 as uuidv4 } from "uuid";
 import { MessageList } from "./message-list";
 import { ChatFooter } from "./chat-footer";
 import { AnimatedContainer } from "./main-chat-area/components/animated-container";
 import { ScrollableContent } from "./main-chat-area/components/scrollable-content";
 import { useChatContext } from "@/features/chat/providers/chat-provider";
-import { useCopilotChat } from "@/core/providers/copilotkit";
+import { useStreamContext } from "@/core/providers/stream";
 import { LandingPage } from "@/features/chat/components/landing-page";
 import { LoadingSpinner } from "@/shared/components/loading-spinner";
 import { useUIContext } from "@/features/chat/providers/ui-provider";
@@ -13,20 +14,21 @@ import { isThreadNotFoundError } from "../../utils/error-utils";
 
 const MainChatAreaComponent: React.FC = () => {
   const { firstTokenReceived } = useChatContext();
-  const chat = useCopilotChat();
+  const stream = useStreamContext();
   const { navigationService } = useUIContext();
 
-  const messages = chat.messages;
+  const messages = stream.messages;
   const hasMessages = messages && messages.length > 0;
-  const isLoading = chat.isLoading;
-  // CopilotKit doesn't expose error directly - handle via other means if needed
-  const error = null;
+  const isLoading = stream.isLoading;
+  const error = stream.error;
 
   const handleSuggestionClick = useCallback(
     (text: string) => {
-      chat.submit({ content: text });
+      stream.submit({
+        messages: [{ id: uuidv4(), type: "human", content: text }],
+      });
     },
-    [chat],
+    [stream],
   );
 
   const handleWorkflowCategoryClick = useCallback(

@@ -1,9 +1,12 @@
 import { useState } from "react";
-import { useCopilotChat } from "@/core/providers/copilotkit";
-import type { Message } from "@copilotkit/shared";
+import { useStreamContext } from "@/core/providers/stream";
+import type { UIMessage } from "@/core/providers/stream/ag-ui-types";
 
-export function useHumanMessageEdit(_message: Message, contentString: string) {
-  const chat = useCopilotChat();
+export function useHumanMessageEdit(
+  _message: UIMessage,
+  contentString: string,
+) {
+  const thread = useStreamContext();
 
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState("");
@@ -11,8 +14,18 @@ export function useHumanMessageEdit(_message: Message, contentString: string) {
   const handleSubmitEdit = () => {
     setIsEditing(false);
 
-    // Submit the edited message using CopilotKit's interface
-    chat.submit({ content: value });
+    const newMessage: UIMessage = {
+      id: crypto.randomUUID(),
+      type: "human",
+      content: value,
+    };
+    thread.submit(
+      { messages: [newMessage] },
+      {
+        streamMode: ["values"],
+        streamSubgraphs: true,
+      },
+    );
   };
 
   const handleSetIsEditing = (

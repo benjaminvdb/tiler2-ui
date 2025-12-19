@@ -1,4 +1,4 @@
-import type { Message, ToolResult } from "@copilotkit/shared";
+import type { UIMessage } from "@/core/providers/stream/ag-ui-types";
 import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { ChevronDown, ChevronUp } from "lucide-react";
@@ -7,7 +7,7 @@ import { ToolResultContent } from "./tool-result-content";
 import type { JsonValue } from "@/shared/types";
 
 interface ToolResultItemProps {
-  message: Message;
+  message: UIMessage;
 }
 
 /**
@@ -54,7 +54,7 @@ const truncateContent = (
 /**
  * Get content string from message
  */
-const getContentString = (content: Message["content"]): string => {
+const getContentString = (content: UIMessage["content"]): string => {
   if (typeof content === "string") {
     return content;
   }
@@ -95,19 +95,19 @@ export const ToolResultItem: React.FC<ToolResultItemProps> = ({ message }) => {
     <div className="overflow-hidden rounded-lg border border-gray-200">
       <div className="border-b border-gray-200 bg-gray-50 px-4 py-2">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          {(message as ToolResult).toolName ? (
+          {message.name ? (
             <h3 className="font-medium text-gray-900">
               Tool Result:
               <code className="rounded bg-gray-100 px-2 py-1">
-                {(message as ToolResult).toolName}
+                {message.name}
               </code>
             </h3>
           ) : (
             <h3 className="font-medium text-gray-900">Tool Result</h3>
           )}
-          {(message as ToolResult).toolCallId && (
+          {message.tool_call_id && (
             <code className="ml-2 rounded bg-gray-100 px-2 py-1 text-sm">
-              {(message as ToolResult).toolCallId}
+              {message.tool_call_id}
             </code>
           )}
         </div>

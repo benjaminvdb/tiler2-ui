@@ -1,6 +1,6 @@
 import { isComplexValue } from "./utils";
 import type { JsonValue } from "@/shared/types";
-import type { ToolCall } from "@copilotkit/shared";
+import type { ToolCall } from "@/core/providers/stream/ag-ui-types";
 
 interface ToolCallItemProps {
   toolCall: ToolCall;

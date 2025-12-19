@@ -1,16 +1,8 @@
 import { jsonrepair } from "jsonrepair";
-import type { ToolCall } from "@copilotkit/shared";
-
-/**
- * Anthropic tool_use content block type.
- * Anthropic's API returns tool calls as content blocks, not as AG-UI InputContent.
- */
-interface AnthropicToolUseBlock {
-  type: "tool_use";
-  id: string;
-  name?: string;
-  input?: string;
-}
+import type {
+  ContentBlock,
+  ToolCall,
+} from "@/core/providers/stream/ag-ui-types";
 
 /**
  * Parse partial/incomplete JSON from streaming LLM output.
@@ -30,30 +22,26 @@ function parsePartialJson(input: string): Record<string, unknown> {
  * Converts Anthropic tool_use blocks to AG-UI ToolCall format.
  */
 export function parseAnthropicStreamedToolCalls(
-  content: unknown[],
+  content: ContentBlock[],
 ): ToolCall[] {
   const toolCallContents = content.filter(
-    (c): c is AnthropicToolUseBlock =>
-      typeof c === "object" &&
-      c !== null &&
-      "type" in c &&
-      (c as { type: unknown }).type === "tool_use" &&
-      "id" in c,
+    (c) => c.type === "tool_use" && "id" in c,
   );
 
   return toolCallContents.map((tc) => {
+    const toolCall = tc as Record<string, unknown>;
     let json: Record<string, unknown> = {};
-    if (tc.input) {
-      json = parsePartialJson(tc.input);
+    if (toolCall?.input) {
+      json = parsePartialJson(toolCall.input as string);
     }
     // Convert to AG-UI ToolCall format
     return {
       function: {
-        name: tc.name ?? "",
+        name: (toolCall.name as string) ?? "",
         arguments: JSON.stringify(json),
       },
       type: "function" as const,
-      id: tc.id,
+      id: (toolCall.id as string) ?? "",
     };
   });
 }

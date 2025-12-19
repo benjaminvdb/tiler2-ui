@@ -1,29 +1,22 @@
 import { v4 as uuidv4 } from "uuid";
-import type { UserMessage } from "@copilotkit/shared";
-import type { InputContent } from "@ag-ui/core";
+import type {
+  UIMessage,
+  ContentBlock,
+} from "@/core/providers/stream/ag-ui-types";
 import type { ContentBlocks } from "@/shared/types";
 
-// Extended InputContent type to include image_url for multimodal support
-type ExtendedInputContent =
-  | InputContent
-  | { type: "image_url"; image_url: { url: string } };
-
-/**
- * Build a user message in AG-UI format.
- * AG-UI uses role: "user" (not type: "human")
- */
 export const buildHumanMessage = (
   input: string,
   contentBlocks: ContentBlocks,
-): UserMessage => {
+): UIMessage => {
   // Start with text content if provided
-  const content: ExtendedInputContent[] = [];
+  const content: ContentBlock[] = [];
 
   if (input.trim().length > 0) {
     content.push({ type: "text", text: input });
   }
 
-  // Convert multimodal content blocks to AG-UI InputContent format
+  // Convert multimodal content blocks to UIMessage format
   for (const block of contentBlocks) {
     if (block.type === "image") {
       // Convert base64 image to image_url format
@@ -44,10 +37,8 @@ export const buildHumanMessage = (
 
   return {
     id: uuidv4(),
-    role: "user",
+    type: "human",
     content:
-      content.length === 1 && content[0].type === "text"
-        ? input
-        : (content as InputContent[]),
+      content.length === 1 && content[0].type === "text" ? input : content,
   };
 };

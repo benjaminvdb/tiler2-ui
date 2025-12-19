@@ -1,11 +1,10 @@
-import type { Message, UserMessage } from "@copilotkit/shared";
+import type {
+  UIMessage,
+  ContentBlock,
+} from "@/core/providers/stream/ag-ui-types";
 
-/**
- * Props for the HumanMessage component.
- * Uses AG-UI Message format with role: "user".
- */
 export interface HumanMessageProps {
-  message: Message;
+  message: UIMessage;
   isLoading: boolean;
 }
 
@@ -15,12 +14,8 @@ export interface EditableContentProps {
   onSubmit: () => void;
 }
 
-/**
- * Content for multimodal messages.
- * Uses AG-UI InputContent format: TextInputContent | BinaryInputContent
- */
 export interface MultimodalContentProps {
-  content: UserMessage["content"]; // string | InputContent[]
+  content: string | ContentBlock[];
 }
 
 export interface TextContentProps {

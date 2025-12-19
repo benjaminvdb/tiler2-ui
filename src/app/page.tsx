@@ -3,7 +3,7 @@ import { Thread } from "@/features/thread/components";
 import type { Thread as ThreadType } from "@/features/thread/providers/thread-provider";
 import { ArtifactProvider } from "@/features/artifacts/components";
 import { useSearchParams } from "react-router-dom";
-import { useCopilotChat } from "@/core/providers/copilotkit";
+import { useStreamContext } from "@/core/providers/stream";
 import {
   useSearchParamState,
   useSearchParamsUpdate,
@@ -15,8 +15,6 @@ import { generateThreadName } from "@/features/thread/utils/generate-thread-name
 import { buildOptimisticThread } from "@/features/thread/utils/build-optimistic-thread";
 import { getClientConfig } from "@/core/config/client";
 import { linkThreadToTask, getTaskContext } from "@/features/goals/services";
-import type { UseCopilotChatReturn } from "@/core/providers/copilotkit";
-import type { Message } from "@copilotkit/shared";
 
 interface WorkflowData {
   id: number;
@@ -29,18 +27,26 @@ interface WorkflowData {
  * Submits workflow without optimistic thread creation
  */
 const submitWorkflowFallback = (
-  chat: UseCopilotChatReturn,
+  stream: ReturnType<typeof useStreamContext>,
   workflowId: string,
 ) => {
-  // Submit with workflow_id so backend can load workflow title for thread name
-  chat.submit({ content: "" }, { configurable: { workflow_id: workflowId } });
+  stream.submit(
+    { messages: [] },
+    {
+      config: {
+        configurable: {
+          workflow_id: workflowId,
+        },
+      },
+    },
+  );
 };
 
 /**
  * Creates and submits workflow with optimistic thread
  */
 const submitWorkflowWithThread = (
-  chat: UseCopilotChatReturn,
+  stream: ReturnType<typeof useStreamContext>,
   workflowId: string,
   workflow: WorkflowData,
   userEmail: string,
@@ -56,8 +62,18 @@ const submitWorkflowWithThread = (
 
   addOptimisticThread(optimisticThread);
 
-  // Submit workflow with workflow_id so backend can load workflow title for thread name
-  chat.submit({ content: "" }, { configurable: { workflow_id: workflowId } });
+  stream.submit(
+    { messages: [] },
+    {
+      threadId: optimisticThreadId,
+      metadata: { name: threadName },
+      config: {
+        configurable: {
+          workflow_id: workflowId,
+        },
+      },
+    },
+  );
 };
 
 /**
@@ -68,10 +84,10 @@ const submitWorkflowWithThread = (
 // eslint-disable-next-line max-lines-per-function -- Complex workflow/task handler with multiple effects
 const ThreadWithWorkflowHandler = (): React.ReactNode => {
   const [searchParams] = useSearchParams();
-  const [threadId, setThreadId] = useSearchParamState("threadId");
-  const chat = useCopilotChat({ threadId: threadId || undefined });
+  const stream = useStreamContext();
   const workflowId = searchParams.get("workflow");
   const taskId = searchParams.get("taskId");
+  const [threadId, setThreadId] = useSearchParamState("threadId");
   const updateSearchParams = useSearchParamsUpdate();
   const { addOptimisticThread } = useThreads();
   const { user } = useAuth0();
@@ -85,52 +101,8 @@ const ThreadWithWorkflowHandler = (): React.ReactNode => {
     taskId: string;
     threadId: string;
   } | null>(null);
-  const hydratedThreadRef = useRef<string | null>(null);
 
   const apiUrl = getClientConfig().apiUrl;
-
-  // Hydrate existing thread history when navigating via threadId
-  useEffect(() => {
-    const hydrate = async () => {
-      if (!threadId || hydratedThreadRef.current === threadId) {
-        return;
-      }
-
-      try {
-        const response = await fetchWithAuth(
-          `${apiUrl}/agent/threads/${threadId}`,
-          {
-            method: "GET",
-            headers: { "Content-Type": "application/json" },
-          },
-        );
-
-        if (!response.ok) {
-          console.error(
-            `Failed to load thread ${threadId}: ${response.status}`,
-          );
-          return;
-        }
-
-        const data = await response.json();
-        const mappedMessages: Message[] = (data.messages || []).map(
-          (msg: { id: string; role: string; content: unknown }) => ({
-            id: msg.id,
-            role: msg.role as Message["role"],
-            content: msg.content as Message["content"],
-          }),
-        );
-
-        chat.reset();
-        chat.setMessages(mappedMessages);
-        hydratedThreadRef.current = threadId;
-      } catch (error) {
-        console.error("Error hydrating thread history:", error);
-      }
-    };
-
-    hydrate();
-  }, [threadId, apiUrl, fetchWithAuth, chat]);
 
   useEffect(() => {
     const submitWorkflow = async () => {
@@ -161,7 +133,7 @@ const ThreadWithWorkflowHandler = (): React.ReactNode => {
 
           if (workflow && user?.email) {
             submitWorkflowWithThread(
-              chat,
+              stream,
               workflowId,
               workflow,
               user.email,
@@ -171,15 +143,15 @@ const ThreadWithWorkflowHandler = (): React.ReactNode => {
             console.warn(
               `Workflow ${workflowId} not found in API response, submitting without title`,
             );
-            submitWorkflowFallback(chat, workflowId);
+            submitWorkflowFallback(stream, workflowId);
           }
         } else {
           console.error("Failed to fetch workflows, submitting without title");
-          submitWorkflowFallback(chat, workflowId);
+          submitWorkflowFallback(stream, workflowId);
         }
       } catch (error) {
         console.error("Error fetching workflow data:", error);
-        submitWorkflowFallback(chat, workflowId);
+        submitWorkflowFallback(stream, workflowId);
       } finally {
         setIsSubmittingWorkflow(false);
       }
@@ -188,7 +160,7 @@ const ThreadWithWorkflowHandler = (): React.ReactNode => {
     submitWorkflow();
   }, [
     workflowId,
-    chat,
+    stream,
     threadId,
     setThreadId,
     apiUrl,
@@ -255,12 +227,15 @@ const ThreadWithWorkflowHandler = (): React.ReactNode => {
         };
 
         // Submit to create thread with task context
-        // Backend generates thread name, but needs task_id in configurable
-        chat.submit(
-          { content: "" },
+        stream.submit(
+          { messages: [] },
           {
-            configurable: {
-              task_id: taskId,
+            threadId: optimisticThreadId,
+            metadata: { name: threadName },
+            config: {
+              configurable: {
+                task_id: taskId,
+              },
             },
           },
         );
@@ -276,43 +251,27 @@ const ThreadWithWorkflowHandler = (): React.ReactNode => {
     threadId,
     setThreadId,
     user,
-    chat,
+    stream,
     addOptimisticThread,
     fetchWithAuth,
     isSubmittingTask,
     isSubmittingWorkflow,
   ]);
 
-  // Synchronize URL threadId with CopilotKit's threadId
-  // Only sync AFTER messages exist (thread was created in backend)
-  // AG-UI always generates a threadId on mount, so we can't sync immediately
-  const chatThreadId = chat.threadId;
-  const hasMessages = chat.messages.length > 0;
-  useEffect(() => {
-    if (chatThreadId && !threadId && !workflowId && !taskId && hasMessages) {
-      // Thread was created in backend - sync to URL
-      setThreadId(chatThreadId);
-    }
-  }, [chatThreadId, threadId, workflowId, taskId, setThreadId, hasMessages]);
-
   // Link thread to task and clear task params after thread is created
-  // Use chat.threadId from CopilotKit instead of URL param for detection
   useEffect(() => {
     const linkAndClearTask = async () => {
-      const confirmedThreadId = threadId || chatThreadId;
-      if (!confirmedThreadId || !taskId || !pendingTaskLinkRef.current) {
+      if (!threadId || !taskId || !pendingTaskLinkRef.current) {
         return;
       }
 
       // Only process if this is the thread we created for the task
-      if (pendingTaskLinkRef.current.threadId !== confirmedThreadId) {
+      if (pendingTaskLinkRef.current.threadId !== threadId) {
         return;
       }
 
       try {
-        await linkThreadToTask(fetchWithAuth, taskId, {
-          thread_id: confirmedThreadId,
-        });
+        await linkThreadToTask(fetchWithAuth, taskId, { thread_id: threadId });
       } catch (error) {
         console.error("Failed to link thread to task:", error);
       }
@@ -325,7 +284,7 @@ const ThreadWithWorkflowHandler = (): React.ReactNode => {
     };
 
     linkAndClearTask();
-  }, [threadId, chatThreadId, taskId, fetchWithAuth, updateSearchParams]);
+  }, [threadId, taskId, fetchWithAuth, updateSearchParams]);
 
   return <Thread />;
 };

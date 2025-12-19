@@ -1,21 +1,21 @@
 import { useState, useCallback } from "react";
 import { CommandBar } from "../../../shared/components/command-bar";
 import { ExpertHelpDialog } from "../../../shared/components/expert-help-dialog";
-import type { UseCopilotChatReturn } from "@/core/providers/copilotkit";
+import type { StreamContextType } from "@/core/providers/stream/ag-ui-types";
 import { cn } from "@/shared/utils/utils";
 
 interface MessageActionsProps {
   contentString: string;
   htmlContainerRef: React.RefObject<HTMLDivElement | null>;
   isLoading: boolean;
-  chat: UseCopilotChatReturn;
+  thread: StreamContextType;
 }
 
 export const MessageActions: React.FC<MessageActionsProps> = ({
   contentString,
   htmlContainerRef,
   isLoading,
-  chat,
+  thread,
 }) => {
   const [isExpertHelpDialogOpen, setIsExpertHelpDialogOpen] = useState(false);
 
@@ -43,8 +43,8 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
       <ExpertHelpDialog
         open={isExpertHelpDialogOpen}
         onOpenChange={setIsExpertHelpDialogOpen}
-        threadId={chat.threadId ?? null}
-        runId={null}
+        threadId={thread.threadId}
+        runId={thread.currentRunId}
         aiMessageContent={contentString}
       />
     </>

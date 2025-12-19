@@ -1,10 +1,24 @@
 import { FormEvent } from "react";
+import { ensureToolCallsHaveResponses } from "@/features/thread/services/ensure-tool-responses";
 import { buildHumanMessage } from "../utils/message-builder";
 import { UseThreadHandlersProps } from "../types";
-import type { UseCopilotChatReturn } from "@/core/providers/copilotkit";
+import type {
+  StreamContextType,
+  GraphState,
+  UIMessage,
+} from "@/core/providers/stream/ag-ui-types";
 import { generateThreadName } from "@/features/thread/utils/generate-thread-name";
 import { buildOptimisticThread } from "@/features/thread/utils/build-optimistic-thread";
-import type { Thread } from "@/features/thread/providers/thread-provider";
+
+// Thread type for optimistic thread creation
+interface Thread {
+  thread_id: string;
+  created_at: string;
+  updated_at: string;
+  metadata: Record<string, unknown>;
+  status: string;
+  values: Record<string, unknown>;
+}
 
 const buildContext = (
   artifactContext: Record<string, unknown> | undefined | null,
@@ -14,40 +28,59 @@ const buildContext = (
     : undefined;
 };
 
+const buildSubmitData = (
+  toolMessages: UIMessage[],
+  newHumanMessage: UIMessage,
+  context: Record<string, unknown> | undefined,
+) => ({
+  messages: [...toolMessages, newHumanMessage],
+  ...(context ? { context } : {}),
+});
+
+const baseSubmitOptions = (
+  toolMessages: UIMessage[],
+  newHumanMessage: UIMessage,
+) => {
+  return {
+    optimisticValues: (prev: GraphState) => ({
+      ...prev,
+      messages: [
+        ...(Array.isArray(prev.messages) ? prev.messages : []),
+        ...toolMessages,
+        newHumanMessage,
+      ],
+    }),
+  };
+};
+
 const createOptimisticThread = (
   threadName: string,
-  messageContent: string,
+  message: UIMessage,
   userEmail: string,
   addOptimisticThread: (thread: Thread) => void,
-  threadId?: string,
 ) => {
-  const optimisticThreadId = threadId || crypto.randomUUID();
+  const optimisticThreadId = crypto.randomUUID();
   const optimisticThread = buildOptimisticThread({
     threadId: optimisticThreadId,
     threadName,
     userEmail,
-    firstMessage: {
-      id: crypto.randomUUID(),
-      role: "user",
-      content: messageContent,
-    },
+    firstMessage: message,
   });
 
   addOptimisticThread(optimisticThread);
 
   return {
     optimisticThreadId,
-    threadName,
+    submitOverrides: {
+      threadId: optimisticThreadId,
+      metadata: { name: threadName },
+    },
   };
 };
 
-/**
- * Creates the submit handler for the chat input.
- * Uses CopilotKit's submit interface with content and optional context.
- */
 export const createSubmitHandler = (
   props: UseThreadHandlersProps,
-  chat: UseCopilotChatReturn,
+  stream: StreamContextType,
   isLoading: boolean,
   addOptimisticThread: (thread: Thread) => void,
   userEmail: string,
@@ -67,32 +100,25 @@ export const createSubmitHandler = (
       return;
     setFirstTokenReceived(false);
 
-    // Build the message content
     const newHumanMessage = buildHumanMessage(input, contentBlocks);
+    const toolMessages = ensureToolCallsHaveResponses(stream.messages);
     const context = buildContext(artifactContext);
 
-    // For new threads (first message), create optimistic thread for sidebar
-    // Backend generates thread name from first message, so no metadata needed
-    if (chat.messages.length === 0 && userEmail) {
+    const submitData = buildSubmitData(toolMessages, newHumanMessage, context);
+    let submitOptions = baseSubmitOptions(toolMessages, newHumanMessage);
+
+    if (!stream.threadId && userEmail) {
       const threadName = generateThreadName({ firstMessage: input });
-      createOptimisticThread(
+      const { submitOverrides } = createOptimisticThread(
         threadName,
-        typeof newHumanMessage.content === "string"
-          ? newHumanMessage.content
-          : input,
+        newHumanMessage,
         userEmail,
         addOptimisticThread,
-        chat.threadId,
       );
+      submitOptions = { ...submitOptions, ...submitOverrides };
     }
 
-    // Submit using CopilotKit's interface
-    // Backend generates thread name from first message, no metadata needed
-    chat.submit({
-      content: newHumanMessage.content,
-      context,
-    });
-
+    stream.submit(submitData, submitOptions);
     setInput("");
     setContentBlocks([]);
   };

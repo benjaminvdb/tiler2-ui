@@ -1,5 +1,6 @@
 import { useEffect } from "react";
-import { useCopilotChat } from "@/core/providers/copilotkit";
+import { toast } from "sonner";
+import { useStreamContext } from "@/core/providers/stream";
 
 interface UseThreadEffectsProps {
   lastErrorRef: React.MutableRefObject<string | undefined>;
@@ -30,20 +31,36 @@ const getMessageContentString = (
 };
 
 export function useThreadEffects({
-  lastErrorRef: _lastErrorRef,
+  lastErrorRef,
   setFirstTokenReceived,
 }: UseThreadEffectsProps) {
-  const chat = useCopilotChat();
-  const messages = chat.messages;
+  const stream = useStreamContext();
+  const messages = stream.messages;
 
-  // CopilotKit doesn't expose error directly via the hook
-  // lastErrorRef is kept for interface compatibility but unused
-  // Error handling would need to be done via different mechanisms if needed
+  useEffect(() => {
+    if (!stream.error) {
+      lastErrorRef.current = undefined;
+      return;
+    }
+    const message =
+      (typeof stream.error === "object" && stream.error?.message) ||
+      String(stream.error);
+
+    if (!message || lastErrorRef.current === message) {
+      return;
+    }
+
+    lastErrorRef.current = message;
+    toast.error("An error occurred. Please try again.", {
+      description: `Error: ${message}`,
+      richColors: true,
+      closeButton: true,
+    });
+  }, [stream.error, lastErrorRef]);
 
   useEffect(() => {
     const lastMessage = messages?.[messages.length - 1];
-    // AG-UI uses role: "assistant" instead of type: "ai"
-    if (lastMessage?.role !== "assistant") {
+    if (lastMessage?.type !== "ai") {
       return;
     }
 

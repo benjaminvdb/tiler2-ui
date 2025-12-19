@@ -1,11 +1,10 @@
-import type { UseCopilotChatReturn } from "@/core/providers/copilotkit";
+import type { StreamContextType } from "@/core/providers/stream/ag-ui-types";
+import { v4 as uuidv4 } from "uuid";
 
-/**
- * Creates a handler for action button clicks (e.g., workflow suggestions).
- * Uses CopilotKit's submit interface.
- */
-export const createActionHandler = (chat: UseCopilotChatReturn) => {
+export const createActionHandler = (stream: StreamContextType) => {
   return (prompt: string) => {
-    chat.submit({ content: prompt });
+    stream.submit({
+      messages: [{ id: uuidv4(), type: "human", content: prompt }],
+    });
   };
 };

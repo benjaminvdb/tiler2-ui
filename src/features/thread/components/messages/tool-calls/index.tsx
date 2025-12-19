@@ -1,4 +1,4 @@
-import type { Message, ToolCall } from "@copilotkit/shared";
+import type { UIMessage, ToolCall } from "@/core/providers/stream/ag-ui-types";
 import { ToolCallItem } from "./tool-call-item";
 import { ToolResultItem } from "./tool-result-item";
 
@@ -19,7 +19,7 @@ export const ToolCalls: React.FC<{
   );
 };
 
-export const ToolResult: React.FC<{ message: Message }> = ({ message }) => {
+export const ToolResult: React.FC<{ message: UIMessage }> = ({ message }) => {
   return (
     <div className="mx-auto grid max-w-3xl grid-rows-[1fr_auto] gap-2">
       <ToolResultItem message={message} />
