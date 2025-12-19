@@ -1,13 +1,8 @@
 import { useState, useRef } from "react";
 import { useSearchParamState } from "@/core/routing/hooks";
-import {
-  useArtifactContext,
-  useArtifactOpen,
-} from "@/features/artifacts/components";
+import { useArtifactOpen } from "@/features/artifacts/components";
 
 interface ThreadStateValue {
-  artifactContext: Record<string, unknown>;
-  setArtifactContext: (context: Record<string, unknown>) => void;
   artifactOpen: boolean;
   closeArtifact: () => void;
   threadId: string | null;
@@ -18,11 +13,9 @@ interface ThreadStateValue {
   firstTokenReceived: boolean;
   setFirstTokenReceived: (received: boolean) => void;
   lastErrorRef: React.MutableRefObject<string | undefined>;
-  prevMessageLength: React.MutableRefObject<number>;
 }
 
 export function useThreadState(): ThreadStateValue {
-  const [artifactContext, setArtifactContext] = useArtifactContext();
   const [artifactOpen, closeArtifact] = useArtifactOpen();
 
   const [threadId, _setThreadId] = useSearchParamState("threadId");
@@ -33,14 +26,11 @@ export function useThreadState(): ThreadStateValue {
   const [firstTokenReceived, setFirstTokenReceived] = useState(false);
 
   const lastErrorRef = useRef<string | undefined>(undefined);
-  const prevMessageLength = useRef(0);
 
   const shouldHideToolCallsByDefault =
     import.meta.env.VITE_HIDE_TOOL_CALLS !== "false";
 
   return {
-    artifactContext,
-    setArtifactContext,
     artifactOpen,
     closeArtifact,
 
@@ -57,6 +47,5 @@ export function useThreadState(): ThreadStateValue {
     setFirstTokenReceived,
 
     lastErrorRef,
-    prevMessageLength,
   };
 }

@@ -1,38 +1,58 @@
+import {
+  getToolOrDynamicToolName,
+  type DynamicToolUIPart,
+  type ToolUIPart,
+} from "ai";
 import { isComplexValue } from "./utils";
 import type { JsonValue } from "@/shared/types";
-import type { ToolCall } from "@/core/providers/stream/stream-types";
 
 interface ToolCallItemProps {
-  toolCall: ToolCall;
+  toolPart: ToolUIPart | DynamicToolUIPart;
 }
 
 /**
  * Parse tool call arguments from serialized JSON.
  */
-const parseToolCallArgs = (toolCall: ToolCall): Record<string, JsonValue> => {
-  try {
-    if (toolCall.function?.arguments) {
-      return JSON.parse(toolCall.function.arguments);
-    }
-  } catch {
-    // Fall back to empty args
+const parseToolCallArgs = (
+  toolPart: ToolUIPart | DynamicToolUIPart,
+): Record<string, JsonValue> => {
+  const input = toolPart.input;
+  if (input === undefined) {
+    return {};
   }
-  return {};
+
+  if (typeof input === "string") {
+    try {
+      const parsed = JSON.parse(input) as unknown;
+      if (parsed && typeof parsed === "object") {
+        return parsed as Record<string, JsonValue>;
+      }
+      return { input: parsed as JsonValue };
+    } catch {
+      return { input };
+    }
+  }
+
+  if (typeof input === "object" && input !== null) {
+    return input as Record<string, JsonValue>;
+  }
+
+  return { input: input as JsonValue };
 };
 
-export const ToolCallItem: React.FC<ToolCallItemProps> = ({ toolCall }) => {
-  const args = parseToolCallArgs(toolCall);
+export const ToolCallItem: React.FC<ToolCallItemProps> = ({ toolPart }) => {
+  const args = parseToolCallArgs(toolPart);
   const hasArgs = Object.keys(args).length > 0;
-  const name = toolCall.function?.name || "Unknown Tool";
+  const name = getToolOrDynamicToolName(toolPart) || "Unknown Tool";
 
   return (
     <div className="overflow-hidden rounded-lg border border-gray-200">
       <div className="border-b border-gray-200 bg-gray-50 px-4 py-2">
         <h3 className="font-medium text-gray-900">
           {name}
-          {toolCall.id && (
+          {toolPart.toolCallId && (
             <code className="ml-2 rounded bg-gray-100 px-2 py-1 text-sm">
-              {toolCall.id}
+              {toolPart.toolCallId}
             </code>
           )}
         </h3>

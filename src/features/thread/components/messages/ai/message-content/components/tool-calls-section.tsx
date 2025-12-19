@@ -1,34 +1,18 @@
 import { ToolCalls } from "../../../tool-calls";
-import type { UIMessage, ToolCall } from "@/core/providers/stream/stream-types";
+import type { DynamicToolUIPart, ToolUIPart } from "ai";
 
 interface ToolCallsSectionProps {
-  message: UIMessage;
   hideToolCalls: boolean;
   hasToolCalls: boolean;
-  toolCallsHaveContents: boolean;
-  hasAnthropicToolCalls: boolean;
-  anthropicStreamedToolCalls?: ToolCall[] | undefined;
+  toolParts: Array<ToolUIPart | DynamicToolUIPart>;
 }
 export const ToolCallsSection: React.FC<ToolCallsSectionProps> = ({
-  message,
   hideToolCalls,
   hasToolCalls,
-  toolCallsHaveContents,
-  hasAnthropicToolCalls,
-  anthropicStreamedToolCalls,
+  toolParts,
 }) => {
   if (hideToolCalls) {
     return null;
   }
-  return (
-    <>
-      {(hasToolCalls && toolCallsHaveContents && (
-        <ToolCalls toolCalls={message.tool_calls} />
-      )) ||
-        (hasAnthropicToolCalls && (
-          <ToolCalls toolCalls={anthropicStreamedToolCalls} />
-        )) ||
-        (hasToolCalls && <ToolCalls toolCalls={message.tool_calls} />)}
-    </>
-  );
+  return <>{hasToolCalls && <ToolCalls toolParts={toolParts} />}</>;
 };

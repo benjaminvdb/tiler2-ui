@@ -54,7 +54,6 @@ function useChatContextValue(params: {
 
 export const Thread = (): React.JSX.Element => {
   const {
-    artifactContext,
     artifactOpen,
     closeArtifact,
     threadId,
@@ -65,7 +64,6 @@ export const Thread = (): React.JSX.Element => {
     firstTokenReceived,
     setFirstTokenReceived,
     lastErrorRef,
-    prevMessageLength,
   } = useThreadState();
 
   const {
@@ -87,8 +85,6 @@ export const Thread = (): React.JSX.Element => {
     contentBlocks,
     setContentBlocks,
     setFirstTokenReceived,
-    artifactContext,
-    prevMessageLength,
   });
 
   useThreadEffects({

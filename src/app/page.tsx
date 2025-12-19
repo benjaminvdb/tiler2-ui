@@ -26,16 +26,13 @@ const submitWorkflowFallback = (
   stream: ReturnType<typeof useStreamContext>,
   workflowId: string,
 ) => {
-  stream.submit(
-    { messages: [] },
-    {
-      config: {
-        configurable: {
-          workflow_id: workflowId,
-        },
+  stream.sendMessage(undefined, {
+    body: {
+      configurable: {
+        workflow_id: workflowId,
       },
     },
-  );
+  });
 };
 
 /**
@@ -48,17 +45,14 @@ const submitWorkflowWithThread = (
 ) => {
   const threadName = generateThreadName({ workflowTitle: workflow.title });
 
-  stream.submit(
-    { messages: [] },
-    {
-      metadata: { name: threadName },
-      config: {
-        configurable: {
-          workflow_id: workflowId,
-        },
+  stream.sendMessage(undefined, {
+    metadata: { name: threadName },
+    body: {
+      configurable: {
+        workflow_id: workflowId,
       },
     },
-  );
+  });
 };
 
 /**
@@ -184,17 +178,14 @@ const ThreadWithWorkflowHandler = (): React.ReactNode => {
       pendingTaskLinkRef.current = { taskId };
 
       // Submit to create thread with task context
-      stream.submit(
-        { messages: [] },
-        {
-          metadata: { name: threadName },
-          config: {
-            configurable: {
-              task_id: taskId,
-            },
+      stream.sendMessage(undefined, {
+        metadata: { name: threadName },
+        body: {
+          configurable: {
+            task_id: taskId,
           },
         },
-      );
+      });
 
       setIsSubmittingTask(false);
     };

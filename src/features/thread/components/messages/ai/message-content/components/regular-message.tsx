@@ -5,10 +5,11 @@ import { ToolCallsSection } from "./tool-calls-section";
 import { MessageActions } from "./message-actions";
 import { SourcesList } from "../../sources-list";
 import { renumberCitations } from "../../../../markdown/utils/citation-renumbering";
+import { extractSourcesFromParts } from "../../utils";
+import type { DynamicToolUIPart, ToolUIPart } from "ai";
 import type {
   StreamContextType,
   UIMessage,
-  ToolCall,
 } from "@/core/providers/stream/stream-types";
 
 interface RegularMessageProps {
@@ -17,9 +18,7 @@ interface RegularMessageProps {
   contentString: string;
   hideToolCalls: boolean;
   hasToolCalls: boolean;
-  toolCallsHaveContents: boolean;
-  hasAnthropicToolCalls: boolean;
-  anthropicStreamedToolCalls?: ToolCall[] | undefined;
+  toolParts: Array<ToolUIPart | DynamicToolUIPart>;
   thread: StreamContextType;
 }
 
@@ -29,14 +28,12 @@ export const RegularMessage: React.FC<RegularMessageProps> = ({
   contentString,
   hideToolCalls,
   hasToolCalls,
-  toolCallsHaveContents,
-  hasAnthropicToolCalls,
-  anthropicStreamedToolCalls,
+  toolParts,
   thread,
 }) => {
   const htmlContainerRef = useRef<HTMLDivElement>(null);
 
-  const sources = thread.values?.sources || [];
+  const sources = extractSourcesFromParts(message.parts);
 
   const { renumberedSources, renumberedContent } = renumberCitations(
     contentString,
@@ -51,12 +48,9 @@ export const RegularMessage: React.FC<RegularMessageProps> = ({
         messageId={message.id}
       />
       <ToolCallsSection
-        message={message}
         hideToolCalls={hideToolCalls}
         hasToolCalls={hasToolCalls}
-        toolCallsHaveContents={toolCallsHaveContents}
-        hasAnthropicToolCalls={hasAnthropicToolCalls}
-        anthropicStreamedToolCalls={anthropicStreamedToolCalls}
+        toolParts={toolParts}
       />
       <CustomComponent
         message={message}

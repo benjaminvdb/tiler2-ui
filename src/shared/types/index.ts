@@ -37,19 +37,6 @@ export type MultimodalContentBlock =
 export type ContentBlocks = MultimodalContentBlock[];
 
 /**
- * Context for rendering artifacts in the side panel.
- * Contains metadata about the artifact (code, document, etc) being displayed.
- */
-export interface ArtifactContext {
-  id?: string;
-  type?: string;
-  title?: string;
-  content?: string;
-  language?: string;
-  [key: string]: unknown;
-}
-
-/**
  * Type-safe JSON value that can be serialized/deserialized without loss.
  * More specific than `unknown` while maintaining flexibility.
  */

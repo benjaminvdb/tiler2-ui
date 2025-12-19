@@ -1,34 +1,12 @@
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { useStreamContext } from "@/core/providers/stream";
+import { getContentString } from "@/features/thread/components/utils";
 
 interface UseThreadEffectsProps {
   lastErrorRef: React.MutableRefObject<string | undefined>;
   setFirstTokenReceived: (value: boolean) => void;
 }
-
-/**
- * Get string content from a message content field.
- */
-const getMessageContentString = (
-  content: string | unknown[] | undefined,
-): string => {
-  if (typeof content === "string") {
-    return content;
-  }
-  if (Array.isArray(content)) {
-    return content
-      .map((block) => {
-        if (typeof block === "string") return block;
-        if (typeof block === "object" && block !== null && "text" in block) {
-          return (block as { text: string }).text;
-        }
-        return "";
-      })
-      .join("");
-  }
-  return "";
-};
 
 export function useThreadEffects({
   lastErrorRef,
@@ -61,12 +39,12 @@ export function useThreadEffects({
   useEffect(() => {
     const lastAiMessage = [...messages]
       .reverse()
-      .find((message) => message.type === "ai");
+      .find((message) => message.role === "assistant");
     if (!lastAiMessage) {
       return;
     }
 
-    const contentString = getMessageContentString(lastAiMessage.content);
+    const contentString = getContentString(lastAiMessage.parts);
     if (contentString.trim().length > 0) {
       setFirstTokenReceived(true);
     }

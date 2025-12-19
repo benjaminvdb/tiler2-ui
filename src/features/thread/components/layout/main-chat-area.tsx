@@ -1,5 +1,4 @@
 import React, { useCallback } from "react";
-import { v4 as uuidv4 } from "uuid";
 import { MessageList } from "./message-list";
 import { ChatFooter } from "./chat-footer";
 import { AnimatedContainer } from "./main-chat-area/components/animated-container";
@@ -24,9 +23,7 @@ const MainChatAreaComponent: React.FC = () => {
 
   const handleSuggestionClick = useCallback(
     (text: string) => {
-      stream.submit({
-        messages: [{ id: uuidv4(), type: "human", content: text }],
-      });
+      stream.sendMessage({ text });
     },
     [stream],
   );

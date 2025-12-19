@@ -51,7 +51,7 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
         open={isExpertHelpDialogOpen}
         onOpenChange={setIsExpertHelpDialogOpen}
         threadId={thread.threadId}
-        runId={thread.currentRunId}
+        runId={null}
         aiMessageContent={contentString}
       />
     </>

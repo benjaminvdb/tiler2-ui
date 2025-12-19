@@ -1,7 +1,4 @@
-import type {
-  UIMessage,
-  ContentBlock,
-} from "@/core/providers/stream/stream-types";
+import type { UIMessage } from "@/core/providers/stream/stream-types";
 
 export interface HumanMessageProps {
   message: UIMessage;
@@ -15,7 +12,7 @@ export interface EditableContentProps {
 }
 
 export interface MultimodalContentProps {
-  content: string | ContentBlock[];
+  parts: UIMessage["parts"];
 }
 
 export interface TextContentProps {

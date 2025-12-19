@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from "uuid";
 import type { UIMessage } from "@/core/providers/stream/stream-types";
 import { AssistantMessage, AssistantMessageLoading } from "../messages/ai";
 import { HumanMessage } from "../messages/human/index";
@@ -31,15 +30,15 @@ export const MessageList: React.FC<MessageListProps> = ({
           return true;
         })
         .map((message) =>
-          message.type === "human" ? (
+          message.role === "user" ? (
             <HumanMessage
-              key={message.id || uuidv4()}
+              key={message.id}
               message={message}
               isLoading={isLoading}
             />
           ) : (
             <AssistantMessage
-              key={message.id || uuidv4()}
+              key={message.id}
               message={message}
               isLoading={isLoading}
             />

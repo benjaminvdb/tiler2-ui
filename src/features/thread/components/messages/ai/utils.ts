@@ -1,47 +1,33 @@
-import { jsonrepair } from "jsonrepair";
-import type {
-  ContentBlock,
-  ToolCall,
-} from "@/core/providers/stream/stream-types";
+import type { UIMessage } from "@/core/providers/stream/stream-types";
+import type { Source } from "@/features/thread/components/markdown/components/citation-link";
 
-/**
- * Parse partial/incomplete JSON from streaming LLM output.
- * Uses jsonrepair to handle truncated JSON and returns an empty object on failure.
- */
-function parsePartialJson(input: string): Record<string, unknown> {
-  try {
-    const repaired = jsonrepair(input);
-    return JSON.parse(repaired) as Record<string, unknown>;
-  } catch {
-    return {};
-  }
-}
+export const extractSourcesFromParts = (
+  parts: UIMessage["parts"],
+): Source[] => {
+  if (!Array.isArray(parts)) return [];
 
-/**
- * Parse Anthropic-style tool calls from message content.
- * Converts Anthropic tool_use blocks to the ToolCall shape.
- */
-export function parseAnthropicStreamedToolCalls(
-  content: ContentBlock[],
-): ToolCall[] {
-  const toolCallContents = content.filter(
-    (c) => c.type === "tool_use" && "id" in c,
-  );
+  const sources: Source[] = [];
 
-  return toolCallContents.map((tc) => {
-    const toolCall = tc as Record<string, unknown>;
-    let json: Record<string, unknown> = {};
-    if (toolCall?.input) {
-      json = parsePartialJson(toolCall.input as string);
+  for (const part of parts) {
+    if (part.type === "source-url") {
+      sources.push({
+        id: part.sourceId,
+        type: "web",
+        title: part.title || part.url || part.sourceId,
+        url: part.url,
+      });
     }
-    // Convert to ToolCall shape.
-    return {
-      function: {
-        name: (toolCall.name as string) ?? "",
-        arguments: JSON.stringify(json),
-      },
-      type: "function" as const,
-      id: (toolCall.id as string) ?? "",
-    };
-  });
-}
+
+    if (part.type === "source-document") {
+      const filename = part.filename;
+      sources.push({
+        id: part.sourceId,
+        type: "knowledge_base",
+        title: part.title || filename || part.sourceId,
+        ...(filename ? { filename } : {}),
+      });
+    }
+  }
+
+  return sources;
+};

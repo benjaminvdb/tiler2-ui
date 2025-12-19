@@ -12,10 +12,10 @@ export const HumanMessage = memo(function HumanMessage({
   message,
   isLoading,
 }: HumanMessageProps) {
-  const contentString = getContentString(message.content);
+  const contentString = getContentString(message.parts);
 
   const { isEditing, value, setValue, handleSubmitEdit, setIsEditing } =
-    useHumanMessageEdit(message, contentString);
+    useHumanMessageEdit(contentString);
 
   return (
     <div
@@ -33,7 +33,7 @@ export const HumanMessage = memo(function HumanMessage({
           />
         ) : (
           <div className="flex flex-col gap-2">
-            <MultimodalContent content={message.content} />
+            <MultimodalContent parts={message.parts} />
             <TextContent contentString={contentString} />
           </div>
         )}

@@ -1,27 +1,8 @@
 import { FormEvent } from "react";
-import { buildHumanMessage } from "../utils/message-builder";
+import { buildMessageFiles } from "../utils/message-builder";
 import { UseThreadHandlersProps } from "../types";
-import type {
-  StreamContextType,
-  UIMessage,
-} from "@/core/providers/stream/stream-types";
+import type { StreamContextType } from "@/core/providers/stream/stream-types";
 import { generateThreadName } from "@/features/thread/utils/generate-thread-name";
-
-const buildContext = (
-  artifactContext: Record<string, unknown> | undefined | null,
-): Record<string, unknown> | undefined => {
-  return artifactContext && Object.keys(artifactContext).length > 0
-    ? artifactContext
-    : undefined;
-};
-
-const buildSubmitData = (
-  newHumanMessage: UIMessage,
-  context: Record<string, unknown> | undefined,
-) => ({
-  messages: [newHumanMessage],
-  ...(context ? { context } : {}),
-});
 
 export const createSubmitHandler = (
   props: UseThreadHandlersProps,
@@ -34,7 +15,6 @@ export const createSubmitHandler = (
     contentBlocks,
     setContentBlocks,
     setFirstTokenReceived,
-    artifactContext,
   } = props;
 
   return (e: FormEvent) => {
@@ -43,18 +23,28 @@ export const createSubmitHandler = (
       return;
     setFirstTokenReceived(false);
 
-    const newHumanMessage = buildHumanMessage(input, contentBlocks);
-    const context = buildContext(artifactContext);
+    const files = buildMessageFiles(contentBlocks);
+    const hasText = input.trim().length > 0;
 
-    const submitData = buildSubmitData(newHumanMessage, context);
-    const submitOptions: Parameters<typeof stream.submit>[1] = {};
+    const sendOptions: Parameters<typeof stream.sendMessage>[1] = {};
 
     if (!stream.threadId) {
       const threadName = generateThreadName({ firstMessage: input });
-      submitOptions.metadata = { name: threadName };
+      sendOptions.metadata = { name: threadName };
     }
 
-    stream.submit(submitData, submitOptions);
+    if (hasText) {
+      stream.sendMessage(
+        {
+          text: input,
+          ...(files.length > 0 ? { files } : {}),
+        },
+        sendOptions,
+      );
+    } else if (files.length > 0) {
+      stream.sendMessage({ files }, sendOptions);
+    }
+
     setInput("");
     setContentBlocks([]);
   };

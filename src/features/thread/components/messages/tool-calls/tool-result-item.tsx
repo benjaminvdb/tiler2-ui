@@ -1,13 +1,17 @@
-import type { UIMessage } from "@/core/providers/stream/stream-types";
 import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import {
+  getToolOrDynamicToolName,
+  type DynamicToolUIPart,
+  type ToolUIPart,
+} from "ai";
 import { isComplexValue } from "./utils";
 import { ToolResultContent } from "./tool-result-content";
 import type { JsonValue } from "@/shared/types";
 
 interface ToolResultItemProps {
-  message: UIMessage;
+  toolPart: ToolUIPart | DynamicToolUIPart;
 }
 
 /**
@@ -23,6 +27,9 @@ const parseMessageContent = (
     if (typeof content === "string") {
       parsedContent = JSON.parse(content);
       isJsonContent = isComplexValue(parsedContent);
+    } else if (typeof content === "object" && content !== null) {
+      parsedContent = content as JsonValue;
+      isJsonContent = true;
     }
   } catch {
     parsedContent = content as JsonValue;
@@ -54,64 +61,125 @@ const truncateContent = (
 /**
  * Get content string from message
  */
-const getContentString = (content: UIMessage["content"]): string => {
+const getContentString = (content: unknown): string => {
   if (typeof content === "string") {
     return content;
   }
-  // For ContentBlock arrays, extract text content
-  if (Array.isArray(content)) {
-    return content
-      .filter((block) => block.type === "text")
-      .map((block) => ("text" in block ? block.text : ""))
-      .join("\n");
+  if (content === null || content === undefined) {
+    return "";
+  }
+  if (typeof content === "object") {
+    try {
+      return JSON.stringify(content, null, 2);
+    } catch {
+      return String(content);
+    }
   }
   return String(content);
 };
 
-export const ToolResultItem: React.FC<ToolResultItemProps> = ({ message }) => {
+const getToolOutput = (
+  toolPart: ToolUIPart | DynamicToolUIPart,
+): { output: unknown; isError: boolean } | null => {
+  if (toolPart.state === "output-available") {
+    return { output: toolPart.output, isError: false };
+  }
+  if (toolPart.state === "output-error") {
+    return { output: toolPart.errorText, isError: true };
+  }
+  return null;
+};
+
+const getContentForDisplay = (output: unknown) => {
+  const contentString = getContentString(output);
+  const { parsedContent, isJsonContent } = parseMessageContent(contentString);
+  const contentStr = isJsonContent
+    ? JSON.stringify(parsedContent, null, 2)
+    : contentString;
+
+  return { parsedContent, isJsonContent, contentStr };
+};
+
+const getExpandState = ({
+  contentStr,
+  isExpanded,
+  parsedContent,
+  isJsonContent,
+}: {
+  contentStr: string;
+  isExpanded: boolean;
+  parsedContent: JsonValue;
+  isJsonContent: boolean;
+}) => {
+  const { displayedContent, shouldTruncate } = truncateContent(
+    contentStr,
+    isExpanded,
+  );
+  const shouldShowExpandButton = isJsonContent
+    ? Array.isArray(parsedContent) && parsedContent.length > 5
+    : shouldTruncate;
+
+  return { displayedContent, shouldShowExpandButton };
+};
+
+const ToolResultHeader: React.FC<{
+  toolName: string | null;
+  isError: boolean;
+  toolCallId?: string;
+}> = ({ toolName, isError, toolCallId }) => {
+  const label = isError ? "Tool Error" : "Tool Result";
+
+  return (
+    <div className="border-b border-gray-200 bg-gray-50 px-4 py-2">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        {toolName ? (
+          <h3 className="font-medium text-gray-900">
+            {label}:
+            <code className="rounded bg-gray-100 px-2 py-1">{toolName}</code>
+          </h3>
+        ) : (
+          <h3 className="font-medium text-gray-900">{label}</h3>
+        )}
+        {toolCallId ? (
+          <code className="ml-2 rounded bg-gray-100 px-2 py-1 text-sm">
+            {toolCallId}
+          </code>
+        ) : null}
+      </div>
+    </div>
+  );
+};
+
+export const ToolResultItem: React.FC<ToolResultItemProps> = ({ toolPart }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const toolName = getToolOrDynamicToolName(toolPart);
 
   const toggleExpanded = useCallback(() => {
     setIsExpanded((prev) => !prev);
   }, []);
 
-  const contentString = getContentString(message.content);
-  const { parsedContent, isJsonContent } = parseMessageContent(contentString);
+  const toolOutput = getToolOutput(toolPart);
+  if (!toolOutput) {
+    return null;
+  }
 
-  const contentStr = isJsonContent
-    ? JSON.stringify(parsedContent, null, 2)
-    : contentString;
-
-  const { displayedContent, shouldTruncate } = truncateContent(
+  const { parsedContent, isJsonContent, contentStr } = getContentForDisplay(
+    toolOutput.output,
+  );
+  const { displayedContent, shouldShowExpandButton } = getExpandState({
     contentStr,
     isExpanded,
-  );
-
-  const shouldShowExpandButton =
-    (shouldTruncate && !isJsonContent) ||
-    (isJsonContent && Array.isArray(parsedContent) && parsedContent.length > 5);
+    parsedContent,
+    isJsonContent,
+  });
 
   return (
     <div className="overflow-hidden rounded-lg border border-gray-200">
-      <div className="border-b border-gray-200 bg-gray-50 px-4 py-2">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          {message.name ? (
-            <h3 className="font-medium text-gray-900">
-              Tool Result:
-              <code className="rounded bg-gray-100 px-2 py-1">
-                {message.name}
-              </code>
-            </h3>
-          ) : (
-            <h3 className="font-medium text-gray-900">Tool Result</h3>
-          )}
-          {message.tool_call_id && (
-            <code className="ml-2 rounded bg-gray-100 px-2 py-1 text-sm">
-              {message.tool_call_id}
-            </code>
-          )}
-        </div>
-      </div>
+      <ToolResultHeader
+        toolName={toolName}
+        isError={toolOutput.isError}
+        toolCallId={toolPart.toolCallId}
+      />
       <motion.div
         className="min-w-full bg-gray-100"
         initial={false}

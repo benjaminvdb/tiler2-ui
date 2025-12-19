@@ -26,7 +26,7 @@ const extractFirstMessageText = (thread: Thread): string | null => {
     return null;
   }
 
-  return getContentString(messages[0].content);
+  return getContentString(messages[0].parts);
 };
 
 export const extractThreadDisplayText = (thread: Thread): string => {

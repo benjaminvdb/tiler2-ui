@@ -1,11 +1,7 @@
 import { useState } from "react";
 import { useStreamContext } from "@/core/providers/stream";
-import type { UIMessage } from "@/core/providers/stream/stream-types";
 
-export function useHumanMessageEdit(
-  _message: UIMessage,
-  contentString: string,
-) {
+export function useHumanMessageEdit(contentString: string) {
   const thread = useStreamContext();
 
   const [isEditing, setIsEditing] = useState(false);
@@ -14,18 +10,8 @@ export function useHumanMessageEdit(
   const handleSubmitEdit = () => {
     setIsEditing(false);
 
-    const newMessage: UIMessage = {
-      id: crypto.randomUUID(),
-      type: "human",
-      content: value,
-    };
-    thread.submit(
-      { messages: [newMessage] },
-      {
-        streamMode: ["values"],
-        streamSubgraphs: true,
-      },
-    );
+    if (value.trim().length === 0) return;
+    thread.sendMessage({ text: value });
   };
 
   const handleSetIsEditing = (

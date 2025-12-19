@@ -1,39 +1,12 @@
 import { useSearchParamState } from "@/core/routing/hooks";
-import type { UIMessage, ToolCall } from "@/core/providers/stream/stream-types";
+import { isToolOrDynamicToolUIPart } from "ai";
+import type { UIMessage } from "@/core/providers/stream/stream-types";
 import { useStreamContext } from "@/core/providers/stream";
 import { getContentString } from "../../../../utils";
-import { parseAnthropicStreamedToolCalls } from "../../utils";
-
-/**
- * Check if message has tool calls with content
- */
-const checkToolCallsStatus = (message: UIMessage) => {
-  const hasToolCalls =
-    "tool_calls" in message &&
-    message.tool_calls &&
-    message.tool_calls.length > 0;
-
-  const toolCallsHaveContents =
-    hasToolCalls &&
-    message.tool_calls?.some((tc: ToolCall) => {
-      // Handle tool call arguments stored in the function payload.
-      if ("function" in tc && tc.function?.arguments) {
-        try {
-          const args = JSON.parse(tc.function.arguments);
-          return Object.keys(args).length > 0;
-        } catch {
-          return false;
-        }
-      }
-      return false;
-    });
-
-  return { hasToolCalls, toolCallsHaveContents };
-};
 
 export function useMessageContent(message: UIMessage) {
-  const content = message?.content ?? [];
-  const contentString = getContentString(content);
+  const parts = message?.parts ?? [];
+  const contentString = getContentString(parts);
   const [hideToolCallsParam] = useSearchParamState("hideToolCalls");
 
   const envDefaultHide = import.meta.env.VITE_HIDE_TOOL_CALLS !== "false";
@@ -42,22 +15,17 @@ export function useMessageContent(message: UIMessage) {
 
   const thread = useStreamContext();
 
-  const anthropicStreamedToolCalls = Array.isArray(content)
-    ? parseAnthropicStreamedToolCalls(content)
-    : undefined;
+  const toolParts = Array.isArray(parts)
+    ? parts.filter(isToolOrDynamicToolUIPart)
+    : [];
 
-  const { hasToolCalls, toolCallsHaveContents } = checkToolCallsStatus(message);
-  const hasAnthropicToolCalls = !!anthropicStreamedToolCalls?.length;
-  const isToolResult = message?.type === "tool";
+  const hasToolCalls = toolParts.length > 0;
 
   return {
     contentString,
     hideToolCalls,
     thread,
-    anthropicStreamedToolCalls,
     hasToolCalls,
-    toolCallsHaveContents,
-    hasAnthropicToolCalls,
-    isToolResult,
+    toolParts,
   };
 }
