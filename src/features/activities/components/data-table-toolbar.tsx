@@ -44,7 +44,6 @@ export const DataTableToolbar = <TData,>({
   searchPlaceholder = "Search...",
   disabled = false,
 }: DataTableToolbarProps<TData>): React.JSX.Element => {
-  "use no memo";
   // Local state for debounced search - key on searchValue to reset when cleared externally
   const [localSearch, setLocalSearch] = useState(searchValue);
 

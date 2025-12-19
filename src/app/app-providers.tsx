@@ -7,7 +7,7 @@ import { useSearchParamState } from "@/core/routing/hooks";
 import { useNavigate } from "react-router-dom";
 import { Toaster } from "@/shared";
 import { createNavigationService } from "@/core/services/navigation";
-import { CopilotKitProvider } from "@/core/providers/copilotkit";
+import { AssistantProvider } from "@/core/providers/assistant-runtime";
 import * as Sentry from "@sentry/react";
 import {
   SIDE_PANEL_MAX_WIDTH,
@@ -26,19 +26,12 @@ export const AppProviders = ({
   const [chatHistoryOpen, setChatHistoryOpen] =
     useSearchParamState("chatHistoryOpen");
 
-  const [threadId, setThreadId] = useSearchParamState("threadId");
+  const [, setThreadId] = useSearchParamState("threadId");
 
   useEffect(() => {
-    if (threadId) {
-      Sentry.setContext("thread", {
-        id: threadId,
-      });
-      Sentry.setTag("thread_id", threadId);
-    } else {
-      Sentry.setContext("thread", null);
-      Sentry.setTag("thread_id", undefined);
-    }
-  }, [threadId]);
+    Sentry.setContext("thread", null);
+    Sentry.setTag("thread_id", undefined);
+  }, []);
 
   const [sidePanelWidth, setSidePanelWidth] = useState(() => {
     const savedWidth = localStorage.getItem("sidePanelWidth");
@@ -102,9 +95,9 @@ export const AppProviders = ({
       <Toaster />
       <UIProvider value={uiContextValue}>
         <HotkeysProvider>
-          <CopilotKitProvider threadId={threadId}>
+          <AssistantProvider>
             <ThreadProvider>{children}</ThreadProvider>
-          </CopilotKitProvider>
+          </AssistantProvider>
         </HotkeysProvider>
       </UIProvider>
     </>

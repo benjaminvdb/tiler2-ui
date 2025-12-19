@@ -5,11 +5,10 @@
     "src/main.tsx",
     "src/App.tsx",
     "src/env.ts",
-    "src/shared/components/ui/**/*.tsx",
-    "api/copilotkit.ts"
+    "src/shared/components/ui/**/*.tsx"
   ],
 
-  "project": ["src/**/*.{ts,tsx}", "server/**/*.ts", "api/**/*.ts"],
+  "project": ["src/**/*.{ts,tsx}"],
 
   "paths": {
     "@/*": ["./src/*"],

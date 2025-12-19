@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { Menu } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -11,21 +11,26 @@ import {
 import { AuthButtons } from "@/features/auth/components";
 import { Navigation } from "@/core/components/navigation";
 import { LinkLogoSVG } from "@/shared/components/icons/link";
-import { ThreadList } from "./thread-history/components/thread-list";
-import { ThreadHistoryLoading } from "./thread-history/components/thread-history-loading";
-import { useThreadHistory } from "./thread-history/hooks/use-thread-history";
+import { AssistantThreadList } from "@/features/assistant-ui/thread-list";
+import { useAssistantState } from "@assistant-ui/react";
 
 export const MobileHeader: React.FC = () => {
-  const { threads, threadsLoading } = useThreadHistory();
   const [isOpen, setIsOpen] = useState(false);
+  const activeThreadId = useAssistantState(
+    ({ threadListItem }) => threadListItem.remoteId,
+  );
 
   const handleMenuClose = useCallback(() => {
     setIsOpen(false);
   }, []);
 
-  const handleThreadClick = useCallback(() => {
-    setIsOpen(false);
-  }, []);
+  useEffect(() => {
+    if (isOpen && activeThreadId) {
+      // Closing the sheet when a thread is chosen keeps UX consistent on mobile.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setIsOpen(false);
+    }
+  }, [isOpen, activeThreadId]);
 
   return (
     <div className="bg-background border-b lg:hidden">
@@ -79,14 +84,7 @@ export const MobileHeader: React.FC = () => {
                 </h2>
               </div>
               <div className="scrollbar-thin scrollbar-track-transparent scrollbar-thumb-muted hover:scrollbar-thumb-accent dark:scrollbar-thumb-accent/30 dark:hover:scrollbar-thumb-accent/50 flex-1 overflow-y-auto overscroll-contain px-4">
-                {threadsLoading ? (
-                  <ThreadHistoryLoading />
-                ) : (
-                  <ThreadList
-                    threads={threads}
-                    onThreadClick={handleThreadClick}
-                  />
-                )}
+                <AssistantThreadList />
               </div>
             </div>
           </SheetContent>
