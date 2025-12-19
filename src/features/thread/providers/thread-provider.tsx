@@ -61,10 +61,13 @@ function useGetThreads(
           limit: String(PAGINATION_CONFIG.THREAD_LIST_PAGE_SIZE),
           offset: String(offset),
         });
-        const response = await fetchWithAuth(`${apiUrl}/ai/threads?${params}`, {
-          method: "GET",
-          timeoutMs: THREAD_LIST_TIMEOUT_MS,
-        });
+        const response = await fetchWithAuth(
+          `${apiUrl}/agent/threads?${params}`,
+          {
+            method: "GET",
+            timeoutMs: THREAD_LIST_TIMEOUT_MS,
+          },
+        );
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -115,7 +118,7 @@ function useDeleteThread(
 
       try {
         const response = await fetchWithAuth(
-          `${apiUrl}/ai/threads/${threadId}`,
+          `${apiUrl}/agent/threads/${threadId}`,
           {
             method: "DELETE",
             timeoutMs: THREAD_DELETE_TIMEOUT_MS,
@@ -176,7 +179,7 @@ function useRenameThread(
         );
 
         const response = await fetchWithAuth(
-          `${apiUrl}/ai/threads/${threadId}`,
+          `${apiUrl}/agent/threads/${threadId}`,
           {
             method: "PATCH",
             headers: {

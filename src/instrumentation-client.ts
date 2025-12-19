@@ -51,11 +51,9 @@ if (shouldInitializeSentry && dsn) {
       Sentry.feedbackIntegration(feedbackOptions),
     ],
     tracesSampleRate: isDevelopment ? 1.0 : 0.2,
-    tracePropagationTargets: (() => {
-      const targets: Array<string | RegExp> = ["localhost", /^\/api\//];
-      if (env.API_URL) targets.push(env.API_URL);
-      return targets;
-    })(),
+    tracePropagationTargets: ["localhost", /^\/api\//, env.API_URL].filter(
+      Boolean,
+    ),
     replaysSessionSampleRate: isDevelopment ? 1.0 : 0.1,
     replaysOnErrorSampleRate: 1.0,
     sendDefaultPii: false,
