@@ -28,7 +28,7 @@ export const Navigation: React.FC<NavigationProps> = ({
   isCollapsed = false,
   onNavigate,
 }) => {
-  const { navigationService, onNewThread } = useUIContext();
+  const { navigationService } = useUIContext();
   const { pathname } = useLocation();
 
   const menuItems: NavigationMenuItem[] = [
@@ -37,7 +37,7 @@ export const Navigation: React.FC<NavigationProps> = ({
       label: "New Chat",
       icon: MessageCircle,
       action: () => {
-        onNewThread();
+        navigationService.navigateToHome();
         onNavigate?.();
       },
       isActive: navigationService.isHomePage(pathname),

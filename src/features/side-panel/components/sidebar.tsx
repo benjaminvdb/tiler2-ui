@@ -402,7 +402,6 @@ function useSidebarHandlers(
   navigationService: ReturnType<typeof useUIContext>["navigationService"],
   deleteThread: (threadId: string) => Promise<void>,
   renameThread: (threadId: string, newTitle: string) => Promise<void>,
-  onNewThread: () => void,
 ) {
   const handleThreadClick = React.useCallback(
     (clickedThreadId: string) => {
@@ -447,7 +446,7 @@ function useSidebarHandlers(
         toast.success("Thread deleted successfully");
 
         if (targetThreadId === threadId) {
-          onNewThread();
+          navigationService.navigateToHome();
         }
       } catch (error) {
         toast.error(
@@ -456,12 +455,12 @@ function useSidebarHandlers(
         throw error;
       }
     },
-    [deleteThread, threadId, onNewThread],
+    [deleteThread, threadId, navigationService],
   );
 
   const handleNewChatClick = React.useCallback(() => {
-    onNewThread();
-  }, [onNewThread]);
+    navigationService.navigateToHome();
+  }, [navigationService]);
 
   const handleWorkflowsClick = React.useCallback(() => {
     handleNavigate("workflows");
@@ -497,7 +496,7 @@ function useSidebarHandlers(
 }
 
 export const AppSidebar = (): React.JSX.Element => {
-  const { navigationService, onNewThread } = useUIContext();
+  const { navigationService } = useUIContext();
   const [threadId] = useSearchParamState("threadId");
   const { threads, threadsLoading } = useThreadHistory();
   const {
@@ -525,7 +524,6 @@ export const AppSidebar = (): React.JSX.Element => {
     navigationService,
     deleteThread,
     renameThread,
-    onNewThread,
   );
 
   return (

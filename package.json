@@ -11,7 +11,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "dev:copilotkit": "tsx watch --clear-screen=false --include .env.local --include .env server/copilotkit-dev.ts",
+    "dev:copilotkit": "tsx server/copilotkit-dev.ts",
     "build": "VITE_APP_VERSION=$(node -p \"require('./package.json').version\") tsc && vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",

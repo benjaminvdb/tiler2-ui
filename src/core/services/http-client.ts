@@ -10,8 +10,6 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { useCallback } from "react";
 import { env } from "@/env";
 import { triggerLogout } from "./auth-helpers";
-import { v4 as uuidv4 } from "uuid";
-import * as Sentry from "@sentry/react";
 
 interface FetchWithAuthOptions extends Omit<RequestInit, "headers"> {
   headers?: Record<string, string>;
@@ -43,8 +41,6 @@ export class ForbiddenError extends Error {
 function triggerSilentLogout(reason: string): void {
   triggerLogout(window.location.origin, reason);
 }
-
-const REQUEST_ID_HEADER = "X-Request-ID";
 
 const NETWORK_RETRY_CONFIG = {
   maxRetries: 3,
@@ -244,10 +240,6 @@ export async function fetchWithAuth(
   if (token) {
     requestHeaders.Authorization = `Bearer ${token}`;
   }
-
-  const requestId = uuidv4();
-  requestHeaders[REQUEST_ID_HEADER] = requestId;
-  Sentry.getCurrentScope().setTag("request_id", requestId);
 
   const executeRequest = createRequestExecutor(
     url,

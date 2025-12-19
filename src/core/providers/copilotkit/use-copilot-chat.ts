@@ -27,9 +27,9 @@ export type ContentBlock = InputContent;
 
 export interface UseCopilotChatOptions {
   /**
-   * Custom chat instance id to share state across hook instances.
+   * Force the agent to use a specific thread id (existing thread).
    */
-  id?: string | undefined;
+  threadId?: string | undefined;
   /**
    * Initial messages to hydrate the chat (e.g., for existing threads).
    */
@@ -131,7 +131,7 @@ export function useCopilotChat(
   options?: UseCopilotChatOptions,
 ): UseCopilotChatReturn {
   const headlessOptions: Parameters<typeof useCopilotChatHeadless_c>[0] = {
-    ...(options?.id ? { id: options.id } : {}),
+    ...(options?.threadId ? { id: options.threadId } : {}),
     ...(options?.initialMessages
       ? { initialMessages: options.initialMessages }
       : {}),

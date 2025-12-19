@@ -16,7 +16,7 @@ import { buildOptimisticThread } from "@/features/thread/utils/build-optimistic-
 import { getClientConfig } from "@/core/config/client";
 import { linkThreadToTask, getTaskContext } from "@/features/goals/services";
 import type { UseCopilotChatReturn } from "@/core/providers/copilotkit";
-import type { Message, ToolCall } from "@copilotkit/shared";
+import type { Message } from "@copilotkit/shared";
 
 interface WorkflowData {
   id: number;
@@ -24,120 +24,6 @@ interface WorkflowData {
   title: string;
   description: string;
 }
-
-type ThreadMessagePayload = {
-  id: string;
-  role: Message["role"];
-  content: Message["content"];
-  toolCalls?: ToolCall[];
-  toolCallId?: string;
-  toolName?: string;
-  activityType?: string;
-  error?: string;
-};
-
-type UserContent = Extract<Message, { role: "user" }>["content"];
-
-const normalizeActivityContent = (
-  content: Message["content"],
-): Record<string, unknown> => {
-  if (content && typeof content === "object" && !Array.isArray(content)) {
-    return content as Record<string, unknown>;
-  }
-  return {};
-};
-
-const normalizeUserContent = (
-  content: Message["content"],
-): UserContent => {
-  if (typeof content === "string" || Array.isArray(content)) {
-    return content as UserContent;
-  }
-  return "";
-};
-
-const normalizeAssistantContent = (
-  content: Message["content"],
-): string | undefined => {
-  if (typeof content === "string") {
-    return content;
-  }
-  return undefined;
-};
-
-const normalizeToolContent = (content: Message["content"]): string => {
-  if (typeof content === "string") {
-    return content;
-  }
-  try {
-    return JSON.stringify(content ?? "");
-  } catch {
-    return "";
-  }
-};
-
-const normalizeTextContent = (content: Message["content"]): string => {
-  if (typeof content === "string") {
-    return content;
-  }
-  try {
-    return JSON.stringify(content ?? "");
-  } catch {
-    return "";
-  }
-};
-
-const mapThreadMessage = (msg: ThreadMessagePayload): Message => {
-  switch (msg.role) {
-    case "activity":
-      return {
-        id: msg.id,
-        role: "activity",
-        activityType: msg.activityType ?? "activity",
-        content: normalizeActivityContent(msg.content),
-      };
-    case "tool":
-      return {
-        id: msg.id,
-        role: "tool",
-        content: normalizeToolContent(msg.content),
-        toolCallId: msg.toolCallId ?? "",
-        ...(msg.toolName ? { toolName: msg.toolName } : {}),
-        ...(msg.error ? { error: msg.error } : {}),
-      };
-    case "assistant":
-      return {
-        id: msg.id,
-        role: "assistant",
-        content: normalizeAssistantContent(msg.content),
-        ...(msg.toolCalls ? { toolCalls: msg.toolCalls } : {}),
-      };
-    case "system":
-      return {
-        id: msg.id,
-        role: "system",
-        content: normalizeTextContent(msg.content),
-      };
-    case "developer":
-      return {
-        id: msg.id,
-        role: "developer",
-        content: normalizeTextContent(msg.content),
-      };
-    case "user":
-      return {
-        id: msg.id,
-        role: "user",
-        content: normalizeUserContent(msg.content),
-      };
-    default:
-      return {
-        id: msg.id,
-        role: "assistant",
-        content: normalizeAssistantContent(msg.content),
-      };
-  }
-};
 
 /**
  * Submits workflow without optimistic thread creation
@@ -183,7 +69,7 @@ const submitWorkflowWithThread = (
 const ThreadWithWorkflowHandler = (): React.ReactNode => {
   const [searchParams] = useSearchParams();
   const [threadId, setThreadId] = useSearchParamState("threadId");
-  const chat = useCopilotChat();
+  const chat = useCopilotChat({ threadId: threadId || undefined });
   const workflowId = searchParams.get("workflow");
   const taskId = searchParams.get("taskId");
   const updateSearchParams = useSearchParamsUpdate();
@@ -200,19 +86,13 @@ const ThreadWithWorkflowHandler = (): React.ReactNode => {
     threadId: string;
   } | null>(null);
   const hydratedThreadRef = useRef<string | null>(null);
-  const previousThreadIdRef = useRef<string | null>(threadId);
-  const skipThreadIdSyncRef = useRef(false);
 
   const apiUrl = getClientConfig().apiUrl;
 
   // Hydrate existing thread history when navigating via threadId
   useEffect(() => {
     const hydrate = async () => {
-      if (!threadId) {
-        hydratedThreadRef.current = null;
-        return;
-      }
-      if (hydratedThreadRef.current === threadId) {
+      if (!threadId || hydratedThreadRef.current === threadId) {
         return;
       }
 
@@ -234,14 +114,15 @@ const ThreadWithWorkflowHandler = (): React.ReactNode => {
 
         const data = await response.json();
         const mappedMessages: Message[] = (data.messages || []).map(
-          (msg: ThreadMessagePayload) => mapThreadMessage(msg),
+          (msg: { id: string; role: string; content: unknown }) => ({
+            id: msg.id,
+            role: msg.role as Message["role"],
+            content: msg.content as Message["content"],
+          }),
         );
 
         chat.reset();
         chat.setMessages(mappedMessages);
-        if (data.state !== undefined) {
-          chat.agent?.setState(data.state);
-        }
         hydratedThreadRef.current = threadId;
       } catch (error) {
         console.error("Error hydrating thread history:", error);
@@ -322,13 +203,6 @@ const ThreadWithWorkflowHandler = (): React.ReactNode => {
       updateSearchParams({ workflow: undefined });
     }
   }, [threadId, workflowId, updateSearchParams]);
-
-  useEffect(() => {
-    if (previousThreadIdRef.current && !threadId) {
-      skipThreadIdSyncRef.current = true;
-    }
-    previousThreadIdRef.current = threadId;
-  }, [threadId]);
 
   // Handle task-based thread creation
   useEffect(() => {
@@ -415,13 +289,6 @@ const ThreadWithWorkflowHandler = (): React.ReactNode => {
   const chatThreadId = chat.threadId;
   const hasMessages = chat.messages.length > 0;
   useEffect(() => {
-    if (skipThreadIdSyncRef.current) {
-      if (!hasMessages) {
-        skipThreadIdSyncRef.current = false;
-      }
-      return;
-    }
-
     if (chatThreadId && !threadId && !workflowId && !taskId && hasMessages) {
       // Thread was created in backend - sync to URL
       setThreadId(chatThreadId);
