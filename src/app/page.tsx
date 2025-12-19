@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Thread } from "@/features/thread/components";
-import type { Thread as ThreadType } from "@/features/thread/providers/thread-provider";
 import { ArtifactProvider } from "@/features/artifacts/components";
 import { useSearchParams } from "react-router-dom";
 import { useStreamContext } from "@/core/providers/stream";
@@ -8,11 +7,8 @@ import {
   useSearchParamState,
   useSearchParamsUpdate,
 } from "@/core/routing/hooks";
-import { useThreads } from "@/features/thread/providers/thread-provider";
-import { useAuth0 } from "@auth0/auth0-react";
 import { useAuthenticatedFetch } from "@/core/services/http-client";
 import { generateThreadName } from "@/features/thread/utils/generate-thread-name";
-import { buildOptimisticThread } from "@/features/thread/utils/build-optimistic-thread";
 import { getClientConfig } from "@/core/config/client";
 import { linkThreadToTask, getTaskContext } from "@/features/goals/services";
 
@@ -43,29 +39,18 @@ const submitWorkflowFallback = (
 };
 
 /**
- * Creates and submits workflow with optimistic thread
+ * Creates and submits workflow thread.
  */
 const submitWorkflowWithThread = (
   stream: ReturnType<typeof useStreamContext>,
   workflowId: string,
   workflow: WorkflowData,
-  userEmail: string,
-  addOptimisticThread: (thread: ThreadType) => void,
 ) => {
-  const optimisticThreadId = crypto.randomUUID();
   const threadName = generateThreadName({ workflowTitle: workflow.title });
-  const optimisticThread = buildOptimisticThread({
-    threadId: optimisticThreadId,
-    threadName,
-    userEmail,
-  });
-
-  addOptimisticThread(optimisticThread);
 
   stream.submit(
     { messages: [] },
     {
-      threadId: optimisticThreadId,
       metadata: { name: threadName },
       config: {
         configurable: {
@@ -89,18 +74,13 @@ const ThreadWithWorkflowHandler = (): React.ReactNode => {
   const taskId = searchParams.get("taskId");
   const [threadId, setThreadId] = useSearchParamState("threadId");
   const updateSearchParams = useSearchParamsUpdate();
-  const { addOptimisticThread } = useThreads();
-  const { user } = useAuth0();
   const [isSubmittingWorkflow, setIsSubmittingWorkflow] = useState(false);
   const [isSubmittingTask, setIsSubmittingTask] = useState(false);
   const fetchWithAuth = useAuthenticatedFetch();
 
   const submittedWorkflowRef = useRef<string | null>(null);
   const submittedTaskRef = useRef<string | null>(null);
-  const pendingTaskLinkRef = useRef<{
-    taskId: string;
-    threadId: string;
-  } | null>(null);
+  const pendingTaskLinkRef = useRef<{ taskId: string } | null>(null);
 
   const apiUrl = getClientConfig().apiUrl;
 
@@ -131,14 +111,8 @@ const ThreadWithWorkflowHandler = (): React.ReactNode => {
           const workflows: WorkflowData[] = await response.json();
           const workflow = workflows.find((w) => w.workflow_id === workflowId);
 
-          if (workflow && user?.email) {
-            submitWorkflowWithThread(
-              stream,
-              workflowId,
-              workflow,
-              user.email,
-              addOptimisticThread,
-            );
+          if (workflow) {
+            submitWorkflowWithThread(stream, workflowId, workflow);
           } else {
             console.warn(
               `Workflow ${workflowId} not found in API response, submitting without title`,
@@ -164,8 +138,6 @@ const ThreadWithWorkflowHandler = (): React.ReactNode => {
     threadId,
     setThreadId,
     apiUrl,
-    user,
-    addOptimisticThread,
     isSubmittingWorkflow,
     fetchWithAuth,
   ]);
@@ -197,49 +169,32 @@ const ThreadWithWorkflowHandler = (): React.ReactNode => {
         setThreadId(null);
       }
 
-      // Create optimistic thread with task context
-      if (user?.email) {
-        // Fetch task context to get the task title for thread naming
-        let taskTitle = "Task";
-        try {
-          const taskContext = await getTaskContext(fetchWithAuth, taskId);
-          taskTitle = taskContext.task_title;
-        } catch (error) {
-          console.error("Failed to fetch task context for thread name:", error);
-        }
+      // Fetch task context to get the task title for thread naming
+      let taskTitle = "Task";
+      try {
+        const taskContext = await getTaskContext(fetchWithAuth, taskId);
+        taskTitle = taskContext.task_title;
+      } catch (error) {
+        console.error("Failed to fetch task context for thread name:", error);
+      }
 
-        const optimisticThreadId = crypto.randomUUID();
-        const threadName = generateThreadName({
-          taskTitle,
-        });
-        const optimisticThread = buildOptimisticThread({
-          threadId: optimisticThreadId,
-          threadName,
-          userEmail: user.email,
-        });
+      const threadName = generateThreadName({ taskTitle });
 
-        addOptimisticThread(optimisticThread);
+      // Store task link info to be processed when thread is confirmed
+      pendingTaskLinkRef.current = { taskId };
 
-        // Store task link info to be processed when thread is confirmed
-        pendingTaskLinkRef.current = {
-          taskId,
-          threadId: optimisticThreadId,
-        };
-
-        // Submit to create thread with task context
-        stream.submit(
-          { messages: [] },
-          {
-            threadId: optimisticThreadId,
-            metadata: { name: threadName },
-            config: {
-              configurable: {
-                task_id: taskId,
-              },
+      // Submit to create thread with task context
+      stream.submit(
+        { messages: [] },
+        {
+          metadata: { name: threadName },
+          config: {
+            configurable: {
+              task_id: taskId,
             },
           },
-        );
-      }
+        },
+      );
 
       setIsSubmittingTask(false);
     };
@@ -250,9 +205,7 @@ const ThreadWithWorkflowHandler = (): React.ReactNode => {
     workflowId,
     threadId,
     setThreadId,
-    user,
     stream,
-    addOptimisticThread,
     fetchWithAuth,
     isSubmittingTask,
     isSubmittingWorkflow,
@@ -262,11 +215,6 @@ const ThreadWithWorkflowHandler = (): React.ReactNode => {
   useEffect(() => {
     const linkAndClearTask = async () => {
       if (!threadId || !taskId || !pendingTaskLinkRef.current) {
-        return;
-      }
-
-      // Only process if this is the thread we created for the task
-      if (pendingTaskLinkRef.current.threadId !== threadId) {
         return;
       }
 

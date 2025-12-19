@@ -9,7 +9,7 @@ import * as Sentry from "@sentry/react";
 import { useStreamToken } from "./hooks/use-stream-token";
 import { useThreadVerification } from "./hooks/use-thread-verification";
 import { useGraphStatus } from "./hooks/use-graph-status";
-import { useAGUIAgent } from "./hooks/use-ag-ui-agent";
+import { useVercelAIChat } from "./hooks/use-vercel-ai-chat";
 import { TokenErrorScreen } from "./components/token-error-screen";
 import { useAuth0 } from "@auth0/auth0-react";
 
@@ -67,8 +67,8 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
     [setThreadId, verifyThreadCreation],
   );
 
-  // Use the AG-UI agent hook
-  const streamValue = useAGUIAgent({
+  // Use the Vercel AI SDK UI hook
+  const streamValue = useVercelAIChat({
     apiUrl,
     assistantId,
     threadId,

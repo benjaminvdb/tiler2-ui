@@ -59,12 +59,14 @@ export function useThreadEffects({
   }, [stream.error, lastErrorRef]);
 
   useEffect(() => {
-    const lastMessage = messages?.[messages.length - 1];
-    if (lastMessage?.type !== "ai") {
+    const lastAiMessage = [...messages]
+      .reverse()
+      .find((message) => message.type === "ai");
+    if (!lastAiMessage) {
       return;
     }
 
-    const contentString = getMessageContentString(lastMessage.content);
+    const contentString = getMessageContentString(lastAiMessage.content);
     if (contentString.trim().length > 0) {
       setFirstTokenReceived(true);
     }

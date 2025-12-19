@@ -20,14 +20,16 @@ export type MultimodalContentBlock =
       type: "image";
       mimeType: string;
       mime_type?: string; // Python backend expects snake_case
-      data: string;
+      data?: string;
+      url?: string;
       metadata?: MultimodalMetadata;
     }
   | {
       type: "file";
       mimeType: string;
       mime_type?: string;
-      data: string;
+      data?: string;
+      url?: string;
       source_type?: string;
       metadata?: MultimodalMetadata;
     };

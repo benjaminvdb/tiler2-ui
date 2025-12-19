@@ -1,11 +1,9 @@
 /**
- * AG-UI Protocol Types for Link Chat
+ * Stream Types for Link Chat
  *
- * This module defines types that bridge the AG-UI protocol with our existing UI components.
- * The goal is to maintain the same interface that components expect while using AG-UI under the hood.
+ * These types bridge the Vercel AI SDK UI message format with existing UI components.
  */
 
-import type { Message as AGUIMessage, ToolCall } from "@ag-ui/core";
 import { Source } from "@/features/thread/components/markdown/components/citation-link";
 
 /**
@@ -14,9 +12,41 @@ import { Source } from "@/features/thread/components/markdown/components/citatio
  */
 export type ContentBlock =
   | { type: "text"; text: string }
-  | { type: "binary"; mimeType: string; data?: string; url?: string }
+  | {
+      type: "image";
+      mimeType?: string;
+      data?: string;
+      url?: string;
+      metadata?: { name?: string; filename?: string };
+    }
+  | {
+      type: "file";
+      mimeType?: string;
+      data?: string;
+      url?: string;
+      metadata?: { name?: string; filename?: string };
+    }
+  | {
+      type: "binary";
+      mimeType: string;
+      data?: string;
+      url?: string;
+      metadata?: { name?: string; filename?: string };
+    }
   | { type: "image_url"; image_url: { url: string } }
   | { type: "tool_use"; id: string; name: string; input?: string };
+
+/**
+ * Tool call format aligned with OpenAI-style function calls.
+ */
+export interface ToolCall {
+  id?: string;
+  type: "function";
+  function: {
+    name: string;
+    arguments: string;
+  };
+}
 
 /**
  * UI Message type that our components expect.
@@ -87,7 +117,9 @@ export interface StreamContextType {
   // State management
   clearError: () => void;
   retryStream: () => Promise<void>;
-  setMessages: (messages: UIMessage[]) => void;
+  setMessages: (
+    messages: UIMessage[] | ((prev: UIMessage[]) => UIMessage[]),
+  ) => void;
 }
 
 /**
@@ -98,8 +130,3 @@ export interface StreamSessionProps {
   apiUrl: string;
   assistantId: string;
 }
-
-/**
- * Re-export AG-UI types that we use directly.
- */
-export type { AGUIMessage, ToolCall };

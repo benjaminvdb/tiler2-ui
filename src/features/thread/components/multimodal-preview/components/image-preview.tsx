@@ -11,7 +11,12 @@ export const ImagePreview: React.FC<PreviewComponentProps> = ({
   className,
   size = "md",
 }) => {
-  const url = `data:${block.mimeType};base64,${block.data}`;
+  const url =
+    block.url ||
+    (block.data ? `data:${block.mimeType};base64,${block.data}` : "");
+  if (!url) {
+    return null;
+  }
   const sizeConfig = getImageSizeConfig(size);
 
   return (

@@ -24,6 +24,22 @@ export interface Thread {
   values: Record<string, unknown>;
 }
 
+interface ApiThread {
+  id: string;
+  name: string;
+  created_at: string;
+  updated_at: string;
+}
+
+const mapApiThread = (thread: ApiThread): Thread => ({
+  thread_id: thread.id,
+  created_at: thread.created_at,
+  updated_at: thread.updated_at,
+  metadata: { name: thread.name },
+  status: "idle",
+  values: {},
+});
+
 const THREAD_LIST_TIMEOUT_MS = 10000;
 const THREAD_DELETE_TIMEOUT_MS = 5000;
 
@@ -61,34 +77,17 @@ function useGetThreads(
           limit: String(PAGINATION_CONFIG.THREAD_LIST_PAGE_SIZE),
           offset: String(offset),
         });
-        const response = await fetchWithAuth(
-          `${apiUrl}/agent/threads?${params}`,
-          {
-            method: "GET",
-            timeoutMs: THREAD_LIST_TIMEOUT_MS,
-          },
-        );
+        const response = await fetchWithAuth(`${apiUrl}/ai/threads?${params}`, {
+          method: "GET",
+          timeoutMs: THREAD_LIST_TIMEOUT_MS,
+        });
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const threads = await response.json();
         // Map backend response to frontend Thread interface
-        return threads.map(
-          (t: {
-            id: string;
-            name: string;
-            created_at: string;
-            updated_at: string;
-          }) => ({
-            thread_id: t.id,
-            created_at: t.created_at,
-            updated_at: t.updated_at,
-            metadata: { name: t.name },
-            status: "idle",
-            values: {},
-          }),
-        );
+        return threads.map((t: ApiThread) => mapApiThread(t));
       } catch (error) {
         reportThreadError(error as Error, {
           operation: "listThreads",
@@ -118,7 +117,7 @@ function useDeleteThread(
 
       try {
         const response = await fetchWithAuth(
-          `${apiUrl}/agent/threads/${threadId}`,
+          `${apiUrl}/ai/threads/${threadId}`,
           {
             method: "DELETE",
             timeoutMs: THREAD_DELETE_TIMEOUT_MS,
@@ -179,7 +178,7 @@ function useRenameThread(
         );
 
         const response = await fetchWithAuth(
-          `${apiUrl}/agent/threads/${threadId}`,
+          `${apiUrl}/ai/threads/${threadId}`,
           {
             method: "PATCH",
             headers: {
@@ -195,9 +194,15 @@ function useRenameThread(
           throw new Error(`Failed to rename thread: ${response.status}`);
         }
 
-        const updatedThread: Thread = await response.json();
+        const updatedThread = mapApiThread(
+          (await response.json()) as ApiThread,
+        );
         setThreads((prev) =>
-          prev.map((t) => (t.thread_id === threadId ? updatedThread : t)),
+          prev.map((t) =>
+            t.thread_id === threadId
+              ? { ...updatedThread, values: t.values, status: t.status }
+              : t,
+          ),
         );
       } catch (error) {
         setThreads(previousThreads);

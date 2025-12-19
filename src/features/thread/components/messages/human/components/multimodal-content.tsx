@@ -15,10 +15,11 @@ const isMultimodalContentBlock = (
 
   const candidate = block as Record<string, unknown>;
   const hasBase64Data = typeof candidate.data === "string";
+  const hasUrl = typeof candidate.url === "string";
   const hasType = candidate.type === "image" || candidate.type === "file";
   const hasMimeType = typeof candidate.mimeType === "string";
 
-  return hasBase64Data && hasType && hasMimeType;
+  return (hasBase64Data || hasUrl) && hasType && hasMimeType;
 };
 
 export const MultimodalContent: React.FC<MultimodalContentProps> = ({
@@ -40,7 +41,9 @@ export const MultimodalContent: React.FC<MultimodalContentProps> = ({
     <div className="flex flex-wrap items-end justify-end gap-2">
       {mediaBlocks.map((block, idx) => {
         // Generate stable key from block content - use data for the key
-        const sourceKey = block.data.slice(0, 50);
+        const sourceKey = block.data
+          ? block.data.slice(0, 50)
+          : block.url || String(idx);
         const key =
           block.type === "image"
             ? `img-${sourceKey}`

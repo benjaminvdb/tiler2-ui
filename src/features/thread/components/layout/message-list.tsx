@@ -1,9 +1,10 @@
 import { v4 as uuidv4 } from "uuid";
 import type { UIMessage } from "@/core/providers/stream/ag-ui-types";
-import { DO_NOT_RENDER_ID_PREFIX } from "@/features/thread/services/ensure-tool-responses";
 import { AssistantMessage, AssistantMessageLoading } from "../messages/ai";
 import { HumanMessage } from "../messages/human/index";
 import { useStreamContext } from "@/core/providers/stream";
+
+const DO_NOT_RENDER_ID_PREFIX = "do-not-render-";
 
 interface MessageListProps {
   firstTokenReceived: boolean;
