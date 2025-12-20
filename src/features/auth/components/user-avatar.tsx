@@ -1,3 +1,7 @@
+/**
+ * User avatar button component with fallback initials.
+ */
+
 import {
   Avatar,
   AvatarFallback,

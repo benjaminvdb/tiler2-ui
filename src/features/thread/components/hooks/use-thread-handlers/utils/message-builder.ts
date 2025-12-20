@@ -1,3 +1,7 @@
+/**
+ * Converts content blocks to file parts for AI SDK message format.
+ */
+
 import type { FileUIPart } from "ai";
 import type { ContentBlocks } from "@/shared/types";
 

@@ -1,3 +1,6 @@
+/**
+ * Confirmation dialog for permanently deleting chat threads.
+ */
 import { useState, useCallback } from "react";
 import {
   Dialog,

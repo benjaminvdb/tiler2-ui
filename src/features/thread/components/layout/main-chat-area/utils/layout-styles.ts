@@ -1,3 +1,7 @@
+/**
+ * Dynamic CSS class generators for chat layout states.
+ */
+
 import { cn } from "@/shared/utils/utils";
 
 export const getMainContainerClassName = (chatStarted: boolean) => {

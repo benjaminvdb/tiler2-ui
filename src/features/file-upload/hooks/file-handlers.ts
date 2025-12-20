@@ -1,3 +1,5 @@
+/** Provides handlers for file input, paste events, and content block management. */
+
 import { ChangeEvent } from "react";
 import { toast } from "sonner";
 import type { MultimodalContentBlock } from "@/shared/types";
@@ -11,6 +13,10 @@ interface UseFileHandlersProps {
   >;
 }
 
+/**
+ * Hook that returns handlers for file uploads, paste events, and block removal.
+ * Paste events show different error messages than file uploads for better UX.
+ */
 export function useFileHandlers({
   contentBlocks,
   setContentBlocks,

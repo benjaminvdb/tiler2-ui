@@ -1,3 +1,7 @@
+/**
+ * Sidebar user profile component with authentication state handling.
+ */
+
 import * as React from "react";
 import { useCallback } from "react";
 import {

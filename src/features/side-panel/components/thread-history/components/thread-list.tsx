@@ -1,3 +1,6 @@
+/**
+ * Displays a list of chat thread items with navigation handling.
+ */
 import React, { useCallback } from "react";
 import { Button } from "@/shared/components/ui/button";
 import type { Thread } from "@/features/thread/providers/thread-provider";

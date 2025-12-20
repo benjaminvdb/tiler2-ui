@@ -1,3 +1,5 @@
+/** Core file processing logic with validation, deduplication, and error handling. */
+
 import { toast } from "sonner";
 import type { MultimodalContentBlock } from "@/shared/types";
 import { fileToContentBlock } from "@/features/file-upload/services/multimodal-utils";
@@ -91,6 +93,10 @@ export const processFiles = debounce(
   FILE_DEBOUNCE_MS,
 ) as typeof processFilesInternal;
 
+/**
+ * Normalizes different file source types into a File array.
+ * Handles File[], FileList (from input), and DataTransferItemList (from paste/drop).
+ */
 export const extractFilesFromSource = (
   source: File[] | FileList | DataTransferItemList,
 ): File[] => {

@@ -1,3 +1,5 @@
+/** Manages drag-and-drop events for file uploads with visual feedback. */
+
 import { useRef, useEffect, RefObject, useCallback } from "react";
 import type { MultimodalContentBlock } from "@/shared/types";
 import { processFiles } from "./file-processor";
@@ -11,6 +13,10 @@ interface UseDragDropHandlersProps {
   containerRef: RefObject<HTMLElement | null>;
 }
 
+/**
+ * Hook that attaches drag-and-drop event listeners to a container element.
+ * Uses a drag counter to handle nested drag events correctly.
+ */
 export function useDragDropHandlers({
   contentBlocks,
   setContentBlocks,

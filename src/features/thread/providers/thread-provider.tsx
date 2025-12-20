@@ -1,3 +1,7 @@
+/**
+ * Context provider for thread CRUD operations with pagination and optimistic updates.
+ */
+
 import {
   createContext,
   useContext,

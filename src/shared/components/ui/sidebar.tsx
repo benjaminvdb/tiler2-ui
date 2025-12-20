@@ -1,3 +1,8 @@
+/**
+ * Collapsible sidebar component with responsive behavior, resizing, and keyboard shortcuts.
+ * Adapts to mobile (Sheet) and desktop (fixed sidebar) layouts automatically.
+ */
+
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { VariantProps, cva } from "class-variance-authority";

@@ -1,3 +1,7 @@
+/**
+ * Hook for fetching available workflows from the API.
+ */
+
 import useSWR from "swr";
 import { useAuthenticatedFetch } from "@/core/services/http-client";
 import { getClientConfig } from "@/core/config/client";
@@ -21,6 +25,7 @@ export interface WorkflowConfig {
   category: CategoryResponse;
 }
 
+/** Fetches and caches workflow configurations from the API. */
 export function useWorkflows() {
   const fetchWithAuth = useAuthenticatedFetch();
   const { apiUrl } = getClientConfig();

@@ -1,3 +1,5 @@
+/** Skeleton loading placeholder component with pulse animation. */
+
 import { cn } from "@/shared/utils/utils";
 
 const Skeleton = ({

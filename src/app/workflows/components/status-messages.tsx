@@ -1,3 +1,5 @@
+/** Status message component for displaying workflow loading errors. */
+
 import React from "react";
 import { motion } from "framer-motion";
 

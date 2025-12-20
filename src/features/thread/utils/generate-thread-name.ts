@@ -1,3 +1,7 @@
+/**
+ * Generates user-friendly thread names from workflow, task, or message context.
+ */
+
 const THREAD_NAME_MAX_LENGTH = 80;
 const ELLIPSIS = "...";
 const DEFAULT_THREAD_NAME = "Untitled Conversation";

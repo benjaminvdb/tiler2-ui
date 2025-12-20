@@ -1,3 +1,7 @@
+/**
+ * Side effects for thread error handling and streaming token detection.
+ */
+
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { useStreamContext } from "@/core/providers/stream";
@@ -8,6 +12,9 @@ interface UseThreadEffectsProps {
   setFirstTokenReceived: (value: boolean) => void;
 }
 
+/**
+ * Manages thread error toasts and tracks when first streaming token arrives.
+ */
 export function useThreadEffects({
   lastErrorRef,
   setFirstTokenReceived,

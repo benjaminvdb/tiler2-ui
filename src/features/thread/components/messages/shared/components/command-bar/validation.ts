@@ -1,3 +1,7 @@
+/**
+ * Validation utilities for command bar visibility logic.
+ */
+
 export const shouldShowEditButton = (
   isHumanMessage: boolean | undefined,
   isEditing: boolean | undefined,

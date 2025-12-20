@@ -1,3 +1,6 @@
+/**
+ * Global keyboard shortcut handler for chat navigation (Cmd/Ctrl+Alt+C for new chat, Cmd/Ctrl+Alt+W for workflows).
+ */
 import React from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { useUIContext } from "@/features/chat/providers/ui-provider";
@@ -11,6 +14,9 @@ const isMacPlatform = () =>
   typeof window !== "undefined" &&
   /Mac|iPod|iPhone|iPad/.test(navigator.platform);
 
+/**
+ * Returns platform-specific keyboard binding strings (meta for Mac, ctrl for others).
+ */
 const getShortcutBindings = () => {
   const isMac = isMacPlatform();
   return {
@@ -46,6 +52,9 @@ export const HotkeysProvider: React.FC<{ children: React.ReactNode }> = ({
   return <>{children}</>;
 };
 
+/**
+ * Returns human-readable keyboard shortcut text for display in UI.
+ */
 // eslint-disable-next-line react-refresh/only-export-components -- Utility function exported alongside provider component
 export const getShortcutText = (shortcut: "new-chat" | "workflows"): string => {
   const isMac = isMacPlatform();

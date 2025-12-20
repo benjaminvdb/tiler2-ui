@@ -1,3 +1,7 @@
+/**
+ * Clipboard copying with temporary success state feedback.
+ */
+
 import { useState } from "react";
 import { reportUiError } from "@/core/services/observability";
 

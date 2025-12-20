@@ -1,5 +1,11 @@
+/** Hook for responsive media query detection with SSR support. */
+
 import { useEffect, useState } from "react";
 
+/**
+ * Subscribes to a CSS media query and returns whether it matches.
+ * Handles SSR gracefully by returning false on server and syncing on mount.
+ */
 export function useMediaQuery(query: string) {
   const [matches, setMatches] = useState(() => {
     if (typeof window !== "undefined") {

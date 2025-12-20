@@ -1,3 +1,6 @@
+/**
+ * Provides UI state (chat history panel, screen size, navigation) via React Context.
+ */
 import React, { createContext, useContext, ReactNode } from "react";
 import { NavigationService } from "@/core/services/navigation";
 

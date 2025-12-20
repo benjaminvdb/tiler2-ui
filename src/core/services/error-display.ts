@@ -1,3 +1,8 @@
+/**
+ * Unified error display system for user-facing error presentation.
+ * Coordinates toast notifications, fallback UI, and observability reporting.
+ */
+
 import { toast } from "sonner";
 import { reportErrorBoundary, observability } from "./observability";
 

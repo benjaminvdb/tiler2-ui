@@ -1,7 +1,13 @@
+/** Responsive hooks for mobile breakpoint detection. */
+
 import * as React from "react";
 
 const MOBILE_BREAKPOINT = 768;
 
+/**
+ * Detects if viewport is below mobile breakpoint (<768px).
+ * Returns undefined during SSR, then updates on mount and viewport changes.
+ */
 export function useIsMobile() {
   const [isMobile, setIsMobile] = React.useState<boolean | undefined>(
     undefined,

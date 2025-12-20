@@ -1,3 +1,7 @@
+/**
+ * Service for fetching pre-signed URLs to access secure document storage.
+ */
+
 import { env } from "@/env";
 
 export async function fetchDocumentPresignedUrl(

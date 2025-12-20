@@ -1,3 +1,7 @@
+/**
+ * Core hooks for application-wide data fetching.
+ */
+
 export {
   useWorkflows,
   type WorkflowConfig,

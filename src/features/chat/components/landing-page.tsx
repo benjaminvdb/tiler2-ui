@@ -1,3 +1,6 @@
+/**
+ * Landing page displayed before chat starts, showing onboarding options and workflow categories.
+ */
 import React, { useCallback } from "react";
 import { motion } from "framer-motion";
 import {
@@ -35,6 +38,7 @@ const onboardingOptions = [
   },
 ];
 
+/** Maps onboarding option names to their corresponding workflow IDs for navigation. */
 const onboardingWorkflowIds: Record<string, string> = {
   "Personalize Link AI": "onb-1",
   "Tips & Tricks": "onb-2",

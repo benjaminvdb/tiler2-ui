@@ -6,6 +6,7 @@
 import { env } from "@/env";
 import { reportAuthError } from "./observability";
 
+/** Logs out user by redirecting to Auth0 logout endpoint and clearing localStorage. */
 export const triggerLogout = (returnTo?: string, reason?: string): void => {
   if (reason) {
     reportAuthError(new Error(`Logout triggered: ${reason}`), {
@@ -26,6 +27,7 @@ export const triggerLogout = (returnTo?: string, reason?: string): void => {
   window.location.href = logoutUrl.toString();
 };
 
+/** Initiates Auth0 login flow by redirecting to the authorize endpoint. */
 export const triggerLogin = (): void => {
   const loginUrl = new URL(`https://${env.AUTH0_DOMAIN}/authorize`);
   loginUrl.searchParams.set("client_id", env.AUTH0_CLIENT_ID);

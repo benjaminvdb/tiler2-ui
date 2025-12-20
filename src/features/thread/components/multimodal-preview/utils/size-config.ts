@@ -1,3 +1,7 @@
+/**
+ * Size configuration utilities for multimodal content previews.
+ */
+
 export const getImageSizeConfig = (
   size: "sm" | "md" | "lg",
 ): { className: string; width: number; height: number } => {

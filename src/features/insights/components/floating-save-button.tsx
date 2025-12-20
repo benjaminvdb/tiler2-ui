@@ -1,3 +1,5 @@
+/** Floating button that appears near text selections to save insights. */
+
 import { motion } from "framer-motion";
 import { Lightbulb } from "lucide-react";
 import type { SelectionPosition } from "../hooks/use-text-selection";

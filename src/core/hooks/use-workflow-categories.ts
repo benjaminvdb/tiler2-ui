@@ -1,6 +1,11 @@
+/**
+ * Hook for extracting unique workflow categories.
+ */
+
 import { useMemo } from "react";
 import { useWorkflows, type CategoryResponse } from "./use-workflows";
 
+/** Returns deduplicated categories from workflows, sorted by order_index. */
 export function useWorkflowCategories(excludeOnboarding = true) {
   const { workflows, isLoading, error } = useWorkflows();
 

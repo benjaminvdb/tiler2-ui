@@ -1,3 +1,5 @@
+/** Type definitions for artifact slot system that enables portal-style rendering. */
+
 export type Setter<T> = (value: T | ((value: T) => T)) => void;
 
 export interface ArtifactSlotContextType {

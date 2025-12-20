@@ -1,3 +1,7 @@
+/**
+ * Main navigation menu component for the sidebar.
+ */
+
 import React from "react";
 import {
   MessageCircle,

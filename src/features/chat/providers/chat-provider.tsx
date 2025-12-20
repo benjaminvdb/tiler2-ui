@@ -1,3 +1,6 @@
+/**
+ * Provides chat state and handlers to components via React Context.
+ */
 import React, { createContext, useContext, ReactNode } from "react";
 import type { ContentBlocks } from "@/shared/types";
 

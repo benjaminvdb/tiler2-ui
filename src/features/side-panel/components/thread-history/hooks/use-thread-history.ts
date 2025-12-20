@@ -1,3 +1,6 @@
+/**
+ * Hook managing thread history state, including initial fetch with auth delay and responsive sidebar behavior.
+ */
 import { useEffect } from "react";
 import { useSearchParamState } from "@/core/routing/hooks";
 import { useThreads } from "@/features/thread/providers/thread-provider";

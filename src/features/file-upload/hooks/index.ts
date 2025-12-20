@@ -1,3 +1,5 @@
+/** Main file upload hook that orchestrates drag-drop and file input handling. */
+
 import { useState, useRef } from "react";
 import type { MultimodalContentBlock } from "@/shared/types";
 import { useDragDropHandlers } from "./drag-drop-handlers";

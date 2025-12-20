@@ -1,3 +1,5 @@
+/** Label component wrapping Radix UI Label primitive. */
+
 import * as React from "react";
 import * as LabelPrimitive from "@radix-ui/react-label";
 

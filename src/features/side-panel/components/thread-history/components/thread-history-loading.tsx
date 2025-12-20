@@ -1,3 +1,6 @@
+/**
+ * Loading skeleton state for thread history list.
+ */
 import { Skeleton } from "@/shared/components/ui/skeleton";
 
 // Generate stable IDs for skeleton items

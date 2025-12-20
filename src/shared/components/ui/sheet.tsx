@@ -1,3 +1,5 @@
+/** Sheet (side panel) component wrapping Radix UI Dialog primitives. */
+
 import * as React from "react";
 import * as SheetPrimitive from "@radix-ui/react-dialog";
 import { X } from "lucide-react";

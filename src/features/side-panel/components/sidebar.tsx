@@ -1,3 +1,6 @@
+/**
+ * Application sidebar with navigation menu, thread history, and user profile.
+ */
 import * as React from "react";
 import {
   Plus,
@@ -395,7 +398,7 @@ const ThreadList: React.FC<ThreadListProps> = ({
 };
 
 /**
- * Hook for sidebar event handlers
+ * Encapsulates all sidebar event handlers to avoid prop drilling and maintain handler stability.
  */
 function useSidebarHandlers(
   threadId: string | null,

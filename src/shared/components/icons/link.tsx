@@ -1,3 +1,4 @@
+/** Link Chat brand logo SVG component. */
 export const LinkLogoSVG = ({
   className,
   width,

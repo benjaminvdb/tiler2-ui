@@ -1,3 +1,5 @@
+/** Workflows page displaying categorized sustainability workflow cards with search and navigation. */
+
 import React, {
   useEffect,
   useState,

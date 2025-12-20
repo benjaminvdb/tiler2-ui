@@ -1,3 +1,7 @@
+/**
+ * Event handlers for thread message submission and quick actions.
+ */
+
 import { useStreamContext } from "@/core/providers/stream";
 import { UseThreadHandlersProps } from "./use-thread-handlers/types";
 import { createSubmitHandler } from "./use-thread-handlers/handlers/submit-handler";

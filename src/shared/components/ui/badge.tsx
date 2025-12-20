@@ -1,3 +1,5 @@
+/** Badge component with variant styles including risk level indicators. */
+
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 

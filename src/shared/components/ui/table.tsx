@@ -1,3 +1,5 @@
+/** Table components with sticky headers and striped rows. */
+
 import * as React from "react";
 
 import { cn } from "@/shared/utils/utils";

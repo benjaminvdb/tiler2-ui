@@ -1,3 +1,7 @@
+/**
+ * Extracts and processes message content including tool calls visibility logic.
+ */
+
 import { useSearchParamState } from "@/core/routing/hooks";
 import { isToolOrDynamicToolUIPart } from "ai";
 import type { UIMessage } from "@/core/providers/stream/stream-types";

@@ -1,3 +1,5 @@
+/** File upload configuration constants and error messages. */
+
 export const SUPPORTED_FILE_TYPES = [
   "image/jpeg",
   "image/png",

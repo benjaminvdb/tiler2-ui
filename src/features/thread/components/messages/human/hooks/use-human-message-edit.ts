@@ -1,3 +1,7 @@
+/**
+ * Edit state and handlers for human messages.
+ */
+
 import { useState } from "react";
 import { useStreamContext } from "@/core/providers/stream";
 

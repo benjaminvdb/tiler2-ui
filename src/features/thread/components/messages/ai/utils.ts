@@ -1,3 +1,7 @@
+/**
+ * Utilities for extracting source citations from AI message parts.
+ */
+
 import type { UIMessage } from "@/core/providers/stream/stream-types";
 import type { Source } from "@/features/thread/components/markdown/components/citation-link";
 

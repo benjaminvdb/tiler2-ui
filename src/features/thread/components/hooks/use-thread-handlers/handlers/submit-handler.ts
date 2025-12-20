@@ -1,9 +1,16 @@
+/**
+ * Form submission handler that sends messages with text and/or file attachments.
+ */
+
 import { FormEvent } from "react";
 import { buildMessageFiles } from "../utils/message-builder";
 import { UseThreadHandlersProps } from "../types";
 import type { StreamContextType } from "@/core/providers/stream/stream-types";
 import { generateThreadName } from "@/features/thread/utils/generate-thread-name";
 
+/**
+ * Creates a submit handler that auto-generates thread names on first message.
+ */
 export const createSubmitHandler = (
   props: UseThreadHandlersProps,
   stream: StreamContextType,

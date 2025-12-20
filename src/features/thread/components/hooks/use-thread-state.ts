@@ -1,3 +1,7 @@
+/**
+ * Centralized state management for thread UI.
+ */
+
 import { useState, useRef } from "react";
 import { useSearchParamState } from "@/core/routing/hooks";
 import { useArtifactOpen } from "@/features/artifacts/components";

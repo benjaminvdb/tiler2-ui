@@ -1,3 +1,5 @@
+/** Generic debounce utility for rate-limiting function calls. */
+
 /**
  * Regular debounce function for non-React usage
  */

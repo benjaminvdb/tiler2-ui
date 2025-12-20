@@ -1,3 +1,5 @@
+/** Loading spinner and full-screen loading state components. */
+
 import React from "react";
 
 interface LoadingSpinnerProps {

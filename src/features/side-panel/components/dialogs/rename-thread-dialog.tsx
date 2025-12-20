@@ -1,3 +1,6 @@
+/**
+ * Dialog for renaming chat threads with validation and error handling.
+ */
 import { useState, FormEvent, useCallback } from "react";
 import {
   Dialog,

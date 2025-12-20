@@ -1,3 +1,6 @@
+/**
+ * Mobile-optimized header with hamburger menu providing navigation and thread history access.
+ */
 import React, { useState, useCallback } from "react";
 import { Menu } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";

@@ -1,3 +1,5 @@
+/** Reusable button component for adding items (milestones/tasks) with consistent styling. */
+
 import { cva, type VariantProps } from "class-variance-authority";
 import { Plus } from "lucide-react";
 

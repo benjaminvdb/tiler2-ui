@@ -1,3 +1,7 @@
+/**
+ * Authentication UI components for user login/logout functionality.
+ */
+
 import React, { forwardRef, useCallback } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";

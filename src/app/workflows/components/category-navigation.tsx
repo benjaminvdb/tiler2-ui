@@ -1,3 +1,5 @@
+/** Category navigation component rendering clickable category badges with scroll-to-section behavior. */
+
 import React, { useCallback } from "react";
 import { motion } from "framer-motion";
 import * as LucideIcons from "lucide-react";

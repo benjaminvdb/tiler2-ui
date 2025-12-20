@@ -1,3 +1,6 @@
+/**
+ * Navigation button with optional tooltip and keyboard shortcut display.
+ */
 import React, { useCallback } from "react";
 import { Button } from "@/shared/components/ui/button";
 import {

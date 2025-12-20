@@ -1,7 +1,13 @@
+/** File validation logic for type checking and duplicate detection. */
+
 import type { MultimodalContentBlock } from "@/shared/types";
 import { SUPPORTED_FILE_TYPES } from "./constants";
 import { fileUploadSchema, validateInput } from "@/shared/utils/validation";
 
+/**
+ * Checks if a file is already in the content blocks.
+ * Compares by filename and mime type, handling PDFs, CSVs, and images differently.
+ */
 export const isDuplicate = (
   file: File,
   blocks: MultimodalContentBlock[],

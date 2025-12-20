@@ -1,6 +1,11 @@
+/**
+ * Stream utilities for connection management and health checks.
+ */
+
 import { reportStreamError } from "@/core/services/observability";
 import { fetchWithRetry } from "@/shared/utils/retry";
 
+/** Promise-based delay with abort signal support. */
 export async function sleep(ms = 4000, signal?: AbortSignal) {
   return new Promise((resolve, reject) => {
     if (signal?.aborted) {
@@ -32,6 +37,7 @@ const combineSignals = (
 const isAbortError = (error: unknown): error is Error =>
   error instanceof Error && error.name === "AbortError";
 
+/** Checks backend health endpoint. Returns true if server is reachable. */
 export async function checkGraphStatus(
   apiUrl: string,
   apiKey: string | null,

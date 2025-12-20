@@ -1,3 +1,5 @@
+/** Main threads page handling workflow and task-based thread initialization with automatic linking. */
+
 import React, { useEffect, useRef, useState } from "react";
 import { Thread } from "@/features/thread/components";
 import { ArtifactProvider } from "@/features/artifacts/components";

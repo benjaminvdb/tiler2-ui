@@ -1,3 +1,5 @@
+/** Insights page displaying saved findings from AI conversations with copy/delete actions. */
+
 import { Lightbulb, Copy, Trash2 } from "lucide-react";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";

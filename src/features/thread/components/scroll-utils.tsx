@@ -1,3 +1,7 @@
+/**
+ * Auto-scroll utilities wrapping use-stick-to-bottom library.
+ */
+
 import { ReactNode, useCallback } from "react";
 import { Button } from "@/shared/components/ui/button";
 import { ArrowDown } from "lucide-react";

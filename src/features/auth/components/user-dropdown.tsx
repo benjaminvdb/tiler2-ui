@@ -1,3 +1,7 @@
+/**
+ * User dropdown menu with logout functionality.
+ */
+
 import { useCallback } from "react";
 import {
   DropdownMenu,

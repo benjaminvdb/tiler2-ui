@@ -1,3 +1,5 @@
+/** Toggle switch component wrapping Radix UI Switch primitive. */
+
 import * as React from "react";
 import * as SwitchPrimitive from "@radix-ui/react-switch";
 

@@ -1,3 +1,5 @@
+/** Utilities for converting files to multimodal content blocks with base64 encoding. */
+
 import type { MultimodalContentBlock } from "@/shared/types";
 import { toast } from "sonner";
 
@@ -18,6 +20,10 @@ const BASE64_SEPARATOR = ",";
 const isSupportedMimeType = (mime: string) =>
   SUPPORTED_MIME_TYPES.includes(mime as (typeof SUPPORTED_MIME_TYPES)[number]);
 
+/**
+ * Converts a File to a MultimodalContentBlock with base64 data.
+ * Images and files (PDFs, CSVs) are handled differently to match backend expectations.
+ */
 export const fileToContentBlock = async (
   file: File,
 ): Promise<MultimodalContentBlock> => {

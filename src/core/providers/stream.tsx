@@ -1,3 +1,8 @@
+/**
+ * Stream provider that wraps the application with AI chat streaming context.
+ * Handles configuration validation and error boundaries.
+ */
+
 import React, { ReactNode } from "react";
 import { getClientConfig } from "@/core/config/client";
 import { StreamSession } from "./stream/stream-session";
@@ -7,6 +12,7 @@ import { StreamErrorBoundary } from "@/shared/components/error-boundary/stream-e
 export { useStreamContext } from "./stream/stream-context";
 export type { StreamContextType, UIMessage } from "./stream/stream-types";
 
+/** Top-level provider for AI chat streaming with error boundaries. */
 export const StreamProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {

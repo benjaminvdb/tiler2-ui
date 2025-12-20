@@ -9,7 +9,7 @@ import {
   useRef,
   useState,
   type Dispatch,
-  type MutableRefObject,
+  type RefObject,
   type SetStateAction,
 } from "react";
 import { useChat, type UseChatOptions } from "@ai-sdk/react";
@@ -243,8 +243,8 @@ const queuePendingSend = ({
 }: {
   message: SendMessageInput | undefined;
   options: ChatRequestOptions | undefined;
-  pendingSendRef: MutableRefObject<PendingSend | null>;
-  skipThreadLoadRef: MutableRefObject<boolean>;
+  pendingSendRef: RefObject<PendingSend | null>;
+  skipThreadLoadRef: RefObject<boolean>;
   createThread: (name: string | undefined) => Promise<string | null>;
   setChatMessages: ReturnType<typeof useChat<UIMessage>>["setMessages"];
 }) => {
@@ -325,7 +325,7 @@ const useThreadCreator = ({
   onThreadId?: (id: string) => void;
   setLocalError: Dispatch<SetStateAction<Error | null>>;
   setIsCreatingThread: Dispatch<SetStateAction<boolean>>;
-  createThreadInFlightRef: MutableRefObject<boolean>;
+  createThreadInFlightRef: RefObject<boolean>;
 }) =>
   useCallback(
     async (name: string | undefined): Promise<string | null> => {
@@ -394,7 +394,7 @@ const usePendingSend = ({
   setChatMessages,
 }: {
   threadId: string | null;
-  pendingSendRef: MutableRefObject<PendingSend | null>;
+  pendingSendRef: RefObject<PendingSend | null>;
   sendMessage: ReturnType<typeof useChat<UIMessage>>["sendMessage"];
   setChatMessages: ReturnType<typeof useChat<UIMessage>>["setMessages"];
 }) => {
@@ -422,8 +422,8 @@ const useThreadLoader = ({
   assistantId: string;
   threadId: string | null;
   accessToken: string | null;
-  loadedThreadIdRef: MutableRefObject<string | null>;
-  skipThreadLoadRef: MutableRefObject<boolean>;
+  loadedThreadIdRef: RefObject<string | null>;
+  skipThreadLoadRef: RefObject<boolean>;
   setChatMessages: ReturnType<typeof useChat<UIMessage>>["setMessages"];
   setIsLoadingThread: Dispatch<SetStateAction<boolean>>;
   setLocalError: Dispatch<SetStateAction<Error | null>>;
@@ -524,8 +524,8 @@ const useSendMessageWithThread = ({
 }: {
   threadId: string | null;
   accessToken: string | null;
-  pendingSendRef: MutableRefObject<PendingSend | null>;
-  skipThreadLoadRef: MutableRefObject<boolean>;
+  pendingSendRef: RefObject<PendingSend | null>;
+  skipThreadLoadRef: RefObject<boolean>;
   createThread: (name: string | undefined) => Promise<string | null>;
   sendMessage: ReturnType<typeof useChat<UIMessage>>["sendMessage"];
   setChatMessages: ReturnType<typeof useChat<UIMessage>>["setMessages"];

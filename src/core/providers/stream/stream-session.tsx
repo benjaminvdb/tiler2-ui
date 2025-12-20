@@ -1,3 +1,8 @@
+/**
+ * Core streaming session component that manages chat state and authentication.
+ * Provides StreamContext to child components for AI chat interactions.
+ */
+
 import React, { useCallback, useEffect } from "react";
 import { useSearchParamState } from "@/core/routing/hooks";
 import { useThreads } from "@/features/thread/providers/thread-provider";
