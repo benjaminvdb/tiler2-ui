@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import {
   XIcon,
   SendHorizontal,
@@ -22,9 +22,9 @@ const EditActions: React.FC<EditActionsProps> = ({
   setIsEditing,
   handleSubmitEdit,
 }) => {
-  const handleCancelEdit = useCallback(() => {
+  const handleCancelEdit = () => {
     setIsEditing(false);
-  }, [setIsEditing]);
+  };
 
   return (
     <div className="flex items-center gap-2">
@@ -96,7 +96,7 @@ const MessageActions: React.FC<MessageActionsProps> = ({
 }) => {
   const [copied, setCopied] = useState(false);
 
-  const handleCopy = useCallback(async () => {
+  const handleCopy = async () => {
     const success = await copyWithFormat({
       markdownText: content,
       ...(htmlContainerRef && { htmlContainerRef }),
@@ -106,11 +106,11 @@ const MessageActions: React.FC<MessageActionsProps> = ({
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
-  }, [content, htmlContainerRef]);
+  };
 
-  const handleEditClick = useCallback(() => {
+  const handleEditClick = () => {
     setIsEditing?.(true);
-  }, [setIsEditing]);
+  };
 
   return (
     <div className="flex items-center gap-2">

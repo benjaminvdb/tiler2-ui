@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import {
@@ -154,9 +154,9 @@ export const ToolResultItem: React.FC<ToolResultItemProps> = ({ toolPart }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const toolName = getToolOrDynamicToolName(toolPart);
 
-  const toggleExpanded = useCallback(() => {
+  const toggleExpanded = () => {
     setIsExpanded((prev) => !prev);
-  }, []);
+  };
 
   const toolOutput = getToolOutput(toolPart);
   if (!toolOutput) {

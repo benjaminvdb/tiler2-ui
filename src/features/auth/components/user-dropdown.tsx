@@ -2,7 +2,7 @@
  * User dropdown menu with logout functionality.
  */
 
-import { useCallback } from "react";
+import React from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,13 +25,13 @@ interface UserDropdownProps {
 export const UserDropdown: React.FC<UserDropdownProps> = ({ user }) => {
   const { logout } = useAuth0();
 
-  const handleLogout = useCallback(() => {
+  const handleLogout = () => {
     logout({
       logoutParams: {
         returnTo: window.location.origin,
       },
     });
-  }, [logout]);
+  };
 
   return (
     <DropdownMenu>

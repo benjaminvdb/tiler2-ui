@@ -1,4 +1,4 @@
-import { FC, useCallback } from "react";
+import { FC } from "react";
 import { CheckIcon, CopyIcon } from "lucide-react";
 import { TooltipIconButton } from "../tooltip-icon-button";
 import { useCopyToClipboard } from "./use-copy-to-clipboard";
@@ -10,10 +10,10 @@ interface CodeHeaderProps {
 export const CodeHeader: FC<CodeHeaderProps> = ({ language, code }) => {
   const { isCopied, copyToClipboard } = useCopyToClipboard();
 
-  const onCopy = useCallback(() => {
+  const onCopy = () => {
     if (!code || isCopied) return;
     copyToClipboard(code);
-  }, [code, isCopied, copyToClipboard]);
+  };
 
   return (
     <div className="flex items-center justify-between gap-4 rounded-t-lg bg-zinc-900 px-4 py-2 text-sm font-semibold text-white">

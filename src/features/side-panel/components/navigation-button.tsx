@@ -1,7 +1,7 @@
 /**
  * Navigation button with optional tooltip and keyboard shortcut display.
  */
-import React, { useCallback } from "react";
+import React from "react";
 import { Button } from "@/shared/components/ui/button";
 import {
   Tooltip,
@@ -29,9 +29,9 @@ export const NavigationButton: React.FC<NavigationButtonProps> = ({
   isCollapsed = false,
   shortcut,
 }) => {
-  const handleClick = useCallback(() => {
+  const handleClick = () => {
     onClick();
-  }, [onClick]);
+  };
 
   const shortcutText = shortcut ? getShortcutText(shortcut) : null;
 

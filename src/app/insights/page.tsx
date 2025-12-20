@@ -1,7 +1,7 @@
 /** Insights page displaying saved findings from AI conversations with copy/delete actions. */
 
 import { Lightbulb, Copy, Trash2 } from "lucide-react";
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useAuthenticatedFetch } from "@/core/services/http-client";
@@ -44,17 +44,17 @@ const InsightCard = ({
 }): React.JSX.Element => {
   const markdownRef = useRef<HTMLDivElement>(null);
 
-  const handleCopyClick = useCallback(() => {
+  const handleCopyClick = () => {
     onCopy(insight, markdownRef);
-  }, [onCopy, insight]);
+  };
 
-  const handleDeleteClick = useCallback(() => {
+  const handleDeleteClick = () => {
     onDelete(insight.id);
-  }, [onDelete, insight.id]);
+  };
 
-  const handleViewClick = useCallback(() => {
+  const handleViewClick = () => {
     onViewConversation(insight.thread_id);
-  }, [onViewConversation, insight.thread_id]);
+  };
 
   return (
     <div
@@ -151,47 +151,38 @@ const InsightsPage = (): React.JSX.Element => {
     fetchInsights();
   }, [fetch]);
 
-  const handleCopy = useCallback(
-    async (
-      insight: Insight,
-      htmlRef: React.RefObject<HTMLDivElement | null>,
-    ) => {
-      const success = await copyWithFormat({
-        markdownText: insight.insight_content,
-        htmlContainerRef: htmlRef,
-      });
+  const handleCopy = async (
+    insight: Insight,
+    htmlRef: React.RefObject<HTMLDivElement | null>,
+  ) => {
+    const success = await copyWithFormat({
+      markdownText: insight.insight_content,
+      htmlContainerRef: htmlRef,
+    });
 
-      if (success) {
-        setCopiedId(insight.id);
-        toast.success("Insight copied to clipboard");
-        setTimeout(() => setCopiedId(null), 2000);
-      } else {
-        toast.error("Failed to copy insight");
-      }
-    },
-    [],
-  );
+    if (success) {
+      setCopiedId(insight.id);
+      toast.success("Insight copied to clipboard");
+      setTimeout(() => setCopiedId(null), 2000);
+    } else {
+      toast.error("Failed to copy insight");
+    }
+  };
 
-  const handleDelete = useCallback(
-    async (insightId: string) => {
-      try {
-        await deleteInsight(fetch, insightId);
-        setInsights((prev) => prev.filter((i) => i.id !== insightId));
-        toast.success("Insight removed");
-      } catch (error) {
-        console.error("Failed to delete insight:", error);
-        toast.error("Failed to delete insight");
-      }
-    },
-    [fetch],
-  );
+  const handleDelete = async (insightId: string) => {
+    try {
+      await deleteInsight(fetch, insightId);
+      setInsights((prev) => prev.filter((i) => i.id !== insightId));
+      toast.success("Insight removed");
+    } catch (error) {
+      console.error("Failed to delete insight:", error);
+      toast.error("Failed to delete insight");
+    }
+  };
 
-  const handleViewConversation = useCallback(
-    (threadId: string) => {
-      navigate(`/?threadId=${threadId}`);
-    },
-    [navigate],
-  );
+  const handleViewConversation = (threadId: string) => {
+    navigate(`/?threadId=${threadId}`);
+  };
 
   if (isLoading) {
     return <LoadingState />;

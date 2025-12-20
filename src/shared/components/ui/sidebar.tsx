@@ -76,14 +76,14 @@ function useSidebarWidth() {
     return SIDEBAR_WIDTH_DEFAULT;
   });
 
-  const setWidth = React.useCallback((newWidth: number) => {
+  const setWidth = (newWidth: number) => {
     const constrainedWidth = Math.min(
       Math.max(newWidth, SIDEBAR_WIDTH_MIN),
       SIDEBAR_WIDTH_MAX,
     );
     _setWidth(constrainedWidth);
     localStorage.setItem("sidebar_width", constrainedWidth.toString());
-  }, []);
+  };
 
   return { width, setWidth };
 }
@@ -131,23 +131,20 @@ const SidebarProvider = ({
    */
   const [_open, _setOpen] = React.useState(defaultOpen);
   const open = openProp ?? _open;
-  const setOpen = React.useCallback(
-    (value: boolean | ((value: boolean) => boolean)) => {
-      const openState = typeof value === "function" ? value(open) : value;
-      if (setOpenProp) {
-        setOpenProp(openState);
-      } else {
-        _setOpen(openState);
-      }
+  const setOpen = (value: boolean | ((value: boolean) => boolean)) => {
+    const openState = typeof value === "function" ? value(open) : value;
+    if (setOpenProp) {
+      setOpenProp(openState);
+    } else {
+      _setOpen(openState);
+    }
 
-      document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
-    },
-    [setOpenProp, open],
-  );
+    document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
+  };
 
-  const toggleSidebar = React.useCallback(() => {
+  const toggleSidebar = () => {
     return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open);
-  }, [isMobile, setOpen, setOpenMobile]);
+  };
 
   useSidebarKeyboardShortcut(toggleSidebar);
 
@@ -156,30 +153,17 @@ const SidebarProvider = ({
    */
   const state = open ? "expanded" : "collapsed";
 
-  const contextValue = React.useMemo<SidebarContextProps>(
-    () => ({
-      state,
-      open,
-      setOpen,
-      isMobile,
-      openMobile,
-      setOpenMobile,
-      toggleSidebar,
-      width,
-      setWidth,
-    }),
-    [
-      state,
-      open,
-      setOpen,
-      isMobile,
-      openMobile,
-      setOpenMobile,
-      toggleSidebar,
-      width,
-      setWidth,
-    ],
-  );
+  const contextValue: SidebarContextProps = {
+    state,
+    open,
+    setOpen,
+    isMobile,
+    openMobile,
+    setOpenMobile,
+    toggleSidebar,
+    width,
+    setWidth,
+  };
 
   return (
     <SidebarContext.Provider value={contextValue}>
@@ -389,13 +373,10 @@ const SidebarTrigger = ({
 }: React.ComponentProps<typeof Button>) => {
   const { toggleSidebar } = useSidebar();
 
-  const handleClick = React.useCallback(
-    (event: React.MouseEvent<HTMLButtonElement>) => {
-      onClick?.(event);
-      toggleSidebar();
-    },
-    [onClick, toggleSidebar],
-  );
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    onClick?.(event);
+    toggleSidebar();
+  };
 
   return (
     <Button
@@ -422,21 +403,18 @@ const SidebarRail = ({
   const startXRef = React.useRef<number>(0);
   const startWidthRef = React.useRef<number>(0);
 
-  const handleMouseDown = React.useCallback(
-    (e: React.MouseEvent) => {
-      if (state === "collapsed") return;
-      e.preventDefault();
-      setIsResizing(true);
-      startXRef.current = e.clientX;
-      const sidebarElement = (e.target as HTMLElement).closest(
-        '[data-sidebar="sidebar"]',
-      );
-      if (sidebarElement) {
-        startWidthRef.current = sidebarElement.getBoundingClientRect().width;
-      }
-    },
-    [state],
-  );
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (state === "collapsed") return;
+    e.preventDefault();
+    setIsResizing(true);
+    startXRef.current = e.clientX;
+    const sidebarElement = (e.target as HTMLElement).closest(
+      '[data-sidebar="sidebar"]',
+    );
+    if (sidebarElement) {
+      startWidthRef.current = sidebarElement.getBoundingClientRect().width;
+    }
+  };
 
   React.useEffect(() => {
     if (!isResizing) return;

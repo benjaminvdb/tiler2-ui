@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React from "react";
 import { MessageList } from "./message-list";
 import { ChatFooter } from "./chat-footer";
 import { AnimatedContainer } from "./main-chat-area/components/animated-container";
@@ -21,19 +21,13 @@ const MainChatAreaComponent: React.FC = () => {
   const isLoading = stream.isLoading;
   const error = stream.error;
 
-  const handleSuggestionClick = useCallback(
-    (text: string) => {
-      stream.sendMessage({ text });
-    },
-    [stream],
-  );
+  const handleSuggestionClick = (text: string) => {
+    stream.sendMessage({ text });
+  };
 
-  const handleWorkflowCategoryClick = useCallback(
-    (category: string) => {
-      navigationService.navigateToWorkflows({ category });
-    },
-    [navigationService],
-  );
+  const handleWorkflowCategoryClick = (category: string) => {
+    navigationService.navigateToWorkflows({ category });
+  };
 
   const renderMessageContent = () => {
     // Handle thread not found errors (404)
@@ -78,4 +72,4 @@ const MainChatAreaComponent: React.FC = () => {
 
 MainChatAreaComponent.displayName = "MainChatArea";
 
-export const MainChatArea = React.memo(MainChatAreaComponent);
+export const MainChatArea = MainChatAreaComponent;

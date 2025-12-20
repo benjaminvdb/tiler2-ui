@@ -1,7 +1,7 @@
 /**
  * Landing page displayed before chat starts, showing onboarding options and workflow categories.
  */
-import React, { useCallback } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import {
   Shield,
@@ -90,14 +90,14 @@ interface OnboardingButtonProps {
   onSelect: (name: string) => void;
 }
 
-const OnboardingButton = React.memo(function OnboardingButton({
+const OnboardingButton = ({
   option,
   index,
   onSelect,
-}: OnboardingButtonProps) {
-  const handleClick = useCallback(() => {
+}: OnboardingButtonProps) => {
+  const handleClick = () => {
     onSelect(option.name);
-  }, [onSelect, option.name]);
+  };
 
   return (
     <motion.button
@@ -126,23 +126,20 @@ const OnboardingButton = React.memo(function OnboardingButton({
       </span>
     </motion.button>
   );
-});
+}
 
 const OnboardingQuickActions = ({
   navigationService,
   onSuggestionClick,
 }: OnboardingQuickActionsProps) => {
-  const handleSelect = useCallback(
-    (optionName: string) => {
-      const workflowId = onboardingWorkflowIds[optionName];
-      if (workflowId) {
-        navigationService.navigateToWorkflow(workflowId);
-        return;
-      }
-      onSuggestionClick?.(`I'd like help with: ${optionName}`);
-    },
-    [navigationService, onSuggestionClick],
-  );
+  const handleSelect = (optionName: string) => {
+    const workflowId = onboardingWorkflowIds[optionName];
+    if (workflowId) {
+      navigationService.navigateToWorkflow(workflowId);
+      return;
+    }
+    onSuggestionClick?.(`I'd like help with: ${optionName}`);
+  };
 
   return (
     <motion.div
@@ -218,14 +215,14 @@ const getCategoryIcon = (categoryName: string) => {
   return CATEGORY_ICONS[categoryName] ?? BookOpen;
 };
 
-const CategoryButton = React.memo(function CategoryButton({
+const CategoryButton = ({
   category,
   index,
   onCategoryClick,
-}: CategoryButtonProps) {
-  const handleClick = useCallback(() => {
+}: CategoryButtonProps) => {
+  const handleClick = () => {
     onCategoryClick(category.name);
-  }, [onCategoryClick, category.name]);
+  };
 
   const color = getCategoryColor(category.name);
 
@@ -264,7 +261,7 @@ const CategoryButton = React.memo(function CategoryButton({
       </span>
     </motion.button>
   );
-});
+}
 
 const WorkflowCategoryButtons = ({
   categories,

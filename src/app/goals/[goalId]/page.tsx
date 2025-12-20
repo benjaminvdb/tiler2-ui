@@ -4,13 +4,7 @@
  * Displays a single goal with its milestones, tasks, and progress tracking.
  */
 
-import React, {
-  useState,
-  useCallback,
-  useEffect,
-  useRef,
-  useMemo,
-} from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import {
@@ -218,25 +212,25 @@ const TaskItemActions = ({
   onEdit,
   onDelete,
 }: TaskItemActionsProps): React.JSX.Element => {
-  const handleOpenDeps = useCallback(() => {
+  const handleOpenDeps = () => {
     onOpenDependencies(task);
-  }, [onOpenDependencies, task]);
+  };
 
-  const handleMoveUp = useCallback(() => {
+  const handleMoveUp = () => {
     onMoveUp(task);
-  }, [onMoveUp, task]);
+  };
 
-  const handleMoveDown = useCallback(() => {
+  const handleMoveDown = () => {
     onMoveDown(task);
-  }, [onMoveDown, task]);
+  };
 
-  const handleEdit = useCallback(() => {
+  const handleEdit = () => {
     onEdit(task);
-  }, [onEdit, task]);
+  };
 
-  const handleDelete = useCallback(() => {
+  const handleDelete = () => {
     onDelete(task);
-  }, [onDelete, task]);
+  };
 
   return (
     <div className="flex shrink-0 items-center gap-1 opacity-0 transition-opacity group-hover/task:opacity-100">
@@ -540,33 +534,30 @@ const TaskItem = ({
   const { workflows } = useWorkflows();
 
   // Compute blocking state
-  const { isBlocked, blockingTasks } = useMemo(
-    () => getTaskBlockingInfo(task, allTasks),
-    [task, allTasks],
-  );
+  const { isBlocked, blockingTasks } = getTaskBlockingInfo(task, allTasks);
 
-  const handleTitleClick = useCallback(() => {
+  const handleTitleClick = () => {
     const targetUrl = task.thread_id
       ? `/?threadId=${task.thread_id}&goalId=${goalId}&taskId=${task.id}`
       : `/?goalId=${goalId}&taskId=${task.id}`;
     navigate(targetUrl);
-  }, [navigate, task.thread_id, task.id, goalId]);
+  };
 
   // Handler for Start button - navigates to chat with task context
-  const handleStart = useCallback(() => {
+  const handleStart = () => {
     const targetUrl = `/?goalId=${goalId}&taskId=${task.id}`;
     navigate(targetUrl);
-  }, [navigate, goalId, task.id]);
+  };
 
   // Handler for Continue button - navigates to existing thread
-  const handleContinue = useCallback(() => {
+  const handleContinue = () => {
     navigate(`/?threadId=${task.thread_id}&goalId=${goalId}&taskId=${task.id}`);
-  }, [navigate, task.thread_id, goalId, task.id]);
+  };
 
   // Handler for Mark complete button - sets status to done
-  const handleMarkComplete = useCallback(() => {
+  const handleMarkComplete = () => {
     onStatusChange(task.id, "done");
-  }, [task.id, onStatusChange]);
+  };
 
   const isDone = task.status === "done";
   const workflowTitle =
@@ -696,32 +687,25 @@ const MilestoneCard = ({
   const totalTasks = milestone.tasks.length;
   const percentage = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
 
-  const handleMoveUp = useCallback(() => {
+  const handleMoveUp = () => {
     onMilestoneMove(milestone, "up");
-  }, [onMilestoneMove, milestone]);
+  };
 
-  const handleMoveDown = useCallback(() => {
+  const handleMoveDown = () => {
     onMilestoneMove(milestone, "down");
-  }, [onMilestoneMove, milestone]);
+  };
 
-  const handleTaskMoveUp = useCallback(
-    (task: Task) => {
-      onTaskMove(task, "up");
-    },
-    [onTaskMove],
-  );
+  const handleTaskMoveUp = (task: Task) => {
+    onTaskMove(task, "up");
+  };
 
-  const handleTaskMoveDown = useCallback(
-    (task: Task) => {
-      onTaskMove(task, "down");
-    },
-    [onTaskMove],
-  );
+  const handleTaskMoveDown = (task: Task) => {
+    onTaskMove(task, "down");
+  };
 
   // Sort tasks by order_index for determining first/last
-  const sortedTasks = useMemo(
-    () => [...milestone.tasks].sort((a, b) => a.order_index - b.order_index),
-    [milestone.tasks],
+  const sortedTasks = [...milestone.tasks].sort(
+    (a, b) => a.order_index - b.order_index,
   );
 
   return (
@@ -912,59 +896,56 @@ const GoalDetailPage = (): React.JSX.Element => {
   );
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const handleBack = useCallback(() => {
+  const handleBack = () => {
     navigate("/goals");
-  }, [navigate]);
+  };
 
-  const handleAddMilestone = useCallback(() => {
+  const handleAddMilestone = () => {
     setIsMilestoneDialogOpen(true);
-  }, []);
+  };
 
-  const handleTaskStatusChange = useCallback(
-    async (taskId: string, status: TaskStatus) => {
-      try {
-        await updateTask(fetchWithAuth, taskId, { status });
-        mutate();
-        toast.success(`Task marked as ${status.replace("_", " ")}`);
-      } catch (err) {
-        console.error("Failed to update task:", err);
-        toast.error("Failed to update task");
-      }
-    },
-    [fetchWithAuth, mutate],
-  );
+  const handleTaskStatusChange = async (
+    taskId: string,
+    status: TaskStatus,
+  ) => {
+    try {
+      await updateTask(fetchWithAuth, taskId, { status });
+      mutate();
+      toast.success(`Task marked as ${status.replace("_", " ")}`);
+    } catch (err) {
+      console.error("Failed to update task:", err);
+      toast.error("Failed to update task");
+    }
+  };
 
-  const handleAddTask = useCallback(
-    (milestoneId: string, milestoneTitle: string) => {
-      setSelectedMilestone({ id: milestoneId, title: milestoneTitle });
-      setIsTaskDialogOpen(true);
-    },
-    [],
-  );
+  const handleAddTask = (milestoneId: string, milestoneTitle: string) => {
+    setSelectedMilestone({ id: milestoneId, title: milestoneTitle });
+    setIsTaskDialogOpen(true);
+  };
 
-  const handleOpenDependencies = useCallback((task: Task) => {
+  const handleOpenDependencies = (task: Task) => {
     setDependenciesTask(task);
-  }, []);
+  };
 
   // Edit handlers
-  const handleEditTask = useCallback((task: Task) => {
+  const handleEditTask = (task: Task) => {
     setTaskToEdit(task);
-  }, []);
+  };
 
-  const handleEditMilestone = useCallback((milestone: Milestone) => {
+  const handleEditMilestone = (milestone: Milestone) => {
     setMilestoneToEdit(milestone);
-  }, []);
+  };
 
   // Delete handlers
-  const handleDeleteTask = useCallback((task: Task) => {
+  const handleDeleteTask = (task: Task) => {
     setTaskToDelete(task);
-  }, []);
+  };
 
-  const handleDeleteMilestone = useCallback((milestone: Milestone) => {
+  const handleDeleteMilestone = (milestone: Milestone) => {
     setMilestoneToDelete(milestone);
-  }, []);
+  };
 
-  const handleConfirmDeleteTask = useCallback(async () => {
+  const handleConfirmDeleteTask = async () => {
     if (!taskToDelete) return;
 
     setIsDeleting(true);
@@ -979,9 +960,9 @@ const GoalDetailPage = (): React.JSX.Element => {
     } finally {
       setIsDeleting(false);
     }
-  }, [fetchWithAuth, taskToDelete, mutate]);
+  };
 
-  const handleConfirmDeleteMilestone = useCallback(async () => {
+  const handleConfirmDeleteMilestone = async () => {
     if (!milestoneToDelete) return;
 
     setIsDeleting(true);
@@ -996,106 +977,98 @@ const GoalDetailPage = (): React.JSX.Element => {
     } finally {
       setIsDeleting(false);
     }
-  }, [fetchWithAuth, milestoneToDelete, mutate]);
+  };
 
   // Move milestone up or down
-  const handleMilestoneMove = useCallback(
-    async (milestone: Milestone, direction: "up" | "down") => {
-      if (!goal) return;
+  const handleMilestoneMove = async (
+    milestone: Milestone,
+    direction: "up" | "down",
+  ) => {
+    if (!goal) return;
 
-      const sortedMilestones = [...goal.milestones].sort(
-        (a, b) => a.order_index - b.order_index,
-      );
-      const currentIndex = sortedMilestones.findIndex(
-        (m) => m.id === milestone.id,
-      );
+    const sortedMilestones = [...goal.milestones].sort(
+      (a, b) => a.order_index - b.order_index,
+    );
+    const currentIndex = sortedMilestones.findIndex(
+      (m) => m.id === milestone.id,
+    );
 
-      // Find the adjacent milestone
-      const adjacentIndex =
-        direction === "up" ? currentIndex - 1 : currentIndex + 1;
-      if (adjacentIndex < 0 || adjacentIndex >= sortedMilestones.length) return;
+    // Find the adjacent milestone
+    const adjacentIndex =
+      direction === "up" ? currentIndex - 1 : currentIndex + 1;
+    if (adjacentIndex < 0 || adjacentIndex >= sortedMilestones.length) return;
 
-      const adjacentMilestone = sortedMilestones[adjacentIndex];
+    const adjacentMilestone = sortedMilestones[adjacentIndex];
 
-      // Swap order_index values
-      const currentOrderIndex = milestone.order_index;
-      const adjacentOrderIndex = adjacentMilestone.order_index;
+    // Swap order_index values
+    const currentOrderIndex = milestone.order_index;
+    const adjacentOrderIndex = adjacentMilestone.order_index;
 
-      try {
-        // Update both milestones in parallel
-        await Promise.all([
-          updateMilestone(fetchWithAuth, milestone.id, {
-            order_index: adjacentOrderIndex,
-          }),
-          updateMilestone(fetchWithAuth, adjacentMilestone.id, {
-            order_index: currentOrderIndex,
-          }),
-        ]);
-        mutate();
-      } catch (err) {
-        console.error("Failed to move milestone:", err);
-        toast.error("Failed to move milestone");
-      }
-    },
-    [fetchWithAuth, goal, mutate],
-  );
+    try {
+      // Update both milestones in parallel
+      await Promise.all([
+        updateMilestone(fetchWithAuth, milestone.id, {
+          order_index: adjacentOrderIndex,
+        }),
+        updateMilestone(fetchWithAuth, adjacentMilestone.id, {
+          order_index: currentOrderIndex,
+        }),
+      ]);
+      mutate();
+    } catch (err) {
+      console.error("Failed to move milestone:", err);
+      toast.error("Failed to move milestone");
+    }
+  };
 
   // Move task up or down within its milestone
-  const handleTaskMove = useCallback(
-    async (task: Task, direction: "up" | "down") => {
-      if (!goal) return;
+  const handleTaskMove = async (task: Task, direction: "up" | "down") => {
+    if (!goal) return;
 
-      // Find the milestone containing this task
-      const milestone = goal.milestones.find((m) => m.id === task.milestone_id);
-      if (!milestone) return;
+    // Find the milestone containing this task
+    const milestone = goal.milestones.find((m) => m.id === task.milestone_id);
+    if (!milestone) return;
 
-      const sortedTasks = [...milestone.tasks].sort(
-        (a, b) => a.order_index - b.order_index,
-      );
-      const currentIndex = sortedTasks.findIndex((t) => t.id === task.id);
+    const sortedTasks = [...milestone.tasks].sort(
+      (a, b) => a.order_index - b.order_index,
+    );
+    const currentIndex = sortedTasks.findIndex((t) => t.id === task.id);
 
-      // Find the adjacent task
-      const adjacentIndex =
-        direction === "up" ? currentIndex - 1 : currentIndex + 1;
-      if (adjacentIndex < 0 || adjacentIndex >= sortedTasks.length) return;
+    // Find the adjacent task
+    const adjacentIndex =
+      direction === "up" ? currentIndex - 1 : currentIndex + 1;
+    if (adjacentIndex < 0 || adjacentIndex >= sortedTasks.length) return;
 
-      const adjacentTask = sortedTasks[adjacentIndex];
+    const adjacentTask = sortedTasks[adjacentIndex];
 
-      // Swap order_index values
-      const currentOrderIndex = task.order_index;
-      const adjacentOrderIndex = adjacentTask.order_index;
+    // Swap order_index values
+    const currentOrderIndex = task.order_index;
+    const adjacentOrderIndex = adjacentTask.order_index;
 
-      try {
-        // Update both tasks in parallel
-        await Promise.all([
-          updateTask(fetchWithAuth, task.id, {
-            order_index: adjacentOrderIndex,
-          }),
-          updateTask(fetchWithAuth, adjacentTask.id, {
-            order_index: currentOrderIndex,
-          }),
-        ]);
-        mutate();
-      } catch (err) {
-        console.error("Failed to move task:", err);
-        toast.error("Failed to move task");
-      }
-    },
-    [fetchWithAuth, goal, mutate],
-  );
+    try {
+      // Update both tasks in parallel
+      await Promise.all([
+        updateTask(fetchWithAuth, task.id, {
+          order_index: adjacentOrderIndex,
+        }),
+        updateTask(fetchWithAuth, adjacentTask.id, {
+          order_index: currentOrderIndex,
+        }),
+      ]);
+      mutate();
+    } catch (err) {
+      console.error("Failed to move task:", err);
+      toast.error("Failed to move task");
+    }
+  };
 
   // Compute all tasks from all milestones for dependency checking
-  const allTasks = useMemo(() => {
-    if (!goal) return [];
-    return goal.milestones.flatMap((m) => m.tasks);
-  }, [goal]);
+  const allTasks = goal ? goal.milestones.flatMap((m) => m.tasks) : [];
 
   // Check if goal has work in progress (tasks with in_progress or done status)
-  const hasInProgressWork = useMemo(() => {
-    return allTasks.some(
-      (task) => task.status === "in_progress" || task.status === "done",
-    );
-  }, [allTasks]);
+  const hasInProgressWork = allTasks.some(
+    (task) => task.status === "in_progress" || task.status === "done",
+  );
 
   // Loading state
   if (isLoading) {

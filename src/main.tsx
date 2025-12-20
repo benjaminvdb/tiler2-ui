@@ -1,5 +1,5 @@
 import "./instrumentation-client";
-import React, { useCallback } from "react";
+import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, useNavigate } from "react-router-dom";
 import { Auth0Provider, type AppState } from "@auth0/auth0-react";
@@ -24,14 +24,11 @@ const Auth0ProviderWithNavigate = ({
 }): React.JSX.Element => {
   const navigate = useNavigate();
 
-  const onRedirectCallback = useCallback(
-    (appState?: AppState) => {
-      navigate(appState?.returnTo || window.location.pathname, {
-        replace: true,
-      });
-    },
-    [navigate],
-  );
+  const onRedirectCallback = (appState?: AppState) => {
+    navigate(appState?.returnTo || window.location.pathname, {
+      replace: true,
+    });
+  };
 
   return (
     <Auth0Provider

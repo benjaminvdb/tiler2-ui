@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { CommandBar } from "../../../shared/components/command-bar";
 import { ExpertHelpDialog } from "../../../shared/components/expert-help-dialog";
 import type { StreamContextType } from "@/core/providers/stream/stream-types";
@@ -21,13 +21,13 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
 }) => {
   const [isExpertHelpDialogOpen, setIsExpertHelpDialogOpen] = useState(false);
 
-  const handleExpertHelpClick = useCallback(() => {
+  const handleExpertHelpClick = () => {
     setIsExpertHelpDialogOpen(true);
-  }, []);
+  };
 
-  const handleRegenerate = useCallback(() => {
+  const handleRegenerate = () => {
     thread.regenerate({ messageId });
-  }, [messageId, thread]);
+  };
 
   return (
     <>

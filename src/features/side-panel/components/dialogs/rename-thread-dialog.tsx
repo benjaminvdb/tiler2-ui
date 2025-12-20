@@ -1,7 +1,7 @@
 /**
  * Dialog for renaming chat threads with validation and error handling.
  */
-import { useState, FormEvent, useCallback } from "react";
+import { useState, FormEvent } from "react";
 import {
   Dialog,
   DialogContent,
@@ -114,60 +114,51 @@ export const RenameThreadDialog = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = useCallback(
-    async (e: FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError(null);
+
+    const validationError = validateTitle(title);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
+    const trimmedTitle = title.trim();
+    if (trimmedTitle === currentTitle) {
+      onOpenChange(false);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await onRename(threadId, trimmedTitle);
+      onOpenChange(false);
+      setTitle(trimmedTitle);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to rename thread",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOpenChange = (newOpen: boolean) => {
+    if (newOpen) {
+      setTitle(currentTitle);
       setError(null);
+    }
+    onOpenChange(newOpen);
+  };
 
-      const validationError = validateTitle(title);
-      if (validationError) {
-        setError(validationError);
-        return;
-      }
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTitle(e.target.value);
+  };
 
-      const trimmedTitle = title.trim();
-      if (trimmedTitle === currentTitle) {
-        onOpenChange(false);
-        return;
-      }
-
-      setLoading(true);
-      try {
-        await onRename(threadId, trimmedTitle);
-        onOpenChange(false);
-        setTitle(trimmedTitle);
-      } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to rename thread",
-        );
-      } finally {
-        setLoading(false);
-      }
-    },
-    [title, currentTitle, onOpenChange, onRename, threadId],
-  );
-
-  const handleOpenChange = useCallback(
-    (newOpen: boolean) => {
-      if (newOpen) {
-        setTitle(currentTitle);
-        setError(null);
-      }
-      onOpenChange(newOpen);
-    },
-    [currentTitle, onOpenChange],
-  );
-
-  const handleTitleChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setTitle(e.target.value);
-    },
-    [],
-  );
-
-  const handleCancel = useCallback(() => {
+  const handleCancel = () => {
     onOpenChange(false);
-  }, [onOpenChange]);
+  };
 
   return (
     <Dialog

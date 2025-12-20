@@ -5,7 +5,7 @@
  * Dependencies allow tasks to build upon context from previous tasks.
  */
 
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Link2, Loader2, Check } from "lucide-react";
 import {
@@ -65,15 +65,15 @@ export const TaskDependenciesDialog = ({
     }))
     .filter((g) => g.tasks.length > 0);
 
-  const handleToggle = useCallback((taskId: string) => {
+  const handleToggle = (taskId: string) => {
     setSelectedIds((prev) =>
       prev.includes(taskId)
         ? prev.filter((id) => id !== taskId)
         : [...prev, taskId],
     );
-  }, []);
+  };
 
-  const handleSubmit = useCallback(async () => {
+  const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
       await updateTask(fetchWithAuth, task.id, { dependency_ids: selectedIds });
@@ -86,17 +86,11 @@ export const TaskDependenciesDialog = ({
     } finally {
       setIsSubmitting(false);
     }
-  }, [
-    fetchWithAuth,
-    task.id,
-    selectedIds,
-    onOpenChange,
-    onDependenciesUpdated,
-  ]);
+  };
 
-  const handleCancel = useCallback(() => {
+  const handleCancel = () => {
     onOpenChange(false);
-  }, [onOpenChange]);
+  };
 
   return (
     <Dialog

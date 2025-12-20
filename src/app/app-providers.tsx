@@ -1,6 +1,6 @@
 /** Application-level providers wrapping UI context, thread state, hotkeys, and streaming. */
 
-import React, { useCallback, useMemo, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { UIProvider } from "@/features/chat/providers/ui-provider";
 import { ThreadProvider } from "@/features/thread/providers/thread-provider";
 import { HotkeysProvider } from "@/features/hotkeys";
@@ -55,49 +55,35 @@ export const AppProviders = ({
 
   const isLargeScreen = useMediaQuery("(min-width: 1024px)");
 
-  const handleToggleChatHistory = useCallback(() => {
+  const handleToggleChatHistory = () => {
     setChatHistoryOpen(chatHistoryOpen ? null : true);
-  }, [chatHistoryOpen, setChatHistoryOpen]);
+  };
 
-  const navigationService = useMemo(
-    () => createNavigationService(navigate),
-    [navigate],
-  );
+  const navigationService = createNavigationService(navigate);
 
-  const handleNewThread = useCallback(() => {
+  const handleNewThread = () => {
     setThreadId(null);
     navigationService.navigateToHome();
-  }, [setThreadId, navigationService]);
+  };
 
-  const handleSidePanelWidthChange = useCallback((width: number) => {
+  const handleSidePanelWidthChange = (width: number) => {
     const constrainedWidth = Math.min(
       Math.max(width, SIDE_PANEL_MIN_WIDTH),
       SIDE_PANEL_MAX_WIDTH,
     );
     setSidePanelWidth(constrainedWidth);
     localStorage.setItem("sidePanelWidth", constrainedWidth.toString());
-  }, []);
+  };
 
-  const uiContextValue = useMemo(
-    () => ({
-      chatHistoryOpen: chatHistoryOpen === true,
-      isLargeScreen,
-      sidePanelWidth,
-      navigationService,
-      onToggleChatHistory: handleToggleChatHistory,
-      onNewThread: handleNewThread,
-      onSidePanelWidthChange: handleSidePanelWidthChange,
-    }),
-    [
-      chatHistoryOpen,
-      isLargeScreen,
-      sidePanelWidth,
-      navigationService,
-      handleToggleChatHistory,
-      handleNewThread,
-      handleSidePanelWidthChange,
-    ],
-  );
+  const uiContextValue = {
+    chatHistoryOpen: chatHistoryOpen === true,
+    isLargeScreen,
+    sidePanelWidth,
+    navigationService,
+    onToggleChatHistory: handleToggleChatHistory,
+    onNewThread: handleNewThread,
+    onSidePanelWidthChange: handleSidePanelWidthChange,
+  };
 
   return (
     <>

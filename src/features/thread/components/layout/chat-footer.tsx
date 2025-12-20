@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React from "react";
 import { ScrollToBottom } from "../scroll-utils";
 import { ChatInput } from "../chat-input-components";
 import { useStreamContext } from "@/core/providers/stream";
@@ -23,9 +23,9 @@ const ChatFooterComponent: React.FC = () => {
   const stream = useStreamContext();
   const isLoading = stream.isLoading;
 
-  const handleStop = useCallback(() => {
+  const handleStop = () => {
     stream.stop();
-  }, [stream]);
+  };
 
   return (
     <div
@@ -56,4 +56,4 @@ const ChatFooterComponent: React.FC = () => {
 
 ChatFooterComponent.displayName = "ChatFooter";
 
-export const ChatFooter = React.memo(ChatFooterComponent);
+export const ChatFooter = ChatFooterComponent;

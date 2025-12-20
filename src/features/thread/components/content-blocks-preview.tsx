@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React from "react";
 import type { MultimodalContentBlock } from "@/shared/types";
 import { MultimodalPreview } from "./multimodal-preview";
 import { cn } from "@/shared/utils/utils";
@@ -17,15 +17,15 @@ interface BlockItemProps {
   onRemove: (idx: number) => void;
 }
 
-const BlockItem = React.memo(function BlockItem({
+const BlockItem = ({
   block,
   index,
   size,
   onRemove,
-}: BlockItemProps) {
-  const handleRemove = useCallback(() => {
+}: BlockItemProps) => {
+  const handleRemove = () => {
     onRemove(index);
-  }, [index, onRemove]);
+  };
 
   // Generate stable key from block content
   const sourceKey = block.data
@@ -43,7 +43,7 @@ const BlockItem = React.memo(function BlockItem({
       size={size}
     />
   );
-});
+}
 
 /**
  * Renders a preview of content blocks with optional remove functionality.

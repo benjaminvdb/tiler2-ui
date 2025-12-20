@@ -4,7 +4,7 @@
  * Modal dialog for adding a new milestone to a goal.
  */
 
-import React, { useState, useCallback, FormEvent, ChangeEvent } from "react";
+import React, { useState, FormEvent, ChangeEvent } from "react";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import {
@@ -42,78 +42,62 @@ export const CreateMilestoneDialog = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleOpenChange = useCallback(
-    (newOpen: boolean) => {
-      if (!newOpen) {
-        setTitle("");
-        setDescription("");
-        setError(null);
-      }
-      onOpenChange(newOpen);
-    },
-    [onOpenChange],
-  );
-
-  const handleSubmit = useCallback(
-    async (e: FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      setTitle("");
+      setDescription("");
       setError(null);
+    }
+    onOpenChange(newOpen);
+  };
 
-      const trimmedTitle = title.trim();
-      if (!trimmedTitle) {
-        setError("Milestone title is required");
-        return;
-      }
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError(null);
 
-      if (trimmedTitle.length > 255) {
-        setError("Title must be 255 characters or less");
-        return;
-      }
+    const trimmedTitle = title.trim();
+    if (!trimmedTitle) {
+      setError("Milestone title is required");
+      return;
+    }
 
-      setIsSubmitting(true);
-      try {
-        const request = {
-          goal_id: goalId,
-          title: trimmedTitle,
-          ...(description.trim() && { description: description.trim() }),
-        };
-        await createMilestone(fetchWithAuth, request);
-        toast.success("Milestone created successfully");
-        handleOpenChange(false);
-        onMilestoneCreated();
-      } catch (err) {
-        console.error("Failed to create milestone:", err);
-        setError(
-          err instanceof Error ? err.message : "Failed to create milestone",
-        );
-      } finally {
-        setIsSubmitting(false);
-      }
-    },
-    [
-      title,
-      description,
-      goalId,
-      fetchWithAuth,
-      handleOpenChange,
-      onMilestoneCreated,
-    ],
-  );
+    if (trimmedTitle.length > 255) {
+      setError("Title must be 255 characters or less");
+      return;
+    }
 
-  const handleTitleChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    setIsSubmitting(true);
+    try {
+      const request = {
+        goal_id: goalId,
+        title: trimmedTitle,
+        ...(description.trim() && { description: description.trim() }),
+      };
+      await createMilestone(fetchWithAuth, request);
+      toast.success("Milestone created successfully");
+      handleOpenChange(false);
+      onMilestoneCreated();
+    } catch (err) {
+      console.error("Failed to create milestone:", err);
+      setError(
+        err instanceof Error ? err.message : "Failed to create milestone",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setTitle(e.target.value);
-  }, []);
+  };
 
-  const handleDescriptionChange = useCallback(
-    (e: ChangeEvent<HTMLTextAreaElement>) => {
-      setDescription(e.target.value);
-    },
-    [],
-  );
+  const handleDescriptionChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    setDescription(e.target.value);
+  };
 
-  const handleCancel = useCallback(() => {
+  const handleCancel = () => {
     handleOpenChange(false);
-  }, [handleOpenChange]);
+  };
 
   return (
     <Dialog

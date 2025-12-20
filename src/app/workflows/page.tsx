@@ -1,12 +1,6 @@
 /** Workflows page displaying categorized sustainability workflow cards with search and navigation. */
 
-import React, {
-  useEffect,
-  useState,
-  useRef,
-  useCallback,
-  useMemo,
-} from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 import * as LucideIcons from "lucide-react";
 import { Workflow } from "lucide-react";
@@ -104,17 +98,17 @@ interface WorkflowCardProps {
   onWorkflowClick: (workflowId: string) => void;
 }
 
-const WorkflowCard = React.memo(function WorkflowCard({
+const WorkflowCard = ({
   workflow,
   index,
   onWorkflowClick,
-}: WorkflowCardProps) {
+}: WorkflowCardProps) => {
   const categoryColor = getCategoryColorByName(workflow.category.name);
   const illustrationSrc = getCategoryIllustration(workflow.category.name);
 
-  const handleClick = useCallback(() => {
+  const handleClick = () => {
     onWorkflowClick(workflow.workflow_id);
-  }, [onWorkflowClick, workflow.workflow_id]);
+  };
 
   return (
     <motion.button
@@ -195,7 +189,7 @@ const WorkflowCard = React.memo(function WorkflowCard({
       </div>
     </motion.button>
   );
-});
+}
 
 interface FallbackLinkProps {
   workflow: WorkflowConfig;
@@ -203,14 +197,14 @@ interface FallbackLinkProps {
   onNavigate: (workflowId: string) => void;
 }
 
-const FallbackLink = React.memo(function FallbackLink({
+const FallbackLink = ({
   workflow,
   categoryName,
   onNavigate,
-}: FallbackLinkProps) {
-  const handleClick = useCallback(() => {
+}: FallbackLinkProps) => {
+  const handleClick = () => {
     onNavigate(workflow.workflow_id);
-  }, [onNavigate, workflow.workflow_id]);
+  };
 
   return (
     <div className="mt-5 text-center">
@@ -227,7 +221,7 @@ const FallbackLink = React.memo(function FallbackLink({
       </button>
     </div>
   );
-});
+}
 
 interface CategorySectionProps {
   categoryName: string;
@@ -238,26 +232,23 @@ interface CategorySectionProps {
   onWorkflowClick: (workflowId: string) => void;
 }
 
-const CategorySection = React.memo(function CategorySection({
+const CategorySection = ({
   categoryName,
   categoryWorkflows,
   categoryIndex,
   totalCategories,
   setCategoryRef,
   onWorkflowClick,
-}: CategorySectionProps) {
+}: CategorySectionProps) => {
   const category = categoryWorkflows[0].category;
   const categoryColor = getCategoryColorByName(categoryName);
   const isOnboarding = categoryName === "Onboarding";
   const isLastCategory = categoryIndex === totalCategories - 1;
   const fallbackWorkflow = categoryWorkflows.find((w) => w.order_index === 0);
 
-  const handleRef = useCallback(
-    (el: HTMLElement | null) => {
-      setCategoryRef(categoryName, el);
-    },
-    [categoryName, setCategoryRef],
-  );
+  const handleRef = (el: HTMLElement | null) => {
+    setCategoryRef(categoryName, el);
+  };
 
   return (
     <motion.section
@@ -323,7 +314,7 @@ const CategorySection = React.memo(function CategorySection({
       )}
     </motion.section>
   );
-});
+}
 
 /**
  * Hook to filter and organize workflows by category
@@ -483,39 +474,31 @@ function useWorkflowsPage() {
     error: swrError,
   } = useWorkflows();
 
-  const workflows = useMemo(
-    () => [...rawWorkflows].sort((a, b) => a.order_index - b.order_index),
-    [rawWorkflows],
+  const workflows = [...rawWorkflows].sort(
+    (a, b) => a.order_index - b.order_index,
   );
   const error = swrError?.message ?? null;
   const { filteredWorkflows, workflowsByCategory, categories } =
     useWorkflowFiltering(workflows, searchQuery);
 
-  const setCategoryRef = useCallback(
-    (categoryName: string, el: HTMLElement | null) => {
-      categoryRefsRef.current[categoryName] = el;
-    },
-    [],
-  );
+  const setCategoryRef = (categoryName: string, el: HTMLElement | null) => {
+    categoryRefsRef.current[categoryName] = el;
+  };
 
-  const scrollToCategory = useCallback((categoryName: string) => {
+  const scrollToCategory = (categoryName: string) => {
     categoryRefsRef.current[categoryName]?.scrollIntoView({
       behavior: "smooth",
       block: "start",
     });
-  }, []);
+  };
 
-  const handleWorkflowClick = useCallback(
-    (workflowId: string) => navigationService.navigateToWorkflow(workflowId),
-    [navigationService],
-  );
+  const handleWorkflowClick = (workflowId: string) =>
+    navigationService.navigateToWorkflow(workflowId);
 
-  const handleSearchChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value),
-    [],
-  );
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setSearchQuery(e.target.value);
 
-  const handleClearSearch = useCallback(() => setSearchQuery(""), []);
+  const handleClearSearch = () => setSearchQuery("");
 
   // Scroll to hash on initial load
   useEffect(() => {

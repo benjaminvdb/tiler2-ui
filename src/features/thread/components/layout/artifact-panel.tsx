@@ -30,4 +30,4 @@ const ArtifactPanelComponent: React.FC<ArtifactPanelProps> = ({ onClose }) => {
 
 ArtifactPanelComponent.displayName = "ArtifactPanel";
 
-export const ArtifactPanel = React.memo(ArtifactPanelComponent);
+export const ArtifactPanel = ArtifactPanelComponent;

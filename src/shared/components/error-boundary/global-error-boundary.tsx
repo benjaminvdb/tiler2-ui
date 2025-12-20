@@ -85,9 +85,9 @@ const DefaultErrorFallback: React.FC<{
   error: Error;
   retry: () => void;
 }> = ({ error, retry }) => {
-  const handleRefresh = React.useCallback(() => {
+  const handleRefresh = () => {
     window.location.reload();
-  }, []);
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50">

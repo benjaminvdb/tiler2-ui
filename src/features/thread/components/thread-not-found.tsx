@@ -5,7 +5,7 @@
  * typically because it was deleted or is no longer accessible.
  */
 
-import { useCallback } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { MessageSquareOff, ArrowLeft, Home } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
@@ -21,17 +21,17 @@ export const ThreadNotFound = ({
   const navigate = useNavigate();
   const [goalId] = useSearchParamState("goalId");
 
-  const handleGoBack = useCallback(() => {
+  const handleGoBack = () => {
     if (goalId) {
       navigate(`/goals/${goalId}`);
     } else {
       navigate(-1);
     }
-  }, [navigate, goalId]);
+  };
 
-  const handleStartNew = useCallback(() => {
+  const handleStartNew = () => {
     navigate("/");
-  }, [navigate]);
+  };
 
   // Determine if user came from a goal
   const fromGoal = Boolean(goalId);

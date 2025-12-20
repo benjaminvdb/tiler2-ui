@@ -1,7 +1,7 @@
 /**
  * Mobile-optimized header with hamburger menu providing navigation and thread history access.
  */
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import { Menu } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -22,13 +22,13 @@ export const MobileHeader: React.FC = () => {
   const { threads, threadsLoading } = useThreadHistory();
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleMenuClose = useCallback(() => {
+  const handleMenuClose = () => {
     setIsOpen(false);
-  }, []);
+  };
 
-  const handleThreadClick = useCallback(() => {
+  const handleThreadClick = () => {
     setIsOpen(false);
-  }, []);
+  };
 
   return (
     <div className="bg-background border-b lg:hidden">

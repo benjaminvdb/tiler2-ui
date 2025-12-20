@@ -33,9 +33,9 @@ export const DataTableColumnHeader = <TData, TValue>({
   isSticky,
   allowWrap,
 }: DataTableColumnHeaderProps<TData, TValue>): React.JSX.Element => {
-  const handleClick = React.useCallback(() => {
+  const handleClick = () => {
     column.toggleSorting(column.getIsSorted() === "asc");
-  }, [column]);
+  };
 
   const stickyClasses = isSticky ? "sticky left-0 z-20 bg-muted" : "";
   const wrapClasses = allowWrap ? "whitespace-normal text-left" : "";

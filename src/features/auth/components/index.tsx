@@ -2,7 +2,7 @@
  * Authentication UI components for user login/logout functionality.
  */
 
-import React, { forwardRef, useCallback } from "react";
+import React, { forwardRef } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
@@ -47,9 +47,9 @@ GuestAvatar.displayName = "GuestAvatar";
 const GuestDropdown = (): React.JSX.Element => {
   const { loginWithRedirect } = useAuth0();
 
-  const handleLogin = useCallback(() => {
+  const handleLogin = () => {
     loginWithRedirect();
-  }, [loginWithRedirect]);
+  };
 
   return (
     <DropdownMenu>

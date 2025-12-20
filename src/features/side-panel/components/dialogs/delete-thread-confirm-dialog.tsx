@@ -1,7 +1,7 @@
 /**
  * Confirmation dialog for permanently deleting chat threads.
  */
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -30,7 +30,7 @@ export const DeleteThreadConfirmDialog = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleConfirm = useCallback(async () => {
+  const handleConfirm = async () => {
     setLoading(true);
     setError(null);
 
@@ -42,21 +42,18 @@ export const DeleteThreadConfirmDialog = ({
     } finally {
       setLoading(false);
     }
-  }, [onConfirm, threadId, onOpenChange]);
+  };
 
-  const handleOpenChange = useCallback(
-    (newOpen: boolean) => {
-      if (newOpen) {
-        setError(null);
-      }
-      onOpenChange(newOpen);
-    },
-    [onOpenChange],
-  );
+  const handleOpenChange = (newOpen: boolean) => {
+    if (newOpen) {
+      setError(null);
+    }
+    onOpenChange(newOpen);
+  };
 
-  const handleCancel = useCallback(() => {
+  const handleCancel = () => {
     onOpenChange(false);
-  }, [onOpenChange]);
+  };
 
   return (
     <Dialog

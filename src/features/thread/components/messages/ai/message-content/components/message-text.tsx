@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { MarkdownText } from "../../../../markdown-text";
@@ -49,7 +49,7 @@ export const MessageText: React.FC<MessageTextProps> = ({
   } = useTextSelection();
   const { saveInsight, isSaving } = useSaveInsight();
 
-  const handleSave = useCallback(async () => {
+  const handleSave = async () => {
     if (!selectedText || !threadId) return;
 
     const result = await saveInsight({
@@ -71,23 +71,12 @@ export const MessageText: React.FC<MessageTextProps> = ({
     } else {
       toast.error("Failed to save insight");
     }
-  }, [
-    selectedText,
-    threadId,
-    messageId,
-    checkpointId,
-    branch,
-    saveInsight,
-    clearSelection,
-  ]);
+  };
 
-  const handleRef = useCallback(
-    (node: HTMLDivElement | null) => {
-      setRef(containerRef, node);
-      setRef(selectionContainerRef, node);
-    },
-    [containerRef, selectionContainerRef],
-  );
+  const handleRef = (node: HTMLDivElement | null) => {
+    setRef(containerRef, node);
+    setRef(selectionContainerRef, node);
+  };
 
   if (displayedText.length === 0) {
     return null;

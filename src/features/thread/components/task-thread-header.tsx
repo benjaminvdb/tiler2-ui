@@ -6,7 +6,7 @@
  * Only renders when goalId is present in URL params.
  */
 
-import { useCallback } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { PageHeader } from "@/shared/components/ui/page-header";
 import { useSearchParamState } from "@/core/routing/hooks";
@@ -19,11 +19,11 @@ export const TaskThreadHeader = (): React.JSX.Element | null => {
 
   const { taskContext, isLoading } = useTaskContext(taskId);
 
-  const handleBack = useCallback(() => {
+  const handleBack = () => {
     if (goalId) {
       navigate(`/goals/${goalId}`);
     }
-  }, [navigate, goalId]);
+  };
 
   // Only render if coming from goal details (goalId present)
   if (!goalId || isLoading || !taskContext) {

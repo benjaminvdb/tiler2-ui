@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { Send, Plus, Loader2 } from "lucide-react";
 import { ContentBlocksPreview } from "../content-blocks-preview";
 import { ToolCallsToggle } from "./components/tool-calls-toggle";
@@ -15,10 +15,10 @@ interface FileUploadButtonProps {
 const FileUploadButton: React.FC<FileUploadButtonProps> = ({
   onFileUpload,
 }) => {
-  const handleClick = useCallback(() => {
+  const handleClick = () => {
     const input = document.getElementById("file-input") as HTMLInputElement;
     input?.click();
-  }, []);
+  };
 
   return (
     <>
@@ -69,22 +69,19 @@ const ChatTextarea: React.FC<ChatTextareaProps> = ({
     }
   }, [value, isLoading]);
 
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-      if (
-        e.key === "Enter" &&
-        !e.shiftKey &&
-        !e.metaKey &&
-        !e.nativeEvent.isComposing
-      ) {
-        e.preventDefault();
-        const el = e.target as HTMLElement | undefined;
-        const form = el?.closest("form");
-        form?.requestSubmit();
-      }
-    },
-    [],
-  );
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (
+      e.key === "Enter" &&
+      !e.shiftKey &&
+      !e.metaKey &&
+      !e.nativeEvent.isComposing
+    ) {
+      e.preventDefault();
+      const el = e.target as HTMLElement | undefined;
+      const form = el?.closest("form");
+      form?.requestSubmit();
+    }
+  };
 
   return (
     <textarea
@@ -156,12 +153,9 @@ const ChatInputComponent = ({
   dragOver,
   dropRef,
 }: ChatInputProps) => {
-  const handleChange = useCallback(
-    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      onInputChange(e.target.value);
-    },
-    [onInputChange],
-  );
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    onInputChange(e.target.value);
+  };
 
   return (
     <div
@@ -217,4 +211,4 @@ const ChatInputComponent = ({
 
 ChatInputComponent.displayName = "ChatInput";
 
-export const ChatInput = React.memo(ChatInputComponent);
+export const ChatInput = ChatInputComponent;

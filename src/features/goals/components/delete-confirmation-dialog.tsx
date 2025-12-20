@@ -5,7 +5,7 @@
  * milestones, or tasks.
  */
 
-import React, { useCallback } from "react";
+import React from "react";
 import { Loader2, Trash2 } from "lucide-react";
 import {
   Dialog,
@@ -36,9 +36,9 @@ export const DeleteConfirmationDialog = ({
   onConfirm,
   isDeleting = false,
 }: DeleteConfirmationDialogProps): React.JSX.Element => {
-  const handleCancel = useCallback(() => {
+  const handleCancel = () => {
     onOpenChange(false);
-  }, [onOpenChange]);
+  };
 
   return (
     <Dialog

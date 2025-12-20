@@ -62,15 +62,12 @@ export const DataTableToolbar = <TData,>({
   const isFiltered = searchValue.length > 0;
 
   // Handlers
-  const handleInputChange = React.useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => setLocalSearch(e.target.value),
-    [],
-  );
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => setLocalSearch(e.target.value);
 
-  const handleClearSearch = React.useCallback(() => {
+  const handleClearSearch = () => {
     setLocalSearch("");
     onSearchChange("");
-  }, [onSearchChange]);
+  };
 
   return (
     <div className="flex items-center justify-between">
@@ -117,16 +114,13 @@ const ColumnMenuItemInner = <TData,>({
   isVisible,
 }: ColumnMenuItemProps<TData>): React.JSX.Element => {
   "use no memo";
-  const handleCheckedChange = React.useCallback(
-    (value: boolean) => {
-      column.toggleVisibility(!!value);
-    },
-    [column],
-  );
+  const handleCheckedChange = (value: boolean) => {
+    column.toggleVisibility(!!value);
+  };
 
-  const handleSelect = React.useCallback((e: Event) => {
+  const handleSelect = (e: Event) => {
     e.preventDefault();
-  }, []);
+  };
 
   return (
     <DropdownMenuCheckboxItem
@@ -141,10 +135,7 @@ const ColumnMenuItemInner = <TData,>({
   );
 };
 
-// Memoize to prevent re-renders when dropdown opens (improves performance with many columns)
-const ColumnMenuItem = React.memo(
-  ColumnMenuItemInner,
-) as typeof ColumnMenuItemInner;
+const ColumnMenuItem = ColumnMenuItemInner;
 
 /**
  * Column visibility dropdown menu.

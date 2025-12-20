@@ -1,4 +1,4 @@
-import { FC, useCallback, useState } from "react";
+import { FC, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { BookCheck, Globe, Loader2 } from "lucide-react";
 import { Source } from "../../markdown/components/citation-link";
@@ -19,19 +19,16 @@ const LibrarySourceItem: FC<LibrarySourceItemProps> = ({
   isLoading,
   onDocumentClick,
 }) => {
-  const handleClick = useCallback(() => {
+  const handleClick = () => {
     if (!isLoading) onDocumentClick(source);
-  }, [onDocumentClick, source, isLoading]);
+  };
 
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if ((e.key === "Enter" || e.key === " ") && !isLoading) {
-        e.preventDefault();
-        onDocumentClick(source);
-      }
-    },
-    [onDocumentClick, source, isLoading],
-  );
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if ((e.key === "Enter" || e.key === " ") && !isLoading) {
+      e.preventDefault();
+      onDocumentClick(source);
+    }
+  };
 
   return (
     <li className="text-sm text-gray-600">
@@ -66,25 +63,22 @@ export const SourcesList: FC<SourcesListProps> = ({ sources }) => {
   const { getAccessTokenSilently } = useAuth0();
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
-  const handleDocumentClick = useCallback(
-    async (source: Source): Promise<void> => {
-      if (!source.filename) return;
-      try {
-        setLoadingId(source.id);
-        const token = await getAccessTokenSilently();
-        const presignedUrl = await fetchDocumentPresignedUrl(
-          source.filename,
-          token,
-        );
-        window.open(presignedUrl, "_blank", "noopener,noreferrer");
-      } catch (error) {
-        console.error("Failed to open document:", error);
-      } finally {
-        setLoadingId(null);
-      }
-    },
-    [getAccessTokenSilently],
-  );
+  const handleDocumentClick = async (source: Source): Promise<void> => {
+    if (!source.filename) return;
+    try {
+      setLoadingId(source.id);
+      const token = await getAccessTokenSilently();
+      const presignedUrl = await fetchDocumentPresignedUrl(
+        source.filename,
+        token,
+      );
+      window.open(presignedUrl, "_blank", "noopener,noreferrer");
+    } catch (error) {
+      console.error("Failed to open document:", error);
+    } finally {
+      setLoadingId(null);
+    }
+  };
 
   if (!sources || sources.length === 0) {
     return null;

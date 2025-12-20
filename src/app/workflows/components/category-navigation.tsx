@@ -1,6 +1,6 @@
 /** Category navigation component rendering clickable category badges with scroll-to-section behavior. */
 
-import React, { useCallback } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import * as LucideIcons from "lucide-react";
 
@@ -55,14 +55,14 @@ interface CategoryButtonProps {
   onCategoryClick: (categoryName: string) => void;
 }
 
-const CategoryButton = React.memo(function CategoryButton({
+const CategoryButton = ({
   category,
   onCategoryClick,
-}: CategoryButtonProps) {
+}: CategoryButtonProps) => {
   const categoryColor = getCategoryColorByName(category.name);
-  const handleClick = useCallback(() => {
+  const handleClick = () => {
     onCategoryClick(category.name);
-  }, [onCategoryClick, category.name]);
+  };
 
   return (
     <button
@@ -86,7 +86,7 @@ const CategoryButton = React.memo(function CategoryButton({
       </span>
     </button>
   );
-});
+}
 
 export const CategoryNavigation: React.FC<CategoryNavigationProps> = ({
   categories,

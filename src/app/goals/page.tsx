@@ -4,7 +4,7 @@
  * Displays all user goals with progress indicators and allows creating new goals.
  */
 
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Target, Plus, Trash2 } from "lucide-react";
@@ -208,20 +208,17 @@ const GoalCard = ({
   const isGenerating = goal.status === "generating";
   const isFailed = goal.status === "failed";
 
-  const handleClick = useCallback(() => {
+  const handleClick = () => {
     // Prevent navigation when generating
     if (!isGenerating) {
       onClick();
     }
-  }, [isGenerating, onClick]);
+  };
 
-  const handleDeleteClick = useCallback(
-    (e: React.MouseEvent) => {
-      e.stopPropagation();
-      onDelete();
-    },
-    [onDelete],
-  );
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onDelete();
+  };
 
   return (
     <div
@@ -376,7 +373,7 @@ const useGoalDeletion = (
   const [goalToDelete, setGoalToDelete] = useState<GoalListItem | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const handleDeleteConfirm = useCallback(async () => {
+  const handleDeleteConfirm = async () => {
     if (!goalToDelete) return;
 
     setIsDeleting(true);
@@ -391,7 +388,7 @@ const useGoalDeletion = (
     } finally {
       setIsDeleting(false);
     }
-  }, [fetchWithAuth, goalToDelete, mutate]);
+  };
 
   return { goalToDelete, isDeleting, setGoalToDelete, handleDeleteConfirm };
 };
@@ -462,12 +459,9 @@ const GoalsPage = (): React.JSX.Element => {
 
   const groupedGoals = groupGoalsByStatus(goals);
 
-  const handleCreateGoal = useCallback(() => setIsWizardOpen(true), []);
-  const handleGoalCreated = useCallback(() => mutate(), [mutate]);
-  const handleGoalClick = useCallback(
-    (goalId: string) => navigate(`/goals/${goalId}`),
-    [navigate],
-  );
+  const handleCreateGoal = () => setIsWizardOpen(true);
+  const handleGoalCreated = () => mutate();
+  const handleGoalClick = (goalId: string) => navigate(`/goals/${goalId}`);
 
   if (isLoading) return <LoadingState />;
   if (error) return <ErrorState error={error} />;

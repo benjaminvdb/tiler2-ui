@@ -3,7 +3,6 @@
  */
 
 import * as React from "react";
-import { useCallback } from "react";
 import {
   SidebarFooter,
   SidebarMenu,
@@ -44,9 +43,9 @@ const LoadingProfile = () => (
 const GuestProfile = ({ isCollapsed }: { isCollapsed: boolean }) => {
   const { loginWithRedirect } = useAuth0();
 
-  const handleLogin = useCallback(() => {
+  const handleLogin = () => {
     loginWithRedirect();
-  }, [loginWithRedirect]);
+  };
 
   return (
     <SidebarFooter>
@@ -114,13 +113,13 @@ const AuthenticatedProfile: React.FC<AuthenticatedProfileProps> = ({
   const { displayName, initials, showSecondaryEmail } =
     getUserDisplayInfo(user);
 
-  const handleLogout = useCallback(() => {
+  const handleLogout = () => {
     logout({
       logoutParams: {
         returnTo: window.location.origin,
       },
     });
-  }, [logout]);
+  };
 
   return (
     <SidebarFooter>

@@ -3,7 +3,7 @@
  * Provides StreamContext to child components for AI chat interactions.
  */
 
-import React, { useCallback, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useSearchParamState } from "@/core/routing/hooks";
 import { useThreads } from "@/features/thread/providers/thread-provider";
 import { StreamContext } from "./stream-context";
@@ -25,9 +25,9 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
 }) => {
   const { loginWithRedirect } = useAuth0();
 
-  const handleLoginRedirect = useCallback(() => {
+  const handleLoginRedirect = () => {
     loginWithRedirect();
-  }, [loginWithRedirect]);
+  };
 
   const [threadId, setThreadId] = useSearchParamState("threadId");
   const { getThreads, resetThreads, removeOptimisticThread } = useThreads();
@@ -64,13 +64,10 @@ export const StreamSession: React.FC<StreamSessionProps> = ({
   useGraphStatus({ apiUrl, logger });
 
   // Handle thread ID updates from the agent
-  const handleThreadId = useCallback(
-    (id: string) => {
-      setThreadId(id);
-      verifyThreadCreation(id);
-    },
-    [setThreadId, verifyThreadCreation],
-  );
+  const handleThreadId = (id: string) => {
+    setThreadId(id);
+    verifyThreadCreation(id);
+  };
 
   // Use the Vercel AI SDK UI hook
   const streamValue = useVercelAIChat({

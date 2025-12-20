@@ -137,23 +137,11 @@ export const DataTablePagination = ({
   const startItem = totalItems > 0 ? pageIndex * pageSize + 1 : 0;
   const endItem = Math.min((pageIndex + 1) * pageSize, totalItems);
 
-  const handlePageSizeChange = React.useCallback(
-    (value: string) => onPageSizeChange(Number(value)),
-    [onPageSizeChange],
-  );
-  const handleFirst = React.useCallback(() => onPageChange(0), [onPageChange]);
-  const handlePrevious = React.useCallback(
-    () => onPageChange(pageIndex - 1),
-    [onPageChange, pageIndex],
-  );
-  const handleNext = React.useCallback(
-    () => onPageChange(pageIndex + 1),
-    [onPageChange, pageIndex],
-  );
-  const handleLast = React.useCallback(
-    () => onPageChange(pageCount - 1),
-    [onPageChange, pageCount],
-  );
+  const handlePageSizeChange = (value: string) => onPageSizeChange(Number(value));
+  const handleFirst = () => onPageChange(0);
+  const handlePrevious = () => onPageChange(pageIndex - 1);
+  const handleNext = () => onPageChange(pageIndex + 1);
+  const handleLast = () => onPageChange(pageCount - 1);
 
   return (
     <div className="flex items-center justify-between px-2">

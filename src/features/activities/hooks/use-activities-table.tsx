@@ -5,7 +5,7 @@
  */
 
 import * as React from "react";
-import { useState, useMemo, useCallback } from "react";
+import { useState } from "react";
 import {
   getCoreRowModel,
   useReactTable,
@@ -248,34 +248,27 @@ export const useActivitiesTable = (): UseActivitiesTableReturn => {
   } = useActivitySchema();
 
   // Build stable column definitions (only changes when schema changes)
-  const tableColumns = useMemo(
-    () => buildColumns(columnMetadata),
-    [columnMetadata],
-  );
+  const tableColumns = buildColumns(columnMetadata);
 
   // Build params object conditionally to satisfy exactOptionalPropertyTypes
-  const params = useMemo(() => {
-    const result: {
-      search?: string;
-      sortBy?: string;
-      sortOrder?: "asc" | "desc";
-      limit: number;
-      offset: number;
-    } = {
-      limit: pageSize,
-      offset: pageIndex * pageSize,
-    };
+  const params: {
+    search?: string;
+    sortBy?: string;
+    sortOrder?: "asc" | "desc";
+    limit: number;
+    offset: number;
+  } = {
+    limit: pageSize,
+    offset: pageIndex * pageSize,
+  };
 
-    if (globalFilter) {
-      result.search = globalFilter;
-    }
-    if (sorting.length > 0) {
-      result.sortBy = sorting[0].id;
-      result.sortOrder = sorting[0].desc ? "desc" : "asc";
-    }
-
-    return result;
-  }, [globalFilter, sorting, pageSize, pageIndex]);
+  if (globalFilter) {
+    params.search = globalFilter;
+  }
+  if (sorting.length > 0) {
+    params.sortBy = sorting[0].id;
+    params.sortOrder = sorting[0].desc ? "desc" : "asc";
+  }
 
   // Fetch data with current state
   const {
@@ -319,19 +312,19 @@ export const useActivitiesTable = (): UseActivitiesTableReturn => {
   });
 
   // Handle page changes
-  const handlePageChange = useCallback((newPageIndex: number) => {
+  const handlePageChange = (newPageIndex: number) => {
     setPageIndex(newPageIndex);
-  }, []);
+  };
 
-  const handlePageSizeChange = useCallback((newPageSize: number) => {
+  const handlePageSizeChange = (newPageSize: number) => {
     setPageSize(newPageSize);
     setPageIndex(0);
-  }, []);
+  };
 
-  const handleSearchChange = useCallback((value: string) => {
+  const handleSearchChange = (value: string) => {
     setGlobalFilter(value);
     setPageIndex(0);
-  }, []);
+  };
 
   return {
     table,

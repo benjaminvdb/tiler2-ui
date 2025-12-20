@@ -1,7 +1,7 @@
 /**
  * Dropdown menu providing rename and delete actions for chat threads.
  */
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { MoreHorizontal, Edit2, Trash2 } from "lucide-react";
 import {
   DropdownMenu,
@@ -32,26 +32,26 @@ export const ThreadActionsMenu = ({
   /**
    * Prevents button click from triggering parent thread selection.
    */
-  const handleButtonClick = useCallback((e: React.MouseEvent) => {
+  const handleButtonClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-  }, []);
+  };
 
   /**
    * Prevents focus from returning to trigger button when dialog closes to avoid unwanted parent interactions.
    */
-  const handleCloseAutoFocus = useCallback((e: Event) => {
+  const handleCloseAutoFocus = (e: Event) => {
     e.preventDefault();
-  }, []);
+  };
 
-  const handleRenameSelect = useCallback((e: Event) => {
+  const handleRenameSelect = (e: Event) => {
     e.preventDefault();
     setRenameDialogOpen(true);
-  }, []);
+  };
 
-  const handleDeleteSelect = useCallback((e: Event) => {
+  const handleDeleteSelect = (e: Event) => {
     e.preventDefault();
     setDeleteDialogOpen(true);
-  }, []);
+  };
 
   return (
     <>

@@ -1,7 +1,7 @@
 /**
  * Displays a list of chat thread items with navigation handling.
  */
-import React, { useCallback } from "react";
+import React from "react";
 import { Button } from "@/shared/components/ui/button";
 import type { Thread } from "@/features/thread/providers/thread-provider";
 import { useSearchParamState } from "@/core/routing/hooks";
@@ -16,24 +16,21 @@ interface ThreadListItemProps {
   onThreadClick?: (threadId: string) => void;
 }
 
-const ThreadListItem = React.memo(function ThreadListItem({
+const ThreadListItem = ({
   thread,
   currentThreadId,
   navigationService,
   onThreadClick,
-}: ThreadListItemProps) {
+}: ThreadListItemProps) => {
   const itemText = extractThreadDisplayText(thread);
 
-  const handleClick = useCallback(
-    (e: React.MouseEvent) => {
-      e.preventDefault();
-      onThreadClick?.(thread.thread_id);
-      if (thread.thread_id === currentThreadId) return;
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    onThreadClick?.(thread.thread_id);
+    if (thread.thread_id === currentThreadId) return;
 
-      navigationService.navigateToHome({ threadId: thread.thread_id });
-    },
-    [thread.thread_id, currentThreadId, navigationService, onThreadClick],
-  );
+    navigationService.navigateToHome({ threadId: thread.thread_id });
+  };
 
   return (
     <div className="w-full px-1">
@@ -46,7 +43,7 @@ const ThreadListItem = React.memo(function ThreadListItem({
       </Button>
     </div>
   );
-});
+}
 
 interface ThreadListProps {
   threads: Thread[];

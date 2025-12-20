@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import { toast } from "sonner";
 import { UserCircle } from "lucide-react";
 import {
@@ -111,70 +111,59 @@ function useExpertHelpSubmit(
     operation: "submitExpertHelp",
   });
 
-  const handleSubmit = useCallback(
-    async (e: React.FormEvent): Promise<void> => {
-      e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
+    e.preventDefault();
 
-      const trimmedMessage = message.trim();
-      if (!trimmedMessage) {
-        toast.error("Please enter a message describing how we can help");
-        return;
+    const trimmedMessage = message.trim();
+    if (!trimmedMessage) {
+      toast.error("Please enter a message describing how we can help");
+      return;
+    }
+
+    if (!threadId) {
+      toast.error("Thread ID is missing. Please try again.");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const token = await getToken();
+      if (!token) {
+        throw new Error("Failed to get authentication token");
       }
 
-      if (!threadId) {
-        toast.error("Thread ID is missing. Please try again.");
-        return;
+      if (!apiUrl) {
+        throw new Error("API URL not configured");
       }
 
-      setIsSubmitting(true);
+      const response = await submitExpertHelpRequest(
+        apiUrl,
+        token,
+        threadId,
+        runId,
+        trimmedMessage,
+        aiMessageContent,
+      );
 
-      try {
-        const token = await getToken();
-        if (!token) {
-          throw new Error("Failed to get authentication token");
-        }
-
-        if (!apiUrl) {
-          throw new Error("API URL not configured");
-        }
-
-        const response = await submitExpertHelpRequest(
-          apiUrl,
-          token,
-          threadId,
-          runId,
-          trimmedMessage,
-          aiMessageContent,
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.detail || `Request failed with status ${response.status}`,
         );
-
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          throw new Error(
-            errorData.detail || `Request failed with status ${response.status}`,
-          );
-        }
-
-        toast.success("Your request has been sent to our expert team", {
-          description: "We'll get back to you as soon as possible.",
-        });
-
-        onOpenChange(false);
-      } catch (error) {
-        handleSubmitError(error);
-      } finally {
-        setIsSubmitting(false);
       }
-    },
-    [
-      message,
-      threadId,
-      runId,
-      aiMessageContent,
-      apiUrl,
-      getToken,
-      onOpenChange,
-    ],
-  );
+
+      toast.success("Your request has been sent to our expert team", {
+        description: "We'll get back to you as soon as possible.",
+      });
+
+      onOpenChange(false);
+    } catch (error) {
+      handleSubmitError(error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return { handleSubmit, isSubmitting };
 }
@@ -246,17 +235,14 @@ export const ExpertHelpDialog: React.FC<ExpertHelpDialogProps> = ({
     onOpenChange,
   );
 
-  const handleCancel = useCallback((): void => {
+  const handleCancel = (): void => {
     setMessage("");
     onOpenChange(false);
-  }, [onOpenChange]);
+  };
 
-  const handleMessageChange = useCallback(
-    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      setMessage(e.target.value);
-    },
-    [],
-  );
+  const handleMessageChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setMessage(e.target.value);
+  };
 
   return (
     <Dialog

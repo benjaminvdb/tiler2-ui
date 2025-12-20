@@ -56,18 +56,18 @@ interface ThreadItemProps {
   onDelete: (threadId: string) => Promise<void>;
 }
 
-const ThreadItem = React.memo(function ThreadItem({
+const ThreadItem = ({
   thread,
   isActive,
   onThreadClick,
   onRename,
   onDelete,
-}: ThreadItemProps) {
+}: ThreadItemProps) => {
   const displayText = extractThreadDisplayText(thread);
 
-  const handleClick = React.useCallback(() => {
+  const handleClick = () => {
     onThreadClick(thread.thread_id);
-  }, [onThreadClick, thread.thread_id]);
+  };
 
   return (
     <SidebarMenuItem key={thread.thread_id}>
@@ -86,7 +86,7 @@ const ThreadItem = React.memo(function ThreadItem({
       />
     </SidebarMenuItem>
   );
-});
+}
 
 /**
  * Header section with logo and collapse button
@@ -406,84 +406,72 @@ function useSidebarHandlers(
   deleteThread: (threadId: string) => Promise<void>,
   renameThread: (threadId: string, newTitle: string) => Promise<void>,
 ) {
-  const handleThreadClick = React.useCallback(
-    (clickedThreadId: string) => {
-      if (clickedThreadId === threadId) return;
-      navigationService.navigateToHome({ threadId: clickedThreadId });
-    },
-    [threadId, navigationService],
-  );
+  const handleThreadClick = (clickedThreadId: string) => {
+    if (clickedThreadId === threadId) return;
+    navigationService.navigateToHome({ threadId: clickedThreadId });
+  };
 
-  const handleNavigate = React.useCallback(
-    (section: "workflows" | "wiki") => {
-      if (section === "workflows") {
-        navigationService.navigateToWorkflows();
-      } else {
-        navigateExternal(
-          "https://impossible-chauffeur-129.notion.site/Link-Chat-Wiki-218b67580800806ea99efb583280d2c8",
-        );
+  const handleNavigate = (section: "workflows" | "wiki") => {
+    if (section === "workflows") {
+      navigationService.navigateToWorkflows();
+    } else {
+      navigateExternal(
+        "https://impossible-chauffeur-129.notion.site/Link-Chat-Wiki-218b67580800806ea99efb583280d2c8",
+      );
+    }
+  };
+
+  const handleRename = async (targetThreadId: string, newTitle: string): Promise<void> => {
+    try {
+      await renameThread(targetThreadId, newTitle);
+      toast.success("Thread renamed successfully");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to rename thread",
+      );
+      throw error;
+    }
+  };
+
+  const handleDelete = async (targetThreadId: string): Promise<void> => {
+    try {
+      await deleteThread(targetThreadId);
+      toast.success("Thread deleted successfully");
+
+      if (targetThreadId === threadId) {
+        navigationService.navigateToHome();
       }
-    },
-    [navigationService],
-  );
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to delete thread",
+      );
+      throw error;
+    }
+  };
 
-  const handleRename = React.useCallback(
-    async (targetThreadId: string, newTitle: string): Promise<void> => {
-      try {
-        await renameThread(targetThreadId, newTitle);
-        toast.success("Thread renamed successfully");
-      } catch (error) {
-        toast.error(
-          error instanceof Error ? error.message : "Failed to rename thread",
-        );
-        throw error;
-      }
-    },
-    [renameThread],
-  );
-
-  const handleDelete = React.useCallback(
-    async (targetThreadId: string): Promise<void> => {
-      try {
-        await deleteThread(targetThreadId);
-        toast.success("Thread deleted successfully");
-
-        if (targetThreadId === threadId) {
-          navigationService.navigateToHome();
-        }
-      } catch (error) {
-        toast.error(
-          error instanceof Error ? error.message : "Failed to delete thread",
-        );
-        throw error;
-      }
-    },
-    [deleteThread, threadId, navigationService],
-  );
-
-  const handleNewChatClick = React.useCallback(() => {
+  const handleNewChatClick = () => {
     navigationService.navigateToHome();
-  }, [navigationService]);
+  };
 
-  const handleWorkflowsClick = React.useCallback(() => {
+  const handleWorkflowsClick = () => {
     handleNavigate("workflows");
-  }, [handleNavigate]);
+  };
 
-  const handleInsightsClick = React.useCallback(() => {
+  const handleInsightsClick = () => {
     navigationService.navigateToInsights();
-  }, [navigationService]);
+  };
 
-  const handleActivitiesClick = React.useCallback(() => {
+  const handleActivitiesClick = () => {
     navigationService.navigateToActivities();
-  }, [navigationService]);
+  };
 
-  const handleGoalsClick = React.useCallback(() => {
+  const handleGoalsClick = () => {
     navigationService.navigateToGoals();
-  }, [navigationService]);
+  };
 
-  const handleWikiClick = React.useCallback(() => {
+  const handleWikiClick = () => {
     handleNavigate("wiki");
-  }, [handleNavigate]);
+  };
 
   return {
     handleThreadClick,

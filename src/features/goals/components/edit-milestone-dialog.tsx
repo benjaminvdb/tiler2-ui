@@ -6,7 +6,6 @@
 
 import React, {
   useState,
-  useCallback,
   useEffect,
   FormEvent,
   ChangeEvent,
@@ -58,86 +57,70 @@ export const EditMilestoneDialog = ({
     }
   }, [open, milestone.title, milestone.description]);
 
-  const handleOpenChange = useCallback(
-    (newOpen: boolean) => {
-      if (!newOpen) {
-        setError(null);
-      }
-      onOpenChange(newOpen);
-    },
-    [onOpenChange],
-  );
-
-  const handleSubmit = useCallback(
-    async (e: FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
       setError(null);
+    }
+    onOpenChange(newOpen);
+  };
 
-      const trimmedTitle = title.trim();
-      if (!trimmedTitle) {
-        setError("Milestone title is required");
-        return;
-      }
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError(null);
 
-      if (trimmedTitle.length > 255) {
-        setError("Title must be 255 characters or less");
-        return;
-      }
+    const trimmedTitle = title.trim();
+    if (!trimmedTitle) {
+      setError("Milestone title is required");
+      return;
+    }
 
-      // Check if anything has changed
-      const trimmedDescription = description.trim();
-      const hasChanges =
-        trimmedTitle !== milestone.title ||
-        trimmedDescription !== (milestone.description ?? "");
+    if (trimmedTitle.length > 255) {
+      setError("Title must be 255 characters or less");
+      return;
+    }
 
-      if (!hasChanges) {
-        handleOpenChange(false);
-        return;
-      }
+    // Check if anything has changed
+    const trimmedDescription = description.trim();
+    const hasChanges =
+      trimmedTitle !== milestone.title ||
+      trimmedDescription !== (milestone.description ?? "");
 
-      setIsSubmitting(true);
-      try {
-        const request = {
-          title: trimmedTitle,
-          ...(trimmedDescription && { description: trimmedDescription }),
-        };
-        await updateMilestone(fetchWithAuth, milestone.id, request);
-        toast.success("Milestone updated successfully");
-        handleOpenChange(false);
-        onMilestoneUpdated();
-      } catch (err) {
-        console.error("Failed to update milestone:", err);
-        setError(
-          err instanceof Error ? err.message : "Failed to update milestone",
-        );
-      } finally {
-        setIsSubmitting(false);
-      }
-    },
-    [
-      title,
-      description,
-      milestone,
-      fetchWithAuth,
-      handleOpenChange,
-      onMilestoneUpdated,
-    ],
-  );
+    if (!hasChanges) {
+      handleOpenChange(false);
+      return;
+    }
 
-  const handleTitleChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    setIsSubmitting(true);
+    try {
+      const request = {
+        title: trimmedTitle,
+        ...(trimmedDescription && { description: trimmedDescription }),
+      };
+      await updateMilestone(fetchWithAuth, milestone.id, request);
+      toast.success("Milestone updated successfully");
+      handleOpenChange(false);
+      onMilestoneUpdated();
+    } catch (err) {
+      console.error("Failed to update milestone:", err);
+      setError(
+        err instanceof Error ? err.message : "Failed to update milestone",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setTitle(e.target.value);
-  }, []);
+  };
 
-  const handleDescriptionChange = useCallback(
-    (e: ChangeEvent<HTMLTextAreaElement>) => {
-      setDescription(e.target.value);
-    },
-    [],
-  );
+  const handleDescriptionChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    setDescription(e.target.value);
+  };
 
-  const handleCancel = useCallback(() => {
+  const handleCancel = () => {
     handleOpenChange(false);
-  }, [handleOpenChange]);
+  };
 
   return (
     <Dialog

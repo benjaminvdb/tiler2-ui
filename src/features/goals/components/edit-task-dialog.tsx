@@ -6,7 +6,6 @@
 
 import React, {
   useState,
-  useCallback,
   useEffect,
   FormEvent,
   ChangeEvent,
@@ -129,84 +128,67 @@ export const EditTaskDialog = ({
     }
   }, [open, task.title, task.description, task.workflow_id]);
 
-  const handleOpenChange = useCallback(
-    (newOpen: boolean) => {
-      if (!newOpen) {
-        setError(null);
-      }
-      onOpenChange(newOpen);
-    },
-    [onOpenChange],
-  );
-
-  const handleSubmit = useCallback(
-    async (e: FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
       setError(null);
+    }
+    onOpenChange(newOpen);
+  };
 
-      const validationError = validateTitle(title);
-      if (validationError) {
-        setError(validationError);
-        return;
-      }
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError(null);
 
-      const trimmedTitle = title.trim();
-      const trimmedDescription = description.trim();
-      const newWorkflowId = normalizeWorkflowId(workflowId);
+    const validationError = validateTitle(title);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
 
-      if (
-        !hasTaskChanges(task, trimmedTitle, trimmedDescription, newWorkflowId)
-      ) {
-        handleOpenChange(false);
-        return;
-      }
+    const trimmedTitle = title.trim();
+    const trimmedDescription = description.trim();
+    const newWorkflowId = normalizeWorkflowId(workflowId);
 
-      setIsSubmitting(true);
-      try {
-        const request = buildUpdateRequest(
-          task,
-          trimmedTitle,
-          trimmedDescription,
-          newWorkflowId,
-        );
-        await updateTask(fetchWithAuth, task.id, request);
-        toast.success("Task updated successfully");
-        handleOpenChange(false);
-        onTaskUpdated();
-      } catch (err) {
-        console.error("Failed to update task:", err);
-        const message =
-          err instanceof Error ? err.message : "Failed to update task";
-        setError(message);
-      } finally {
-        setIsSubmitting(false);
-      }
-    },
-    [
-      title,
-      description,
-      workflowId,
-      task,
-      fetchWithAuth,
-      handleOpenChange,
-      onTaskUpdated,
-    ],
-  );
+    if (
+      !hasTaskChanges(task, trimmedTitle, trimmedDescription, newWorkflowId)
+    ) {
+      handleOpenChange(false);
+      return;
+    }
 
-  const handleTitleChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    setIsSubmitting(true);
+    try {
+      const request = buildUpdateRequest(
+        task,
+        trimmedTitle,
+        trimmedDescription,
+        newWorkflowId,
+      );
+      await updateTask(fetchWithAuth, task.id, request);
+      toast.success("Task updated successfully");
+      handleOpenChange(false);
+      onTaskUpdated();
+    } catch (err) {
+      console.error("Failed to update task:", err);
+      const message =
+        err instanceof Error ? err.message : "Failed to update task";
+      setError(message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setTitle(e.target.value);
-  }, []);
+  };
 
-  const handleDescriptionChange = useCallback(
-    (e: ChangeEvent<HTMLTextAreaElement>) => {
-      setDescription(e.target.value);
-    },
-    [],
-  );
+  const handleDescriptionChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    setDescription(e.target.value);
+  };
 
-  const handleCancel = useCallback(() => {
+  const handleCancel = () => {
     handleOpenChange(false);
-  }, [handleOpenChange]);
+  };
 
   return (
     <Dialog
