@@ -2,64 +2,22 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import * as LucideIcons from "lucide-react";
-
-interface CategoryResponse {
-  id: number;
-  name: string;
-  color: string;
-  icon_name: string;
-  order_index: number;
-}
+import type { CategoryResponse } from "../types";
+import { getCategoryColor } from "../constants/category-styles";
+import { getWorkflowIcon } from "../utils/workflow-icons";
 
 interface CategoryNavigationProps {
   categories: CategoryResponse[];
   onCategoryClick: (categoryName: string) => void;
 }
 
-const CATEGORY_COLORS: Record<string, string> = {
-  Onboarding: "#767C91",
-  Strategy: "#82889f",
-  "Policies & Governance": "#7ca2b7",
-  "Impacts & Risk Assessment": "#72a6a6",
-  Interventions: "#a6c887",
-  "Standards & Reporting": "#e39c5a",
-  "Stakeholder Engagement": "#ac876c",
-  "Knowledge & Guidance": "#878879",
-};
-
-const getCategoryColorByName = (categoryName: string): string => {
-  return CATEGORY_COLORS[categoryName] ?? CATEGORY_COLORS.Onboarding;
-};
-
-const toPascalCase = (value: string): string =>
-  value
-    .replace(/[-_]/g, " ")
-    .replace(/\b\w/g, (char) => char.toUpperCase())
-    .replace(/\s+/g, "");
-
-const lucideIconLibrary = LucideIcons as unknown as Record<
-  string,
-  React.ComponentType<{ className?: string }>
->;
-
-const getWorkflowIcon = (iconName: string): React.ReactNode => {
-  const iconComponentName = toPascalCase(iconName);
-  const IconComponent =
-    lucideIconLibrary[iconComponentName] ?? LucideIcons.HelpCircle;
-  return <IconComponent className="h-5 w-5" />;
-};
-
 interface CategoryButtonProps {
   category: CategoryResponse;
   onCategoryClick: (categoryName: string) => void;
 }
 
-const CategoryButton = ({
-  category,
-  onCategoryClick,
-}: CategoryButtonProps) => {
-  const categoryColor = getCategoryColorByName(category.name);
+const CategoryButton = ({ category, onCategoryClick }: CategoryButtonProps) => {
+  const categoryColor = getCategoryColor(category.name);
   const handleClick = () => {
     onCategoryClick(category.name);
   };
@@ -86,7 +44,7 @@ const CategoryButton = ({
       </span>
     </button>
   );
-}
+};
 
 export const CategoryNavigation: React.FC<CategoryNavigationProps> = ({
   categories,

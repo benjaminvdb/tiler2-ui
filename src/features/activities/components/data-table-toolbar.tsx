@@ -62,7 +62,8 @@ export const DataTableToolbar = <TData,>({
   const isFiltered = searchValue.length > 0;
 
   // Handlers
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => setLocalSearch(e.target.value);
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setLocalSearch(e.target.value);
 
   const handleClearSearch = () => {
     setLocalSearch("");

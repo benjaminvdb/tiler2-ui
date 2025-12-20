@@ -86,7 +86,7 @@ const ThreadItem = ({
       />
     </SidebarMenuItem>
   );
-}
+};
 
 /**
  * Header section with logo and collapse button
@@ -421,7 +421,10 @@ function useSidebarHandlers(
     }
   };
 
-  const handleRename = async (targetThreadId: string, newTitle: string): Promise<void> => {
+  const handleRename = async (
+    targetThreadId: string,
+    newTitle: string,
+  ): Promise<void> => {
     try {
       await renameThread(targetThreadId, newTitle);
       toast.success("Thread renamed successfully");

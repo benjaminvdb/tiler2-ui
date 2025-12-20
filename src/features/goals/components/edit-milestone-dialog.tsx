@@ -4,12 +4,7 @@
  * Modal dialog for editing an existing milestone.
  */
 
-import React, {
-  useState,
-  useEffect,
-  FormEvent,
-  ChangeEvent,
-} from "react";
+import React, { useState, useEffect, FormEvent, ChangeEvent } from "react";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import {

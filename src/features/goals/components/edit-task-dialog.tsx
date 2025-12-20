@@ -4,12 +4,7 @@
  * Modal dialog for editing an existing task.
  */
 
-import React, {
-  useState,
-  useEffect,
-  FormEvent,
-  ChangeEvent,
-} from "react";
+import React, { useState, useEffect, FormEvent, ChangeEvent } from "react";
 import { toast } from "sonner";
 import { Loader2, Zap } from "lucide-react";
 import {
@@ -32,7 +27,7 @@ import {
   SelectValue,
 } from "@/shared/components/ui/select";
 import { useAuthenticatedFetch } from "@/core/services/http-client";
-import { useWorkflows } from "@/core/hooks/use-workflows";
+import { useWorkflows } from "@/features/workflows";
 import { updateTask } from "../services";
 import type { Task } from "../types";
 

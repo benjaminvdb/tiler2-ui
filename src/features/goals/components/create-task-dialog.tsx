@@ -27,7 +27,7 @@ import {
   SelectValue,
 } from "@/shared/components/ui/select";
 import { useAuthenticatedFetch } from "@/core/services/http-client";
-import { useWorkflows } from "@/core/hooks/use-workflows";
+import { useWorkflows } from "@/features/workflows";
 import { createTask } from "../services";
 
 const NO_WORKFLOW = "none";

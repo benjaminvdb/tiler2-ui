@@ -4,6 +4,7 @@
 
 import {
   createContext,
+  useCallback,
   useContext,
   ReactNode,
   useState,
@@ -71,34 +72,37 @@ function useGetThreads(
   apiUrl: string | undefined,
   fetchWithAuth: ReturnType<typeof useAuthenticatedFetch>,
 ) {
-  return async (offset: number = 0): Promise<Thread[]> => {
-    if (!apiUrl) return [];
+  return useCallback(
+    async (offset: number = 0): Promise<Thread[]> => {
+      if (!apiUrl) return [];
 
-    try {
-      const params = new URLSearchParams({
-        limit: String(PAGINATION_CONFIG.THREAD_LIST_PAGE_SIZE),
-        offset: String(offset),
-      });
-      const response = await fetchWithAuth(`${apiUrl}/ai/threads?${params}`, {
-        method: "GET",
-        timeoutMs: THREAD_LIST_TIMEOUT_MS,
-      });
+      try {
+        const params = new URLSearchParams({
+          limit: String(PAGINATION_CONFIG.THREAD_LIST_PAGE_SIZE),
+          offset: String(offset),
+        });
+        const response = await fetchWithAuth(`${apiUrl}/ai/threads?${params}`, {
+          method: "GET",
+          timeoutMs: THREAD_LIST_TIMEOUT_MS,
+        });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const threads = await response.json();
+        // Map backend response to frontend Thread interface
+        return threads.map((t: ApiThread) => mapApiThread(t));
+      } catch (error) {
+        reportThreadError(error as Error, {
+          operation: "listThreads",
+          component: "ThreadProvider",
+          url: apiUrl,
+        });
+        return [];
       }
-      const threads = await response.json();
-      // Map backend response to frontend Thread interface
-      return threads.map((t: ApiThread) => mapApiThread(t));
-    } catch (error) {
-      reportThreadError(error as Error, {
-        operation: "listThreads",
-        component: "ThreadProvider",
-        url: apiUrl,
-      });
-      return [];
-    }
-  };
+    },
+    [apiUrl, fetchWithAuth],
+  );
 }
 
 /**
@@ -109,35 +113,38 @@ function useDeleteThread(
   fetchWithAuth: ReturnType<typeof useAuthenticatedFetch>,
   setThreads: Dispatch<SetStateAction<Thread[]>>,
 ) {
-  return async (threadId: string): Promise<void> => {
-    if (!apiUrl) {
-      throw new Error("API URL not configured");
-    }
-
-    try {
-      const response = await fetchWithAuth(
-        `${apiUrl}/ai/threads/${threadId}`,
-        {
-          method: "DELETE",
-          timeoutMs: THREAD_DELETE_TIMEOUT_MS,
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error(`Failed to delete thread: ${response.status}`);
+  return useCallback(
+    async (threadId: string): Promise<void> => {
+      if (!apiUrl) {
+        throw new Error("API URL not configured");
       }
 
-      setThreads((prev) => prev.filter((t) => t.thread_id !== threadId));
-    } catch (error) {
-      reportThreadError(error as Error, {
-        operation: "deleteThread",
-        component: "ThreadProvider",
-        url: apiUrl,
-        threadId,
-      });
-      throw error;
-    }
-  };
+      try {
+        const response = await fetchWithAuth(
+          `${apiUrl}/ai/threads/${threadId}`,
+          {
+            method: "DELETE",
+            timeoutMs: THREAD_DELETE_TIMEOUT_MS,
+          },
+        );
+
+        if (!response.ok) {
+          throw new Error(`Failed to delete thread: ${response.status}`);
+        }
+
+        setThreads((prev) => prev.filter((t) => t.thread_id !== threadId));
+      } catch (error) {
+        reportThreadError(error as Error, {
+          operation: "deleteThread",
+          component: "ThreadProvider",
+          url: apiUrl,
+          threadId,
+        });
+        throw error;
+      }
+    },
+    [apiUrl, fetchWithAuth, setThreads],
+  );
 }
 
 /**
@@ -149,69 +156,72 @@ function useRenameThread(
   fetchWithAuth: ReturnType<typeof useAuthenticatedFetch>,
   setThreads: Dispatch<SetStateAction<Thread[]>>,
 ) {
-  return async (threadId: string, newName: string): Promise<void> => {
-    if (!apiUrl) {
-      throw new Error("API URL not configured");
-    }
-
-    const trimmedName = newName.trim();
-    if (trimmedName === "") {
-      throw new Error("Thread name cannot be empty");
-    }
-
-    const previousThreads = threads;
-
-    try {
-      setThreads((prev) =>
-        prev.map((t) =>
-          t.thread_id === threadId
-            ? {
-                ...t,
-                metadata: { ...t.metadata, name: trimmedName },
-              }
-            : t,
-        ),
-      );
-
-      const response = await fetchWithAuth(
-        `${apiUrl}/ai/threads/${threadId}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: trimmedName,
-          }),
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error(`Failed to rename thread: ${response.status}`);
+  return useCallback(
+    async (threadId: string, newName: string): Promise<void> => {
+      if (!apiUrl) {
+        throw new Error("API URL not configured");
       }
 
-      const updatedThread = mapApiThread(
-        (await response.json()) as ApiThread,
-      );
-      setThreads((prev) =>
-        prev.map((t) =>
-          t.thread_id === threadId
-            ? { ...updatedThread, values: t.values, status: t.status }
-            : t,
-        ),
-      );
-    } catch (error) {
-      setThreads(previousThreads);
+      const trimmedName = newName.trim();
+      if (trimmedName === "") {
+        throw new Error("Thread name cannot be empty");
+      }
 
-      reportThreadError(error as Error, {
-        operation: "renameThread",
-        component: "ThreadProvider",
-        url: apiUrl,
-        threadId,
-      });
-      throw error;
-    }
-  };
+      const previousThreads = threads;
+
+      try {
+        setThreads((prev) =>
+          prev.map((t) =>
+            t.thread_id === threadId
+              ? {
+                  ...t,
+                  metadata: { ...t.metadata, name: trimmedName },
+                }
+              : t,
+          ),
+        );
+
+        const response = await fetchWithAuth(
+          `${apiUrl}/ai/threads/${threadId}`,
+          {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              name: trimmedName,
+            }),
+          },
+        );
+
+        if (!response.ok) {
+          throw new Error(`Failed to rename thread: ${response.status}`);
+        }
+
+        const updatedThread = mapApiThread(
+          (await response.json()) as ApiThread,
+        );
+        setThreads((prev) =>
+          prev.map((t) =>
+            t.thread_id === threadId
+              ? { ...updatedThread, values: t.values, status: t.status }
+              : t,
+          ),
+        );
+      } catch (error) {
+        setThreads(previousThreads);
+
+        reportThreadError(error as Error, {
+          operation: "renameThread",
+          component: "ThreadProvider",
+          url: apiUrl,
+          threadId,
+        });
+        throw error;
+      }
+    },
+    [apiUrl, fetchWithAuth, setThreads, threads],
+  );
 }
 
 export const ThreadProvider: React.FC<{ children: ReactNode }> = ({
@@ -236,30 +246,33 @@ export const ThreadProvider: React.FC<{ children: ReactNode }> = ({
     setThreads,
   );
 
-  const addOptimisticThread = (thread: Thread): void => {
+  const addOptimisticThread = useCallback((thread: Thread): void => {
     setThreads((prev) => [thread, ...prev]);
-  };
+  }, []);
 
-  const removeOptimisticThread = (threadId: string): void => {
+  const removeOptimisticThread = useCallback((threadId: string): void => {
     setThreads((prev) => prev.filter((t) => t.thread_id !== threadId));
-  };
+  }, []);
 
-  const updateThreadInList = (threadId: string, updates: Partial<Thread>): void => {
-    setThreads((prev) =>
-      prev.map((t) => (t.thread_id === threadId ? { ...t, ...updates } : t)),
-    );
-  };
+  const updateThreadInList = useCallback(
+    (threadId: string, updates: Partial<Thread>): void => {
+      setThreads((prev) =>
+        prev.map((t) => (t.thread_id === threadId ? { ...t, ...updates } : t)),
+      );
+    },
+    [],
+  );
 
-  const resetThreads = (newThreads: Thread[]): void => {
+  const resetThreads = useCallback((newThreads: Thread[]): void => {
     setThreads(newThreads);
     // Reset pagination state for fresh load
     setOffset(PAGINATION_CONFIG.THREAD_LIST_PAGE_SIZE);
     setHasMoreThreads(
       newThreads.length >= PAGINATION_CONFIG.THREAD_LIST_PAGE_SIZE,
     );
-  };
+  }, []);
 
-  const loadMoreThreads = async (): Promise<void> => {
+  const loadMoreThreads = useCallback(async (): Promise<void> => {
     if (isLoadingMore || !hasMoreThreads) return;
 
     setIsLoadingMore(true);
@@ -281,7 +294,7 @@ export const ThreadProvider: React.FC<{ children: ReactNode }> = ({
     } finally {
       setIsLoadingMore(false);
     }
-  };
+  }, [getThreads, hasMoreThreads, isLoadingMore, offset]);
 
   const value = {
     getThreads,

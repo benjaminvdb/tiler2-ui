@@ -43,7 +43,7 @@ const ThreadListItem = ({
       </Button>
     </div>
   );
-}
+};
 
 interface ThreadListProps {
   threads: Thread[];

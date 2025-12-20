@@ -136,9 +136,7 @@ export const RenameThreadDialog = ({
       onOpenChange(false);
       setTitle(trimmedTitle);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to rename thread",
-      );
+      setError(err instanceof Error ? err.message : "Failed to rename thread");
     } finally {
       setLoading(false);
     }

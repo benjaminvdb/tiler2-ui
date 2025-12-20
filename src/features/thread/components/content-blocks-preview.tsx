@@ -17,12 +17,7 @@ interface BlockItemProps {
   onRemove: (idx: number) => void;
 }
 
-const BlockItem = ({
-  block,
-  index,
-  size,
-  onRemove,
-}: BlockItemProps) => {
+const BlockItem = ({ block, index, size, onRemove }: BlockItemProps) => {
   const handleRemove = () => {
     onRemove(index);
   };
@@ -43,7 +38,7 @@ const BlockItem = ({
       size={size}
     />
   );
-}
+};
 
 /**
  * Renders a preview of content blocks with optional remove functionality.

@@ -16,7 +16,10 @@ import {
 } from "lucide-react";
 import { useUIContext } from "@/features/chat/providers/ui-provider";
 import { type NavigationService } from "@/core/services/navigation";
-import { useWorkflowCategories, type CategoryResponse } from "@/core/hooks";
+import {
+  useWorkflowCategories,
+  type CategoryResponse,
+} from "@/features/workflows";
 
 const earthImage = "/images/earth-satellite.webp";
 
@@ -126,7 +129,7 @@ const OnboardingButton = ({
       </span>
     </motion.button>
   );
-}
+};
 
 const OnboardingQuickActions = ({
   navigationService,
@@ -261,7 +264,7 @@ const CategoryButton = ({
       </span>
     </motion.button>
   );
-}
+};
 
 const WorkflowCategoryButtons = ({
   categories,

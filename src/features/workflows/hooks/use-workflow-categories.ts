@@ -3,7 +3,8 @@
  */
 
 import { useMemo } from "react";
-import { useWorkflows, type CategoryResponse } from "./use-workflows";
+import { useWorkflows } from "./use-workflows";
+import type { CategoryResponse } from "../types";
 
 /** Returns deduplicated categories from workflows, sorted by order_index. */
 export function useWorkflowCategories(excludeOnboarding = true) {

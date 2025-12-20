@@ -137,7 +137,8 @@ export const DataTablePagination = ({
   const startItem = totalItems > 0 ? pageIndex * pageSize + 1 : 0;
   const endItem = Math.min((pageIndex + 1) * pageSize, totalItems);
 
-  const handlePageSizeChange = (value: string) => onPageSizeChange(Number(value));
+  const handlePageSizeChange = (value: string) =>
+    onPageSizeChange(Number(value));
   const handleFirst = () => onPageChange(0);
   const handlePrevious = () => onPageChange(pageIndex - 1);
   const handleNext = () => onPageChange(pageIndex + 1);
