@@ -108,17 +108,11 @@ const MaintenanceIcon = (): React.JSX.Element => (
 
 const SUPPORT_EMAIL = "chat@linknature.io";
 
-type MaintenancePageProps = {
-  supportUrl?: string;
-};
-
 /**
  * Maintenance page component displayed when the application is in maintenance mode.
  * Fully self-contained to ensure it renders even if other parts of the app fail.
  */
-export const MaintenancePage = ({
-  supportUrl = "/support",
-}: MaintenancePageProps): React.JSX.Element => {
+export const MaintenancePage = (): React.JSX.Element => {
   return (
     <div style={styles.container}>
       <style>
@@ -155,7 +149,8 @@ export const MaintenancePage = ({
         </div>
 
         <p style={styles.description}>
-          We&apos;re doing a bit of scheduled maintenance. Shouldn&apos;t be long.
+          We&apos;re doing a bit of scheduled maintenance. Shouldn&apos;t be
+          long.
         </p>
 
         <footer style={styles.footer}>
