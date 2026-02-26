@@ -1,4 +1,4 @@
-import { useCallback, useContext } from "react";
+import { useContext } from "react";
 import { ArtifactSlotContext } from "../context";
 
 /**
@@ -9,7 +9,7 @@ export function useArtifactOpen() {
   const [ctxOpen, setCtxOpen] = context.open;
 
   const open = ctxOpen !== null;
-  const onClose = useCallback(() => setCtxOpen(null), [setCtxOpen]);
+  const onClose = () => setCtxOpen(null);
 
   return [open, onClose] as const;
 }

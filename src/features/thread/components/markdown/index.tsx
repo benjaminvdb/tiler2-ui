@@ -7,7 +7,7 @@ import remarkBreaks from "remark-breaks";
 import rehypeKatex from "rehype-katex";
 import rehypeSanitize from "rehype-sanitize";
 import remarkMath from "remark-math";
-import { FC, memo } from "react";
+import { FC } from "react";
 import { defaultComponents } from "./components";
 
 const REMARK_PLUGINS = [remarkGfm, remarkBreaks, remarkMath];
@@ -27,4 +27,4 @@ const MarkdownTextImpl: FC<{ children: string }> = ({ children }) => {
   );
 };
 
-export const MarkdownText = memo(MarkdownTextImpl);
+export const MarkdownText = MarkdownTextImpl;

@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
  * Uses requestAnimationFrame to batch incoming tokens at ~60 FPS,
  * providing smooth typewriter effect while avoiding React 19's
  * automatic batching and performance issues with flushSync.
+ * Falls back to canonical text resets when updates are not append-only.
  *
  * @param incomingText - The full text content from the streaming source
  * @returns The text to display, updated at animation frame intervals
@@ -25,30 +26,38 @@ export function useStreamingText(incomingText: string): string {
   useEffect(() => {
     if (incomingText === previousTextRef.current) return;
 
-    // Detect reset condition (incoming text is shorter)
-    const needsReset = incomingText.length < previousTextRef.current.length;
+    const previousText = previousTextRef.current;
+    const isAppendOnlyUpdate =
+      incomingText.length >= previousText.length &&
+      incomingText.startsWith(previousText);
 
-    if (needsReset) {
+    if (!isAppendOnlyUpdate) {
       // Cancel any pending animation
       if (rafIdRef.current !== null) {
         cancelAnimationFrame(rafIdRef.current);
         rafIdRef.current = null;
       }
-      // Reset refs
+
+      // Reset refs and render the canonical text immediately.
       previousTextRef.current = incomingText;
       bufferRef.current = "";
-      // Schedule async state update to avoid synchronous setState
+
       if (!pendingResetRef.current) {
         pendingResetRef.current = true;
         queueMicrotask(() => {
           pendingResetRef.current = false;
-          setDisplayedText(incomingText);
+          setDisplayedText(previousTextRef.current);
         });
       }
       return;
     }
 
-    const newContent = incomingText.slice(previousTextRef.current.length);
+    if (pendingResetRef.current) {
+      previousTextRef.current = incomingText;
+      return;
+    }
+
+    const newContent = incomingText.slice(previousText.length);
     previousTextRef.current = incomingText;
     bufferRef.current += newContent;
 

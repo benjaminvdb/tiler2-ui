@@ -3,9 +3,7 @@
  */
 
 import {
-  useCallback,
   useEffect,
-  useMemo,
   useRef,
   useState,
   type Dispatch,
@@ -47,11 +45,21 @@ type PendingSend = {
 };
 
 const getTextFromParts = (parts: UIMessage["parts"]): string => {
-  return parts
-    .filter((part) => part.type === "text" || part.type === "reasoning")
-    .map((part) => ("text" in part ? part.text : ""))
-    .join(" ")
-    .trim();
+  const texts: string[] = [];
+
+  for (const part of parts) {
+    if (!part || typeof part !== "object") {
+      continue;
+    }
+    if (
+      (part.type === "text" || part.type === "reasoning") &&
+      typeof part.text === "string"
+    ) {
+      texts.push(part.text);
+    }
+  }
+
+  return texts.join(" ").trim();
 };
 
 const getThreadNameFromMetadata = (metadata: unknown): string | undefined => {
@@ -269,16 +277,12 @@ const queuePendingSend = ({
 };
 
 const useChatTransport = (apiUrl: string, accessToken: string | null) =>
-  useMemo(
-    () =>
-      new DefaultChatTransport({
-        api: `${apiUrl}/ai/chat`,
-        headers: () => {
-          return accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
-        },
-      }),
-    [apiUrl, accessToken],
-  );
+  new DefaultChatTransport({
+    api: `${apiUrl}/ai/chat`,
+    headers: () => {
+      return accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
+    },
+  });
 
 const useVercelChat = ({
   apiUrl,
@@ -327,65 +331,54 @@ const useThreadCreator = ({
   setIsCreatingThread: Dispatch<SetStateAction<boolean>>;
   createThreadInFlightRef: RefObject<boolean>;
 }) =>
-  useCallback(
-    async (name: string | undefined): Promise<string | null> => {
-      if (!accessToken) {
-        setLocalError(new Error("No access token available"));
-        return null;
+  async (name: string | undefined): Promise<string | null> => {
+    if (!accessToken) {
+      setLocalError(new Error("No access token available"));
+      return null;
+    }
+
+    if (createThreadInFlightRef.current) {
+      return null;
+    }
+
+    createThreadInFlightRef.current = true;
+    setIsCreatingThread(true);
+    try {
+      const response = await fetch(`${apiUrl}/ai/threads`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(name ? { name } : {}),
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `Failed to create thread: ${response.status} ${response.statusText}`,
+        );
       }
 
-      if (createThreadInFlightRef.current) {
-        return null;
+      const thread = (await response.json()) as { id: string };
+      if (thread.id && onThreadId) {
+        onThreadId(thread.id);
       }
-
-      createThreadInFlightRef.current = true;
-      setIsCreatingThread(true);
-      try {
-        const response = await fetch(`${apiUrl}/ai/threads`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(name ? { name } : {}),
-        });
-
-        if (!response.ok) {
-          throw new Error(
-            `Failed to create thread: ${response.status} ${response.statusText}`,
-          );
-        }
-
-        const thread = (await response.json()) as { id: string };
-        if (thread.id && onThreadId) {
-          onThreadId(thread.id);
-        }
-        return thread.id;
-      } catch (err) {
-        const nextError =
-          err instanceof Error ? err : new Error("Failed to create thread");
-        setLocalError(nextError);
-        reportStreamError(nextError, {
-          operation: "create_thread",
-          component: "useVercelAIChat",
-          additionalData: { assistantId },
-        });
-        return null;
-      } finally {
-        setIsCreatingThread(false);
-        createThreadInFlightRef.current = false;
-      }
-    },
-    [
-      apiUrl,
-      assistantId,
-      accessToken,
-      onThreadId,
-      setIsCreatingThread,
-      setLocalError,
-      createThreadInFlightRef,
-    ],
-  );
+      return thread.id;
+    } catch (err) {
+      const nextError =
+        err instanceof Error ? err : new Error("Failed to create thread");
+      setLocalError(nextError);
+      reportStreamError(nextError, {
+        operation: "create_thread",
+        component: "useVercelAIChat",
+        additionalData: { assistantId },
+      });
+      return null;
+    } finally {
+      setIsCreatingThread(false);
+      createThreadInFlightRef.current = false;
+    }
+  };
 
 const usePendingSend = ({
   threadId,
@@ -531,40 +524,28 @@ const useSendMessageWithThread = ({
   setChatMessages: ReturnType<typeof useChat<UIMessage>>["setMessages"];
   setLocalError: Dispatch<SetStateAction<Error | null>>;
 }) =>
-  useCallback(
-    async (message?: SendMessageInput, options?: ChatRequestOptions) => {
-      setLocalError(null);
+  async (message?: SendMessageInput, options?: ChatRequestOptions) => {
+    setLocalError(null);
 
-      if (!accessToken) {
-        setLocalError(new Error("No access token available"));
-        return;
-      }
+    if (!accessToken) {
+      setLocalError(new Error("No access token available"));
+      return;
+    }
 
-      if (!threadId) {
-        queuePendingSend({
-          message,
-          options,
-          pendingSendRef,
-          skipThreadLoadRef,
-          createThread,
-          setChatMessages,
-        });
-        return;
-      }
+    if (!threadId) {
+      queuePendingSend({
+        message,
+        options,
+        pendingSendRef,
+        skipThreadLoadRef,
+        createThread,
+        setChatMessages,
+      });
+      return;
+    }
 
-      await sendMessage(message, options);
-    },
-    [
-      accessToken,
-      createThread,
-      pendingSendRef,
-      skipThreadLoadRef,
-      sendMessage,
-      setChatMessages,
-      setLocalError,
-      threadId,
-    ],
-  );
+    await sendMessage(message, options);
+  };
 
 export function useVercelAIChat(cfg: UseVercelAIChatConfig): StreamContextType {
   const { apiUrl, assistantId, threadId, accessToken, onThreadId } = cfg;
@@ -599,10 +580,10 @@ export function useVercelAIChat(cfg: UseVercelAIChatConfig): StreamContextType {
 
   const error = localError ?? chatError;
 
-  const clearError = useCallback(() => {
+  const clearError = () => {
     setLocalError(null);
     clearChatError();
-  }, [clearChatError]);
+  };
 
   const createThread = useThreadCreator({
     apiUrl,

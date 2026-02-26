@@ -5,7 +5,7 @@ import { ToolCallsSection } from "./tool-calls-section";
 import { MessageActions } from "./message-actions";
 import { SourcesList } from "../../sources-list";
 import { renumberCitations } from "../../../../markdown/utils/citation-renumbering";
-import { extractSourcesFromParts } from "../../utils";
+import { extractSourcesFromMessage } from "../../utils";
 import type { DynamicToolUIPart, ToolUIPart } from "ai";
 import type {
   StreamContextType,
@@ -33,7 +33,7 @@ export const RegularMessage: React.FC<RegularMessageProps> = ({
 }) => {
   const htmlContainerRef = useRef<HTMLDivElement>(null);
 
-  const sources = extractSourcesFromParts(message.parts);
+  const sources = extractSourcesFromMessage(message);
 
   const { renumberedSources, renumberedContent } = renumberCitations(
     contentString,

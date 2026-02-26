@@ -5,7 +5,6 @@
  * Uses React Router v7 native APIs for optimal performance and compatibility.
  */
 
-import { useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import type { SearchParamKey, SearchParams } from "../search-params";
 import { mergeSearchParams } from "../utils";
@@ -53,25 +52,22 @@ export function useSearchParamState<K extends SearchParamKey>(
 
   const value = searchParams.get(key);
 
-  const setValue = useCallback(
-    (newValue: SearchParams[K] | null) => {
-      setSearchParams(
-        (prev) => {
-          const next = new URLSearchParams(prev);
+  const setValue = (newValue: SearchParams[K] | null) => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
 
-          if (newValue === null || newValue === undefined) {
-            next.delete(key);
-          } else {
-            next.set(key, String(newValue));
-          }
+        if (newValue === null || newValue === undefined) {
+          next.delete(key);
+        } else {
+          next.set(key, String(newValue));
+        }
 
-          return next;
-        },
-        { replace: true },
-      );
-    },
-    [key, setSearchParams],
-  );
+        return next;
+      },
+      { replace: true },
+    );
+  };
 
   return [parseSearchParamValue(key, value), setValue];
 }
@@ -88,17 +84,14 @@ export function useSearchParamsUpdate(): (
 ) => void {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  return useCallback(
-    (updates: Partial<SearchParams>) => {
-      setSearchParams(
-        () => {
-          const baseParams = new URLSearchParams(searchParams.toString());
-          const merged = mergeSearchParams(baseParams, updates);
-          return merged;
-        },
-        { replace: true },
-      );
-    },
-    [searchParams, setSearchParams],
-  );
+  return (updates: Partial<SearchParams>) => {
+    setSearchParams(
+      () => {
+        const baseParams = new URLSearchParams(searchParams.toString());
+        const merged = mergeSearchParams(baseParams, updates);
+        return merged;
+      },
+      { replace: true },
+    );
+  };
 }

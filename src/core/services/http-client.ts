@@ -7,7 +7,6 @@
 import { reportApiError, reportAuthError } from "./observability";
 import { fetchWithRetry } from "@/shared/utils/retry";
 import { useAuth0 } from "@auth0/auth0-react";
-import { useCallback } from "react";
 import { env } from "@/env";
 import { triggerLogout } from "./auth-helpers";
 
@@ -275,7 +274,7 @@ export async function fetchWithAuth(
 export function useAuthenticatedFetch() {
   const { getAccessTokenSilently } = useAuth0();
 
-  const getToken = useCallback(async (): Promise<string> => {
+  const getToken = async (): Promise<string> => {
     try {
       const token = await getAccessTokenSilently({
         authorizationParams: env.AUTH0_AUDIENCE
@@ -290,11 +289,10 @@ export function useAuthenticatedFetch() {
       });
       throw error;
     }
-  }, [getAccessTokenSilently]);
+  };
 
-  return useCallback(
-    (url: string, options?: FetchWithAuthOptions) =>
-      fetchWithAuth(getToken, url, options),
-    [getToken],
-  );
+  return (
+    url: string,
+    options?: FetchWithAuthOptions,
+  ): Promise<Response> => fetchWithAuth(getToken, url, options);
 }

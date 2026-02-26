@@ -2,7 +2,6 @@
  * Hook for extracting unique workflow categories.
  */
 
-import { useMemo } from "react";
 import { useWorkflows } from "./use-workflows";
 import type { CategoryResponse } from "../types";
 
@@ -10,17 +9,15 @@ import type { CategoryResponse } from "../types";
 export function useWorkflowCategories(excludeOnboarding = true) {
   const { workflows, isLoading, error } = useWorkflows();
 
-  const categories = useMemo(() => {
-    const categoryMap: Record<number, CategoryResponse> = {};
-    workflows.forEach((workflow) => {
-      if (!excludeOnboarding || workflow.category.name !== "Onboarding") {
-        categoryMap[workflow.category.id] = workflow.category;
-      }
-    });
-    return Object.values(categoryMap).sort(
-      (a, b) => a.order_index - b.order_index,
-    );
-  }, [workflows, excludeOnboarding]);
+  const categoryMap: Record<number, CategoryResponse> = {};
+  workflows.forEach((workflow) => {
+    if (!excludeOnboarding || workflow.category.name !== "Onboarding") {
+      categoryMap[workflow.category.id] = workflow.category;
+    }
+  });
+  const categories = Object.values(categoryMap).sort(
+    (a, b) => a.order_index - b.order_index,
+  );
 
   return { categories, isLoading, error };
 }

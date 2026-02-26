@@ -4,7 +4,6 @@
  */
 
 import { useAuth0 } from "@auth0/auth0-react";
-import { useCallback } from "react";
 import { handleTokenError } from "../utils/token-error-handler";
 import { env } from "@/env";
 
@@ -32,7 +31,7 @@ export const useAccessToken = (
     options;
   const { getAccessTokenSilently } = useAuth0();
 
-  const getToken = useCallback(async (): Promise<string | null> => {
+  const getToken = async (): Promise<string | null> => {
     try {
       const token = await getAccessTokenSilently({
         authorizationParams: env.AUTH0_AUDIENCE
@@ -46,7 +45,7 @@ export const useAccessToken = (
       }
       throw error;
     }
-  }, [component, operation, getAccessTokenSilently]);
+  };
 
   return {
     getToken,

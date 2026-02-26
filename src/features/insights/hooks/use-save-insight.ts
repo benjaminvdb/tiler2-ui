@@ -5,7 +5,7 @@
  * loading states, error handling, and success feedback.
  */
 
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { useAuthenticatedFetch } from "@/core/services/http-client";
 import { createInsight } from "../services/insights-api";
 import type { CreateInsightRequest, CreateInsightResponse } from "../types";
@@ -47,31 +47,28 @@ export function useSaveInsight(): UseSaveInsightReturn {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const saveInsight = useCallback(
-    async (
-      request: CreateInsightRequest,
-    ): Promise<CreateInsightResponse | null> => {
-      setIsSaving(true);
-      setError(null);
-
-      try {
-        const insight = await createInsight(fetch, request);
-        return insight;
-      } catch (err) {
-        const error =
-          err instanceof Error ? err : new Error("Failed to save insight");
-        setError(error);
-        return null;
-      } finally {
-        setIsSaving(false);
-      }
-    },
-    [fetch],
-  );
-
-  const clearError = useCallback(() => {
+  const saveInsight = async (
+    request: CreateInsightRequest,
+  ): Promise<CreateInsightResponse | null> => {
+    setIsSaving(true);
     setError(null);
-  }, []);
+
+    try {
+      const insight = await createInsight(fetch, request);
+      return insight;
+    } catch (err) {
+      const error =
+        err instanceof Error ? err : new Error("Failed to save insight");
+      setError(error);
+      return null;
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const clearError = () => {
+    setError(null);
+  };
 
   return {
     saveInsight,

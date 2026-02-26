@@ -1,7 +1,7 @@
 /**
  * Hook managing thread history state, including initial fetch with auth delay and responsive sidebar behavior.
  */
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useSearchParamState } from "@/core/routing/hooks";
 import { useThreads } from "@/features/thread/providers/thread-provider";
 import { useMediaQuery } from "@/shared/hooks/use-media-query";
@@ -25,28 +25,45 @@ export function useThreadHistory() {
     setThreadsLoading,
   } = useThreads();
 
+  const getThreadsRef = useRef(getThreads);
+  const resetThreadsRef = useRef(resetThreads);
+  const setThreadsLoadingRef = useRef(setThreadsLoading);
+
+  getThreadsRef.current = getThreads;
+  resetThreadsRef.current = resetThreads;
+  setThreadsLoadingRef.current = setThreadsLoading;
+
   useEffect(() => {
     if (typeof window === "undefined") return;
 
+    let isCancelled = false;
+
     const fetchThreads = async () => {
-      setThreadsLoading(true);
+      setThreadsLoadingRef.current(true);
       try {
-        const fetchedThreads = await getThreads();
-        resetThreads(fetchedThreads);
+        const fetchedThreads = await getThreadsRef.current();
+        if (!isCancelled) {
+          resetThreadsRef.current(fetchedThreads);
+        }
       } catch (error) {
         reportThreadError(error as Error, {
           operation: "fetchThreads",
           component: "useThreadHistory",
         });
       } finally {
-        setThreadsLoading(false);
+        if (!isCancelled) {
+          setThreadsLoadingRef.current(false);
+        }
       }
     };
 
     const timeoutId = setTimeout(fetchThreads, AUTH_BOOTSTRAP_DELAY_MS);
 
-    return () => clearTimeout(timeoutId);
-  }, [getThreads, resetThreads, setThreadsLoading]);
+    return () => {
+      isCancelled = true;
+      clearTimeout(timeoutId);
+    };
+  }, []);
 
   return {
     isLargeScreen,

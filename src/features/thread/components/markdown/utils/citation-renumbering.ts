@@ -1,80 +1,126 @@
-/**
- * Citation renumbering utilities for display.
- *
- * Backend generates globally unique source IDs to prevent race conditions
- * during parallel tool execution. This module handles renumbering those
- * unique IDs to sequential [1], [2], [3]... for clean UX.
- */
+import type { Source } from "../../messages/ai/source-types";
 
-import { Source } from "../components/citation-link";
+// Supports [ref-xxx] and [ref-xxx](url), including mixed-case IDs and URLs with parentheses.
+const CITATION_PATTERN =
+  /\[(ref-[A-Za-z0-9_-]+)\](?:\((?:[^()\\]|\\.|\([^()]*\))*\))?/g;
+const SOURCES_SECTION_ANCHOR = "#sources-section";
+
+const escapeMarkdownLinkDestination = (destination: string): string =>
+  destination.replace(/[()]/g, "\\$&");
+
+const getCitationTarget = (source: Source | undefined): string => {
+  if (source?.type === "web" && source.url) {
+    return source.url;
+  }
+  return SOURCES_SECTION_ANCHOR;
+};
 
 export interface RenumberingResult {
-  /** Sources with renumbered sequential IDs */
   renumberedSources: Source[];
-  /** Mapping from original unique ID to sequential number */
-  idMapping: Map<string, number>;
-  /** Message content with citations renumbered */
   renumberedContent: string;
 }
 
-/**
- * Renumber sources and citations based on order of appearance in message.
- *
- * Extracts citation IDs from message content in order of appearance,
- * assigns sequential numbers [1], [2], [3]..., and replaces all
- * citation markers in the content.
- *
- * @param messageContent - Message text containing citations like [123456789]
- * @param sources - Array of sources with unique IDs from backend
- * @returns Renumbered sources, ID mapping, and updated content
- */
-export function renumberCitations(
-  messageContent: string,
-  sources: Source[],
-): RenumberingResult {
-  const citationPattern = /\[(ref-[a-z0-9]{7})\]/g;
-  const citedIdsInOrder: string[] = [];
+const extractCitationIdsInOrder = (content: string): string[] => {
   const seen = new Set<string>();
-  let match;
+  const ids: string[] = [];
+  let match: RegExpExecArray | null;
 
-  while ((match = citationPattern.exec(messageContent)) !== null) {
+  CITATION_PATTERN.lastIndex = 0;
+  while ((match = CITATION_PATTERN.exec(content)) !== null) {
     const id = match[1];
-    if (!seen.has(id)) {
-      citedIdsInOrder.push(id);
-      seen.add(id);
+    if (seen.has(id)) {
+      continue;
     }
+    seen.add(id);
+    ids.push(id);
   }
 
-  const idMapping = new Map<string, number>();
-  citedIdsInOrder.forEach((originalId, index) => {
-    idMapping.set(originalId, index + 1);
-  });
+  return ids;
+};
 
-  const uniqueSourcesMap = new Map<string, Source>();
-  sources.forEach((source) => {
-    if (idMapping.has(source.id) && !uniqueSourcesMap.has(source.id)) {
-      uniqueSourcesMap.set(source.id, source);
+const dedupeSourcesById = (sources: Source[]): Source[] => {
+  const seen = new Set<string>();
+  const uniqueSources: Source[] = [];
+
+  for (const source of sources) {
+    if (seen.has(source.id)) {
+      continue;
     }
+    seen.add(source.id);
+    uniqueSources.push(source);
+  }
+
+  return uniqueSources;
+};
+
+const buildSourceLookup = (sources: Source[]): Map<string, Source> => {
+  const sourceById = new Map<string, Source>();
+  for (const source of sources) {
+    sourceById.set(source.id, source);
+  }
+  return sourceById;
+};
+
+const orderSourcesForDisplay = (
+  citedIds: string[],
+  sourceById: Map<string, Source>,
+): Source[] => {
+  if (citedIds.length === 0) {
+    return [];
+  }
+
+  const ordered: Source[] = [];
+  const seen = new Set<string>();
+
+  for (const citationId of citedIds) {
+    const source = sourceById.get(citationId);
+    if (!source || seen.has(source.id)) {
+      continue;
+    }
+
+    seen.add(source.id);
+    ordered.push(source);
+  }
+
+  return ordered;
+};
+
+const renumberSources = (sources: Source[]): Source[] =>
+  sources.map((source, index) => ({
+    ...source,
+    id: String(index + 1),
+  }));
+
+export function renumberCitations(
+  content: string,
+  sources: Source[],
+): RenumberingResult {
+  const uniqueSources = dedupeSourcesById(sources);
+  const sourceById = buildSourceLookup(uniqueSources);
+  const citedIds = extractCitationIdsInOrder(content);
+  const orderedSources = orderSourcesForDisplay(citedIds, sourceById);
+  const renumberedSources = renumberSources(orderedSources);
+
+  const citationNumberById = new Map<string, number>();
+  for (const [index, citationId] of citedIds.entries()) {
+    citationNumberById.set(citationId, index + 1);
+  }
+
+  CITATION_PATTERN.lastIndex = 0;
+  const renumberedContent = content.replace(CITATION_PATTERN, (fullMatch, id) => {
+    const number = citationNumberById.get(id);
+    if (!number) {
+      return fullMatch;
+    }
+
+    const source = sourceById.get(id);
+    if (!source) {
+      return `[${number}]`;
+    }
+
+    const target = getCitationTarget(source);
+    return `[${number}](${escapeMarkdownLinkDestination(target)})`;
   });
 
-  const renumberedSources = Array.from(uniqueSourcesMap.values())
-    .map((s) => ({
-      ...s,
-      id: idMapping.get(s.id)!.toString(),
-    }))
-    .sort((a, b) => parseInt(a.id) - parseInt(b.id));
-
-  const renumberedContent = messageContent.replace(
-    citationPattern,
-    (match, id) => {
-      const newId = idMapping.get(id);
-      return newId !== undefined ? `[${newId}]` : match;
-    },
-  );
-
-  return {
-    renumberedSources,
-    idMapping,
-    renumberedContent,
-  };
+  return { renumberedSources, renumberedContent };
 }

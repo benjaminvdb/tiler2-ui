@@ -6,11 +6,17 @@ import type { UIMessage } from "@/core/providers/stream/stream-types";
 export const getContentString = (parts: UIMessage["parts"]): string => {
   if (!Array.isArray(parts)) return "";
 
-  const texts = parts
-    .filter(
-      (part): part is { type: "text" | "reasoning"; text: string } =>
-        part.type === "text" || part.type === "reasoning",
-    )
-    .map((part) => part.text);
+  const texts: string[] = [];
+  for (const part of parts) {
+    if (!part || typeof part !== "object") {
+      continue;
+    }
+    if (
+      (part.type === "text" || part.type === "reasoning") &&
+      typeof part.text === "string"
+    ) {
+      texts.push(part.text);
+    }
+  }
   return texts.join(" ");
 };

@@ -2,7 +2,7 @@
  * Citation formatting utilities matching backend MLA 9th edition formatting
  */
 
-import { Source } from "../components/citation-link";
+import type { Source } from "../../messages/ai/source-types";
 
 /**
  * Format a source for display.
@@ -11,7 +11,7 @@ import { Source } from "../components/citation-link";
  * - Library sources: Display filename directly (filenames are already in MLA format)
  */
 export function formatMLA(source: Source): string {
-  if (source.type === "web") {
+  if (source.type === "web" && source.url) {
     return `Retrieved from: ${source.url}`;
   }
 

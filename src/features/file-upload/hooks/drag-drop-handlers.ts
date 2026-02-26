@@ -1,6 +1,6 @@
 /** Manages drag-and-drop events for file uploads with visual feedback. */
 
-import { useRef, useEffect, RefObject, useCallback } from "react";
+import { useRef, useEffect, RefObject } from "react";
 import type { MultimodalContentBlock } from "@/shared/types";
 import { processFiles } from "./file-processor";
 
@@ -25,8 +25,11 @@ export function useDragDropHandlers({
 }: UseDragDropHandlersProps) {
   const dragCounter = useRef(0);
 
-  const handleDrop = useCallback(
-    async (e: DragEvent) => {
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleDrop = async (e: DragEvent) => {
       e.preventDefault();
       e.stopPropagation();
       dragCounter.current = 0;
@@ -36,13 +39,7 @@ export function useDragDropHandlers({
 
       const files = Array.from(e.dataTransfer.files);
       await processFiles(files, contentBlocks, setContentBlocks);
-    },
-    [contentBlocks, setContentBlocks, setDragOver],
-  );
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+    };
 
     const handleDragEnter = (e: DragEvent) => {
       e.preventDefault();
@@ -87,5 +84,5 @@ export function useDragDropHandlers({
 
       dragCounter.current = 0;
     };
-  }, [handleDrop, setDragOver, containerRef]);
+  }, [contentBlocks, containerRef, setContentBlocks, setDragOver]);
 }

@@ -1,7 +1,7 @@
 import { FC, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { BookCheck, Globe, Loader2 } from "lucide-react";
-import { Source } from "../../markdown/components/citation-link";
+import type { Source } from "./source-types";
 import {
   formatMLA,
   groupSourcesByType,
@@ -31,8 +31,8 @@ const LibrarySourceItem: FC<LibrarySourceItemProps> = ({
   };
 
   return (
-    <li className="text-sm text-gray-600">
-      <span className="font-semibold text-gray-800">[{source.id}]</span>{" "}
+    <li className="text-sm leading-relaxed text-gray-600">
+      <span className="font-medium text-gray-500">[{source.id}]</span>{" "}
       {source.filename ? (
         <span
           role="button"
@@ -41,7 +41,7 @@ const LibrarySourceItem: FC<LibrarySourceItemProps> = ({
           onKeyDown={handleKeyDown}
           aria-label={`Open ${source.title || source.filename} (PDF, opens in new tab)`}
           aria-disabled={isLoading}
-          className="text-primary/70 hover:text-primary/90 cursor-pointer font-normal underline underline-offset-2 transition-colors aria-disabled:cursor-wait aria-disabled:opacity-70"
+          className="text-primary/70 hover:text-primary/90 focus-visible:ring-primary/40 cursor-pointer rounded-sm font-normal underline underline-offset-2 transition-colors focus-visible:outline-none focus-visible:ring-2 aria-disabled:cursor-wait aria-disabled:opacity-70"
         >
           {isLoading && (
             <Loader2 className="mr-1 inline h-3 w-3 animate-spin" />
@@ -89,17 +89,26 @@ export const SourcesList: FC<SourcesListProps> = ({ sources }) => {
   return (
     <div
       id="sources-section"
+      aria-labelledby="sources-title"
       className="mt-6 rounded-lg border border-gray-200 bg-gray-50 p-4"
     >
-      <h3 className="mb-4 text-sm font-semibold text-gray-900">Sources</h3>
-      <div className="space-y-4">
+      <h3
+        id="sources-title"
+        className="mb-3 font-sans text-sm font-medium text-gray-600"
+      >
+        Sources
+      </h3>
+      <div className="space-y-3">
         {library.length > 0 && (
           <div>
-            <div className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-700">
+            <h4 className="mb-1.5 flex items-center gap-2 font-sans text-xs font-medium text-gray-700">
               <BookCheck className="h-4 w-4" />
               <span>From Our Library</span>
-            </div>
-            <ol className="ml-6 space-y-2">
+            </h4>
+            <ol
+              aria-label="Library sources"
+              className="ml-5 space-y-1.5"
+            >
               {library.map((source) => (
                 <LibrarySourceItem
                   key={source.id}
@@ -113,17 +122,20 @@ export const SourcesList: FC<SourcesListProps> = ({ sources }) => {
         )}
         {web.length > 0 && (
           <div>
-            <div className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-700">
+            <h4 className="mb-1.5 flex items-center gap-2 font-sans text-xs font-medium text-gray-700">
               <Globe className="h-4 w-4" />
               <span>Web Discoveries</span>
-            </div>
-            <ol className="ml-6 space-y-2">
+            </h4>
+            <ol
+              aria-label="Web sources"
+              className="ml-5 space-y-1.5"
+            >
               {web.map((source) => (
                 <li
                   key={source.id}
-                  className="text-sm text-gray-600"
+                  className="text-sm leading-relaxed text-gray-600"
                 >
-                  <span className="font-semibold text-gray-800">
+                  <span className="font-medium text-gray-500">
                     [{source.id}]
                   </span>{" "}
                   {source.url ? (
@@ -133,7 +145,7 @@ export const SourcesList: FC<SourcesListProps> = ({ sources }) => {
                         href={source.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-primary/70 hover:text-primary/90 font-normal underline underline-offset-2 transition-colors"
+                        className="text-primary/70 hover:text-primary/90 focus-visible:ring-primary/40 rounded-sm font-normal underline underline-offset-2 transition-colors focus-visible:outline-none focus-visible:ring-2"
                       >
                         {source.url}
                       </a>

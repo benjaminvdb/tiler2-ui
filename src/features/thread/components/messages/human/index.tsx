@@ -1,4 +1,3 @@
-import { memo } from "react";
 import { getContentString } from "../../utils";
 import { cn } from "@/shared/utils/utils";
 import { HumanMessageProps } from "./types";
@@ -8,10 +7,10 @@ import { MultimodalContent } from "./components/multimodal-content";
 import { TextContent } from "./components/text-content";
 import { MessageControls } from "./components/message-controls";
 
-export const HumanMessage = memo(function HumanMessage({
+export const HumanMessage: React.FC<HumanMessageProps> = ({
   message,
   isLoading,
-}: HumanMessageProps) {
+}) => {
   const contentString = getContentString(message.parts);
 
   const { isEditing, value, setValue, handleSubmitEdit, setIsEditing } =
@@ -47,4 +46,4 @@ export const HumanMessage = memo(function HumanMessage({
       </div>
     </div>
   );
-});
+};

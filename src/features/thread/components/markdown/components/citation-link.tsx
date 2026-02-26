@@ -2,15 +2,6 @@ import { ReactNode, FC, MouseEvent } from "react";
 import { cn } from "@/shared/utils/utils";
 import { BaseComponentProps } from "./markdown-elements";
 
-export interface Source {
-  id: string;
-  type: "web" | "knowledge_base" | "methods_base" | "csrd_reports";
-  title: string;
-  url?: string;
-  filename?: string;
-  page_number?: number;
-}
-
 interface CitationLinkProps extends BaseComponentProps {
   href?: string;
   children?: ReactNode;
@@ -29,6 +20,21 @@ const CITATION_CLASSES = cn(
 
 const isExternalLink = (href?: string) =>
   Boolean(href && href.startsWith("http"));
+
+const getCitationLabel = (children: ReactNode): string | null => {
+  if (typeof children === "string" || typeof children === "number") {
+    return String(children);
+  }
+
+  if (Array.isArray(children) && children.length === 1) {
+    const onlyChild = children[0];
+    if (typeof onlyChild === "string" || typeof onlyChild === "number") {
+      return String(onlyChild);
+    }
+  }
+
+  return null;
+};
 
 const scrollToSources = (event: MouseEvent<HTMLSpanElement>) => {
   event.preventDefault();
@@ -80,20 +86,25 @@ export const CitationLink: FC<CitationLinkProps> = ({
   className,
   ...props
 }) => {
+  const citationLabel = getCitationLabel(children);
   const isCitationNumber =
-    typeof children === "string" && CITATION_PATTERN.test(children);
+    citationLabel !== null && CITATION_PATTERN.test(citationLabel);
 
   if (isCitationNumber && href && isExternalLink(href)) {
-    return renderExternalCitation(href, children, className, props);
+    return renderExternalCitation(href, citationLabel, className, props);
   }
 
   if (isCitationNumber) {
     return renderCitationBadge({
-      children,
+      children: citationLabel,
       className,
-      title: `Citation [${children}] - Document reference (see Sources section)`,
+      title: `Citation [${citationLabel}] - Document reference (see Sources section)`,
       props: { ...props, onClick: scrollToSources },
     });
+  }
+
+  if (!href) {
+    return <span className={className}>{children}</span>;
   }
 
   return (
