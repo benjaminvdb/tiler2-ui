@@ -1,4 +1,5 @@
 import js from "@eslint/js";
+import { fixupConfigRules, fixupPluginRules } from "@eslint/compat";
 import { defineConfig } from "eslint/config";
 import globals from "globals";
 import react from "eslint-plugin-react";
@@ -13,9 +14,9 @@ export default defineConfig(
     extends: [
       js.configs.recommended,
       ...tseslint.configs.recommended,
-      react.configs.flat.recommended,
-      react.configs.flat["jsx-runtime"],
-      reactHooks.configs.flat["recommended-latest"],
+      ...fixupConfigRules(react.configs.flat.recommended),
+      ...fixupConfigRules(react.configs.flat["jsx-runtime"]),
+      ...fixupConfigRules(reactHooks.configs.flat["recommended-latest"]),
     ],
     languageOptions: {
       ecmaVersion: 2020,
@@ -27,9 +28,9 @@ export default defineConfig(
       },
     },
     plugins: {
-      react,
-      "react-hooks": reactHooks,
-      "react-refresh": reactRefresh,
+      react: fixupPluginRules(react),
+      "react-hooks": fixupPluginRules(reactHooks),
+      "react-refresh": fixupPluginRules(reactRefresh),
     },
     settings: {
       react: {

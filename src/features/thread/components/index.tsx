@@ -1,7 +1,7 @@
 import React from "react";
 import { cn } from "@/shared/utils/utils";
 import { useStreamContext } from "@/core/providers/stream";
-import { useFileUpload } from "@/features/file-upload/hooks/use-file-upload";
+import { useFileUpload } from "@/features/file-upload/hooks";
 import type { MultimodalContentBlock } from "@/shared/types";
 
 import { useThreadState } from "./hooks/use-thread-state";

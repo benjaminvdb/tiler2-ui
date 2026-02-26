@@ -23,6 +23,7 @@ const Auth0ProviderWithNavigate = ({
   children: React.ReactNode;
 }): React.JSX.Element => {
   const navigate = useNavigate();
+  const callbackUrl = new URL("/auth/callback", env.APP_BASE_URL).toString();
 
   const onRedirectCallback = (appState?: AppState) => {
     navigate(appState?.returnTo || window.location.pathname, {
@@ -35,7 +36,7 @@ const Auth0ProviderWithNavigate = ({
       domain={env.AUTH0_DOMAIN}
       clientId={env.AUTH0_CLIENT_ID}
       authorizationParams={{
-        redirect_uri: `${window.location.origin}/auth/callback`,
+        redirect_uri: callbackUrl,
         audience: env.AUTH0_AUDIENCE,
       }}
       onRedirectCallback={onRedirectCallback}

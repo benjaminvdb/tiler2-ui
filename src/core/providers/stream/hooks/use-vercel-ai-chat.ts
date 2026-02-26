@@ -570,6 +570,7 @@ export function useVercelAIChat(cfg: UseVercelAIChatConfig): StreamContextType {
     setMessages: setChatMessages,
     addToolOutput,
     addToolResult,
+    addToolApprovalResponse,
   } = useVercelChat({ apiUrl, assistantId, threadId, accessToken });
 
   const isLoading =
@@ -633,6 +634,7 @@ export function useVercelAIChat(cfg: UseVercelAIChatConfig): StreamContextType {
     status,
     addToolOutput,
     addToolResult,
+    addToolApprovalResponse,
     threadId,
     isLoading,
   };
