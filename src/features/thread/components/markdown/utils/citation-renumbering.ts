@@ -107,20 +107,23 @@ export function renumberCitations(
   }
 
   CITATION_PATTERN.lastIndex = 0;
-  const renumberedContent = content.replace(CITATION_PATTERN, (fullMatch, id) => {
-    const number = citationNumberById.get(id);
-    if (!number) {
-      return fullMatch;
-    }
+  const renumberedContent = content.replace(
+    CITATION_PATTERN,
+    (fullMatch, id) => {
+      const number = citationNumberById.get(id);
+      if (!number) {
+        return fullMatch;
+      }
 
-    const source = sourceById.get(id);
-    if (!source) {
-      return `[${number}]`;
-    }
+      const source = sourceById.get(id);
+      if (!source) {
+        return `[${number}]`;
+      }
 
-    const target = getCitationTarget(source);
-    return `[${number}](${escapeMarkdownLinkDestination(target)})`;
-  });
+      const target = getCitationTarget(source);
+      return `[${number}](${escapeMarkdownLinkDestination(target)})`;
+    },
+  );
 
   return { renumberedSources, renumberedContent };
 }

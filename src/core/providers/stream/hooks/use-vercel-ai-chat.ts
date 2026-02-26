@@ -314,23 +314,24 @@ const useVercelChat = ({
   return useChat<UIMessage>(chatOptions);
 };
 
-const useThreadCreator = ({
-  apiUrl,
-  assistantId,
-  accessToken,
-  onThreadId,
-  setLocalError,
-  setIsCreatingThread,
-  createThreadInFlightRef,
-}: {
-  apiUrl: string;
-  assistantId: string;
-  accessToken: string | null;
-  onThreadId?: (id: string) => void;
-  setLocalError: Dispatch<SetStateAction<Error | null>>;
-  setIsCreatingThread: Dispatch<SetStateAction<boolean>>;
-  createThreadInFlightRef: RefObject<boolean>;
-}) =>
+const useThreadCreator =
+  ({
+    apiUrl,
+    assistantId,
+    accessToken,
+    onThreadId,
+    setLocalError,
+    setIsCreatingThread,
+    createThreadInFlightRef,
+  }: {
+    apiUrl: string;
+    assistantId: string;
+    accessToken: string | null;
+    onThreadId?: (id: string) => void;
+    setLocalError: Dispatch<SetStateAction<Error | null>>;
+    setIsCreatingThread: Dispatch<SetStateAction<boolean>>;
+    createThreadInFlightRef: RefObject<boolean>;
+  }) =>
   async (name: string | undefined): Promise<string | null> => {
     if (!accessToken) {
       setLocalError(new Error("No access token available"));
@@ -505,25 +506,26 @@ const useThreadLoader = ({
   ]);
 };
 
-const useSendMessageWithThread = ({
-  threadId,
-  accessToken,
-  pendingSendRef,
-  skipThreadLoadRef,
-  createThread,
-  sendMessage,
-  setChatMessages,
-  setLocalError,
-}: {
-  threadId: string | null;
-  accessToken: string | null;
-  pendingSendRef: RefObject<PendingSend | null>;
-  skipThreadLoadRef: RefObject<boolean>;
-  createThread: (name: string | undefined) => Promise<string | null>;
-  sendMessage: ReturnType<typeof useChat<UIMessage>>["sendMessage"];
-  setChatMessages: ReturnType<typeof useChat<UIMessage>>["setMessages"];
-  setLocalError: Dispatch<SetStateAction<Error | null>>;
-}) =>
+const useSendMessageWithThread =
+  ({
+    threadId,
+    accessToken,
+    pendingSendRef,
+    skipThreadLoadRef,
+    createThread,
+    sendMessage,
+    setChatMessages,
+    setLocalError,
+  }: {
+    threadId: string | null;
+    accessToken: string | null;
+    pendingSendRef: RefObject<PendingSend | null>;
+    skipThreadLoadRef: RefObject<boolean>;
+    createThread: (name: string | undefined) => Promise<string | null>;
+    sendMessage: ReturnType<typeof useChat<UIMessage>>["sendMessage"];
+    setChatMessages: ReturnType<typeof useChat<UIMessage>>["setMessages"];
+    setLocalError: Dispatch<SetStateAction<Error | null>>;
+  }) =>
   async (message?: SendMessageInput, options?: ChatRequestOptions) => {
     setLocalError(null);
 

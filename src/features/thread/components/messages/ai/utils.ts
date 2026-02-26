@@ -71,7 +71,8 @@ const resolveSourceTypeFromFields = (
 const resolveSourceType = (
   value: SourceLikeRecord,
 ): Source["type"] | undefined =>
-  resolveSourceTypeFromExplicitValue(value) ?? resolveSourceTypeFromFields(value);
+  resolveSourceTypeFromExplicitValue(value) ??
+  resolveSourceTypeFromFields(value);
 
 const buildSource = (
   sourceLike: SourceLikeRecord,
@@ -159,7 +160,9 @@ const isRenderableSource = (source: Source): boolean => {
   return Boolean(source.filename || source.title !== source.id);
 };
 
-const extractSourcesFromMetadata = (metadata: UIMessage["metadata"]): Source[] => {
+const extractSourcesFromMetadata = (
+  metadata: UIMessage["metadata"],
+): Source[] => {
   if (!metadata || typeof metadata !== "object") {
     return [];
   }
@@ -180,7 +183,9 @@ const extractSourcesFromMetadata = (metadata: UIMessage["metadata"]): Source[] =
     .filter((source): source is Source => source !== null);
 };
 
-export const extractSourcesFromParts = (parts: UIMessage["parts"]): Source[] => {
+export const extractSourcesFromParts = (
+  parts: UIMessage["parts"],
+): Source[] => {
   if (!Array.isArray(parts)) {
     return [];
   }

@@ -236,7 +236,10 @@ export const ThreadProvider: React.FC<{ children: ReactNode }> = ({
     setThreads((prev) => prev.filter((t) => t.thread_id !== threadId));
   };
 
-  const updateThreadInList = (threadId: string, updates: Partial<Thread>): void => {
+  const updateThreadInList = (
+    threadId: string,
+    updates: Partial<Thread>,
+  ): void => {
     setThreads((prev) =>
       prev.map((t) => (t.thread_id === threadId ? { ...t, ...updates } : t)),
     );

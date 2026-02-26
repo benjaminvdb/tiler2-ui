@@ -17,7 +17,7 @@ export const fileUploadSchema = z.object({
         "application/pdf",
         "text/csv",
       ],
-      { message: "File type not supported" },
+      { error: "File type not supported" },
     ),
   }),
 });

@@ -41,7 +41,7 @@ const LibrarySourceItem: FC<LibrarySourceItemProps> = ({
           onKeyDown={handleKeyDown}
           aria-label={`Open ${source.title || source.filename} (PDF, opens in new tab)`}
           aria-disabled={isLoading}
-          className="text-primary/70 hover:text-primary/90 focus-visible:ring-primary/40 cursor-pointer rounded-sm font-normal underline underline-offset-2 transition-colors focus-visible:outline-none focus-visible:ring-2 aria-disabled:cursor-wait aria-disabled:opacity-70"
+          className="text-primary/70 hover:text-primary/90 focus-visible:ring-primary/40 cursor-pointer rounded-sm font-normal underline underline-offset-2 transition-colors focus-visible:ring-2 focus-visible:outline-none aria-disabled:cursor-wait aria-disabled:opacity-70"
         >
           {isLoading && (
             <Loader2 className="mr-1 inline h-3 w-3 animate-spin" />
@@ -145,7 +145,7 @@ export const SourcesList: FC<SourcesListProps> = ({ sources }) => {
                         href={source.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-primary/70 hover:text-primary/90 focus-visible:ring-primary/40 rounded-sm font-normal underline underline-offset-2 transition-colors focus-visible:outline-none focus-visible:ring-2"
+                        className="text-primary/70 hover:text-primary/90 focus-visible:ring-primary/40 rounded-sm font-normal underline underline-offset-2 transition-colors focus-visible:ring-2 focus-visible:outline-none"
                       >
                         {source.url}
                       </a>

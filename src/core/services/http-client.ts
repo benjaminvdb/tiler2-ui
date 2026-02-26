@@ -291,8 +291,6 @@ export function useAuthenticatedFetch() {
     }
   };
 
-  return (
-    url: string,
-    options?: FetchWithAuthOptions,
-  ): Promise<Response> => fetchWithAuth(getToken, url, options);
+  return (url: string, options?: FetchWithAuthOptions): Promise<Response> =>
+    fetchWithAuth(getToken, url, options);
 }
