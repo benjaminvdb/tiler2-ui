@@ -86,10 +86,7 @@ function handleSubmitError(error: unknown): void {
       component: "ExpertHelpDialog",
     });
     toast.error("Failed to send your request", {
-      description:
-        error instanceof Error
-          ? error.message
-          : "Please try again or contact support directly.",
+      description: "Please try again or contact support directly.",
     });
   }
 }

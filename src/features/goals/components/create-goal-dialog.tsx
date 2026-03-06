@@ -113,9 +113,7 @@ export const CreateGoalDialog = ({
       onGoalCreated();
     } catch (error) {
       console.error("Failed to create goal:", error);
-      toast.error(
-        error instanceof Error ? error.message : "Failed to create goal",
-      );
+      toast.error("Failed to create goal. Please try again.");
     } finally {
       setIsSubmitting(false);
     }

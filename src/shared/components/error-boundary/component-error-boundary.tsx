@@ -58,10 +58,7 @@ interface ErrorFallbackProps {
   error: Error;
   retry: () => void;
 }
-const DefaultErrorFallback: React.FC<ErrorFallbackProps> = ({
-  error,
-  retry,
-}) => {
+const DefaultErrorFallback: React.FC<ErrorFallbackProps> = ({ retry }) => {
   return (
     <div className="flex min-h-[200px] flex-col items-center justify-center rounded-lg border border-red-200 bg-red-50 p-6">
       <div className="mb-4 text-red-600">
@@ -83,7 +80,7 @@ const DefaultErrorFallback: React.FC<ErrorFallbackProps> = ({
         Something went wrong
       </h2>
       <p className="mb-4 max-w-md text-center text-red-600">
-        {error.message || "An unexpected error occurred"}
+        Something went wrong. Please try again.
       </p>
       <Button
         onClick={retry}

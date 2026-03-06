@@ -83,7 +83,10 @@ function redactSensitiveString(str: string): string {
  */
 export function containsSensitiveData(value: unknown): boolean {
   if (typeof value === "string") {
-    return SENSITIVE_PATTERNS.some((pattern) => pattern.test(value));
+    return SENSITIVE_PATTERNS.some((pattern) => {
+      pattern.lastIndex = 0;
+      return pattern.test(value);
+    });
   }
   if (typeof value === "object" && value !== null) {
     const keys = Object.keys(value);

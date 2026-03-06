@@ -297,13 +297,13 @@ const GoalCard = ({
   );
 };
 
-const ErrorState = ({ error }: { error: Error }): React.JSX.Element => (
+const ErrorState = (_props: { error: Error }): React.JSX.Element => (
   <div className="flex h-full flex-col items-center justify-center bg-[var(--background)]">
     <div className="text-center">
       <Target className="mx-auto mb-4 h-12 w-12 text-[var(--destructive)]" />
       <h3 className="mb-2 text-lg font-medium">Failed to load goals</h3>
       <p className="mx-auto max-w-md text-sm text-[var(--muted-foreground)]">
-        {error.message}
+        Something went wrong loading your goals. Please try again.
       </p>
     </div>
   </div>

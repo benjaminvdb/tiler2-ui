@@ -429,9 +429,7 @@ function useSidebarHandlers(
       await renameThread(targetThreadId, newTitle);
       toast.success("Thread renamed successfully");
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Failed to rename thread",
-      );
+      toast.error("Failed to rename thread. Please try again.");
       throw error;
     }
   };
@@ -445,9 +443,7 @@ function useSidebarHandlers(
         navigationService.navigateToHome();
       }
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Failed to delete thread",
-      );
+      toast.error("Failed to delete thread. Please try again.");
       throw error;
     }
   };

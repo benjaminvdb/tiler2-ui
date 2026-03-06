@@ -15,7 +15,7 @@ const dsn = env.SENTRY_DSN;
 const shouldInitializeSentry = Boolean(dsn);
 
 const replayOptions = {
-  maskAllText: false,
+  maskAllText: true,
   blockAllMedia: false,
 };
 

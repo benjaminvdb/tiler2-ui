@@ -62,7 +62,7 @@ const getDefaultDescription = (context: ErrorContext, error: Error): string => {
     case "component":
       return "This component failed to load. Please try again.";
     default:
-      return error.message || "An unexpected error occurred.";
+      return "An unexpected error occurred. Please try again.";
   }
 };
 

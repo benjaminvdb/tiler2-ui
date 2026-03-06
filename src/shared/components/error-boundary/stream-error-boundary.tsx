@@ -259,7 +259,7 @@ const StreamErrorFallback: React.FC<StreamErrorFallbackProps> = ({
         return {
           title: "Stream Connection Interrupted",
           description:
-            error.message || "An unexpected error occurred with the AI stream.",
+            "An unexpected error occurred with the AI stream. Please try again.",
           icon: <AlertTriangle className="h-12 w-12" />,
         };
     }

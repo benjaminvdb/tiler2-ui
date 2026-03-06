@@ -274,7 +274,7 @@ export const ActivitiesDataTable = (): React.JSX.Element => {
   }
 
   if (error && activities.length === 0) {
-    return <ErrorState message={error.message} />;
+    return <ErrorState />;
   }
 
   if (!isLoading && activities.length === 0 && !globalFilter) {

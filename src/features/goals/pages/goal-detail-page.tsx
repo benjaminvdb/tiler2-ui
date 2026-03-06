@@ -820,7 +820,6 @@ const LoadingState = (): React.JSX.Element => (
 );
 
 const ErrorState = ({
-  error,
   onBack,
 }: {
   error: Error;
@@ -831,7 +830,7 @@ const ErrorState = ({
       <Target className="mx-auto mb-4 h-12 w-12 text-[var(--destructive)]" />
       <h3 className="mb-2">Failed to load goal</h3>
       <p className="mx-auto mb-4 max-w-md text-sm text-[var(--muted-foreground)]">
-        {error.message}
+        Something went wrong loading this goal. Please try again.
       </p>
       <Button onClick={onBack}>
         <ArrowLeft className="mr-2 h-4 w-4" />
