@@ -38,6 +38,7 @@ const Auth0ProviderWithNavigate = ({
       authorizationParams={{
         redirect_uri: callbackUrl,
         audience: env.AUTH0_AUDIENCE,
+        scope: "openid profile email offline_access",
       }}
       onRedirectCallback={onRedirectCallback}
       useRefreshTokens={true}
