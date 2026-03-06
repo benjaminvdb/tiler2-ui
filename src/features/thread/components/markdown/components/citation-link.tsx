@@ -95,10 +95,10 @@ const renderStandardLink = ({
   className,
   props,
 }: {
-  href?: string;
+  href: string | undefined;
   safeExternalHref: string | null;
-  children?: ReactNode;
-  className?: string;
+  children: ReactNode | undefined;
+  className: string | undefined;
   props: Omit<CitationLinkProps, "href" | "children" | "className">;
 }) => {
   if (!href) {
