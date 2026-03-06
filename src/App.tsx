@@ -1,13 +1,11 @@
 import React, { useEffect } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
-import { SWRConfig } from "swr";
 import { MotionConfigProvider } from "@/core/providers/motion-config-provider";
 import { GlobalErrorBoundary } from "@/shared/components/error-boundary/global-error-boundary";
 import { AsyncErrorBoundary } from "@/shared/components/error-boundary/async-error-boundary";
 import { NetworkStatusProvider } from "@/core/providers/network-status-provider";
 import { SentryUserContext } from "@/core/providers/sentry-user-context";
-import { localStorageProvider } from "@/core/providers/swr-cache-provider";
 import {
   Auth0DevStatus,
   warnAuth0NotConfigured,
@@ -105,83 +103,81 @@ export const App = () => {
           <NetworkStatusProvider>
             <SentryUserContext user={user ?? null} />
             <Auth0DevStatus />
-            <SWRConfig value={{ provider: localStorageProvider }}>
-              <Routes>
-                <Route
-                  path="/"
-                  element={
-                    <ProtectedRoute>
-                      <AppLayout>
-                        <ThreadsPage />
-                      </AppLayout>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/workflows"
-                  element={
-                    <ProtectedRoute>
-                      <AppLayout>
-                        <WorkflowsPage />
-                      </AppLayout>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/insights"
-                  element={
-                    <ProtectedRoute>
-                      <AppLayout>
-                        <InsightsPage />
-                      </AppLayout>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/activities"
-                  element={
-                    <ProtectedRoute>
-                      <AppLayout>
-                        <ActivitiesPage />
-                      </AppLayout>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/goals"
-                  element={
-                    <ProtectedRoute>
-                      <AppLayout>
-                        <GoalsPage />
-                      </AppLayout>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/goals/:goalId"
-                  element={
-                    <ProtectedRoute>
-                      <AppLayout>
-                        <GoalDetailPage />
-                      </AppLayout>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/auth/callback"
-                  element={<CallbackPage />}
-                />
-                <Route
-                  path="*"
-                  element={
-                    <Navigate
-                      to="/"
-                      replace
-                    />
-                  }
-                />
-              </Routes>
-            </SWRConfig>
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <ThreadsPage />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/workflows"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <WorkflowsPage />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/insights"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <InsightsPage />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/activities"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <ActivitiesPage />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/goals"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <GoalsPage />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/goals/:goalId"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <GoalDetailPage />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/auth/callback"
+                element={<CallbackPage />}
+              />
+              <Route
+                path="*"
+                element={
+                  <Navigate
+                    to="/"
+                    replace
+                  />
+                }
+              />
+            </Routes>
           </NetworkStatusProvider>
         </AsyncErrorBoundary>
       </GlobalErrorBoundary>

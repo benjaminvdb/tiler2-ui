@@ -3,6 +3,7 @@
  */
 
 import { env } from "@/env";
+import { sanitizeExternalUrl } from "@/shared/utils/url-security";
 
 export async function fetchDocumentPresignedUrl(
   filename: string,
@@ -27,5 +28,11 @@ export async function fetchDocumentPresignedUrl(
   }
 
   const data = await response.json();
-  return data.url;
+  const safeUrl = sanitizeExternalUrl((data as { url?: unknown }).url, {
+    allowHttp: import.meta.env.MODE === "development",
+  });
+  if (!safeUrl) {
+    throw new Error("Invalid presigned document URL");
+  }
+  return safeUrl;
 }

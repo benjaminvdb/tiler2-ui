@@ -1,4 +1,5 @@
 import type { Source } from "../../messages/ai/source-types";
+import { sanitizeExternalUrl } from "@/shared/utils/url-security";
 
 // Supports [ref-xxx] and [ref-xxx](url), including mixed-case IDs and URLs with parentheses.
 const CITATION_PATTERN =
@@ -10,7 +11,12 @@ const escapeMarkdownLinkDestination = (destination: string): string =>
 
 const getCitationTarget = (source: Source | undefined): string => {
   if (source?.type === "web" && source.url) {
-    return source.url;
+    const safeUrl = sanitizeExternalUrl(source.url, {
+      allowHttp: import.meta.env.MODE === "development",
+    });
+    if (safeUrl) {
+      return safeUrl;
+    }
   }
   return SOURCES_SECTION_ANCHOR;
 };

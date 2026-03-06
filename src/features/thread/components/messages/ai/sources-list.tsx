@@ -7,6 +7,7 @@ import {
   groupSourcesByType,
 } from "../../markdown/utils/citation-utils";
 import { fetchDocumentPresignedUrl } from "../../../services/document-service";
+import { sanitizeExternalUrl } from "@/shared/utils/url-security";
 
 interface LibrarySourceItemProps {
   source: Source;
@@ -59,6 +60,33 @@ interface SourcesListProps {
   sources: Source[];
 }
 
+const WebSourceItem: FC<{ source: Source }> = ({ source }) => {
+  const safeSourceUrl = sanitizeExternalUrl(source.url, {
+    allowHttp: import.meta.env.MODE === "development",
+  });
+
+  return (
+    <li className="text-sm leading-relaxed text-gray-600">
+      <span className="font-medium text-gray-500">[{source.id}]</span>{" "}
+      {safeSourceUrl ? (
+        <>
+          Retrieved from:{" "}
+          <a
+            href={safeSourceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary/70 hover:text-primary/90 focus-visible:ring-primary/40 rounded-sm font-normal underline underline-offset-2 transition-colors focus-visible:ring-2 focus-visible:outline-none"
+          >
+            {safeSourceUrl}
+          </a>
+        </>
+      ) : (
+        formatMLA(source)
+      )}
+    </li>
+  );
+};
+
 export const SourcesList: FC<SourcesListProps> = ({ sources }) => {
   const { getAccessTokenSilently } = useAuth0();
   const [loadingId, setLoadingId] = useState<string | null>(null);
@@ -72,7 +100,13 @@ export const SourcesList: FC<SourcesListProps> = ({ sources }) => {
         source.filename,
         token,
       );
-      window.open(presignedUrl, "_blank", "noopener,noreferrer");
+      const safePresignedUrl = sanitizeExternalUrl(presignedUrl, {
+        allowHttp: import.meta.env.MODE === "development",
+      });
+      if (!safePresignedUrl) {
+        throw new Error("Invalid document URL");
+      }
+      window.open(safePresignedUrl, "_blank", "noopener,noreferrer");
     } catch (error) {
       console.error("Failed to open document:", error);
     } finally {
@@ -131,29 +165,10 @@ export const SourcesList: FC<SourcesListProps> = ({ sources }) => {
               className="ml-5 space-y-1.5"
             >
               {web.map((source) => (
-                <li
+                <WebSourceItem
                   key={source.id}
-                  className="text-sm leading-relaxed text-gray-600"
-                >
-                  <span className="font-medium text-gray-500">
-                    [{source.id}]
-                  </span>{" "}
-                  {source.url ? (
-                    <>
-                      Retrieved from:{" "}
-                      <a
-                        href={source.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-primary/70 hover:text-primary/90 focus-visible:ring-primary/40 rounded-sm font-normal underline underline-offset-2 transition-colors focus-visible:ring-2 focus-visible:outline-none"
-                      >
-                        {source.url}
-                      </a>
-                    </>
-                  ) : (
-                    formatMLA(source)
-                  )}
-                </li>
+                  source={source}
+                />
               ))}
             </ol>
           </div>

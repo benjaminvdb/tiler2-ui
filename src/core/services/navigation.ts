@@ -8,6 +8,7 @@
 import { NavigateFunction } from "react-router-dom";
 import { ROUTES, type Route } from "@/core/routing/routes";
 import { type SearchParams, mergeSearchParams } from "@/core/routing";
+import { sanitizeExternalUrl } from "@/shared/utils/url-security";
 
 export interface NavigationService {
   navigateToHome: (options?: { threadId?: string }) => void;
@@ -126,7 +127,13 @@ export function createNavigationService(
 }
 
 export function navigateExternal(url: string): void {
-  window.open(url, "_blank", "noopener,noreferrer");
+  const safeUrl = sanitizeExternalUrl(url, {
+    allowHttp: import.meta.env.MODE === "development",
+  });
+  if (!safeUrl) {
+    return;
+  }
+  window.open(safeUrl, "_blank", "noopener,noreferrer");
 }
 
 export { ROUTES, type Route };

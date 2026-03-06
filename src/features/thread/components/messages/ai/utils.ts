@@ -1,5 +1,6 @@
 import type { UIMessage } from "@/core/providers/stream/stream-types";
 import type { Source } from "./source-types";
+import { sanitizeExternalUrl } from "@/shared/utils/url-security";
 
 type SourceLikeRecord = {
   id?: unknown;
@@ -79,7 +80,9 @@ const buildSource = (
   id: string,
   type: Source["type"],
 ): Source => {
-  const url = asNonEmptyString(sourceLike.url);
+  const url = sanitizeExternalUrl(asNonEmptyString(sourceLike.url), {
+    allowHttp: import.meta.env.MODE === "development",
+  });
   const filename = asNonEmptyString(sourceLike.filename);
   const title = asNonEmptyString(sourceLike.title);
   const pageNumber = asPositiveInteger(

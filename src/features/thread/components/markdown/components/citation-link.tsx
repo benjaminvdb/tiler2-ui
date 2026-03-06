@@ -1,5 +1,6 @@
 import { ReactNode, FC, MouseEvent } from "react";
 import { cn } from "@/shared/utils/utils";
+import { sanitizeExternalUrl } from "@/shared/utils/url-security";
 import { BaseComponentProps } from "./markdown-elements";
 
 interface CitationLinkProps extends BaseComponentProps {
@@ -18,8 +19,15 @@ const CITATION_CLASSES = cn(
   "!text-gray-700 hover:!text-gray-900",
 );
 
-const isExternalLink = (href?: string) =>
-  Boolean(href && href.startsWith("http"));
+const getSafeExternalHref = (href?: string): string | null => {
+  return sanitizeExternalUrl(href, {
+    allowHttp: import.meta.env.MODE === "development",
+  });
+};
+
+const isInternalHref = (href: string) => {
+  return href.startsWith("/") || href.startsWith("#");
+};
 
 const getCitationLabel = (children: ReactNode): string | null => {
   if (typeof children === "string" || typeof children === "number") {
@@ -80,6 +88,44 @@ const renderExternalCitation = (
   </a>
 );
 
+const renderStandardLink = ({
+  href,
+  safeExternalHref,
+  children,
+  className,
+  props,
+}: {
+  href?: string;
+  safeExternalHref: string | null;
+  children?: ReactNode;
+  className?: string;
+  props: Omit<CitationLinkProps, "href" | "children" | "className">;
+}) => {
+  if (!href) {
+    return <span className={className}>{children}</span>;
+  }
+
+  if (!safeExternalHref && !isInternalHref(href)) {
+    return <span className={className}>{children}</span>;
+  }
+
+  return (
+    <a
+      href={safeExternalHref || href}
+      className={cn(
+        "text-primary font-medium underline underline-offset-4",
+        "hover:text-primary/80 transition-colors",
+        className,
+      )}
+      target={safeExternalHref ? "_blank" : undefined}
+      rel={safeExternalHref ? "noopener noreferrer" : undefined}
+      {...props}
+    >
+      {children}
+    </a>
+  );
+};
+
 export const CitationLink: FC<CitationLinkProps> = ({
   href,
   children,
@@ -89,9 +135,15 @@ export const CitationLink: FC<CitationLinkProps> = ({
   const citationLabel = getCitationLabel(children);
   const isCitationNumber =
     citationLabel !== null && CITATION_PATTERN.test(citationLabel);
+  const safeExternalHref = getSafeExternalHref(href);
 
-  if (isCitationNumber && href && isExternalLink(href)) {
-    return renderExternalCitation(href, citationLabel, className, props);
+  if (isCitationNumber && safeExternalHref) {
+    return renderExternalCitation(
+      safeExternalHref,
+      citationLabel,
+      className,
+      props,
+    );
   }
 
   if (isCitationNumber) {
@@ -103,23 +155,11 @@ export const CitationLink: FC<CitationLinkProps> = ({
     });
   }
 
-  if (!href) {
-    return <span className={className}>{children}</span>;
-  }
-
-  return (
-    <a
-      href={href}
-      className={cn(
-        "text-primary font-medium underline underline-offset-4",
-        "hover:text-primary/80 transition-colors",
-        className,
-      )}
-      target={isExternalLink(href) ? "_blank" : undefined}
-      rel={isExternalLink(href) ? "noopener noreferrer" : undefined}
-      {...props}
-    >
-      {children}
-    </a>
-  );
+  return renderStandardLink({
+    href,
+    safeExternalHref,
+    children,
+    className,
+    props,
+  });
 };

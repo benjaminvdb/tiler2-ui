@@ -11,16 +11,7 @@
       content="Link Chat by Link Nature"
     />
 
-    <!-- Security Headers (CSP will be handled by server/proxy) -->
-    <meta
-      http-equiv="X-Content-Type-Options"
-      content="nosniff"
-    />
-    <!-- X-Frame-Options must be set as HTTP header by server/proxy, not meta tag -->
-    <meta
-      http-equiv="X-XSS-Protection"
-      content="1; mode=block"
-    />
+    <!-- Security headers are configured at deploy time (see vercel.json). -->
     <meta
       name="referrer"
       content="strict-origin-when-cross-origin"
