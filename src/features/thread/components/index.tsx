@@ -63,7 +63,6 @@ export const Thread = (): React.JSX.Element => {
     setInput,
     firstTokenReceived,
     setFirstTokenReceived,
-    lastErrorRef,
   } = useThreadState();
 
   const {
@@ -88,7 +87,6 @@ export const Thread = (): React.JSX.Element => {
   });
 
   useThreadEffects({
-    lastErrorRef,
     setFirstTokenReceived,
   });
 

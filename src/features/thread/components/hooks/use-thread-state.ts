@@ -2,7 +2,7 @@
  * Centralized state management for thread UI.
  */
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { useSearchParamState } from "@/core/routing/hooks";
 import { useArtifactOpen } from "@/features/artifacts/components";
 
@@ -16,7 +16,6 @@ interface ThreadStateValue {
   setInput: (input: string) => void;
   firstTokenReceived: boolean;
   setFirstTokenReceived: (received: boolean) => void;
-  lastErrorRef: React.MutableRefObject<string | undefined>;
 }
 
 export function useThreadState(): ThreadStateValue {
@@ -28,8 +27,6 @@ export function useThreadState(): ThreadStateValue {
 
   const [input, setInput] = useState("");
   const [firstTokenReceived, setFirstTokenReceived] = useState(false);
-
-  const lastErrorRef = useRef<string | undefined>(undefined);
 
   const shouldHideToolCallsByDefault =
     import.meta.env.VITE_HIDE_TOOL_CALLS !== "false";
@@ -49,7 +46,5 @@ export function useThreadState(): ThreadStateValue {
     setInput,
     firstTokenReceived,
     setFirstTokenReceived,
-
-    lastErrorRef,
   };
 }
