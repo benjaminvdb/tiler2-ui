@@ -1,17 +1,15 @@
 /** Insights page displaying saved findings from AI conversations with copy/delete actions. */
 
 import { Lightbulb } from "lucide-react";
-import { useEffect, useState, type RefObject } from "react";
+import { useState, type RefObject } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useAuthenticatedFetch } from "@/core/services/http-client";
-import {
-  deleteInsight,
-  listInsights,
-} from "@/features/insights/services/insights-api";
+import { deleteInsight } from "@/features/insights/services/insights-api";
 import type { Insight } from "@/features/insights/types";
 import { InsightCard } from "@/features/insights/components/insight-card";
 import { InsightsLoadingState } from "@/features/insights/components/insights-loading-state";
+import { useInsights } from "@/features/insights/hooks/use-insights";
 import { EmptyState } from "@/shared/components/ui/empty-state";
 import { Page } from "@/shared/components/ui/page";
 import { PageContent } from "@/shared/components/ui/page-content";
@@ -20,27 +18,9 @@ import { copyWithFormat } from "@/shared/utils/clipboard";
 
 const InsightsPage = (): React.JSX.Element => {
   const navigate = useNavigate();
-  const fetch = useAuthenticatedFetch();
-  const [insights, setInsights] = useState<Insight[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const fetchWithAuth = useAuthenticatedFetch();
+  const { insights, isLoading, mutate } = useInsights();
   const [copiedId, setCopiedId] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchInsights = async () => {
-      try {
-        setIsLoading(true);
-        const response = await listInsights(fetch);
-        setInsights(response.insights);
-      } catch (error) {
-        console.error("Failed to fetch insights:", error);
-        toast.error("Failed to load insights");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchInsights();
-  }, [fetch]);
 
   const handleCopy = async (
     insight: Insight,
@@ -62,8 +42,8 @@ const InsightsPage = (): React.JSX.Element => {
 
   const handleDelete = async (insightId: string) => {
     try {
-      await deleteInsight(fetch, insightId);
-      setInsights((prev) => prev.filter((i) => i.id !== insightId));
+      await deleteInsight(fetchWithAuth, insightId);
+      mutate();
       toast.success("Insight removed");
     } catch (error) {
       console.error("Failed to delete insight:", error);
