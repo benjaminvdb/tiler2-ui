@@ -4,6 +4,7 @@
 
 import {
   useEffect,
+  useEffectEvent,
   useRef,
   useState,
   type Dispatch,
@@ -50,6 +51,8 @@ type PendingSend = {
 type ThreadDetailResponse = {
   messages?: UIMessage[];
 };
+
+type AuthenticatedFetch = ReturnType<typeof useAuthenticatedFetch>;
 
 const getTextFromParts = (parts: UIMessage["parts"]): string => {
   const texts: string[] = [];
@@ -348,7 +351,7 @@ const useThreadCreator =
     apiUrl: string;
     assistantId: string;
     accessToken: string | null;
-    fetchWithAuth: ReturnType<typeof useAuthenticatedFetch>;
+    fetchWithAuth: AuthenticatedFetch;
     onThreadId?: (id: string) => void;
     setLocalError: Dispatch<SetStateAction<Error | null>>;
     setIsCreatingThread: Dispatch<SetStateAction<boolean>>;
@@ -440,7 +443,7 @@ const useThreadLoader = ({
   assistantId: string;
   threadId: string | null;
   accessToken: string | null;
-  fetchWithAuth: ReturnType<typeof useAuthenticatedFetch>;
+  fetchWithAuth: AuthenticatedFetch;
   loadedThreadIdRef: RefObject<string | null>;
   skipThreadLoadRef: RefObject<boolean>;
   setChatMessages: ReturnType<typeof useChat<UIMessage>>["setMessages"];
@@ -448,6 +451,44 @@ const useThreadLoader = ({
   setLocalError: Dispatch<SetStateAction<Error | null>>;
   threadLoadVersion: number;
 }) => {
+  const loadThread = useEffectEvent(
+    async (requestedThreadId: string, controller: AbortController) => {
+      try {
+        const response = await fetchWithAuth(
+          `${apiUrl}/ai/threads/${requestedThreadId}`,
+          {
+            method: "GET",
+            timeoutMs: THREAD_LOAD_TIMEOUT_MS,
+            signal: controller.signal,
+          },
+        );
+
+        if (!response.ok) {
+          throw toThreadLoadError(response);
+        }
+
+        const data = (await response.json()) as ThreadDetailResponse;
+        loadedThreadIdRef.current = requestedThreadId;
+        setChatMessages(toThreadMessages(data));
+      } catch (err) {
+        if (err instanceof DOMException && err.name === "AbortError") {
+          return;
+        }
+        loadedThreadIdRef.current = null;
+        const nextError =
+          err instanceof Error ? err : new Error("Failed to load thread");
+        setLocalError(nextError);
+        reportStreamError(nextError, {
+          operation: "load_thread",
+          component: "useVercelAIChat",
+          additionalData: { threadId: requestedThreadId, assistantId },
+        });
+      } finally {
+        setIsLoadingThread(false);
+      }
+    },
+  );
+
   useEffect(() => {
     if (!threadId) {
       loadedThreadIdRef.current = null;
@@ -475,43 +516,7 @@ const useThreadLoader = ({
     setLocalError(null);
     const controller = new AbortController();
 
-    const loadThread = async () => {
-      try {
-        const response = await fetchWithAuth(
-          `${apiUrl}/ai/threads/${threadId}`,
-          {
-            method: "GET",
-            timeoutMs: THREAD_LOAD_TIMEOUT_MS,
-            signal: controller.signal,
-          },
-        );
-
-        if (!response.ok) {
-          throw toThreadLoadError(response);
-        }
-
-        const data = (await response.json()) as ThreadDetailResponse;
-        loadedThreadIdRef.current = threadId;
-        setChatMessages(toThreadMessages(data));
-      } catch (err) {
-        if (err instanceof DOMException && err.name === "AbortError") {
-          return;
-        }
-        loadedThreadIdRef.current = null;
-        const nextError =
-          err instanceof Error ? err : new Error("Failed to load thread");
-        setLocalError(nextError);
-        reportStreamError(nextError, {
-          operation: "load_thread",
-          component: "useVercelAIChat",
-          additionalData: { threadId, assistantId },
-        });
-      } finally {
-        setIsLoadingThread(false);
-      }
-    };
-
-    void loadThread();
+    void loadThread(threadId, controller);
 
     return () => controller.abort();
   }, [
@@ -519,7 +524,6 @@ const useThreadLoader = ({
     assistantId,
     threadId,
     accessToken,
-    fetchWithAuth,
     loadedThreadIdRef,
     skipThreadLoadRef,
     setChatMessages,
