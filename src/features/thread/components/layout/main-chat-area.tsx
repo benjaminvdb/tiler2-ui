@@ -9,6 +9,8 @@ import { LandingPage } from "@/features/chat/components/landing-page";
 import { LoadingSpinner } from "@/shared/components/loading-spinner";
 import { useUIContext } from "@/features/chat/providers/ui-provider";
 import { ThreadNotFound } from "../thread-not-found";
+import { ThreadLoadError } from "../thread-load-error";
+import { ThreadEmptyState } from "../thread-empty-state";
 import { isThreadNotFoundError } from "../../utils/error-utils";
 
 const MainChatAreaComponent: React.FC = () => {
@@ -18,8 +20,10 @@ const MainChatAreaComponent: React.FC = () => {
 
   const messages = stream.messages;
   const hasMessages = messages && messages.length > 0;
+  const hasThread = Boolean(stream.threadId);
   const isLoading = stream.isLoading;
   const error = stream.error;
+  const showLoadError = Boolean(error) && !hasMessages;
 
   const handleSuggestionClick = (text: string) => {
     stream.sendMessage({ text });
@@ -35,6 +39,15 @@ const MainChatAreaComponent: React.FC = () => {
       return <ThreadNotFound error={error} />;
     }
 
+    if (error && !hasMessages) {
+      return (
+        <ThreadLoadError
+          error={error}
+          onRetry={stream.retryThreadLoad}
+        />
+      );
+    }
+
     if (hasMessages) {
       return <MessageList firstTokenReceived={firstTokenReceived} />;
     }
@@ -45,6 +58,10 @@ const MainChatAreaComponent: React.FC = () => {
           <LoadingSpinner size="lg" />
         </div>
       );
+    }
+
+    if (hasThread) {
+      return <ThreadEmptyState />;
     }
 
     return (
@@ -58,7 +75,7 @@ const MainChatAreaComponent: React.FC = () => {
   const chatFooterContent = <ChatFooter />;
 
   // Don't show footer if thread not found
-  const showFooter = !(error && isThreadNotFoundError(error));
+  const showFooter = !(showLoadError && !hasMessages);
 
   return (
     <AnimatedContainer>

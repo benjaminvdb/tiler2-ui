@@ -16,6 +16,7 @@ export type { UIMessage };
 export type StreamContextType = UseChatHelpers<UIMessage> & {
   threadId: string | null;
   isLoading: boolean;
+  retryThreadLoad: () => void;
 };
 
 /**

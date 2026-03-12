@@ -22,6 +22,7 @@ import {
 } from "ai";
 import type { StreamContextType } from "../stream-types";
 import { reportStreamError } from "@/core/services/observability";
+import { useAuthenticatedFetch } from "@/core/services/http-client";
 
 interface UseVercelAIChatConfig {
   apiUrl: string;
@@ -32,6 +33,8 @@ interface UseVercelAIChatConfig {
 }
 
 const MAX_THREAD_NAME_LENGTH = 50;
+const THREAD_CREATE_TIMEOUT_MS = 10000;
+const THREAD_LOAD_TIMEOUT_MS = 10000;
 
 type SendMessageInput = Parameters<
   ReturnType<typeof useChat<UIMessage>>["sendMessage"]
@@ -42,6 +45,10 @@ type PendingSend = {
   options?: ChatRequestOptions;
   messageId?: string;
   optimisticMessage?: UIMessage;
+};
+
+type ThreadDetailResponse = {
+  messages?: UIMessage[];
 };
 
 const getTextFromParts = (parts: UIMessage["parts"]): string => {
@@ -276,6 +283,19 @@ const queuePendingSend = ({
   void createThread(getThreadName(message, options));
 };
 
+const toThreadLoadError = (response: Response): Error => {
+  const error = new Error(
+    response.status === 404
+      ? "Thread not found (404)"
+      : `Failed to load thread: ${response.status}`,
+  );
+  (error as { status?: number }).status = response.status;
+  return error;
+};
+
+const toThreadMessages = (data: ThreadDetailResponse): UIMessage[] =>
+  Array.isArray(data.messages) ? data.messages : [];
+
 const useChatTransport = (apiUrl: string, accessToken: string | null) =>
   new DefaultChatTransport({
     api: `${apiUrl}/ai/chat`,
@@ -319,6 +339,7 @@ const useThreadCreator =
     apiUrl,
     assistantId,
     accessToken,
+    fetchWithAuth,
     onThreadId,
     setLocalError,
     setIsCreatingThread,
@@ -327,6 +348,7 @@ const useThreadCreator =
     apiUrl: string;
     assistantId: string;
     accessToken: string | null;
+    fetchWithAuth: ReturnType<typeof useAuthenticatedFetch>;
     onThreadId?: (id: string) => void;
     setLocalError: Dispatch<SetStateAction<Error | null>>;
     setIsCreatingThread: Dispatch<SetStateAction<boolean>>;
@@ -345,12 +367,12 @@ const useThreadCreator =
     createThreadInFlightRef.current = true;
     setIsCreatingThread(true);
     try {
-      const response = await fetch(`${apiUrl}/ai/threads`, {
+      const response = await fetchWithAuth(`${apiUrl}/ai/threads`, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
+        timeoutMs: THREAD_CREATE_TIMEOUT_MS,
         body: JSON.stringify(name ? { name } : {}),
       });
 
@@ -406,21 +428,25 @@ const useThreadLoader = ({
   assistantId,
   threadId,
   accessToken,
+  fetchWithAuth,
   loadedThreadIdRef,
   skipThreadLoadRef,
   setChatMessages,
   setIsLoadingThread,
   setLocalError,
+  threadLoadVersion,
 }: {
   apiUrl: string;
   assistantId: string;
   threadId: string | null;
   accessToken: string | null;
+  fetchWithAuth: ReturnType<typeof useAuthenticatedFetch>;
   loadedThreadIdRef: RefObject<string | null>;
   skipThreadLoadRef: RefObject<boolean>;
   setChatMessages: ReturnType<typeof useChat<UIMessage>>["setMessages"];
   setIsLoadingThread: Dispatch<SetStateAction<boolean>>;
   setLocalError: Dispatch<SetStateAction<Error | null>>;
+  threadLoadVersion: number;
 }) => {
   useEffect(() => {
     if (!threadId) {
@@ -444,39 +470,34 @@ const useThreadLoader = ({
       return;
     }
 
-    loadedThreadIdRef.current = threadId;
+    setChatMessages([]);
     setIsLoadingThread(true);
     setLocalError(null);
     const controller = new AbortController();
 
     const loadThread = async () => {
       try {
-        const response = await fetch(`${apiUrl}/ai/threads/${threadId}`, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
+        const response = await fetchWithAuth(
+          `${apiUrl}/ai/threads/${threadId}`,
+          {
+            method: "GET",
+            timeoutMs: THREAD_LOAD_TIMEOUT_MS,
+            signal: controller.signal,
           },
-          signal: controller.signal,
-        });
+        );
 
         if (!response.ok) {
-          const error = new Error(
-            response.status === 404
-              ? "Thread not found (404)"
-              : `Failed to load thread: ${response.status}`,
-          );
-          (error as { status?: number }).status = response.status;
-          throw error;
+          throw toThreadLoadError(response);
         }
 
-        const data = (await response.json()) as {
-          messages?: UIMessage[];
-        };
-        setChatMessages(Array.isArray(data.messages) ? data.messages : []);
+        const data = (await response.json()) as ThreadDetailResponse;
+        loadedThreadIdRef.current = threadId;
+        setChatMessages(toThreadMessages(data));
       } catch (err) {
         if (err instanceof DOMException && err.name === "AbortError") {
           return;
         }
+        loadedThreadIdRef.current = null;
         const nextError =
           err instanceof Error ? err : new Error("Failed to load thread");
         setLocalError(nextError);
@@ -498,11 +519,13 @@ const useThreadLoader = ({
     assistantId,
     threadId,
     accessToken,
+    fetchWithAuth,
     loadedThreadIdRef,
     skipThreadLoadRef,
     setChatMessages,
     setIsLoadingThread,
     setLocalError,
+    threadLoadVersion,
   ]);
 };
 
@@ -554,10 +577,12 @@ export function useVercelAIChat(cfg: UseVercelAIChatConfig): StreamContextType {
   const [localError, setLocalError] = useState<Error | null>(null);
   const [isCreatingThread, setIsCreatingThread] = useState(false);
   const [isLoadingThread, setIsLoadingThread] = useState(false);
+  const [threadLoadVersion, setThreadLoadVersion] = useState(0);
   const pendingSendRef = useRef<PendingSend | null>(null);
   const loadedThreadIdRef = useRef<string | null>(null);
   const skipThreadLoadRef = useRef(false);
   const createThreadInFlightRef = useRef(false);
+  const fetchWithAuth = useAuthenticatedFetch();
 
   const {
     id,
@@ -588,10 +613,23 @@ export function useVercelAIChat(cfg: UseVercelAIChatConfig): StreamContextType {
     clearChatError();
   };
 
+  const retryThreadLoad = () => {
+    if (!threadId) {
+      return;
+    }
+
+    loadedThreadIdRef.current = null;
+    skipThreadLoadRef.current = false;
+    setLocalError(null);
+    clearChatError();
+    setThreadLoadVersion((value) => value + 1);
+  };
+
   const createThread = useThreadCreator({
     apiUrl,
     assistantId,
     accessToken,
+    fetchWithAuth,
     ...(onThreadId ? { onThreadId } : {}),
     setLocalError,
     setIsCreatingThread,
@@ -616,11 +654,13 @@ export function useVercelAIChat(cfg: UseVercelAIChatConfig): StreamContextType {
     assistantId,
     threadId,
     accessToken,
+    fetchWithAuth,
     loadedThreadIdRef,
     skipThreadLoadRef,
     setChatMessages,
     setIsLoadingThread,
     setLocalError,
+    threadLoadVersion,
   });
 
   return {
@@ -639,5 +679,6 @@ export function useVercelAIChat(cfg: UseVercelAIChatConfig): StreamContextType {
     addToolApprovalResponse,
     threadId,
     isLoading,
+    retryThreadLoad,
   };
 }
