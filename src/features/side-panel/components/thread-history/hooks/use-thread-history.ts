@@ -16,6 +16,7 @@ export function useThreadHistory() {
   const isLargeScreen = useMediaQuery("(min-width: 1024px)");
   const [chatHistoryOpen, setChatHistoryOpen] =
     useSearchParamState("chatHistoryOpen");
+  const [threadId] = useSearchParamState("threadId");
 
   const {
     getThreads,
@@ -28,6 +29,7 @@ export function useThreadHistory() {
   const getThreadsRef = useRef(getThreads);
   const resetThreadsRef = useRef(resetThreads);
   const setThreadsLoadingRef = useRef(setThreadsLoading);
+  const syncedThreadIdRef = useRef<string | null>(null);
 
   getThreadsRef.current = getThreads;
   resetThreadsRef.current = resetThreads;
@@ -64,6 +66,47 @@ export function useThreadHistory() {
       clearTimeout(timeoutId);
     };
   }, []);
+
+  useEffect(() => {
+    if (!threadId) {
+      syncedThreadIdRef.current = null;
+      return;
+    }
+
+    if (threads.some((thread) => thread.thread_id === threadId)) {
+      syncedThreadIdRef.current = threadId;
+      return;
+    }
+
+    if (syncedThreadIdRef.current === threadId) {
+      return;
+    }
+    syncedThreadIdRef.current = threadId;
+
+    let isCancelled = false;
+
+    const syncThreads = async () => {
+      try {
+        const fetchedThreads = await getThreadsRef.current();
+        if (!isCancelled) {
+          resetThreadsRef.current(fetchedThreads);
+        }
+      } catch (error) {
+        reportThreadError(error as Error, {
+          operation: "syncThreadHistory",
+          component: "useThreadHistory",
+          threadId,
+        });
+      }
+    };
+
+    const timeoutId = setTimeout(syncThreads, AUTH_BOOTSTRAP_DELAY_MS);
+
+    return () => {
+      isCancelled = true;
+      clearTimeout(timeoutId);
+    };
+  }, [threadId, threads]);
 
   return {
     isLargeScreen,

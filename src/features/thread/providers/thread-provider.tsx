@@ -55,8 +55,6 @@ interface ThreadContextType {
   setThreadsLoading: Dispatch<SetStateAction<boolean>>;
   deleteThread: (threadId: string) => Promise<void>;
   renameThread: (threadId: string, newName: string) => Promise<void>;
-  addOptimisticThread: (thread: Thread) => void;
-  removeOptimisticThread: (threadId: string) => void;
   updateThreadInList: (threadId: string, updates: Partial<Thread>) => void;
   loadMoreThreads: () => Promise<void>;
   hasMoreThreads: boolean;
@@ -228,14 +226,6 @@ export const ThreadProvider: React.FC<{ children: ReactNode }> = ({
     setThreads,
   );
 
-  const addOptimisticThread = (thread: Thread): void => {
-    setThreads((prev) => [thread, ...prev]);
-  };
-
-  const removeOptimisticThread = (threadId: string): void => {
-    setThreads((prev) => prev.filter((t) => t.thread_id !== threadId));
-  };
-
   const updateThreadInList = (
     threadId: string,
     updates: Partial<Thread>,
@@ -287,8 +277,6 @@ export const ThreadProvider: React.FC<{ children: ReactNode }> = ({
     setThreadsLoading,
     deleteThread,
     renameThread,
-    addOptimisticThread,
-    removeOptimisticThread,
     updateThreadInList,
     loadMoreThreads,
     hasMoreThreads,
