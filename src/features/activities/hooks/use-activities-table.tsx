@@ -37,6 +37,7 @@ const RISK_COLUMN_WIDTH = 130;
 const DEFAULT_HIDDEN_COLUMNS: VisibilityState = {
   lcia_activity: false,
   lcia_product: false,
+  lcia_geo: false,
 };
 
 const columnHelper = createColumnHelper<ActivityRow>();
