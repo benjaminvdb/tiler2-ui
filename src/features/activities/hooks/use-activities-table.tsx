@@ -34,6 +34,11 @@ declare module "@tanstack/react-table" {
 const STICKY_COLUMN_NAME = "activity_name";
 const RISK_COLUMN_WIDTH = 130;
 
+const DEFAULT_HIDDEN_COLUMNS: VisibilityState = {
+  lcia_activity: false,
+  lcia_product: false,
+};
+
 const columnHelper = createColumnHelper<ActivityRow>();
 
 /**
@@ -237,7 +242,7 @@ export const useActivitiesTable = (): UseActivitiesTableReturn => {
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(50);
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(DEFAULT_HIDDEN_COLUMNS);
   const [globalFilter, setGlobalFilter] = useState("");
 
   // Fetch schema ONCE (stable column definitions)
